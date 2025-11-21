@@ -1,0 +1,14 @@
+# Smart CLI Router 核心依赖
+# 注意：本项目主要使用Python标准库，无需额外依赖
+
+# 开发依赖（可选）
+pytest>=6.0
+pytest-cov>=2.0
+black>=21.0
+flake8>=3.8
+mypy>=0.800
+
+# 如果需要增强功能，可以安装以下可选依赖：
+# colorama>=0.4.4  # 彩色输出支持
+# click>=8.0       # 命令行界面增强
+# requests>=2.25   # HTTP请求支持（用于API回退）

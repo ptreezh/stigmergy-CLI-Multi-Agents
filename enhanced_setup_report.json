@@ -1,0 +1,33 @@
+{
+  "timestamp": "D:\\AIDevelop\\smart-cli-router",
+  "system": "windows",
+  "config_file": "cli_config.json",
+  "enhanced_detection": true,
+  "available_tools": {
+    "claude": true,
+    "gemini": true,
+    "kimi": true,
+    "qwen": true,
+    "ollama": true,
+    "codebuddy": true,
+    "qodercli": true,
+    "iflow": true
+  },
+  "setup_directory": "D:\\AIDevelop\\smart-cli-router",
+  "detected_using_npm": [
+    "claude",
+    "gemini",
+    "kimi",
+    "qwen",
+    "ollama",
+    "codebuddy",
+    "qodercli",
+    "iflow"
+  ],
+  "enhancement_features": [
+    "npm package detection",
+    "dual detection mechanism",
+    "enhanced routers generation",
+    "improved accuracy"
+  ]
+}

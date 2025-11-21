@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "tools": {
+    "\"testai\"": {
+      "description": "\"测试AI工具\"",
+      "keywords": [
+        "\"testai",
+        "测试\""
+      ],
+      "priority": 10,
+      "wrapper": false,
+      "wrapper_script": null,
+      "command": {
+        "windows": "\"testai\".cmd",
+        "linux": "\"testai\"",
+        "darwin": "\"testai\""
+      },
+      "check_command": [
+        "--version"
+      ],
+      "install_instructions": {
+        "windows": "安装说明",
+        "linux": "安装说明",
+        "darwin": "安装说明"
+      },
+      "examples": [
+        "用\"testai处理任务"
+      ]
+    }
+  },
+  "route_keywords": [
+    "用",
+    "帮我",
+    "请",
+    "智能",
+    "ai"
+  ],
+  "default_tool": "\"testai\""
+}

@@ -1,0 +1,160 @@
+{
+  "version": "1.0.0",
+  "system": "windows",
+  "generated_at": "D:\\AIDevelop\\webplan\\webdeploy\\V-CN\\smart-cli-router",
+  "environment": {
+    "system": "windows",
+    "python_version": "3.12.0rc3 (tags/v3.12.0rc3:b973ab3, Sep 19 2023, 09:39:54) [MSC v.1935 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "architecture": [
+      "64bit",
+      "WindowsPE"
+    ],
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel"
+  },
+  "tools": {
+    "claude": {
+      "command": {
+        "windows": "claude.cmd",
+        "linux": "claude",
+        "darwin": "claude"
+      },
+      "description": "Anthropic Claude",
+      "keywords": [
+        "claude",
+        "anthropic"
+      ],
+      "priority": 1,
+      "wrapper": false
+    },
+    "gemini": {
+      "command": {
+        "windows": "gemini.cmd",
+        "linux": "gemini",
+        "darwin": "gemini"
+      },
+      "description": "Google Gemini AI",
+      "keywords": [
+        "gemini",
+        "google",
+        "谷歌"
+      ],
+      "priority": 2,
+      "wrapper": false
+    },
+    "kimi": {
+      "command": {
+        "windows": "kimi.cmd",
+        "linux": "kimi",
+        "darwin": "kimi"
+      },
+      "description": "月之暗面Kimi",
+      "keywords": [
+        "kimi",
+        "月之暗面",
+        "moonshot"
+      ],
+      "priority": 3,
+      "wrapper": true,
+      "wrapper_script": "kimi_wrapper.py"
+    },
+    "qwen": {
+      "command": {
+        "windows": "qwen.cmd",
+        "linux": "qwen",
+        "darwin": "qwen"
+      },
+      "description": "阿里通义千问",
+      "keywords": [
+        "qwen",
+        "通义",
+        "阿里"
+      ],
+      "priority": 4,
+      "wrapper": false
+    },
+    "ollama": {
+      "command": {
+        "windows": "ollama",
+        "linux": "ollama",
+        "darwin": "ollama"
+      },
+      "description": "Ollama本地模型",
+      "keywords": [
+        "ollama",
+        "本地",
+        "离线"
+      ],
+      "priority": 5,
+      "wrapper": false
+    },
+    "codebuddy": {
+      "command": {
+        "windows": "codebuddy.cmd",
+        "linux": "codebuddy",
+        "darwin": "codebuddy"
+      },
+      "description": "CodeBuddy代码助手",
+      "keywords": [
+        "codebuddy",
+        "代码助手",
+        "编程"
+      ],
+      "priority": 6,
+      "wrapper": false
+    },
+    "qodercli": {
+      "command": {
+        "windows": "qodercli.cmd",
+        "linux": "qodercli",
+        "darwin": "qodercli"
+      },
+      "description": "QoderCLI代码生成",
+      "keywords": [
+        "qodercli",
+        "代码生成",
+        "编程"
+      ],
+      "priority": 7,
+      "wrapper": false
+    },
+    "iflow": {
+      "command": {
+        "windows": "iflow.cmd",
+        "linux": "iflow",
+        "darwin": "iflow"
+      },
+      "description": "iFlow智能助手",
+      "keywords": [
+        "iflow",
+        "智能",
+        "助手",
+        "心流"
+      ],
+      "priority": 8,
+      "wrapper": false
+    }
+  },
+  "route_keywords": [
+    "用",
+    "帮我",
+    "请",
+    "智能",
+    "ai",
+    "写",
+    "生成",
+    "解释",
+    "分析",
+    "翻译",
+    "代码",
+    "文章"
+  ],
+  "default_tool": "claude",
+  "fallback_strategy": "first_available",
+  "output_formats": [
+    "cmd",
+    "python"
+  ],
+  "install_global": false
+}

@@ -1,0 +1,140 @@
+{
+  "project_name": "示例协作项目",
+  "description": "演示多智能体协作的示例项目",
+  "created_at": "2025-11-20T10:30:00Z",
+  "status": "active",
+  "collaboration_mode": "indirect_via_document",
+  "project_context": {
+    "background": "这是一个需要多智能体协作完成的项目",
+    "requirements": [
+      "实现一个简单的计算器应用",
+      "包含基本的加减乘除功能",
+      "提供用户友好的界面"
+    ],
+    "constraints": [
+      "使用Python实现",
+      "代码需要注释",
+      "包含单元测试"
+    ]
+  },
+  "agents": [
+    {
+      "name": "code_generator",
+      "type": "programming",
+      "assigned_tasks": ["calculator_implementation", "interface_design"]
+    },
+    {
+      "name": "code_reviewer", 
+      "type": "review",
+      "assigned_tasks": ["code_review", "documentation"]
+    },
+    {
+      "name": "tester",
+      "type": "testing", 
+      "assigned_tasks": ["unit_test_generation", "functionality_testing"]
+    }
+  ],
+  "tasks": {
+    "calculator_implementation": {
+      "id": "task_001",
+      "description": "实现计算器的基本功能",
+      "type": "code_generation",
+      "assigned_to": "code_generator",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "deadline": "2025-11-21T10:30:00Z",
+      "result": null,
+      "subtasks": [
+        {
+          "id": "subtask_001",
+          "description": "创建Calculator类",
+          "status": "pending",
+          "result": null
+        },
+        {
+          "id": "subtask_002", 
+          "description": "实现加法功能",
+          "status": "pending",
+          "result": null
+        },
+        {
+          "id": "subtask_003",
+          "description": "实现减法功能", 
+          "status": "pending",
+          "result": null
+        },
+        {
+          "id": "subtask_004",
+          "description": "实现乘法功能",
+          "status": "pending", 
+          "result": null
+        },
+        {
+          "id": "subtask_005",
+          "description": "实现除法功能",
+          "status": "pending",
+          "result": null
+        }
+      ]
+    },
+    "interface_design": {
+      "id": "task_002", 
+      "description": "设计用户界面",
+      "type": "ui_design",
+      "assigned_to": "code_generator",
+      "status": "pending",
+      "dependencies": ["calculator_implementation"],
+      "priority": "medium",
+      "deadline": "2025-11-22T10:30:00Z",
+      "result": null
+    },
+    "code_review": {
+      "id": "task_003",
+      "description": "对实现的代码进行审查",
+      "type": "review",
+      "assigned_to": "code_reviewer",
+      "status": "pending",
+      "dependencies": ["calculator_implementation", "interface_design"],
+      "priority": "high", 
+      "deadline": "2025-11-23T10:30:00Z",
+      "result": null
+    },
+    "unit_test_generation": {
+      "id": "task_004",
+      "description": "生成单元测试",
+      "type": "testing",
+      "assigned_to": "tester",
+      "status": "pending",
+      "dependencies": ["calculator_implementation"],
+      "priority": "medium",
+      "deadline": "2025-11-23T10:30:00Z", 
+      "result": null
+    }
+  },
+  "collaboration_history": [
+    {
+      "timestamp": "2025-11-20T10:35:00Z",
+      "event": "协作项目初始化",
+      "actor": "system",
+      "details": "创建了协作项目和初始任务"
+    }
+  ],
+  "current_state": {
+    "active_task": null,
+    "completed_tasks": [],
+    "pending_tasks": ["calculator_implementation", "interface_design", "code_review", "unit_test_generation"],
+    "next_scheduled_task": "calculator_implementation"
+  },
+  "communication_log": [
+    {
+      "timestamp": "2025-11-20T10:30:00Z",
+      "from": "system",
+      "to": "all_agents",
+      "message": "协作项目已创建，请各智能体开始工作",
+      "type": "system_notification"
+    }
+  ],
+  "decision_log": [],
+  "version": "1.0.0"
+}

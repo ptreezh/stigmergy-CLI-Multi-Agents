@@ -1,0 +1,75 @@
+# 临时文件和缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.cache
+.project
+.pytest_cache/
+
+# IDE特定文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 日志和临时文件
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# 测试和构建相关
+tests/__pycache__/
+tests/.pytest_cache/
+htmlcov/
+.coverage.xml
+.junit.xml
+
+# 项目特定的临时文件
+test_*.py
+*_temp.py
+temp_*.py
+.DS_Store
+
+# 系统文件
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+desktop.ini
+
+# Python虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# 项目特定的测试和临时目录
+test_output/
+test_results/
+tmp_*/
+temp_*/
+
+# 自动生成的测试文件
+tests/test_*_temp.py
+tests/*_backup.py
+
+# 临时生成的项目文件
+PROJECT_SPEC.json
+TASKS.md
+COLLABORATION_LOG.md
+
+# 操作系统特定
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
