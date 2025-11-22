@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+
+    <title>异质多智能体协同系统 - 开放式跨厂商AI协作网络 - socienceAI.com</title>
+    <meta name="description" content="异质多智能体协同系统：连接Claude、Gemini、Qwen等跨厂商AI智能体，构建开放式协作网络。自然语言驱动的多智能体决策、项目管理与任务协同平台。">
+    <meta name="keywords" content="异质多智能体, 跨厂商AI协作, 开放式智能体网络, AI项目管理, 多智能体决策, 任务分解执行, 智能体协同, Claude, Gemini, Qwen, 企业AI协作">
+
+    <!-- 网站统一CSS样式 -->
+    <link rel="stylesheet" href="../../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* 页面特定样式 - 使用网站统一的CSS变量 */
+
+        /* 页面背景覆盖网站默认背景 */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* 使用网站统一的容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            background: #ff6b6b;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+        }
+        
+        .content-section {
+            padding: 5rem 0;
+            background: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .use-case {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .use-case h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .integration-options {
+            background: #f0f2f5;
+            padding: 4rem 0;
+        }
+        
+        .integration-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            line-height: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .testimonials {
+            background: #f8f9fa;
+        }
+        
+        .testimonial {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        
+        .contact {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .contact h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .contact p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .contact-button {
+            background: white;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .contact-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.3);
+        }
+        
+                
+        .unique-advantage {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 3rem 0;
+            margin: 2rem 0;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .unique-advantage h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .unique-advantage p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+                
+        .download-button {
+            display: inline-block;
+            background: #4ecdc4;
+            color: white;
+            padding: 1.5rem 3rem;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .download-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(78, 205, 196, 0.4);
+        }
+        
+        .download-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .download-option {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .download-option h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .download-option p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 页面标题导航样式 */
+        .page-header-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 80px;
+            z-index: 999;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--secondary-color);
+        }
+
+        .separator {
+            color: var(--text-muted);
+        }
+
+        .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 浮动导航圆点样式 */
+        .floating-nav-dots {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-dot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .nav-dot:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-dot.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-dot:hover .dot-icon {
+            transform: scale(1.2);
+        }
+
+        .dot-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* 浮动导航提示框样式 */
+        .nav-dot::after {
+            content: attr(title);
+            position: absolute;
+            right: calc(100% + 15px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            max-width: 120px;
+            text-align: center;
+        }
+
+        .nav-dot:hover::after {
+            opacity: 1;
+            visibility: visible;
+            right: calc(100% + 20px);
+        }
+
+        /* 提示框小箭头 */
+        .nav-dot::before {
+            content: '';
+            position: absolute;
+            right: calc(100% + 9px);
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-left-color: rgba(44, 62, 80, 0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1002;
+        }
+
+        .nav-dot:hover::before {
+            opacity: 1;
+            visibility: visible;
+            right: calc(100% + 14px);
+        }
+
+        .nav-dot:hover .dot-icon::after {
+            content: attr(title);
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            
+            .download-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .floating-nav-dots {
+                right: 15px;
+                gap: 10px;
+            }
+
+            .nav-dot {
+                width: 40px;
+                height: 40px;
+            }
+
+            .dot-icon {
+                font-size: 1rem;
+            }
+
+            .nav-dot:hover .dot-icon::after {
+                right: 50px;
+                font-size: 0.75rem;
+            }
+
+            .page-header-nav {
+                top: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .floating-nav-dots {
+                right: 10px;
+            }
+
+            .nav-dot {
+                width: 35px;
+                height: 35px;
+            }
+
+            .dot-icon {
+                font-size: 0.9rem;
+            }
+
+            .breadcrumb {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Agent tag styles */
+        .agent-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+
+        .agent-tag.domestic {
+            background: #fff3e0;
+            color: #e65100;
+            font-weight: 600;
+            border: 2px solid #ff9800;
+        }
+
+        .agent-links {
+            display: inline-block;
+            line-height: 1.8;
+        }
+
+        .agent-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            margin: 0 0.2rem;
+        }
+
+        .agent-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+
+    <style>
+        /* 学术色彩变量定义 */
+        :root {
+            --academic-blue: #1e40af;
+            --academic-navy: #1e3a8a;
+            --academic-purple: #6b21a8;
+            --academic-teal: #134e4a;
+            --academic-amber: #b45309;
+            --academic-sage: #365314;
+        }
+
+        /* Tailwind类转换 */
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-3xl { max-width: 48rem; }
+        .max-w-6xl { max-width: 72rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .px-12 { padding-left: 3rem; padding-right: 3rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mb-16 { margin-bottom: 4rem; }
+        .mt-12 { margin-top: 3rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        .mr-4 { margin-right: 1rem; }
+        .leading-relaxed { line-height: 1.75; }
+        .text-center { text-align: center; }
+        .text-5xl { font-size: 3rem; line-height: 1; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .italic { font-style: italic; }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-r-lg { border-radius: 0 0.5rem 0.5rem 0; }
+        .border-l-4 { border-left-width: 4px; }
+        .border-t-4 { border-top-width: 4px; }
+        .shadow-md { box-shadow: var(--shadow-md); }
+        .shadow-xl { box-shadow: var(--shadow-xl); }
+        .shadow-sm { box-shadow: var(--shadow-sm); }
+        .block { display: block; }
+        .inline-block { display: inline-block; }
+        .inline-flex { display: inline-flex; }
+        .flex { display: flex; }
+        .items-start { align-items: flex-start; }
+        .items-center { align-items: center; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-y-8 > * + * { margin-top: 2rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .list-disc { list-style-type: disc; }
+        .pl-4 { padding-left: 1rem; }
+        .pl-6 { padding-left: 1.5rem; }
+        .pl-8 { padding-left: 2rem; }
+        .pt-4 { padding-top: 1rem; }
+        .bg-opacity-10 { opacity: 0.1; }
+        .bg-opacity-20 { opacity: 0.2; }
+        .transition-colors { transition-property: color, background-color, border-color; transition-duration: 150ms; }
+
+        /* 学术色彩类 */
+        .text-academic-blue { color: var(--academic-blue); }
+        .text-academic-navy { color: var(--academic-navy); }
+        .text-academic-purple { color: var(--academic-purple); }
+        .text-academic-teal { color: var(--academic-teal); }
+        .text-academic-amber { color: var(--academic-amber); }
+        .text-academic-sage { color: var(--academic-sage); }
+
+        .bg-academic-blue { background-color: var(--academic-blue); }
+        .bg-academic-navy { background-color: var(--academic-navy); }
+        .bg-academic-purple { background-color: var(--academic-purple); }
+        .bg-academic-teal { background-color: var(--academic-teal); }
+        .bg-academic-amber { background-color: var(--academic-amber); }
+        .bg-academic-sage { background-color: var(--academic-sage); }
+
+        .border-academic-blue { border-color: var(--academic-blue); }
+        .border-academic-navy { border-color: var(--academic-navy); }
+        .border-academic-purple { border-color: var(--academic-purple); }
+        .border-academic-teal { border-color: var(--academic-teal); }
+        .border-academic-amber { border-color: var(--academic-amber); }
+        .border-academic-sage { border-color: var(--academic-sage); }
+
+        .hover\:text-academic-navy:hover { color: var(--academic-navy); }
+        .hover\:bg-academic-navy:hover { background-color: var(--academic-navy); }
+        .hover\:bg-academic-sage:hover { background-color: var(--academic-sage); }
+
+        /* 渐变背景 */
+        .bg-gradient-to-r-from-academic-blue-to-academic-navy {
+            background-image: linear-gradient(to right, var(--academic-blue), var(--academic-navy));
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .text-4xl { font-size: 2rem; }
+            .text-3xl { font-size: 1.75rem; }
+            .px-8 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .px-12 { padding-left: 2rem; padding-right: 2rem; }
+        }
+
+        /* 修复导航和页脚样式 */
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+        }
+
+        .footer-content > div {
+            flex: 1;
+            min-width: 0; /* Prevents flex items from overflowing */
+        }
+
+        /* 确保在小屏幕上仍然可以换行 */
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+            }
+        }
+
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block !important;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 80px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: var(--shadow-lg);
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <!-- 网站统一导航栏 -->
+    <nav class="modern-nav">
+        <div class="modern-container">
+            <div class="nav-content">
+                <a href="../../index.html" class="nav-brand">
+                    <img src="../../logo.png" alt="SocienceAI Logo" class="nav-logo">
+                    <div>
+                        <div class="nav-title">SocienceAI</div>
+                        <div class="nav-subtitle">让社会科学与AI双向赋能</div>
+                    </div>
+                </a>
+
+                <ul class="nav-menu">
+                    <li><a href="../../index.html" class="nav-link">首页</a></li>
+                    <li><a href="../../ai-agents.html" class="nav-link">Agent服务</a></li>
+                    <li><a href="../../Tech/index.html" class="nav-link">赋能工具</a></li>
+                    <li><a href="../../courses/courses.html" class="nav-link">培训课程</a></li>
+                    <li><a href="../../Dao/index.html" class="nav-link">关于我们</a></li>
+                    <li><a href="../../contact.html" class="nav-link">联系我们</a></li>
+                </ul>
+
+                <!-- 移动端菜单按钮 -->
+                <button id="mobile-menu-btn" class="mobile-menu-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题导航 -->
+    <div class="page-header-nav">
+        <div class="modern-container">
+            <div class="breadcrumb">
+                <a href="../../index.html">首页</a>
+                <span class="separator">/</span>
+                <a href="../index.html">术板块</a>
+                <span class="separator">/</span>
+                <span class="current">异质多智能体协同系统</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 巧妙的页内导航 - 浮动圆点 -->
+    <div class="floating-nav-dots">
+        <div class="nav-dot active" data-section="home" title="首页">
+            <span class="dot-icon">🏠</span>
+        </div>
+        <div class="nav-dot" data-section="advantage" title="独特优势">
+            <span class="dot-icon">⭐</span>
+        </div>
+        <div class="nav-dot" data-section="features" title="功能特性">
+            <span class="dot-icon">🚀</span>
+        </div>
+        <div class="nav-dot" data-section="use-cases" title="应用场景">
+            <span class="dot-icon">💼</span>
+        </div>
+        <div class="nav-dot" data-section="integration" title="智能体扩展">
+            <span class="dot-icon">🤖</span>
+        </div>
+        <div class="nav-dot" data-section="downloads" title="下载">
+            <span class="dot-icon">⬇️</span>
+        </div>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>异质多智能体协同系统</h1>
+            <p style="font-size: 1.2rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                <strong>开放异质协同 · 突破产品孤岛</strong><br>
+                避免单一认知，打破共谋幻觉，构建真正开放的跨厂商、跨模型AI协作网络
+            </p>
+            <p>
+                <span class="agent-links">
+                    连接
+                    <a href="https://qwen.ai" target="_blank" rel="noopener noreferrer" class="agent-link">Qwen CLI</a>,
+                    <a href="https://qoder.com/" target="_blank" rel="noopener noreferrer" class="agent-link">Qoder CLI</a>,
+                    <a href="https://platform.iflow.cn/cli/quickstart" target="_blank" rel="noopener noreferrer" class="agent-link">iFlow CLI</a>,
+                    <a href="https://www.npmjs.com/package/kimi-cli" target="_blank" rel="noopener noreferrer" class="agent-link">KIMI CLI</a>,
+                    <a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer" class="agent-link">DeepSeek</a>,
+                    <a href="https://www.npmjs.com/package/codebuddy-cli" target="_blank" rel="noopener noreferrer" class="agent-link">CodeBuddy CLI</a>,
+                    <a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer" class="agent-link">GitHub Copilot</a>,
+                    <a href="https://www.anthropic.com" target="_blank" rel="noopener noreferrer" class="agent-link">Claude (Anthropic)</a>,
+                    <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="agent-link">Gemini (Google)</a>
+                    等跨厂商AI智能体，构建开放式协作网络
+                </span>
+            </p>
+            <a href="#downloads" class="cta-button">立即下载</a>
+        </div>
+    </section>
+
+    <!-- 前置条件：AI Agent安装 -->
+    <section class="content-section" style="background: #f8fafc;">
+        <div class="container">
+            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <h2 class="section-title" style="font-size: 2rem; margin-bottom: 2rem;">🚀 开始您的AI智能体之旅</h2>
+                
+                <div style="background: white; border-radius: 1.5rem; padding: 3rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                    <div style="font-size: 3rem; margin-bottom: 1.5rem;">🤖</div>
+                    <h3 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 1.5rem; font-weight: 700;">
+                        本系统需要您的电脑已安装AI智能体
+                    </h3>
+
+                    <p style="color: #475569; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem;">
+                        别担心！这个过程<span style="color: #059669; font-weight: 600;">极其简单</span>，
+                        只需要5分钟安装第一个智能体，您的电脑就会变成AI电脑，
+                        然后让第一个智能体帮您安装配置更多智能体！
+                    </p>
+                    
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 1rem; padding: 2rem; margin-bottom: 2.5rem; border: 1px solid #bbf7d0;">
+                        <h4 style="color: #065f46; margin-bottom: 1.5rem; font-size: 1.3rem;">🎯 三步完成AI电脑变身</h4>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: left;">
+                            <div style="display: flex; align-items: flex-start;">
+                                <div style="width: 2.5rem; height: 2.5rem; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 1rem; flex-shrink: 0;">1</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #065f46; margin-bottom: 0.5rem;">5分钟安装iFlow CLI</div>
+                                    <div style="color: #047857; font-size: 0.9rem;">下载解压，双击即用</div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start;">
+                                <div style="width: 2.5rem; height: 2.5rem; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 1rem; flex-shrink: 0;">2</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #065f46; margin-bottom: 0.5rem;">自然语言安装环境</div>
+                                    <div style="color: #047857; font-size: 0.9rem;">让AI自动安装Git、Node.js等</div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start;">
+                                <div style="width: 2.5rem; height: 2.5rem; background: #059669; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 1rem; flex-shrink: 0;">3</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #065f46; margin-bottom: 0.5rem;">AI帮您安装更多智能体</div>
+                                    <div style="color: #047857; font-size: 0.9rem;">一句话安装所有需要的AI工具</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fef3c7; border-radius: 1rem; padding: 2rem; margin-bottom: 2.5rem; border: 1px solid #f59e0b;">
+                        <h4 style="color: #92400e; margin-bottom: 1rem; font-size: 1.2rem;">💡 为什么选择这种安装方式？</h4>
+                        <ul style="text-align: left; color: #78350f; line-height: 1.8;">
+                            <li><strong>🎯 极简操作：</strong>无需技术知识，说人话就能完成安装</li>
+                            <li><strong>🤖 AI驱动：</strong>第一个智能体会帮您处理所有复杂配置</li>
+                            <li><strong>⚡ 一次配置：</strong>完成后可使用所有主流AI厂商的工具</li>
+                            <li><strong>🔄 持续进化：</strong>AI会自动更新和优化您的智能体环境</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <a href="../../agents/dist/QUICK_INSTALL.html"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           style="background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                                  color: white;
+                                  padding: 1.2rem 3rem;
+                                  border-radius: 50px;
+                                  text-decoration: none;
+                                  font-size: 1.2rem;
+                                  font-weight: 700;
+                                  display: inline-block;
+                                  transition: all 0.3s ease;
+                                  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);">
+                            🚀 立即安装AI智能体（5分钟）
+                        </a>
+
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-top: 1rem;">
+                            安装完成后返回此页面，体验完整的异质多智能体协同系统
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <section class="content-section" id="features">
+        <div class="container">
+            <h2 class="section-title">核心功能特性</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>跨厂商异质协同</h3>
+                    <p>打破厂商壁垒，连接不同厂商的AI智能体，构建真正的开放式协作网络</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>自然语言驱动</h3>
+                    <p>通过自然语言指令实现多智能体决策、项目管理与任务协同，无需复杂配置</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3>模块化扩展</h3>
+                    <p>支持无限扩展新智能体，通过配置文件或插件方式轻松集成跨厂商产品</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>智能任务分解</h3>
+                    <p>自动将复杂项目分解为子任务，分配给最适合的智能体执行，实现高效协同</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>本地部署安全</h3>
+                    <p>完全本地化部署，数据不上传云端，保障数据隐私和安全</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>项目管理协同</h3>
+                    <p>多智能体协同完成项目规划、进度监督、质量控制等全流程管理</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section" id="use-cases">
+        <div class="container">
+            <h2 class="section-title">开放异质协同应用场景</h2>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h3><i class="fas fa-project-diagram"></i> 多智能体决策</h3>
+                    <p><strong>痛点：</strong>单一AI决策可能有偏见或局限，需要多角度分析</p>
+                    <p><strong>解决方案：</strong>让Claude、Gemini、Qwen等不同厂商AI同时分析同一问题，通过对比和综合得出更全面的决策建议</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-tasks"></i> 项目管理协同</h3>
+                    <p><strong>痛点：</strong>复杂项目需要多种AI能力，手动协调效率低</p>
+                    <p><strong>解决方案：</strong>使用Claude进行项目规划，Qwen负责内容创作，CodeBuddy开发相关工具，Ollama进行数据分析，实现全流程AI协同管理</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-search"></i> 意图理解与任务分解</h3>
+                    <p><strong>痛点：</strong>复杂任务需要多步分解，不同步骤需要不同AI专长</p>
+                    <p><strong>解决方案：</strong>系统自动理解用户意图，将复杂任务分解为子任务，分配给最适合的智能体执行</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-cogs"></i> 任务执行与监督</h3>
+                    <p><strong>痛点：</strong>多AI协同执行任务缺乏统一监督和质量控制</p>
+                    <p><strong>解决方案：</strong>建立任务执行监控网络，让不同AI负责执行、校验、监督等不同角色</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-balance-scale"></i> 交叉验证与质量控制</h3>
+                    <p><strong>痛点：</strong>单一AI输出可能有错误，缺乏可靠验证</p>
+                    <p><strong>解决方案：</strong>让多个不同厂商的AI交叉验证输出结果，确保输出质量</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-chart-network"></i> 开放式AI生态</h3>
+                    <p><strong>痛点：</strong>传统AI系统封闭，无法利用外部AI能力</p>
+                    <p><strong>解决方案：</strong>构建开放的AI协同网络，随时集成新的AI工具和能力</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-graduation-cap"></i> 研究协作</h3>
+                    <p><strong>痛点：</strong>研究项目需要文献搜索、分析、写作等多方面AI支持</p>
+                    <p><strong>解决方案：</strong>让不同厂商AI分工协作：Gemini搜索文献，Claude分析，Qwen写作，形成完整研究链</p>
+                </div>
+                <div class="use-case">
+                    <h3><i class="fas fa-code"></i> 企业级应用</h3>
+                    <p><strong>痛点：</strong>企业采购多种AI工具，缺乏统一协同平台</p>
+                    <p><strong>解决方案：</strong>将企业内部各种AI工具连接成协同网络，实现统一管理和协同工作</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section integration-options" id="integration">
+        <div class="container">
+            <h2 class="section-title">开放式异质智能体扩展</h2>
+            <div class="integration-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>自动发现</h3>
+                    <p>系统自动扫描PATH中的CLI工具，识别跨厂商智能体</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>配置集成</h3>
+                    <p>通过JSON配置文件快速集成不同厂商的AI产品</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>API适配</h3>
+                    <p>支持多种接口适配器，兼容不同厂商的API协议</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>开放协作</h3>
+                    <p>支持任意厂商AI产品级接入，构建真正开放的协作网络</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 15px;">
+                <h3 style="color: #333; margin-bottom: 1rem;">跨厂商AI生态系统</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+                    <!-- 国内大模型优先 -->
+                    <span class="agent-tag domestic">Qwen CLI (阿里巴巴)</span>
+                    <span class="agent-tag domestic">Qoder CLI (阿里旗下)</span>
+                    <span class="agent-tag domestic">iFlow CLI (阿里旗下)</span>
+                    <span class="agent-tag domestic">Kimi CLI (月之暗面)</span>
+                    <span class="agent-tag domestic">DeepSeek (深度求索)</span>
+                    <span class="agent-tag domestic">CodeBuddy CLI (腾讯)</span>
+                    <span class="agent-tag domestic">智谱AI (ChatGLM)</span>
+                    <span class="agent-tag domestic">百度文心一言</span>
+                    <span class="agent-tag domestic">字节跳动豆包</span>
+                    <span class="agent-tag domestic">腾讯混元</span>
+                    <span class="agent-tag domestic">MiniMax (海螺AI)</span>
+                    <span class="agent-tag domestic">零一万物</span>
+
+                    <!-- 国际厂商 -->
+                    <span class="agent-tag">Claude (Anthropic)</span>
+                    <span class="agent-tag">Gemini (Google)</span>
+                    <span class="agent-tag">ChatGPT (OpenAI)</span>
+                    <span class="agent-tag">Codex (GitHub)</span>
+                    <span class="agent-tag">Copilot (Microsoft)</span>
+                    <span class="agent-tag">Ollama</span>
+                    <span class="agent-tag">Mistral</span>
+                    <span class="agent-tag">Llama (Meta)</span>
+                    <span class="agent-tag">Perplexity</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section testimonials">
+        <div class="container">
+            <h2 class="section-title">用户评价</h2>
+            <div class="testimonial">
+                <p>"传统AI系统只能在单厂商内部协同，我们的系统真正实现了跨厂商异质AI的开放协作，这是革命性的变化！"</p>
+                <p><strong>- 企业AI创新负责人</strong></p>
+            </div>
+            <div class="testimonial">
+                <p>"异质多智能体协同系统完美解决了我们多AI工具孤岛的问题，真正构建了开放式的AI协作生态。"</p>
+                <p><strong>- 技术架构师</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section" id="downloads">
+        <div class="container">
+            <h2 class="section-title">立即下载</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">选择最适合您的版本进行下载和安装</p>
+            
+            <div class="download-options">
+                <div class="download-option">
+                    <h3><i class="fas fa-download"></i> 独立安装包</h3>
+                    <p>完整功能包，包含所有核心组件和配置文件，适用于首次安装</p>
+                    <a href="standalone_cli_router.zip" class="download-button">
+                        <i class="fas fa-download"></i> 下载完整版 (35MB)
+                    </a>
+                </div>
+
+                <div class="download-option">
+                    <h3><i class="fas fa-plug"></i> 轻量集成版</h3>
+                    <p>仅包含核心集成组件，适用于已有环境的快速部署</p>
+                    <a href="light_cli_router.zip" class="download-button">
+                        <i class="fas fa-download"></i> 下载轻量版 (15MB)
+                    </a>
+                </div>
+
+                <div class="download-option">
+                    <h3><i class="fas fa-code"></i> 开发者工具包</h3>
+                    <p>包含API文档、示例代码和集成指南，适用于开发者</p>
+                    <a href="dev_cli_router.zip" class="download-button">
+                        <i class="fas fa-download"></i> 下载开发版 (45MB)
+                    </a>
+                </div>
+            </div>
+            
+            <div style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 15px;">
+                <h3 style="color: #333; margin-bottom: 1rem;"><i class="fas fa-key"></i> 系统要求</h3>
+                <ul style="list-style: none; text-align: left; padding: 0;">
+                    <li><i class="fas fa-check-circle" style="color: green;"></i> Windows 10/11, macOS 10.15+, Linux (Ubuntu 18.04+)</li>
+                    <li><i class="fas fa-check-circle" style="color: green;"></i> Python 3.7+</li>
+                    <li><i class="fas fa-check-circle" style="color: green;"></i> 至少 2GB 可用磁盘空间</li>
+                    <li><i class="fas fa-check-circle" style="color: green;"></i> 网络连接（仅用于检查更新）</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 统一网站页脚 -->
+    <footer class="modern-footer">
+        <div class="modern-container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-brand">
+                        <div class="footer-logo">AI</div>
+                        <div class="footer-title">SocienceAI</div>
+                    </div>
+                    <p class="footer-description">
+                        SocienceAI致力于构建AI与社会科学研究的双向赋能体系，通过AI释放人类研究者自由创新的核心潜力，提升AI智能体的集体智能和社会智能。
+                    </p>
+                </div>
+
+                <div>
+                    <h4>AI社科方法</h4>
+                    <ul class="footer-links">
+                        <li><a href="../../agents/grounded-theory.html">扎根理论</a></li>
+                        <li><a href="../../agents/social-network-analysis.html">社会网络分析</a></li>
+                        <li><a href="../../agents/actor-network-analysis.html">行动者网络分析</a></li>
+                        <li><a href="../../agents/bourdieu-field-analysis.html">布迪厄场域分析</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>社科智能体</h4>
+                    <ul class="footer-links">
+                        <li><a href="../../agents/digital-durkheim.html">数字迪尔凯姆专家</a></li>
+                        <li><a href="../../agents/digital-marx.html">数字马克思专家</a></li>
+                        <li><a href="../../agents/digital-weber.html">数字韦伯专家</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>AI与商业</h4>
+                    <ul class="footer-links">
+                        <li><a href="../../Tech/AiProductDesign.html">AI产品设计</a></li>
+                        <li><a href="../../Tech/AiMarketingTechnology.html">AI营销技术</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>关于我们</h4>
+                    <ul class="footer-links">
+                        <li><a href="../../Dao/index.html">关于我们</a></li>
+                        <li><a href="../../Dao/Manifesto.html">项目使命</a></li>
+                        <li><a href="../../contact.html">联系我们</a></li>
+                        <li><a href="../../privacy.html">隐私政策</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 SocienceAI. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 浮动导航JavaScript -->
+    <script>
+        // 页内导航圆点功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section[id]');
+
+            // 点击导航圆点滚动到对应区域
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetSection = this.getAttribute('data-section');
+                    const section = document.getElementById(targetSection);
+
+                    if (section) {
+                        const offsetTop = section.offsetTop - 100; // 考虑固定导航栏高度
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 滚动监听，更新活动状态
+            function updateActiveNav() {
+                const scrollPosition = window.scrollY + 150;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    const sectionId = section.getAttribute('id');
+
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        navDots.forEach(dot => dot.classList.remove('active'));
+                        const activeDot = document.querySelector(`[data-section="${sectionId}"]`);
+                        if (activeDot) {
+                            activeDot.classList.add('active');
+                        }
+                    }
+                });
+            }
+
+            // 监听滚动事件
+            window.addEventListener('scroll', updateActiveNav);
+
+            // 初始化活动状态
+            updateActiveNav();
+        });
+
+        // 移动端菜单功能
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                const navMenu = document.querySelector('.nav-menu');
+                if (navMenu) {
+                    navMenu.classList.toggle('active');
+                }
+            });
+        }
+
+        // 点击菜单项后关闭移动端菜单
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const navMenu = document.querySelector('.nav-menu');
+                if (navMenu) {
+                    navMenu.classList.remove('active');
+                }
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
