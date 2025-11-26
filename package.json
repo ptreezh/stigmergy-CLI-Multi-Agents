@@ -17,8 +17,8 @@
     "check-project": "node src/main.js check-project",
     "validate": "node src/main.js validate",
     "clean": "node src/main.js clean",
-    "build": "node src/smart_deploy.js --build",
-    "publish": "node src/smart_deploy.js --publish",
+    "build": "node src/deploy.js --build",
+    "publish-to-npm": "node publish.js",
     "unpublish": "npm unpublish",
     "version": "npm version patch",
     "test": "npm run validate"
@@ -60,7 +60,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "commander": "^8.0.0",
+    "commander": "^12.0.0",
     "inquirer": "^9.0.0",
     "chalk": "^5.0.0",
     "js-yaml": "^4.1.0"
