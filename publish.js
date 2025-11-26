@@ -50,7 +50,6 @@ try {
 } catch (error) {
     console.log(`❌ 测试执行出错: ${error.message}`);
     process.exit(1);
-    }
 }
 
 // 3. 构建项目
@@ -73,11 +72,10 @@ try {
             console.log(`❌ 构建失败，退出码: ${code}`);
             process.exit(1);
         }
-    };
+    });
 } catch (error) {
     console.log(`❌ 构建执行出错: ${error.message}`);
     process.exit(1);
-    }
 }
 
 // 4. 发布到NPM
@@ -112,11 +110,10 @@ try {
             console.log(`❌ NPM 发布失败，退出码: ${code}`);
             console.log(publishResult.stderr);
         }
-    };
+    });
 } catch (error) {
     console.log(`❌ 发布过程出错: ${error.message}`);
     process.exit(1);
-    }
 }
 
 console.log('\n🎉 Stigmergy CLI 已成功开源发布到NPM！');
