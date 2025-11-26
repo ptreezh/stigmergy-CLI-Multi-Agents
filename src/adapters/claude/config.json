@@ -1,0 +1,9 @@
+{
+  "name": "claude",
+  "displayName": "Claude CLI",
+  "version": "1.0.0",
+  "integration_type": "hook_system",
+  "config_file": "~/.config/claude/hooks.json",
+  "global_doc": "claude.md",
+  "description": "Claude CLI Hook集成适配器"
+}

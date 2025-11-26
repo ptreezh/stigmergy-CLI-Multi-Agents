@@ -1,0 +1,1 @@
+{"name": "qoder", "displayName": "qoder CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/qoder/config.json", "global_doc": "qoder.md", "description": "qoder CLI集成适配器"}

@@ -1,0 +1,1 @@
+{"name": "copilot", "displayName": "copilot CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/copilot/config.json", "global_doc": "copilot.md", "description": "copilot CLI集成适配器"}

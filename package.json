@@ -1,0 +1,77 @@
+{
+  "name": "stigmergy-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统",
+  "main": "src/main.js",
+  "bin": {
+    "stigmergy-cli": "src/main.js"
+  },
+  "scripts": {
+    "start": "node src/main.js",
+    "deploy": "node src/deploy.js",
+    "deploy-all": "node src/deploy.js --all",
+    "status": "node src/main.js status",
+    "scan": "node src/main.js scan",
+    "init": "node src/main.js init",
+    "check-project": "node src/main.js check-project",
+    "validate": "node src/main.js validate",
+    "clean": "node src/main.js clean",
+    "build": "node src/smart_deploy.js --build",
+    "publish": "node src/smart_deploy.js --publish",
+    "unpublish": "npm unpublish",
+    "version": "npm version patch",
+    "test": "npm run validate"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "router",
+    "collaboration",
+    "smart-cli",
+    "claude-cli",
+    "gemini-cli",
+    "qwen-cli",
+    "iflow-cli",
+    "qoder-cli",
+    "codebuddy-cli",
+    "copilot-cli",
+    "cross-platform",
+    "automation",
+    "tools",
+    "stigmergy",
+    "multi-agents"
+  ],
+  "files": [
+    "src/**/*.js",
+    "src/**/*.py",
+    "config/**/*.json",
+    "templates/**/*.md",
+    "bin/**/*.bat",
+    "adapters/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents"
+  },
+  "author": "Stigmergy CLI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "commander": "^8.0.0",
+    "inquirer": "^9.0.0",
+    "chalk": "^5.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+  },
+  "npx": {
+    "stigmergy-cli": "src/main.js"
+  },
+  "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
+  "bugs": {
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues"
+  }
+}

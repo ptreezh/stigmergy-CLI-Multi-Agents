@@ -1,0 +1,47 @@
+{
+  "name": "@stigmergy-cli/npx-deployer",
+  "version": "1.0.0",
+  "description": "Stigmergy-CLI npx远程部署器 - 支持远程获取和自动更新",
+  "main": "npx-deployer.js",
+  "bin": {
+    "stigmergy-npx": "./npx-deployer.js"
+  },
+  "scripts": {
+    "start": "node npx-deployer.js",
+    "deploy": "node npx-deployer.js",
+    "update": "node npx-deployer.js update",
+    "npx": "node npx-deployer.js npx",
+    "git": "node npx-deployer.js git"
+  },
+  "keywords": [
+    "stigmergy",
+    "cli",
+    "ai",
+    "deployment",
+    "npx",
+    "remote",
+    "auto-update"
+  ],
+  "author": "Stigmergy CLI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
+  },
+  "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
+  "bugs": {
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "axios": "^1.6.0"
+  }
+}

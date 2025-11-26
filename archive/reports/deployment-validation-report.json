@@ -1,0 +1,162 @@
+{
+  "timestamp": "2025-11-26T08:48:53.615Z",
+  "summary": {
+    "total": 30,
+    "success": 21,
+    "error": 2,
+    "warning": 0,
+    "info": 7
+  },
+  "details": [
+    {
+      "timestamp": "2025-11-26T08:48:53.407Z",
+      "message": "开始测试基础命令...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.503Z",
+      "message": "帮助命令正常工作",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.503Z",
+      "message": "开始测试包配置...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 name: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 version: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 description: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 main: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 bin: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 scripts: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "字段 repository: ✅",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "包配置检查通过",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "项目名称正确设置为 stigmergy-cli",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "仓库地址正确设置",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "开始测试NPX配置...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "NPX bin配置正确",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "NPX配置正确",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "开始测试文件结构...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "文件存在: src/main.js",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.504Z",
+      "message": "文件存在: package.json",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "文件存在: README.md",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "开始测试Stigmergy特性...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "使用正确的配置目录名称",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "使用正确的项目配置目录",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "使用正确的类名",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "使用正确的仓库地址",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "开始测试项目初始化...",
+      "type": "info"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.505Z",
+      "message": "创建测试项目目录: D:\\AIDevelop\\smart-cli-router\\test-deployment\\test-project",
+      "type": "success"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.615Z",
+      "message": "项目初始化失败，退出码: 1",
+      "type": "error"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.615Z",
+      "message": "错误输出: (node:43092) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/AIDevelop/smart-cli-router/src/main.js is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to D:\\AIDevelop\\smart-cli-router\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\nfile:///D:/AIDevelop/smart-cli-router/src/main.js:173\r\n        await fs.mkdir(projectConfigDir, { recursive: true });\r\n        ^\r\n\r\nReferenceError: fs is not defined\r\n    at StigmergyCLIRouter.initProject (file:///D:/AIDevelop/smart-cli-router/src/main.js:173:9)\r\n    at main (file:///D:/AIDevelop/smart-cli-router/src/main.js:365:26)\r\n    at file:///D:/AIDevelop/smart-cli-router/src/main.js:408:1\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.14.0\r\n",
+      "type": "error"
+    },
+    {
+      "timestamp": "2025-11-26T08:48:53.615Z",
+      "message": "生成验证报告...",
+      "type": "info"
+    }
+  ]
+}

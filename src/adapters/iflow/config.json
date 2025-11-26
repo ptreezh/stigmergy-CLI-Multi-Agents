@@ -1,0 +1,1 @@
+{"name": "iflow", "displayName": "iflow CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/iflow/config.json", "global_doc": "iflow.md", "description": "iflow CLI集成适配器"}
