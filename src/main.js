@@ -928,16 +928,30 @@ async function runQuickDeploy() {
             // 为已安装的CLI配置集成插件（如果支持）
             console.log('\n🔄 为已安装的CLI配置协作插件...');
             for (const cliInfo of availableCLIs) {
-                if (cliInfo.name === 'qwen') {
-                    // 为QwenCode配置集成插件
+                try {
+                    // 检查是否存在对应的集成安装脚本
+                    const adapterDirName = mapAdapterName(cliInfo.name); // 使用映射函数处理qwen->qwencode
+                    const installScriptPath = join(__dirname, 'adapters', adapterDirName, `install_${adapterDirName}_integration.py`);
+
+                    // 尝试导入fs来检查文件是否存在
+                    const { access } = await import('fs/promises');
+                    let fileExists = false;
                     try {
+                        await access(installScriptPath);
+                        fileExists = true;
+                    } catch {
+                        // 文件不存在
+                        fileExists = false;
+                    }
+
+                    if (fileExists) {
                         console.log(`\n🔄 配置 ${cliInfo.displayName} 集成插件...`);
                         const childProcess = await import('child_process');
                         const { spawn } = childProcess;
 
-                        // 运行QwenCode集成安装脚本
+                        // 运行集成安装脚本
                         const integrationProcess = spawn('python', [
-                            join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
+                            installScriptPath,
                             '--install'
                         ], {
                             stdio: ['pipe', 'pipe', 'pipe'],
@@ -946,13 +960,15 @@ async function runQuickDeploy() {
 
                         integrationProcess.stdout.on('data', (data) => {
                             const line = data.toString();
-                            if (!line.includes('QwenCode CLI跨CLI协作集成安装器')) {
-                                console.log(line);
+                            // 过滤一些冗长的输出
+                            if (!line.includes('CLI跨CLI协作集成安装器') &&
+                                !line.includes('QwenCode CLI跨CLI协作集成安装器')) {
+                                console.log(line.trim());
                             }
                         });
 
                         integrationProcess.stderr.on('data', (data) => {
-                            console.error(data.toString());
+                            console.error(data.toString().trim());
                         });
 
                         await new Promise((resolve) => {
@@ -960,18 +976,16 @@ async function runQuickDeploy() {
                                 if (integrationCode === 0) {
                                     console.log(`✅ ${cliInfo.displayName} 集成插件配置成功`);
                                 } else {
-                                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置可能未完成`);
+                                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置可能未完成 (退出码: ${integrationCode})`);
                                 }
                                 resolve();
                             });
                         });
-                    } catch (error) {
-                        console.log(`⚠️ ${cliInfo.displayName} 集成插件配置过程中出错: ${error.message}`);
+                    } else {
+                        console.log(`ℹ️ ${cliInfo.displayName} - 暂无特殊集成插件配置`);
                     }
-                }
-                // TODO: 可以扩展其他CLI工具的集成插件配置
-                else {
-                    console.log(`ℹ️ ${cliInfo.displayName} - 暂无特殊集成插件配置`);
+                } catch (error) {
+                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置过程中出错: ${error.message}`);
                 }
             }
 
