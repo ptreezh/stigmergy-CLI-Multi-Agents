@@ -40,48 +40,29 @@ class CopilotIntegrationInstaller:
         if config_path:
             self.config_path = Path(config_path)
         else:
+            # 在npx环境下，可能需要搜索配置文件的多个位置
+            possible_paths = [
+                self.script_dir / "config.json",  # 标准位置 - 应该是最可能的路径
+                self.script_dir.parent / "copilot" / "config.json",  # 在adapters/copilot/下
+                Path(__file__).parent / "config.json",  # 使用脚本所在目录 - 也是标准位置
+            ]
+
             # 检查环境变量以获取项目根目录
             project_root_env = os.environ.get('STIGMERGY_PROJECT_ROOT', '')
             if project_root_env:
-                # 使用环境变量中指定的项目根目录路径
-                # 检查标准路径
+                # 添加环境变量指定的路径到搜索列表
                 env_config_path = Path(project_root_env) / "src" / "adapters" / "copilot" / "config.json"
-                if env_config_path.exists():
-                    self.config_path = env_config_path
-                    logger.info(f"使用环境变量中的配置文件: {env_config_path}")
-                else:
-                    # 检查项目根目录下直接的路径，可能是__dirname已经包含了src部分
-                    alt_check_path = Path(project_root_env) / "adapters" / "copilot" / "config.json"
-                    if alt_check_path.exists():
-                        self.config_path = alt_check_path
-                        logger.info(f"使用备选配置文件路径: {alt_check_path}")
-                    else:
-                        # 再检查另一种可能的路径
-                        alt_check_path2 = Path(project_root_env) / "copilot" / "config.json"  # 如果在其他地方
-                        if alt_check_path2.exists():
-                            self.config_path = alt_check_path2
-                            logger.info(f"使用第二种备选配置文件路径: {alt_check_path2}")
-                        else:
-                            self.config_path = env_config_path
-                            logger.warning(f"所有配置文件路径均不存在: {env_config_path}, {alt_check_path}, {alt_check_path2}")
-            else:
-                # 在npx环境下，可能需要搜索配置文件的多个位置
-                possible_paths = [
-                    self.script_dir / "config.json",  # 标准位置
-                    self.script_dir.parent / "copilot" / "config.json",  # 在adapters/copilot/下
-                    Path(__file__).parent / "config.json",  # 使用脚本所在目录
-                    Path(__file__).parent.parent.parent / "copilot" / "config.json", # 从项目根路径
-                ]
+                possible_paths.append(env_config_path)
 
-                for config_path_option in possible_paths:
-                    if config_path_option.exists():
-                        self.config_path = config_path_option
-                        logger.info(f"使用配置文件: {config_path_option}")
-                        break
-                else:
-                    # 如果所有选项都失败，使用默认位置并记录警告
-                    self.config_path = self.script_dir / "config.json"
-                    logger.warning(f"配置文件不存在: {self.config_path}, 尝试在标准位置创建")
+            for config_path_option in possible_paths:
+                if config_path_option.exists():
+                    self.config_path = config_path_option
+                    logger.info(f"使用配置文件: {config_path_option}")
+                    break
+            else:
+                # 如果所有选项都失败，使用默认位置并记录警告
+                self.config_path = self.script_dir / "config.json"
+                logger.warning(f"配置文件不存在: {self.config_path}, 尝试在标准位置创建")
 
         self.config = self._load_config()
 
