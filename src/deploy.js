@@ -30,7 +30,7 @@ const CLI_TOOLS = [
         required: true
     },
     {
-        name: 'qwencode',
+        name: 'qwen',
         displayName: 'QwenCode CLI',
         description: '阿里云QwenCode CLI工具',
         required: false
@@ -158,7 +158,7 @@ const CLI_INSTALL_CONFIGS = {
         website: 'https://ai.google.dev/cli',
         docs: 'https://ai.google.dev/cli/docs'
     },
-    'qwencode': {
+    'qwen': {
         name: 'QwenCode CLI',
         displayName: 'QwenCode CLI',
         description: '阿里云QwenCode CLI工具',

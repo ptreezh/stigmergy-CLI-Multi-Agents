@@ -29,6 +29,9 @@ class StigmergyCLIRouter {
     }
 
     async loadAdapter(adapterName) {
+        // 适配器名称映射 - 将用户可见的名称映射到实际目录名
+        const adapterDirName = this.mapAdapterName(adapterName);
+
         // 尝试多个可能的路径
         const possibleBasePaths = [
             join(__dirname, 'adapters'),           // 从当前文件目录查找
@@ -37,7 +40,7 @@ class StigmergyCLIRouter {
 
         for (const basePath of possibleBasePaths) {
             try {
-                const configPath = join(basePath, adapterName, 'config.json');
+                const configPath = join(basePath, adapterDirName, 'config.json');
                 const configData = await fs.readFile(configPath, 'utf8');
                 const config = JSON.parse(configData);
                 // 成功找到配置，返回
@@ -49,12 +52,15 @@ class StigmergyCLIRouter {
         }
 
         // 所有路径都尝试过了但失败
-        const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterName, 'config.json');
+        const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterDirName, 'config.json');
         console.error(`❌ 加载 ${adapterName} 适配器配置失败: 未找到配置文件在任何可能的路径中，最后尝试: ${lastPathAttempted}`);
         return { loaded: false, error: "无法找到适配器配置文件" };
     }
 
     async checkAdapterExists(adapterName) {
+        // 适配器名称映射 - 将用户可见的名称映射到实际目录名
+        const adapterDirName = this.mapAdapterName(adapterName);
+
         // 使用与loadAdapter相同的路径检测逻辑
         const possibleBasePaths = [
             join(__dirname, 'adapters'),           // 从当前文件目录查找
@@ -63,7 +69,7 @@ class StigmergyCLIRouter {
 
         for (const basePath of possibleBasePaths) {
             try {
-                const configPath = join(basePath, adapterName, 'config.json');
+                const configPath = join(basePath, adapterDirName, 'config.json');
                 await fs.access(configPath);
                 return true;
             } catch {
@@ -73,6 +79,15 @@ class StigmergyCLIRouter {
         }
 
         return false;
+    }
+
+    // 适配器名称映射方法
+    mapAdapterName(adapterName) {
+        // 将用户接口名称映射到实际的适配器目录名称
+        const nameMap = {
+            'qwen': 'qwencode'  // qwen在内部对应qwencode目录
+        };
+        return nameMap[adapterName] || adapterName;
     }
 
     async installAdapter(adapterName, force = false) {
@@ -106,8 +121,9 @@ class StigmergyCLIRouter {
             const adapterConfigDir = join(this.config.localConfig, adapterName);
             await fs.mkdir(adapterConfigDir, { recursive: true });
 
-            // 复制配置文件
-            const adapterConfigFile = join(__dirname, 'src', 'adapters', adapterName, 'config.json');
+            // 使用映射后的目录名查找源配置文件
+            const adapterDirName = this.mapAdapterName(adapterName);
+            const adapterConfigFile = join(__dirname, 'src', 'adapters', adapterDirName, 'config.json');
             const targetConfigFile = join(adapterConfigDir, 'config.json');
             await fs.copyFile(adapterConfigFile, targetConfigFile);
 
@@ -116,7 +132,7 @@ class StigmergyCLIRouter {
             await fs.mkdir(hooksDir, { recursive: true });
 
             // 复制钩子文件
-            const adapterHooksDir = join(__dirname, 'src', 'adapters', adapterName);
+            const adapterHooksDir = join(__dirname, 'src', 'adapters', adapterDirName);
             await this.copyDirectory(adapterHooksDir, hooksDir);
 
             // 创建日志目录
