@@ -798,138 +798,184 @@ async function runQuickDeploy() {
         return nameMap[adapterName] || adapterName;
     }
 
-    // 配置系统 - 运行本地init命令
+    // 检测CLI工具是否可用的函数（与checkToolInstallation保持一致）
+    async function checkToolAvailable(cliName) {
+        try {
+            // 检查命令是否可用
+            const { spawnSync } = await import('child_process');
+            let result;
+            if (process.platform === 'win32') {
+                result = spawnSync('where', [cliName], { stdio: 'pipe' });
+            } else {
+                result = spawnSync('which', [cliName], { stdio: 'pipe' });
+            }
+
+            return result.status === 0;
+        } catch (e) {
+            // 如果系统命令失败，尝试npm检查
+            try {
+                const { spawnSync } = require('child_process');
+                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
+                if (npmResult.status === 0 && npmResult.stdout) {
+                    return npmResult.stdout.includes(cliName);
+                }
+            } catch (e2) {
+                // 忽略npm检查错误
+            }
+            return false;
+        }
+    }
+
+    // 配置系统 - 运行本地init命令，为所有已安装的CLI配置插件
     async function configureSystem() {
         console.log('\n⚙️  正在配置Stigmergy CLI协作系统...');
 
-        // 直接在当前进程中运行init，而不是通过npx调用远程代码
+        // 检测所有支持的CLI工具是否已安装
+        const allCLITools = [
+            { name: 'claude', displayName: 'Claude CLI', required: true },
+            { name: 'gemini', displayName: 'Gemini CLI', required: true },
+            { name: 'qwen', displayName: 'QwenCode CLI', required: false },
+            { name: 'iflow', displayName: 'iFlow CLI', required: false },
+            { name: 'qoder', displayName: 'Qoder CLI', required: false },
+            { name: 'codebuddy', displayName: 'CodeBuddy CLI', required: false },
+            { name: 'copilot', displayName: 'GitHub Copilot CLI', required: false },
+            { name: 'codex', displayName: 'OpenAI Codex CLI', required: false },
+            { name: 'ollama', displayName: 'Ollama CLI', required: false }
+        ];
+
+        // 检测每个CLI工具是否可用
+        const availableCLIs = [];
+        const unavailableCLIs = [];
+
+        for (const cliInfo of allCLITools) {
+            const available = await checkToolAvailable(cliInfo.name);
+            if (available) {
+                availableCLIs.push(cliInfo);
+                console.log(`✅ ${cliInfo.displayName} - 可用`);
+            } else {
+                unavailableCLIs.push(cliInfo);
+                console.log(`❌ ${cliInfo.displayName} - 不可用`);
+            }
+        }
+
+        console.log(`\n📊 检测结果: ${availableCLIs.length} 个可用, ${unavailableCLIs.length} 个不可用`);
+
+        // 初始化项目配置
         try {
-            // 直接调用init功能
             const projectPath = process.cwd();
-            console.log('🚀 初始化Stigmergy CLI项目...');
+            console.log('\n🚀 初始化Stigmergy CLI项目...');
 
             // 创建项目配置目录
             const projectConfigDir = join(projectPath, '.stigmergy-project');
             await fs.mkdir(projectConfigDir, { recursive: true });
 
-            // 生成项目配置
+            // 生成项目配置 - 只包含已安装的工具
             const projectConfig = {
                 projectType: 'initialized',
                 createdAt: new Date().toISOString(),
-                adapters: {}
+                adapters: availableCLIs.map(cli => ({
+                    name: cli.name,
+                    displayName: cli.displayName,
+                    required: cli.required,
+                    status: 'available'
+                }))
             };
-
-            // 检查可用的适配器
-            const availableAdapters = [];
-            const adapterNames = ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex'];
-
-            // 重新实现适配器加载逻辑
-            for (const adapterName of adapterNames) {
-                // 使用映射后的目录名进行加载
-                const adapterDirName = mapAdapterName(adapterName);
-                const configPath = join(__dirname, 'adapters', adapterDirName, 'config.json');
-
-                try {
-                    const configData = await fs.readFile(configPath, 'utf8');
-                    const config = JSON.parse(configData);
-                    availableAdapters.push({
-                        name: adapterName,
-                        version: config.version,
-                        integrationType: config.integration_mechanism || config.integration_type || 'N/A',
-                        status: 'available'
-                    });
-                } catch (error) {
-                    // 适配器不可用，继续下一个
-                    continue;
-                }
-            }
-
-            projectConfig.adapters = availableAdapters;
 
             // 保存项目配置
             const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
             await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
             console.log(`✅ Stigmergy项目初始化完成！`);
-            console.log(`📊 发现 ${availableAdapters.length} 个可用的AI CLI工具:`, availableAdapters.map(a => a.name).join(', '));
+            if (availableCLIs.length > 0) {
+                console.log(`📊 为 ${availableCLIs.length} 个已安装的AI CLI工具配置协作:`, availableCLIs.map(a => a.name).join(', '));
+            } else {
+                console.log(`📊 没有检测到已安装的AI CLI工具`);
+            }
 
-            // 生成增强的MD文档
-            for (const adapter of availableAdapters) {
-                const mdPath = join(projectPath, `${adapter.name}.md`);
+            // 为所有已安装的CLI生成配置文档
+            for (const cliInfo of availableCLIs) {
+                const mdPath = join(projectPath, `${cliInfo.name}.md`);
 
-                // 尝试加载适配器配置来生成文档
                 try {
-                    const adapterDirName = mapAdapterName(adapter.name);
-                    const configPath = join(__dirname, 'adapters', adapterDirName, 'config.json');
-                    const configData = await fs.readFile(configPath, 'utf8');
-                    const config = JSON.parse(configData);
-
-                    // 创建一个简单的增强文档
-                    const mdContent = `# ${config.displayName || adapter.name} CLI 配置
+                    // 为CLI生成基本配置文档
+                    const mdContent = `# ${cliInfo.displayName} 配置
 
 ## 基本信息
-- **名称**: ${adapter.name}
-- **版本**: ${config.version || 'N/A'}
-- **类型**: ${config.integration_mechanism || config.integration_type || 'N/A'}
+- **名称**: ${cliInfo.name}
+- **显示名称**: ${cliInfo.displayName}
+- **状态**: 已安装
+- **必需**: ${cliInfo.required ? '是' : '否'}
 
-## 说明
-此文件由Stigmergy CLI自动生成，用于记录${config.displayName || adapter.name}的配置信息。
+## Stigmergy协作配置
+此工具已配置为参与跨AI工具协作系统。
+
+## 协作指令示例
+- 中文: "请用${cliInfo.name}帮我{任务}"
+- 英文: "use ${cliInfo.name} to {task}"
+
+---
+生成时间: ${new Date().toISOString()}
 `;
                     await fs.writeFile(mdPath, mdContent);
-                    console.log(`✅ 生成 ${adapter.name}.md`);
+                    console.log(`✅ 生成 ${cliInfo.name}.md`);
                 } catch (error) {
-                    console.log(`⚠️ 生成 ${adapter.name}.md 失败: ${error.message}`);
+                    console.log(`⚠️ 生成 ${cliInfo.name}.md 失败: ${error.message}`);
                 }
             }
 
-            console.log('✅ 系统配置成功');
+            console.log('✅ 项目配置完成');
 
-            // 特别为QwenCode安装集成插件
-            console.log('\n🔄 检查并安装QwenCode集成插件...');
-            try {
-                // 检查QwenCode是否已安装
-                const childProcess = await import('child_process');
-                const { spawnSync } = childProcess;
-                let qwenResult;
-                if (process.platform === 'win32') {
-                    qwenResult = spawnSync('where', ['qwen'], { stdio: 'pipe' });
-                } else {
-                    qwenResult = spawnSync('which', ['qwen'], { stdio: 'pipe' });
+            // 为已安装的CLI配置集成插件（如果支持）
+            console.log('\n🔄 为已安装的CLI配置协作插件...');
+            for (const cliInfo of availableCLIs) {
+                if (cliInfo.name === 'qwen') {
+                    // 为QwenCode配置集成插件
+                    try {
+                        console.log(`\n🔄 配置 ${cliInfo.displayName} 集成插件...`);
+                        const childProcess = await import('child_process');
+                        const { spawn } = childProcess;
+
+                        // 运行QwenCode集成安装脚本
+                        const integrationProcess = spawn('python', [
+                            join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
+                            '--install'
+                        ], {
+                            stdio: ['pipe', 'pipe', 'pipe'],
+                            shell: true
+                        });
+
+                        integrationProcess.stdout.on('data', (data) => {
+                            const line = data.toString();
+                            if (!line.includes('QwenCode CLI跨CLI协作集成安装器')) {
+                                console.log(line);
+                            }
+                        });
+
+                        integrationProcess.stderr.on('data', (data) => {
+                            console.error(data.toString());
+                        });
+
+                        await new Promise((resolve) => {
+                            integrationProcess.on('close', (integrationCode) => {
+                                if (integrationCode === 0) {
+                                    console.log(`✅ ${cliInfo.displayName} 集成插件配置成功`);
+                                } else {
+                                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置可能未完成`);
+                                }
+                                resolve();
+                            });
+                        });
+                    } catch (error) {
+                        console.log(`⚠️ ${cliInfo.displayName} 集成插件配置过程中出错: ${error.message}`);
+                    }
                 }
-
-                if (qwenResult && qwenResult.status === 0) {
-                    console.log('✅ QwenCode CLI 已安装，正在安装集成插件...');
-
-                    // 运行QwenCode集成安装脚本
-                    const integrationProcess = spawn('python', [
-                        join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
-                        '--install'
-                    ], {
-                        stdio: ['pipe', 'pipe', 'pipe'],
-                        shell: true
-                    });
-
-                    integrationProcess.stdout.on('data', (data) => {
-                        console.log(data.toString());
-                    });
-
-                    integrationProcess.stderr.on('data', (data) => {
-                        console.error(data.toString());
-                    });
-
-                    integrationProcess.on('close', (integrationCode) => {
-                        if (integrationCode === 0) {
-                            console.log('✅ QwenCode集成插件安装成功');
-                        } else {
-                            console.log('⚠️ QwenCode集成插件安装可能未完成');
-                        }
-                    });
-                } else {
-                    console.log('ℹ️ QwenCode CLI 未安装，跳过集成插件安装');
+                // TODO: 可以扩展其他CLI工具的集成插件配置
+                else {
+                    console.log(`ℹ️ ${cliInfo.displayName} - 暂无特殊集成插件配置`);
                 }
-            } catch (integrationError) {
-                console.log('⚠️ QwenCode集成插件安装过程中出错:', integrationError.message);
             }
+
+            console.log('\n✅ 系统配置成功');
         } catch (error) {
             console.log(`❌ 系统配置失败: ${error.message}`);
         }
