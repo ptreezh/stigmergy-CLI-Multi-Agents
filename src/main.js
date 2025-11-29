@@ -29,25 +29,50 @@ class StigmergyCLIRouter {
     }
 
     async loadAdapter(adapterName) {
-        const configPath = join(this.config.adaptersDir, adapterName, 'config.json');
-        try {
-            const configData = await fs.readFile(configPath, 'utf8');
-            const config = JSON.parse(configData);
-            return { ...config, loaded: true };
-        } catch (error) {
-            console.error(`❌ 加载 ${adapterName} 适配器配置失败: ${error.message}`);
-            return { loaded: false, error: error.message };
+        // 尝试多个可能的路径
+        const possibleBasePaths = [
+            join(__dirname, 'adapters'),           // 从当前文件目录查找
+            join(dirname(__dirname), 'adapters'),  // 从当前目录的父目录查找
+        ];
+
+        for (const basePath of possibleBasePaths) {
+            try {
+                const configPath = join(basePath, adapterName, 'config.json');
+                const configData = await fs.readFile(configPath, 'utf8');
+                const config = JSON.parse(configData);
+                // 成功找到配置，返回
+                return { ...config, loaded: true };
+            } catch (error) {
+                // 继续尝试下一个路径
+                continue;
+            }
         }
+
+        // 所有路径都尝试过了但失败
+        const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterName, 'config.json');
+        console.error(`❌ 加载 ${adapterName} 适配器配置失败: 未找到配置文件在任何可能的路径中，最后尝试: ${lastPathAttempted}`);
+        return { loaded: false, error: "无法找到适配器配置文件" };
     }
 
     async checkAdapterExists(adapterName) {
-        const configPath = join(this.config.adaptersDir, `${adapterName}`, 'config.json');
-        try {
-            await fs.access(configPath);
-            return true;
-        } catch {
-            return false;
+        // 使用与loadAdapter相同的路径检测逻辑
+        const possibleBasePaths = [
+            join(__dirname, 'adapters'),           // 从当前文件目录查找
+            join(dirname(__dirname), 'adapters'),  // 从当前目录的父目录查找
+        ];
+
+        for (const basePath of possibleBasePaths) {
+            try {
+                const configPath = join(basePath, adapterName, 'config.json');
+                await fs.access(configPath);
+                return true;
+            } catch {
+                // 继续尝试下一个路径
+                continue;
+            }
         }
+
+        return false;
     }
 
     async installAdapter(adapterName, force = false) {
