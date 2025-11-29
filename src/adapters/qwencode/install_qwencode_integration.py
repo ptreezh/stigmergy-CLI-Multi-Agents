@@ -164,15 +164,15 @@ def verify_installation():
         if cross_cli_plugin:
             plugin_config = cross_cli_plugin.get('config', {})
             if plugin_config.get('cross_cli_enabled'):
-                print("✅ 跨CLI协作插件: 已启用")
-                print("✅ 支持的CLI工具:")
+                print("[SUCCESS] 跨CLI协作插件: 已启用")
+                print("[SUCCESS] 支持的CLI工具:")
                 supported_clis = plugin_config.get('supported_clis', [])
                 for cli in supported_clis:
                     print(f"   - {cli}")
-                print("✅ 自动检测: 已启用")
+                print("[SUCCESS] 自动检测: 已启用")
                 return True
             else:
-                print("⚠️ 跨CLI协作插件: 未启用")
+                print("[WARNING] 跨CLI协作插件: 未启用")
                 return False
         else:
             print("❌ 跨CLI协作插件: 未找到")
@@ -229,41 +229,41 @@ def main():
 
     args = parser.parse_args()
 
-    print("🚀 QwenCode CLI跨CLI协作集成安装器")
+    print("[INSTALL] QwenCode CLI跨CLI协作集成安装器")
     print("=" * 60)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
+        print("[UNINSTALL] 卸载模式...")
         success = uninstall_qwencode_integration()
     elif args.verify:
-        print("🔍 验证模式...")
+        print("[VERIFY] 验证模式...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
+        print("[INSTALL] 安装模式...")
 
         # 1. 创建配置目录
-        print("1️⃣ 创建配置目录...")
+        print("Step 1. 创建配置目录...")
         create_qwencode_config_directory()
 
         # 2. 安装插件配置
-        print("2️⃣ 安装插件配置...")
+        print("Step 2. 安装插件配置...")
         config_success = install_qwencode_plugins()
 
         # 3. 复制适配器文件
-        print("3️⃣ 复制适配器文件...")
+        print("Step 3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
         success = config_success and adapter_success
 
         if success:
-            print("\n🎉 QwenCode CLI集成安装成功！")
+            print("\n[SUCCESS] QwenCode CLI集成安装成功！")
             print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {QWENCODE_CONFIG_DIR}")
-            print(f"   ✅ 配置文件: {QWENCODE_CONFIG_FILE}")
-            print(f"   ✅ 适配器目录: {os.path.join(QWENCODE_CONFIG_DIR, 'plugins')}")
-            print("   ✅ 跨CLI协作: 已启用")
+            print(f"   [SUCCESS] 配置目录: {QWENCODE_CONFIG_DIR}")
+            print(f"   [SUCCESS] 配置文件: {QWENCODE_CONFIG_FILE}")
+            print(f"   [SUCCESS] 适配器目录: {os.path.join(QWENCODE_CONFIG_DIR, 'plugins')}")
+            print("   [SUCCESS] 跨CLI协作: 已启用")
 
-            print("\n🚀 下一步:")
+            print("\n[INFO] 下一步:")
             print("   1. 安装其他CLI工具的集成: ai-cli-router deploy --all")
             print("   2. 初始化项目: ai-cli-router init")
             print("   3. 开始协作: qwencode-cli '请用gemini帮我分析代码'")

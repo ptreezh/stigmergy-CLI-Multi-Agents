@@ -217,14 +217,14 @@ def main():
     print("=" * 50)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
+        print("[UNINSTALL] 卸载模式...")
         success = uninstall_claude_integration()
     elif args.verify:
-        print("🔍 验证模式...")
+        print("[VERIFY] 验证模式...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
-        print("\n🎯 为Claude CLI安装跨CLI协作感知能力")
+        print("[INSTALL] 安装模式...")
+        print("\n[INFO] 为Claude CLI安装跨CLI协作感知能力")
         print("这将让Claude CLI能够:")
         print("   - 检测跨CLI调用意图 (如: '请用gemini帮我分析')")
         print("   - 自动路由到目标CLI工具")
@@ -236,11 +236,11 @@ def main():
         create_claude_config_directory()
 
         # 2. 安装Hook配置
-        print("\n2️⃣ 安装Hook配置...")
+        print("\nStep 2. 安装Hook配置...")
         hooks_success = install_claude_hooks()
 
         # 3. 复制适配器文件
-        print("\n3️⃣ 复制适配器文件...")
+        print("\nStep 3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
         success = hooks_success and adapter_success

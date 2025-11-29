@@ -260,7 +260,7 @@ def main():
 
     args = parser.parse_args()
 
-    print("🚀 Codex CLI跨CLI协作集成安装器")
+    print("[INSTALL] Codex CLI跨CLI协作集成安装器")
     print("=" * 50)
 
     if args.uninstall:

@@ -211,28 +211,28 @@ def main():
     print("=" * 50)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
+        print("[UNINSTALL] 卸载模式...")
         success = uninstall_gemini_integration()
     elif args.verify:
-        print("🔍 验证模式...")
+        print("[VERIFY] 验证模式...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
+        print("[INSTALL] 安装模式...")
 
         # 1. 创建配置目录
-        print("\n1️⃣ 创建配置目录...")
+        print("\nStep 1. 创建配置目录...")
         create_gemini_config_directory()
 
         # 2. 安装Extension配置
-        print("\n2️⃣ 安装Extension配置...")
+        print("\nStep 2. 安装Extension配置...")
         extensions_success = install_gemini_extensions()
 
         # 3. 复制适配器文件
-        print("\n3️⃣ 复制适配器文件...")
+        print("\nStep 3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
         # 4. 验证安装
-        print("\n4️⃣ 验证安装...")
+        print("\nStep 4. 验证安装...")
         verify_success = verify_installation()
 
         success = extensions_success and adapter_success and verify_success

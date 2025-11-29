@@ -229,7 +229,7 @@ def main():
     print("=" * 50)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
+        print("[UNINSTALL] 卸载模式...")
         success = uninstall_qoder_integration()
     elif args.verify:
         print("🔍 验证模式...")

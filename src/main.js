@@ -173,6 +173,15 @@ class StigmergyCLIRouter {
         await fs.writeFile(dest, data);
     }
 
+    async directoryExists(dirPath) {
+        try {
+            const stat = await fs.stat(dirPath);
+            return stat.isDirectory();
+        } catch (error) {
+            return false;
+        }
+    }
+
     async deployAll(force = false) {
         console.log('🚀 开始部署所有适配器...');
 
@@ -209,8 +218,32 @@ class StigmergyCLIRouter {
     async initProject(projectPath = process.cwd()) {
         console.log('🚀 初始化Stigmergy CLI项目...');
 
+        // 验证并修复路径 - 确保不在系统根目录创建项目文件
+        let safeProjectPath = projectPath;
+        if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
+            safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
+            // 如果用户在磁盘根目录运行，创建一个专门的项目目录
+            console.log('⚠️  检测到在磁盘根目录运行，将自动创建项目目录进行初始化');
+
+            // 创建带序号的项目目录
+            let projectDirName = 'ProjStig';
+            let counter = 1;
+            let targetDir = join(safeProjectPath, projectDirName);
+
+            // 检查目录是否存在，如果存在则添加序号
+            while (await this.directoryExists(targetDir)) {
+                targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
+                counter++;
+            }
+
+            // 创建项目目录
+            await fs.mkdir(targetDir, { recursive: true });
+            safeProjectPath = targetDir;
+            console.log(`📁 项目目录创建成功: ${safeProjectPath}`);
+        }
+
         // 创建项目配置目录
-        const projectConfigDir = join(projectPath, '.stigmergy-project');
+        const projectConfigDir = join(safeProjectPath, '.stigmergy-project');
         await fs.mkdir(projectConfigDir, { recursive: true });
 
         // 生成项目配置
@@ -245,7 +278,8 @@ class StigmergyCLIRouter {
 
         // 生成增强的MD文档
         for (const adapter of availableAdapters) {
-            const mdPath = join(projectPath, `${adapter.name}.md`);
+            // 确保md文件生成在项目目录中而不是系统根目录
+            const mdPath = join(safeProjectPath, `${adapter.name}.md`);
             const config = await this.loadAdapter(adapter.name);
 
             if (config.loaded) {
@@ -884,8 +918,32 @@ async function runQuickDeploy() {
             const projectPath = process.cwd();
             console.log('\n🚀 初始化Stigmergy CLI项目...');
 
+            // 验证并修复路径 - 确保不在系统根目录创建项目文件
+            let safeProjectPath = projectPath;
+            if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
+                safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
+                // 如果用户在磁盘根目录运行，创建一个专门的项目目录
+                console.log('⚠️  检测到在磁盘根目录运行，将自动创建项目目录进行初始化');
+
+                // 创建带序号的项目目录
+                let projectDirName = 'ProjStig';
+                let counter = 1;
+                let targetDir = join(safeProjectPath, projectDirName);
+
+                // 检查目录是否存在，如果存在则添加序号
+                while (await this.directoryExists(targetDir)) {
+                    targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
+                    counter++;
+                }
+
+                // 创建项目目录
+                await fs.mkdir(targetDir, { recursive: true });
+                safeProjectPath = targetDir;
+                console.log(`📁 项目目录创建成功: ${safeProjectPath}`);
+            }
+
             // 创建项目配置目录
-            const projectConfigDir = join(projectPath, '.stigmergy-project');
+            const projectConfigDir = join(safeProjectPath, '.stigmergy-project');
             await fs.mkdir(projectConfigDir, { recursive: true });
 
             // 生成项目配置 - 只包含已安装的工具
@@ -913,7 +971,8 @@ async function runQuickDeploy() {
 
             // 为所有已安装的CLI生成配置文档
             for (const cliInfo of availableCLIs) {
-                const mdPath = join(projectPath, `${cliInfo.name}.md`);
+                // 确保md文件生成在项目目录中而不是系统根目录
+                const mdPath = join(safeProjectPath, `${cliInfo.name}.md`);
 
                 try {
                     // 为CLI生成基本配置文档

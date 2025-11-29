@@ -228,32 +228,32 @@ def main():
 
     args = parser.parse_args()
 
-    print("🔧 CodeBuddy CLI跨CLI协作集成安装器")
+    print("[INSTALL] CodeBuddy CLI跨CLI协作集成安装器")
     print("=" * 50)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
+        print("[UNINSTALL] 卸载模式...")
         success = uninstall_codebuddy_integration()
     elif args.verify:
-        print("🔍 验证模式...")
+        print("[VERIFY] 验证模式...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
+        print("[INSTALL] 安装模式...")
 
         # 1. 创建配置目录
-        print("1️⃣ 创建配置目录...")
+        print("Step 1. 创建配置目录...")
         create_codebuddy_config_directory()
 
         # 2. 安装Skills配置
-        print("2️⃣ 安装Skills配置...")
+        print("Step 2. 安装Skills配置...")
         config_success = install_codebuddy_skills()
 
         # 3. 复制适配器文件
-        print("3️⃣ 复制适配器文件...")
+        print("Step 3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
         # 4. 验证安装
-        print("4️⃣ 验证安装...")
+        print("Step 4. 验证安装...")
         verify_success = verify_installation()
 
         success = config_success and adapter_success and verify_success
