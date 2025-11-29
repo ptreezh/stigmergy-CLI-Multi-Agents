@@ -813,13 +813,62 @@ async function runQuickDeploy() {
                 }
             });
 
-            configProcess.on('close', (code) => {
+            configProcess.on('close', async (code) => {
                 if (code === 0) {
                     console.log('✅ 系统配置成功');
+
+                    // 特别为QwenCode安装集成插件
+                    console.log('\n🔄 检查并安装QwenCode集成插件...');
+                    try {
+                        // 检查QwenCode是否已安装
+                        const { spawnSync } = require('child_process');
+                        let qwenResult;
+                        if (process.platform === 'win32') {
+                            qwenResult = spawnSync('where', ['qwen'], { stdio: 'pipe' });
+                        } else {
+                            qwenResult = spawnSync('which', ['qwen'], { stdio: 'pipe' });
+                        }
+
+                        if (qwenResult.status === 0) {
+                            console.log('✅ QwenCode CLI 已安装，正在安装集成插件...');
+
+                            // 运行QwenCode集成安装脚本
+                            const integrationProcess = spawn('python', [
+                                join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
+                                '--install'
+                            ], {
+                                stdio: ['pipe', 'pipe', 'pipe'],
+                                shell: true
+                            });
+
+                            integrationProcess.stdout.on('data', (data) => {
+                                console.log(data.toString());
+                            });
+
+                            integrationProcess.stderr.on('data', (data) => {
+                                console.error(data.toString());
+                            });
+
+                            integrationProcess.on('close', (integrationCode) => {
+                                if (integrationCode === 0) {
+                                    console.log('✅ QwenCode集成插件安装成功');
+                                } else {
+                                    console.log('⚠️ QwenCode集成插件安装可能未完成');
+                                }
+                                resolve();
+                            });
+                        } else {
+                            console.log('ℹ️ QwenCode CLI 未安装，跳过集成插件安装');
+                            resolve();
+                        }
+                    } catch (integrationError) {
+                        console.log('⚠️ QwenCode集成插件安装过程中出错:', integrationError.message);
+                        resolve();
+                    }
                 } else {
                     console.log('⚠️ 系统配置可能未完成，您可能需要运行: npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main init');
+                    resolve();
                 }
-                resolve();
             });
         });
     }
