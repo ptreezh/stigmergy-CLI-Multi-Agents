@@ -789,89 +789,152 @@ async function runQuickDeploy() {
         }
     }
 
-    // 配置系统 - 通过npx运行当前代码的init命令
+    // 适配器名称映射函数
+    function mapAdapterName(adapterName) {
+        // 将用户接口名称映射到实际的适配器目录名称
+        const nameMap = {
+            'qwen': 'qwencode'  // qwen在内部对应qwencode目录
+        };
+        return nameMap[adapterName] || adapterName;
+    }
+
+    // 配置系统 - 运行本地init命令
     async function configureSystem() {
         console.log('\n⚙️  正在配置Stigmergy CLI协作系统...');
 
-        const { spawn } = await import('child_process');
-        return new Promise((resolve) => {
-            // 尝试运行当前仓库的init命令
-            const configProcess = spawn('npx', ['-y', 'git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main', 'init'], {
-                stdio: ['pipe', 'pipe', 'pipe'],
-                shell: true
-            });
+        // 直接在当前进程中运行init，而不是通过npx调用远程代码
+        try {
+            // 直接调用init功能
+            const projectPath = process.cwd();
+            console.log('🚀 初始化Stigmergy CLI项目...');
 
-            configProcess.stdout.on('data', (data) => {
-                console.log(data.toString());
-            });
+            // 创建项目配置目录
+            const projectConfigDir = join(projectPath, '.stigmergy-project');
+            await fs.mkdir(projectConfigDir, { recursive: true });
 
-            configProcess.stderr.on('data', (data) => {
-                const error = data.toString();
-                // 避免显示不必要的错误信息
-                if (!error.includes('deprecated') && !error.includes('WARN')) {
-                    console.log(error);
+            // 生成项目配置
+            const projectConfig = {
+                projectType: 'initialized',
+                createdAt: new Date().toISOString(),
+                adapters: {}
+            };
+
+            // 检查可用的适配器
+            const availableAdapters = [];
+            const adapterNames = ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex'];
+
+            // 重新实现适配器加载逻辑
+            for (const adapterName of adapterNames) {
+                // 使用映射后的目录名进行加载
+                const adapterDirName = mapAdapterName(adapterName);
+                const configPath = join(__dirname, 'adapters', adapterDirName, 'config.json');
+
+                try {
+                    const configData = await fs.readFile(configPath, 'utf8');
+                    const config = JSON.parse(configData);
+                    availableAdapters.push({
+                        name: adapterName,
+                        version: config.version,
+                        integrationType: config.integration_mechanism || config.integration_type || 'N/A',
+                        status: 'available'
+                    });
+                } catch (error) {
+                    // 适配器不可用，继续下一个
+                    continue;
                 }
-            });
+            }
 
-            configProcess.on('close', async (code) => {
-                if (code === 0) {
-                    console.log('✅ 系统配置成功');
+            projectConfig.adapters = availableAdapters;
 
-                    // 特别为QwenCode安装集成插件
-                    console.log('\n🔄 检查并安装QwenCode集成插件...');
-                    try {
-                        // 检查QwenCode是否已安装
-                        const { spawnSync } = require('child_process');
-                        let qwenResult;
-                        if (process.platform === 'win32') {
-                            qwenResult = spawnSync('where', ['qwen'], { stdio: 'pipe' });
-                        } else {
-                            qwenResult = spawnSync('which', ['qwen'], { stdio: 'pipe' });
-                        }
+            // 保存项目配置
+            const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
+            await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
-                        if (qwenResult.status === 0) {
-                            console.log('✅ QwenCode CLI 已安装，正在安装集成插件...');
+            console.log(`✅ Stigmergy项目初始化完成！`);
+            console.log(`📊 发现 ${availableAdapters.length} 个可用的AI CLI工具:`, availableAdapters.map(a => a.name).join(', '));
 
-                            // 运行QwenCode集成安装脚本
-                            const integrationProcess = spawn('python', [
-                                join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
-                                '--install'
-                            ], {
-                                stdio: ['pipe', 'pipe', 'pipe'],
-                                shell: true
-                            });
+            // 生成增强的MD文档
+            for (const adapter of availableAdapters) {
+                const mdPath = join(projectPath, `${adapter.name}.md`);
 
-                            integrationProcess.stdout.on('data', (data) => {
-                                console.log(data.toString());
-                            });
+                // 尝试加载适配器配置来生成文档
+                try {
+                    const adapterDirName = mapAdapterName(adapter.name);
+                    const configPath = join(__dirname, 'adapters', adapterDirName, 'config.json');
+                    const configData = await fs.readFile(configPath, 'utf8');
+                    const config = JSON.parse(configData);
 
-                            integrationProcess.stderr.on('data', (data) => {
-                                console.error(data.toString());
-                            });
+                    // 创建一个简单的增强文档
+                    const mdContent = `# ${config.displayName || adapter.name} CLI 配置
 
-                            integrationProcess.on('close', (integrationCode) => {
-                                if (integrationCode === 0) {
-                                    console.log('✅ QwenCode集成插件安装成功');
-                                } else {
-                                    console.log('⚠️ QwenCode集成插件安装可能未完成');
-                                }
-                                resolve();
-                            });
-                        } else {
-                            console.log('ℹ️ QwenCode CLI 未安装，跳过集成插件安装');
-                            resolve();
-                        }
-                    } catch (integrationError) {
-                        console.log('⚠️ QwenCode集成插件安装过程中出错:', integrationError.message);
-                        resolve();
-                    }
+## 基本信息
+- **名称**: ${adapter.name}
+- **版本**: ${config.version || 'N/A'}
+- **类型**: ${config.integration_mechanism || config.integration_type || 'N/A'}
+
+## 说明
+此文件由Stigmergy CLI自动生成，用于记录${config.displayName || adapter.name}的配置信息。
+`;
+                    await fs.writeFile(mdPath, mdContent);
+                    console.log(`✅ 生成 ${adapter.name}.md`);
+                } catch (error) {
+                    console.log(`⚠️ 生成 ${adapter.name}.md 失败: ${error.message}`);
+                }
+            }
+
+            console.log('✅ 系统配置成功');
+
+            // 特别为QwenCode安装集成插件
+            console.log('\n🔄 检查并安装QwenCode集成插件...');
+            try {
+                // 检查QwenCode是否已安装
+                const childProcess = await import('child_process');
+                const { spawnSync } = childProcess;
+                let qwenResult;
+                if (process.platform === 'win32') {
+                    qwenResult = spawnSync('where', ['qwen'], { stdio: 'pipe' });
                 } else {
-                    console.log('⚠️ 系统配置可能未完成，您可能需要运行: npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main init');
-                    resolve();
+                    qwenResult = spawnSync('which', ['qwen'], { stdio: 'pipe' });
                 }
-            });
-        });
+
+                if (qwenResult && qwenResult.status === 0) {
+                    console.log('✅ QwenCode CLI 已安装，正在安装集成插件...');
+
+                    // 运行QwenCode集成安装脚本
+                    const integrationProcess = spawn('python', [
+                        join(__dirname, 'adapters', 'qwencode', 'install_qwencode_integration.py'),
+                        '--install'
+                    ], {
+                        stdio: ['pipe', 'pipe', 'pipe'],
+                        shell: true
+                    });
+
+                    integrationProcess.stdout.on('data', (data) => {
+                        console.log(data.toString());
+                    });
+
+                    integrationProcess.stderr.on('data', (data) => {
+                        console.error(data.toString());
+                    });
+
+                    integrationProcess.on('close', (integrationCode) => {
+                        if (integrationCode === 0) {
+                            console.log('✅ QwenCode集成插件安装成功');
+                        } else {
+                            console.log('⚠️ QwenCode集成插件安装可能未完成');
+                        }
+                    });
+                } else {
+                    console.log('ℹ️ QwenCode CLI 未安装，跳过集成插件安装');
+                }
+            } catch (integrationError) {
+                console.log('⚠️ QwenCode集成插件安装过程中出错:', integrationError.message);
+            }
+        } catch (error) {
+            console.log(`❌ 系统配置失败: ${error.message}`);
+        }
     }
+
 
     // 询问用户输入（使用命令行参数而不是inquirer）
     async function promptForTools(notInstalledTools) {
@@ -924,14 +987,15 @@ async function runQuickDeploy() {
     function showInitializationGuide() {
         console.log('\n🎉 部署完成！以下是使用指南：');
         console.log('\n📋 快速开始:');
-        console.log('  1. 初始化项目: npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main init');
-        console.log('  2. 查看状态: npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main status');
-        console.log('  3. 扫描环境: npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main scan');
+        console.log('  1. 初始化项目: node src/main.js init');
+        console.log('  2. 查看状态: node src/main.js status');
+        console.log('  3. 扫描环境: node src/main.js scan');
 
         console.log('\n🚀 跨AI工具协作示例:');
-        console.log('  - npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main claude "请用gemini帮我翻译这段代码"');
-        console.log('  - npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main gemini "调用qwen分析这个需求"');
-        console.log('  - npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main qwen "用iflow创建工作流"');
+        console.log('  - 直接在各CLI工具中使用协作指令：');
+        console.log('    例: qwen "请用gemini帮我翻译这段代码"');
+        console.log('    例: gemini "调用qwen分析这个需求"');
+        console.log('    例: claude "使用iflow创建工作流"');
 
         console.log('\n💡 高级功能:');
         console.log('  - 项目背景共享：所有AI工具共享PROJECT_SPEC.json');
