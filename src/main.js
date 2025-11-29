@@ -972,13 +972,28 @@ async function runQuickDeploy() {
                         const childProcess = await import('child_process');
                         const { spawn } = childProcess;
 
+                        // 对于Copilot，需要处理npx环境下的路径问题
+                        let additionalEnv = {};
+                        if (cliInfo.name === 'copilot') {
+                            // 设置项目根目录环境变量，帮助Python脚本找到配置文件
+                            const projectRoot = join(__dirname);  // 主目录
+                            additionalEnv = {
+                                ...process.env,
+                                PROJECT_ROOT: projectRoot,
+                                STIGMERGY_PROJECT_ROOT: projectRoot
+                            };
+                        } else {
+                            additionalEnv = process.env;
+                        }
+
                         // 运行集成安装脚本，使用特定于该工具的安装参数
                         const integrationProcess = spawn('python', [
                             installScriptPath,
                             ...installArgs
                         ], {
                             stdio: ['pipe', 'pipe', 'pipe'],
-                            shell: true
+                            shell: true,
+                            env: additionalEnv
                         });
 
                         integrationProcess.stdout.on('data', (data) => {
@@ -996,6 +1011,8 @@ async function runQuickDeploy() {
                             // 过滤特定的Python错误信息
                             if (!errorLine.includes('CLADE_CONFIG_DIR') && // Claude脚本错误
                                 !errorLine.includes('argument --install: ignored explicit argument') && // Copilot参数错误
+                                !errorLine.includes('No such file or directory') && // Copilot路径错误
+                                !errorLine.includes('loading config file failed') && // Copilot配置文件错误
                                 errorLine.length > 0) {
                                 console.error(errorLine);
                             }
