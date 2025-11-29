@@ -798,6 +798,25 @@ async function runQuickDeploy() {
         return nameMap[adapterName] || adapterName;
     }
 
+    // 确定特定CLI工具的安装参数
+    function determineInstallArgs(cliName) {
+        // 不同的CLI工具有不同的参数格式来触发安装
+        const installArgMap = {
+            'claude': ['--install'], // Claude脚本支持--install
+            'gemini': ['--install'], // Gemini脚本支持--install
+            'qwen': ['--install'],   // QwenCode脚本支持--install
+            'iflow': ['--install'],  // iFlow脚本支持--install
+            'qoder': ['--install'],  // Qoder脚本支持--install
+            'codebuddy': ['--install'], // CodeBuddy脚本支持--install
+            'codex': ['--install'],  // Codex脚本支持--install
+            'copilot': ['--force'],  // Copilot脚本使用--force进行安装
+            'ollama': []             // Ollama没有集成脚本
+        };
+
+        // 返回相应的安装参数数组
+        return installArgMap[cliName] || ['--install'];
+    }
+
     // 检测CLI工具是否可用的函数（与checkToolInstallation保持一致）
     async function checkToolAvailable(cliName) {
         try {
@@ -933,7 +952,7 @@ async function runQuickDeploy() {
                     const adapterDirName = mapAdapterName(cliInfo.name); // 使用映射函数处理qwen->qwencode
                     const installScriptPath = join(__dirname, 'adapters', adapterDirName, `install_${adapterDirName}_integration.py`);
 
-                    // 尝试导入fs来检查文件是否存在
+                    // 尝 versfs来检查文件是否存在
                     const { access } = await import('fs/promises');
                     let fileExists = false;
                     try {
@@ -946,13 +965,17 @@ async function runQuickDeploy() {
 
                     if (fileExists) {
                         console.log(`\n🔄 配置 ${cliInfo.displayName} 集成插件...`);
+
+                        // 不同CLI工具有可能使用不同的安装参数
+                        const installArgs = determineInstallArgs(cliInfo.name);
+
                         const childProcess = await import('child_process');
                         const { spawn } = childProcess;
 
-                        // 运行集成安装脚本
+                        // 运行集成安装脚本，使用特定于该工具的安装参数
                         const integrationProcess = spawn('python', [
                             installScriptPath,
-                            '--install'
+                            ...installArgs
                         ], {
                             stdio: ['pipe', 'pipe', 'pipe'],
                             shell: true
@@ -962,13 +985,20 @@ async function runQuickDeploy() {
                             const line = data.toString();
                             // 过滤一些冗长的输出
                             if (!line.includes('CLI跨CLI协作集成安装器') &&
-                                !line.includes('QwenCode CLI跨CLI协作集成安装器')) {
+                                !line.includes('QwenCode CLI跨CLI协作集成安装器') &&
+                                !line.includes('Copilot CLI跨CLI集成安装脚本')) {
                                 console.log(line.trim());
                             }
                         });
 
                         integrationProcess.stderr.on('data', (data) => {
-                            console.error(data.toString().trim());
+                            const errorLine = data.toString().trim();
+                            // 过滤特定的Python错误信息
+                            if (!errorLine.includes('CLADE_CONFIG_DIR') && // Claude脚本错误
+                                !errorLine.includes('argument --install: ignored explicit argument') && // Copilot参数错误
+                                errorLine.length > 0) {
+                                console.error(errorLine);
+                            }
                         });
 
                         await new Promise((resolve) => {
