@@ -18,7 +18,8 @@ const CONFIG = {
     repo: 'https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git',
     localConfig: join(homedir(), '.stigmergy-cli'),
     templatesDir: join(__dirname, 'templates'),
-    adaptersDir: join(__dirname, 'adapters')
+    // 确定适配器目录路径 - 当main.js在src目录下时，需要返回到包根目录
+    adaptersDir: join(dirname(__dirname), 'adapters')
 };
 
 class StigmergyCLIRouter {
