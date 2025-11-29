@@ -1,6 +1,6 @@
 {
   "name": "stigmergy-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统",
   "main": "src/main.js",
@@ -17,7 +17,10 @@
     "check-project": "node src/main.js check-project",
     "validate": "node src/main.js validate",
     "clean": "node src/main.js clean",
-    "build": "node src/deploy.js --build",
+    "build": "node src/build.js",
+    "build-only": "node src/deploy.js --build",
+    "quick-install": "node src/quick_install.js",
+    "quick-deploy": "node src/main.js quick-deploy",
     "publish-to-npm": "node publish.js",
     "unpublish": "npm unpublish",
     "version": "npm version patch",
@@ -63,7 +66,8 @@
     "commander": "^12.0.0",
     "inquirer": "^9.0.0",
     "chalk": "^5.0.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
   },

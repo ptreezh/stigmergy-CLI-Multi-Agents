@@ -11,8 +11,24 @@
 
 ## 🚀 快速开始
 
+### 一键部署（推荐）
+
 ```bash
-# 通过NPM全局安装（推荐）
+# 一键部署完整协作系统（检测+安装+配置）
+npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main quick-deploy
+```
+
+或者，如果您已全局安装了stigmergy-cli：
+
+```bash
+# 通过已安装的CLI运行
+npx stigmergy-cli quick-deploy
+```
+
+### 手动安装
+
+```bash
+# 通过NPM全局安装
 npm install -g stigmergy-cli
 
 # 初始化项目
