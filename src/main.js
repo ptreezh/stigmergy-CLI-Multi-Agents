@@ -734,7 +734,7 @@ async function runQuickDeploy() {
     async function configureSystem() {
         console.log('\n⚙️  正在配置Stigmergy CLI协作系统...');
 
-        const { spawn } = require('child_process');
+        const { spawn } = await import('child_process');
         return new Promise((resolve) => {
             // 尝试运行当前仓库的init命令
             const configProcess = spawn('npx', ['-y', 'git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main', 'init'], {
