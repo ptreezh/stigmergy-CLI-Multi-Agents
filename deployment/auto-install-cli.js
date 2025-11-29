@@ -142,6 +142,13 @@ class AutoCLIInstaller {
         this.print(`📊 检查结果: ${availableCount}/${this.targetCLIs.length} 个工具已安装`);
 
         const missing = Object.values(results).filter(r => !r.installed).length;
+
+        // 清除旧的缓存文件
+        const cacheFile = path.join(this.configDir, 'cli-status-cache.json');
+        if (fs.existsSync(cacheFile)) {
+            fs.unlinkSync(cacheFile);
+            this.print('🔄 已清除旧的CLI状态缓存');
+        }
         if (missing > 0) {
             this.print(`💡 可以运行以下命令安装缺失的工具:`);
             this.print(`   node auto-install-cli.js auto-install`);
@@ -250,8 +257,19 @@ class AutoCLIInstaller {
         }
 
         this.print(`📊 安装结果: ${successCount} 成功, ${failCount} 失败`);
-
+        
+        // 重新扫描以获取最新状态
         if (successCount > 0) {
+            this.print('');
+            this.print('🔄 重新扫描以更新工具状态...');
+            // 清除所有可能的缓存
+            const cacheFile = path.join(this.configDir, 'cli-status-cache.json');
+            if (fs.existsSync(cacheFile)) {
+                fs.unlinkSync(cacheFile);
+                this.print('🔄 已清除缓存，确保获取最新状态');
+            }
+            await this.check();  // This will show the updated status
+            
             this.print('🚀 开始部署扩展...');
             await this.deployExtensions();
         }

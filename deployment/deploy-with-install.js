@@ -123,7 +123,7 @@ class StigmergyDeployerWithInstall {
         });
     }
 
-    async scan() {
+    async scan(forceRescan = false) {
         this.print('🔍 扫描AI CLI工具...');
         this.print('');
 
@@ -164,10 +164,15 @@ class StigmergyDeployerWithInstall {
 
         // 保存结果
         await this.ensureDir(this.configDir);
-        await fs.promises.writeFile(
-            path.join(this.configDir, 'scan-results.json'),
-            JSON.stringify(results, null, 2)
-        );
+        const scanFile = path.join(this.configDir, 'scan-results.json');
+        
+        // 如果是强制重新扫描，先删除旧文件
+        if (forceRescan && fs.existsSync(scanFile)) {
+            fs.unlinkSync(scanFile);
+            this.print('🔄 已清除旧的扫描缓存');
+        }
+        
+        await fs.promises.writeFile(scanFile, JSON.stringify(results, null, 2));
 
         return results;
     }
@@ -369,9 +374,11 @@ class StigmergyDeployerWithInstall {
             switch (choice) {
                 case 'b':
                     await this.installCLI();
-                    // 重新扫描
-                    const newScanResults = await this.scan();
-                    Object.assign(scanResults, newScanResults);
+                    // 重新扫描并完全替换之前的扫描结果
+                    scanResults = await this.scan(true); // 强制重新扫描
+                    // 更新缺失工具列表
+                    missingTools = Object.keys(scanResults).filter(name => !scanResults[name].available);
+                    this.print('✅ 工具安装完成，已更新扫描结果');
                     break;
                 case 'c':
                     this.print('跳过安装，使用现有工具继续部署...');

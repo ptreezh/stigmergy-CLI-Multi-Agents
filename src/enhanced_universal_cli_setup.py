@@ -190,21 +190,29 @@ class EnhancedCLISetup:
         with open(self.config_file, 'w', encoding='utf-8') as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
 
-    def detect_with_npm(self, package_name: str) -> dict:
+    def detect_with_npm(self, package_name: str, force_rescan=False) -> dict:
         """
         使用npm检测包安装状态（文件重定向方式）
         
         Args:
             package_name: npm包名
+            force_rescan: 是否强制重新扫描（忽略缓存）
             
         Returns:
             检测结果字典
         """
+        # 如果不是强制重扫描，可以检查缓存
+        if not force_rescan:
+            # TODO: 实现简单的内存缓存机制
+            pass
+        
         with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json', encoding='utf-8') as tmp_file:
             temp_filename = tmp_file.name
 
         try:
             # 使用shell重定向方式运行npm命令
+            # 添加 --depth=0 选项确保只检查顶层包，避免扫描所有依赖
+            # 对于强制重扫描，我们确保每次都执行新命令
             subprocess.run(f'npm list -g --depth=0 --json > "{temp_filename}"', 
                          shell=True, capture_output=True, timeout=15)
             
@@ -256,8 +264,14 @@ class EnhancedCLISetup:
             if os.path.exists(temp_filename):
                 os.unlink(temp_filename)
 
-    def detect_with_which(self, command: str) -> bool:
-        """使用which或where命令检测可执行文件"""
+    def detect_with_which(self, command: str, force_rescan=False) -> bool:
+        """使用which或where命令检测可执行文件
+        
+        Args:
+            command: 要检测的命令
+            force_rescan: 是否强制重新扫描（忽略缓存）
+        """
+        # which/where命令通常不需要缓存，但可以在这里实现缓存逻辑
         try:
             if platform.system() == 'Windows':
                 result = subprocess.run(
@@ -278,12 +292,17 @@ class EnhancedCLISetup:
         except:
             return False
 
-    def discover_available_tools(self):
-        """发现可用工具 - 增强版，使用npm检测和命令检测双重机制"""
+    def discover_available_tools(self, force_rescan=False):
+        """发现可用工具 - 增强版，使用npm检测和命令检测双重机制
+        
+        Args:
+            force_rescan: 是否强制重新扫描，清除缓存
+        """
         available = {}
         npm_results = {}
 
-        print("🔍 正在使用增强检测机制发现可用工具...")
+        scan_type = "🔄 强制重新扫描" if force_rescan else "🔍 正在使用增强检测机制发现可用工具"
+        print(f"{scan_type}...")
 
         for tool_name, tool_config in self.config["tools"].items():
             print(f"  检测 {tool_name}...")
@@ -296,7 +315,7 @@ class EnhancedCLISetup:
             npm_installed = False
             npm_version = None
             if npm_package:
-                npm_result = self.detect_with_npm(npm_package)
+                npm_result = self.detect_with_npm(npm_package, force_rescan)
                 npm_installed = npm_result.get('installed', False)
                 npm_version = npm_result.get('version', 'unknown')
                 npm_results[tool_name] = npm_result
@@ -312,7 +331,7 @@ class EnhancedCLISetup:
                 cmd_installed = wrapper_path.exists()
             else:
                 # 检查命令是否存在
-                cmd_installed = self.detect_with_which(command.split()[0])
+                cmd_installed = self.detect_with_which(command.split()[0], force_rescan)
             
             if cmd_installed:
                 print(f"    cmd: ✅")
@@ -755,7 +774,7 @@ if __name__ == "__main__":
 
         return router_content
 
-    def enhanced_setup_environment(self):
+    def enhanced_setup_environment(self, refresh_after_install=True):
         """增强环境设置"""
         print(f"🚀 开始增强环境设置...")
 
@@ -784,6 +803,34 @@ if __name__ == "__main__":
         
         # 保存增强检测报告
         self.save_enhanced_report(available_tools)
+    
+    def refresh_tools_and_configure(self):
+        """刷新工具列表并配置插件 - 用于CLI安装后重新扫描"""
+        print("🔄 刷新工具列表...")
+        
+        # 强制重新扫描所有工具
+        refreshed_tools = self.discover_available_tools(force_rescan=True)
+        
+        print(f"🔧 发现 {len(refreshed_tools)} 个工具，配置插件...")
+        
+        # 重新配置插件/路由器
+        formats = self.config.get("output_formats", ["cmd", "powershell", "bash", "python"])
+        
+        for tool_name in refreshed_tools:
+            if refreshed_tools[tool_name]:
+                print(f"  为新安装的 {tool_name} 配置插件...")
+                for fmt in formats:
+                    try:
+                        content = self.generate_smart_router(tool_name, fmt)
+                        filename = f"smart_{tool_name}.{fmt if fmt != 'python' else 'py'}"
+                        with open(filename, 'w', encoding='utf-8') as f:
+                            f.write(content)
+                        print(f"    ✅ {filename}")
+                    except Exception as e:
+                        print(f"    ❌ 配置 {tool_name}.{fmt} 失败: {e}")
+        
+        print("✅ 插件配置完成！")
+        return refreshed_tools
 
     def save_enhanced_report(self, available_tools):
         """保存增强检测报告"""

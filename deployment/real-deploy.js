@@ -121,12 +121,21 @@ class RealStigmergyDeployer {
         });
     }
 
-    async scan() {
+    async scan(forceRescan = false) {
         this.print('🔍 扫描已安装的AI CLI工具和扩展...');
         this.print('');
 
         const results = {};
         let availableTools = 0;
+
+        // 清除缓存
+        if (forceRescan) {
+            const cacheFile = path.join(this.configDir, 'scan-cache.json');
+            if (fs.existsSync(cacheFile)) {
+                fs.unlinkSync(cacheFile);
+                this.print('🔄 已清除扫描缓存');
+            }
+        }
 
         for (const [tool, config] of Object.entries(this.cliConfigs)) {
             process.stdout.write(`检测 ${tool.toUpperCase()}... `);
@@ -223,10 +232,14 @@ class RealStigmergyDeployer {
             }
         }
 
-        // 3. 创建全局配置
-        await this.createGlobalConfig(scanResults);
+        // 3. 重新扫描以获取最新状态
+        this.print('\\n🔄 重新扫描以验证部署结果...');
+        const updatedResults = await this.scan(true); // 强制重新扫描
 
-        // 4. 显示结果
+        // 4. 创建全局配置
+        await this.createGlobalConfig(updatedResults);
+
+        // 5. 显示结果
         this.print('\\n🎉 部署完成！');
         this.print('=============');
         this.print(`📊 部署统计: ${successCount}/${deployCount} 成功`);
