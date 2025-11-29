@@ -60,9 +60,102 @@ class CopilotIntegrationInstaller:
                     logger.info(f"使用配置文件: {config_path_option}")
                     break
             else:
-                # 如果所有选项都失败，使用默认位置并记录警告
+                # 如果所有选项都失败，使用默认位置并动态创建配置
                 self.config_path = self.script_dir / "config.json"
-                logger.warning(f"配置文件不存在: {self.config_path}, 尝试在标准位置创建")
+
+                # 创建默认配置内容
+                default_config = {
+                    "name": "copilot",
+                    "displayName": "GitHub Copilot CLI",
+                    "version": "1.0.0",
+                    "integration_type": "mcp_server",
+                    "config_file": "~/.config/copilot/config.json",
+                    "global_doc": "copilot.md",
+                    "description": "GitHub Copilot CLI MCP服务器集成适配器",
+                    "mcp_config": {
+                        "server_name": "stigmergy-copilot-integration",
+                        "command": "python",
+                        "args": [
+                            "src/adapters/copilot/mcp_server.py"
+                        ],
+                        "environment": {
+                            "PYTHONPATH": ".",
+                            "STIGMERGY_CONFIG_PATH": "~/.stigmergy",
+                            "COPILOT_ADAPTER_MODE": "cross_cli"
+                        },
+                        "health_check_interval": 30,
+                        "timeout": 60
+                    },
+                    "custom_agents": {
+                        "cross_cli_caller": {
+                            "name": "CrossCLICaller",
+                            "description": "跨CLI工具调用代理",
+                            "version": "1.0.0",
+                            "tools": [
+                                "cross_cli_execute",
+                                "get_available_clis",
+                                "check_cli_status"
+                            ],
+                            "permissions": [
+                                "execute_external_cli",
+                                "read_config",
+                                "write_logs"
+                            ]
+                        }
+                    },
+                    "supported_cli_tools": [
+                        "claude",
+                        "gemini",
+                        "qwencode",
+                        "iflow",
+                        "qoder",
+                        "codebuddy",
+                        "codex"
+                    ],
+                    "permissions": {
+                        "execute_external_cli": {
+                            "description": "执行外部CLI工具",
+                            "level": "high",
+                            "requires_approval": False
+                        },
+                        "read_config": {
+                            "description": "读取CLI配置文件",
+                            "level": "medium",
+                            "requires_approval": False
+                        },
+                        "write_logs": {
+                            "description": "写入日志文件",
+                            "level": "low",
+                            "requires_approval": False
+                        }
+                    },
+                    "adapter": {
+                        "name": "Copilot MCP Integration Adapter",
+                        "version": "1.0.0",
+                        "type": "mcp_server",
+                        "module_path": "src.adapters.copilot.mcp_adapter",
+                        "class_name": "CopilotMCPIntegrationAdapter",
+                        "features": [
+                            "cross_cli_detection",
+                            "command_routing",
+                            "result_formatting",
+                            "collaboration_tracking"
+                        ]
+                    }
+                }
+
+                # 创建配置文件
+                try:
+                    self.script_dir.mkdir(parents=True, exist_ok=True)
+                    with open(self.config_path, 'w', encoding='utf-8') as f:
+                        import json
+                        json.dump(default_config, f, indent=2, ensure_ascii=False)
+                    logger.info(f"✅ 已创建默认配置文件: {self.config_path}")
+                except Exception as e:
+                    logger.error(f"❌ 创建默认配置文件失败: {e}")
+                    raise
+
+                logger.info(f"使用动态创建的配置文件: {self.config_path}")
 
         self.config = self._load_config()
 
