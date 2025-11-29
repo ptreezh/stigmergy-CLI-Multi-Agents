@@ -612,14 +612,14 @@ async function runQuickDeploy() {
         {
             name: 'qwen',
             displayName: 'QwenCode CLI',
-            npmPackage: '@qwen-code/qwen-code',
+            npmPackage: '@qwen-code/qwen-code@latest',
             description: '阿里云QwenCode CLI工具',
             website: 'https://qwen.aliyun.com'
         },
         {
             name: 'iflow',
             displayName: 'iFlow CLI',
-            npmPackage: '@iflow-ai/iflow-cli',
+            npmPackage: '@iflow-ai/iflow-cli@latest',
             description: 'iFlow工作流CLI工具',
             website: 'https://iflow.ai'
         },
@@ -650,6 +650,13 @@ async function runQuickDeploy() {
             npmPackage: 'ollama',
             description: 'Ollama本地模型CLI工具',
             website: 'https://ollama.ai'
+        },
+        {
+            name: 'codex',
+            displayName: 'OpenAI Codex CLI',
+            npmPackage: '@openai/codex --registry=https://registry.npmmirror.com',
+            description: 'OpenAI Codex代码分析CLI工具',
+            website: 'https://platform.openai.com'
         }
     ];
 
@@ -720,7 +727,18 @@ async function runQuickDeploy() {
 
             const { spawn } = await import('child_process');
             await new Promise((resolve) => {
-                const installProcess = spawn('npm', ['install', '-g', tool.npmPackage], {
+                // 处理带额外参数的npm包名（如codex）
+                let npmArgs = ['install', '-g'];
+                const packageWithArgs = tool.npmPackage;
+
+                // 分割包名和参数
+                const parts = packageWithArgs.split(' ');
+                npmArgs.push(parts[0]); // 添加包名
+                if (parts.length > 1) {
+                    npmArgs = npmArgs.concat(parts.slice(1)); // 添加额外参数
+                }
+
+                const installProcess = spawn('npm', npmArgs, {
                     stdio: ['pipe', 'pipe', 'pipe'],
                     shell: true
                 });
