@@ -40,7 +40,23 @@ class CopilotIntegrationInstaller:
         if config_path:
             self.config_path = Path(config_path)
         else:
-            self.config_path = self.script_dir / "config.json"
+            # 在npx环境下，可能需要搜索配置文件的多个位置
+            possible_paths = [
+                self.script_dir / "config.json",  # 标准位置
+                self.script_dir.parent / "copilot" / "config.json",  # 在adapters/copilot/下
+                Path(__file__).parent / "config.json",  # 使用脚本所在目录
+                Path(__file__).parent.parent.parent / "copilot" / "config.json", # 从项目根路径
+            ]
+
+            for config_path_option in possible_paths:
+                if config_path_option.exists():
+                    self.config_path = config_path_option
+                    logger.info(f"使用配置文件: {config_path_option}")
+                    break
+            else:
+                # 如果所有选项都失败，使用默认位置并记录警告
+                self.config_path = self.script_dir / "config.json"
+                logger.warning(f"配置文件不存在: {self.config_path}, 尝试在标准位置创建")
 
         self.config = self._load_config()
 
