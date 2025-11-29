@@ -976,7 +976,8 @@ async function runQuickDeploy() {
                         let additionalEnv = {};
                         if (cliInfo.name === 'copilot') {
                             // 设置项目根目录环境变量，帮助Python脚本找到配置文件
-                            const projectRoot = join(__dirname);  // 主目录
+                            // __dirname是src目录，所以需要获取父目录作为项目根目录
+                            const projectRoot = join(__dirname, '..');  // 从src目录回到项目根目录
                             additionalEnv = {
                                 ...process.env,
                                 PROJECT_ROOT: projectRoot,
