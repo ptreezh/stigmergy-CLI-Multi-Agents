@@ -49,7 +49,15 @@ class AutoCLIInstaller {
                 npmPackage: '@iflow-ai/iflow-cli@latest',
                 testCmd: 'iflow --version',
                 website: 'https://iflow.ai/',
-                description: 'iFlow智能流程CLI工具'
+                description: 'iFlow CLI工具'
+            },
+            {
+                key: 'qodercli',
+                name: 'QoderCLI',
+                npmPackage: 'qodercli',
+                testCmd: 'qodercli --version',
+                website: 'https://qoder.ai/',
+                description: 'Qoder CLI工具'
             }
         ];
 
