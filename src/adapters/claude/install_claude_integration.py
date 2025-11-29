@@ -20,7 +20,7 @@ project_root = current_dir.parent.parent.parent
 
 # Claude CLI配置路径
 CLAUDE_CONFIG_DIR = os.path.expanduser("~/.config/claude")
-CLAUDE_HOOKS_FILE = os.path.join(CLADE_CONFIG_DIR, "hooks.json")
+CLAUDE_HOOKS_FILE = os.path.join(CLAUDE_CONFIG_DIR, "hooks.json")
 
 def create_claude_config_directory():
     """创建Claude配置目录"""
