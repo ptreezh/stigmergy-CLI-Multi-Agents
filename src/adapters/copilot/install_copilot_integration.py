@@ -44,13 +44,26 @@ class CopilotIntegrationInstaller:
             project_root_env = os.environ.get('STIGMERGY_PROJECT_ROOT', '')
             if project_root_env:
                 # 使用环境变量中指定的项目根目录路径
+                # 检查标准路径
                 env_config_path = Path(project_root_env) / "src" / "adapters" / "copilot" / "config.json"
                 if env_config_path.exists():
                     self.config_path = env_config_path
                     logger.info(f"使用环境变量中的配置文件: {env_config_path}")
                 else:
-                    self.config_path = env_config_path
-                    logger.warning(f"环境变量指定的配置文件不存在: {env_config_path}")
+                    # 检查项目根目录下直接的路径，可能是__dirname已经包含了src部分
+                    alt_check_path = Path(project_root_env) / "adapters" / "copilot" / "config.json"
+                    if alt_check_path.exists():
+                        self.config_path = alt_check_path
+                        logger.info(f"使用备选配置文件路径: {alt_check_path}")
+                    else:
+                        # 再检查另一种可能的路径
+                        alt_check_path2 = Path(project_root_env) / "copilot" / "config.json"  # 如果在其他地方
+                        if alt_check_path2.exists():
+                            self.config_path = alt_check_path2
+                            logger.info(f"使用第二种备选配置文件路径: {alt_check_path2}")
+                        else:
+                            self.config_path = env_config_path
+                            logger.warning(f"所有配置文件路径均不存在: {env_config_path}, {alt_check_path}, {alt_check_path2}")
             else:
                 # 在npx环境下，可能需要搜索配置文件的多个位置
                 possible_paths = [
