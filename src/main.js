@@ -231,7 +231,7 @@ class StigmergyCLIRouter {
             let targetDir = join(safeProjectPath, projectDirName);
 
             // 检查目录是否存在，如果存在则添加序号
-            while (await this.directoryExists(targetDir)) {
+            while (await directoryExists(targetDir)) {
                 targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
                 counter++;
             }
@@ -636,6 +636,17 @@ async function main() {
     }
 }
 
+// 添加一个全局的directoryExists函数
+async function directoryExists(dirPath) {
+    try {
+        const { stat } = await fs;
+        const statResult = await stat(dirPath);
+        return statResult.isDirectory();
+    } catch (error) {
+        return false;
+    }
+}
+
 // 远程快速部署函数
 async function runQuickDeploy() {
     console.log('🤖 Stigmergy CLI - 远程快速部署系统');
@@ -931,7 +942,7 @@ async function runQuickDeploy() {
                 let targetDir = join(safeProjectPath, projectDirName);
 
                 // 检查目录是否存在，如果存在则添加序号
-                while (await this.directoryExists(targetDir)) {
+                while (await directoryExists(targetDir)) {
                     targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
                     counter++;
                 }
