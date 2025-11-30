@@ -1161,19 +1161,72 @@ async function runQuickDeploy() {
         });
     }
 
+    // 自动全局安装 stigmergy-cli
+    async function installStigmergyGlobally() {
+        console.log('\n🌍 正在全局安装 stigmergy-cli...');
+        
+        try {
+            const { spawn } = await import('child_process');
+            
+            await new Promise((resolve, reject) => {
+                const installProcess = spawn('npm', ['install', '-g', '.'], {
+                    stdio: ['pipe', 'pipe', 'pipe'],
+                    shell: true,
+                    cwd: process.cwd()
+                });
+
+                let output = '';
+                installProcess.stdout.on('data', (data) => {
+                    output += data.toString();
+                });
+
+                installProcess.stderr.on('data', (data) => {
+                    // 过滤npm的警告信息
+                    const stderr = data.toString();
+                    if (!stderr.includes('WARN')) {
+                        output += stderr;
+                    }
+                });
+
+                installProcess.on('close', (code) => {
+                    if (code === 0) {
+                        console.log('[OK] stigmergy-cli 已成功全局安装！');
+                        console.log('      现在可以在任何目录运行: stigmergy-cli <command>');
+                        resolve();
+                    } else {
+                        console.log('[WARN] 全局安装可能未成功，但您可以手动安装:');
+                        console.log('      npm install -g stigmergy-cli');
+                        resolve(); // 不阻塞流程
+                    }
+                });
+
+                installProcess.on('error', (error) => {
+                    console.log('[WARN] 全局安装失败，您可以手动安装:');
+                    console.log('      npm install -g stigmergy-cli');
+                    console.log(`      错误: ${error.message}`);
+                    resolve(); // 不阻塞流程
+                });
+            });
+        } catch (error) {
+            console.log('[WARN] 全局安装失败，您可以手动安装:');
+            console.log('      npm install -g stigmergy-cli');
+            console.log(`      错误: ${error.message}`);
+        }
+    }
+
     // 显示初始化指南
     function showInitializationGuide() {
         console.log('\n🎉 部署完成！以下是使用指南：');
         console.log('\n📋 快速开始:');
-        console.log('  1. 全局安装: npm install -g .');
-        console.log('  2. 初始化项目: stigmergy-cli init');
-        console.log('  3. 查看状态: stigmergy-cli status');
-        console.log('  4. 扫描环境: stigmergy-cli scan');
+        console.log('  现在已全局安装！可以在任何目录运行:');
+        console.log('  • 初始化项目: stigmergy-cli init');
+        console.log('  • 查看状态: stigmergy-cli status');
+        console.log('  • 扫描环境: stigmergy-cli scan');
         console.log('');
         console.log('  或者使用 NPX（无需安装）:');
-        console.log('  1. 初始化项目: npx stigmergy-cli@latest init');
-        console.log('  2. 查看状态: npx stigmergy-cli@latest status');
-        console.log('  3. 扫描环境: npx stigmergy-cli@latest scan');
+        console.log('  • 初始化项目: npx stigmergy-cli@latest init');
+        console.log('  • 查看状态: npx stigmergy-cli@latest status');
+        console.log('  • 扫描环境: npx stigmergy-cli@latest scan');
 
         console.log('\n⚠️ 重要提示:');
         console.log('  新安装的CLI工具需要注册或自行配置第三方API tokens接口：');
@@ -1240,6 +1293,9 @@ async function runQuickDeploy() {
 
         // 配置系统
         await configureSystem();
+
+        // 自动全局安装 stigmergy-cli
+        await installStigmergyGlobally();
 
         // 显示使用指南
         showInitializationGuide();
