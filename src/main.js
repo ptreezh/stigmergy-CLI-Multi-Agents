@@ -1202,7 +1202,7 @@ async function runQuickDeploy() {
         console.log('  • QwenCode: 需要设置 DASHSCOPE_API_KEY');
         console.log('  • iFlow: 需要注册账号获取API密钥');
         console.log('  • Qoder: 需要注册账号获取API密钥');
-        console.log('  • CodeBuddy: 需要微信扫码认证');
+        console.log('  • CodeBuddy: 需要微信扫码认证或设置 TENCENT_SECRET_ID/KEY');
         console.log('  • Copilot: 需要登录 GitHub 账号');
         console.log('  • Codex: 需要设置 OPENAI_API_KEY');
 
