@@ -25,7 +25,7 @@ GEMINI_EXTENSIONS_FILE = os.path.join(GEMINI_CONFIG_DIR, "extensions.json")
 def create_gemini_config_directory():
     """创建Gemini配置目录"""
     os.makedirs(GEMINI_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建Gemini配置目录: {GEMINI_CONFIG_DIR}")
+    print(f"[OK] 创建Gemini配置目录: {GEMINI_CONFIG_DIR}")
 
 def install_gemini_extensions():
     """安装Gemini Extension配置"""
@@ -79,10 +79,10 @@ def install_gemini_extensions():
         with open(GEMINI_EXTENSIONS_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_extensions, f, indent=2, ensure_ascii=False)
 
-        print(f"✅ Gemini Extension配置已安装: {GEMINI_EXTENSIONS_FILE}")
+        print(f"[OK] Gemini Extension配置已安装: {GEMINI_EXTENSIONS_FILE}")
         print("🔗 已安装的Extension:")
         for ext_name in cross_cli_extensions.keys():
-            print(f"   - {ext_name}: ✅ 跨CLI协作感知")
+            print(f"   - {ext_name}: [OK] 跨CLI协作感知")
 
         return True
     except Exception as e:
@@ -108,7 +108,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -147,9 +147,9 @@ def verify_installation():
             if ext_name in extensions_config:
                 ext_config = extensions_config[ext_name]
                 if ext_config.get("enabled", False):
-                    print(f"✅ Extension {ext_name}: 已启用")
+                    print(f"[OK] Extension {ext_name}: 已启用")
                     if "cross_cli_enabled" in ext_config.get("config", {}):
-                        print(f"✅   跨CLI协作: 已启用")
+                        print(f"[OK]   跨CLI协作: 已启用")
                 else:
                     print(f"⚠️ Extension {ext_name}: 未启用")
             else:
@@ -175,7 +175,7 @@ def uninstall_gemini_integration():
             shutil.rmtree(adapter_dir)
             print(f"🗑️ 已删除适配器目录: {adapter_dir}")
 
-        print("✅ Gemini CLI集成已卸载")
+        print("[OK] Gemini CLI集成已卸载")
         return True
     except Exception as e:
         print(f"❌ 卸载失败: {e}")
@@ -207,7 +207,7 @@ def main():
 
     args = parser.parse_args()
 
-    print("🌟 Gemini CLI跨CLI协作集成安装器")
+    print("[INSTALL] Gemini CLI跨CLI协作集成安装器")
     print("=" * 50)
 
     if args.uninstall:
@@ -239,12 +239,12 @@ def main():
 
         if success:
             print("\n🎉 Gemini CLI集成安装成功！")
-            print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {GEMINI_CONFIG_DIR}")
-            print(f"   ✅ Extensions配置: {GEMINI_EXTENSIONS_FILE}")
-            print(f"   ✅ 适配器目录: {os.path.join(GEMINI_CONFIG_DIR, 'adapters')}")
+            print("\n[INFO] 安装摘要:")
+            print(f"   [OK] 配置目录: {GEMINI_CONFIG_DIR}")
+            print(f"   [OK] Extensions配置: {GEMINI_EXTENSIONS_FILE}")
+            print(f"   [OK] 适配器目录: {os.path.join(GEMINI_CONFIG_DIR, 'adapters')}")
 
-            print("\n🚀 下一步:")
+            print("\n[INSTALL] 下一步:")
             print("   1. 安装其他CLI工具的集成: ai-cli-router deploy --all")
             print("   2. 初始化项目: ai-cli-router init")
             print("   3. 开始使用协作功能: gemini-cli '请用claude帮我审查代码'")

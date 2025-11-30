@@ -25,7 +25,7 @@ IFLOW_HOOKS_FILE = os.path.join(IFLOW_CONFIG_DIR, "hooks.yml")
 def create_iflow_config_directory():
     """创建iFlow配置目录"""
     os.makedirs(IFLOW_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建iFlow配置目录: {IFLOW_CONFIG_DIR}")
+    print(f"[OK] 创建iFlow配置目录: {IFLOW_CONFIG_DIR}")
 
 def install_iflow_hooks():
     """安装iFlow Hook配置"""
@@ -86,11 +86,11 @@ def install_iflow_hooks():
         with open(IFLOW_HOOKS_FILE, 'w', encoding='utf-8') as f:
             yaml.dump(merged_hooks, f, default_flow_style=False, allow_unicode=True)
 
-        print(f"✅ iFlow Hook配置已安装: {IFLOW_HOOKS_FILE}")
+        print(f"[OK] iFlow Hook配置已安装: {IFLOW_HOOKS_FILE}")
         print("🔗 已安装的Hook:")
         for plugin in merged_hooks.get('plugins', []):
             if plugin.get('name') == 'CrossCLIHookAdapter':
-                print(f"   - {plugin['name']}: ✅ 跨CLI协作感知")
+                print(f"   - {plugin['name']}: [OK] 跨CLI协作感知")
                 print(f"     支持的CLI: {', '.join(plugin['config'].get('supported_clis', []))}")
 
         return True
@@ -117,7 +117,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -158,8 +158,8 @@ def verify_installation():
         for plugin in plugins:
             if plugin.get('name') == 'CrossCLIHookAdapter':
                 cross_cli_plugin = plugin
-                print(f"✅ 跨CLI协作Hook: 已启用")
-                print(f"✅ 支持的CLI工具: {', '.join(plugin.get('config', {}).get('supported_clis', []))}")
+                print(f"[OK] 跨CLI协作Hook: 已启用")
+                print(f"[OK] 支持的CLI工具: {', '.join(plugin.get('config', {}).get('supported_clis', []))}")
                 break
 
         if not cross_cli_plugin:
@@ -196,7 +196,7 @@ def uninstall_iflow_integration():
                 with open(IFLOW_HOOKS_FILE, 'w', encoding='utf-8') as f:
                     yaml.dump(hooks_config, f, default_flow_style=False, allow_unicode=True)
 
-        print("✅ iFlow跨CLI协作集成已卸载")
+        print("[OK] iFlow跨CLI协作集成已卸载")
         return True
     except Exception as e:
         print(f"❌ 卸载失败: {e}")
@@ -256,12 +256,12 @@ def main():
 
         if success:
             print("\n🎉 iFlow CLI集成安装成功！")
-            print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {IFLOW_CONFIG_DIR}")
-            print(f"   ✅ Hooks文件: {IFLOW_HOOKS_FILE}")
-            print(f"   ✅ 适配器目录: {os.path.join(IFLOW_CONFIG_DIR, 'adapters')}")
-            print(f"   ✅ 跨CLI协作: 已启用")
-            print(f"   ✅ 支持的CLI: claude, gemini, qwencode, qoder, codebuddy, copilot")
+            print("\n[INFO] 安装摘要:")
+            print(f"   [OK] 配置目录: {IFLOW_CONFIG_DIR}")
+            print(f"   [OK] Hooks文件: {IFLOW_HOOKS_FILE}")
+            print(f"   [OK] 适配器目录: {os.path.join(IFLOW_CONFIG_DIR, 'adapters')}")
+            print(f"   [OK] 跨CLI协作: 已启用")
+            print(f"   [OK] 支持的CLI: claude, gemini, qwencode, qoder, codebuddy, copilot")
         else:
             print("\n❌ iFlow CLI集成安装失败！")
     else:

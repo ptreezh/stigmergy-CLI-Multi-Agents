@@ -71,7 +71,7 @@ class StandaloneCodexAdapter:
                 self.collaboration_hook = CLICollaborationHooks.initialize_hook(
                     self.cli_name, current_dir
                 )
-                logger.info(f"✅ 协作钩子已启用: {self.cli_name}")
+                logger.info(f"[OK] 协作钩子已启用: {self.cli_name}")
             else:
                 logger.info(f"ℹ️ 当前目录未启用协同功能: {self.cli_name}")
         except Exception as e:
@@ -159,7 +159,7 @@ class StandaloneCodexAdapter:
                         intent_detected=collaboration_intent
                     )
                     if task_created:
-                        logger.info(f"✅ 自动创建协作任务: {task[:50]}...")
+                        logger.info(f"[OK] 自动创建协作任务: {task[:50]}...")
 
             # 本地处理
             return f"[Codex CLI 本地处理] {task}"
@@ -327,14 +327,14 @@ class StandaloneCodexAdapter:
 - 最后执行: {self.last_execution.strftime('%Y-%m-%d %H:%M:%S') if self.last_execution else '从未'}
 
 ### 可用处理器
-{chr(10).join(f'- {cli}: ✅' for cli in self._cli_handlers.keys()) if self._cli_handlers else '- 无可用处理器'}
+{chr(10).join(f'- {cli}: [OK]' for cli in self._cli_handlers.keys()) if self._cli_handlers else '- 无可用处理器'}
 
 ### 系统特性
-- ✅ 无抽象基类
-- ✅ 无Factory系统
-- ✅ 无中间层
-- ✅ 纯原生集成
-- ✅ 直接CLI调用
+- [OK] 无抽象基类
+- [OK] 无Factory系统
+- [OK] 无中间层
+- [OK] 纯原生集成
+- [OK] 直接CLI调用
 
 ---
 *真正符合项目要求的独立实现*

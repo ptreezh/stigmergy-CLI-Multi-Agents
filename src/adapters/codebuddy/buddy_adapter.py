@@ -641,7 +641,7 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
         Returns:
             str: 格式化的结果
         """
-        return f"""## 🤖 CodeBuddy Buddy结果
+        return f"""## [INSTALL] CodeBuddy Buddy结果
 
 **执行Buddy**: {buddy_name}
 **调用工具**: {target_cli.upper()}

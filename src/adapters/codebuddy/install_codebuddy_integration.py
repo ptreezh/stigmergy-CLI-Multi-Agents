@@ -25,7 +25,7 @@ CODEBUDDY_CONFIG_FILE = os.path.join(CODEBUDDY_CONFIG_DIR, "buddy_config.json")
 def create_codebuddy_config_directory():
     """创建CodeBuddy配置目录"""
     os.makedirs(CODEBUDDY_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建CodeBuddy配置目录: {CODEBUDDY_CONFIG_DIR}")
+    print(f"[OK] 创建CodeBuddy配置目录: {CODEBUDDY_CONFIG_DIR}")
 
 def install_codebuddy_skills():
     """安装CodeBuddy Skills配置"""
@@ -79,10 +79,10 @@ def install_codebuddy_skills():
         with open(CODEBUDDY_CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_config, f, indent=2, ensure_ascii=False)
 
-        print(f"✅ CodeBuddy配置已安装: {CODEBUDDY_CONFIG_FILE}")
+        print(f"[OK] CodeBuddy配置已安装: {CODEBUDDY_CONFIG_FILE}")
         print("🔗 已安装的Skills:")
         for skill in merged_config.get('skills', []):
-            status = "✅" if skill.get('enabled') else "❌"
+            status = "[OK]" if skill.get('enabled') else "❌"
             print(f"   - {skill.get('name')}: {status}")
 
         return True
@@ -109,7 +109,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -139,12 +139,12 @@ def verify_installation():
                 break
 
         if cross_cli_skill:
-            print("✅ 跨CLI协作Skill已安装")
+            print("[OK] 跨CLI协作Skill已安装")
             print(f"   - 技能名称: {cross_cli_skill.get('name')}")
             print(f"   - 描述: {cross_cli_skill.get('description')}")
-            print(f"   - 启用状态: {'✅' if cross_cli_skill.get('enabled') else '❌'}")
+            print(f"   - 启用状态: {'[OK]' if cross_cli_skill.get('enabled') else '❌'}")
             print(f"   - 支持的CLI工具: {cross_cli_skill.get('config', {}).get('supported_clis', [])}")
-            print(f"   - 自动路由: {'✅' if cross_cli_skill.get('config', {}).get('auto_route') else '❌'}")
+            print(f"   - 自动路由: {'[OK]' if cross_cli_skill.get('config', {}).get('auto_route') else '❌'}")
         else:
             print("❌ 跨CLI协作Skill未找到")
             return False
@@ -162,7 +162,7 @@ def verify_installation():
             print(f"❌ 缺失适配器文件: {missing_files}")
             return False
         else:
-            print("✅ 适配器文件已复制")
+            print("[OK] 适配器文件已复制")
 
         return True
     except Exception as e:
@@ -260,13 +260,13 @@ def main():
 
         if success:
             print("\n🎉 CodeBuddy CLI跨CLI协作集成安装成功！")
-            print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {CODEBUDDY_CONFIG_DIR}")
-            print(f"   ✅ 配置文件: {CODEBUDDY_CONFIG_FILE}")
-            print(f"   ✅ 适配器目录: {CODEBUDDY_CONFIG_DIR}")
-            print(f"   ✅ 跨CLI协作Skill: 已启用")
+            print("\n[INFO] 安装摘要:")
+            print(f"   [OK] 配置目录: {CODEBUDDY_CONFIG_DIR}")
+            print(f"   [OK] 配置文件: {CODEBUDDY_CONFIG_FILE}")
+            print(f"   [OK] 适配器目录: {CODEBUDDY_CONFIG_DIR}")
+            print(f"   [OK] 跨CLI协作Skill: 已启用")
 
-            print("\n🚀 下一步:")
+            print("\n[INSTALL] 下一步:")
             print("   1. 安装其他CLI工具的集成")
             print("   2. 使用 ai-cli-router deploy --all")
             print("   3. 使用 ai-cli-router init 初始化项目")

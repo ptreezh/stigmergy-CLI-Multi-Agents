@@ -1,0 +1,48 @@
+{
+  "projectType": "initialized",
+  "createdAt": "2025-11-30T02:37:19.595Z",
+  "adapters": [
+    {
+      "name": "claude",
+      "displayName": "Claude CLI",
+      "required": true,
+      "status": "available"
+    },
+    {
+      "name": "gemini",
+      "displayName": "Gemini CLI",
+      "required": true,
+      "status": "available"
+    },
+    {
+      "name": "qwen",
+      "displayName": "QwenCode CLI",
+      "required": false,
+      "status": "available"
+    },
+    {
+      "name": "iflow",
+      "displayName": "iFlow CLI",
+      "required": false,
+      "status": "available"
+    },
+    {
+      "name": "codebuddy",
+      "displayName": "CodeBuddy CLI",
+      "required": false,
+      "status": "available"
+    },
+    {
+      "name": "copilot",
+      "displayName": "GitHub Copilot CLI",
+      "required": false,
+      "status": "available"
+    },
+    {
+      "name": "codex",
+      "displayName": "OpenAI Codex CLI",
+      "required": false,
+      "status": "available"
+    }
+  ]
+}

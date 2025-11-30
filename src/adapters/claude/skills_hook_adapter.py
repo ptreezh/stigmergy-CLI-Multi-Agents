@@ -468,7 +468,7 @@ class ClaudeSkillsHookAdapter(BaseAdapter):
         # Claude特定的结果选择逻辑
         if result1 and result2:
             # 优先选择包含Claude智能分析的结果
-            claude_indicators = ["Claude分析", "智能", "优化", "✅", "成功"]
+            claude_indicators = ["Claude分析", "智能", "优化", "[OK]", "成功"]
             if any(indicator in result1 for indicator in claude_indicators):
                 return result1
             elif any(indicator in result2 for indicator in claude_indicators):
@@ -611,7 +611,7 @@ class ClaudeSkillsHookAdapter(BaseAdapter):
                 # Claude智能验证结果
                 verification_result = self._verify_result_with_claude(result)
                 if verification_result:
-                    return f"✅ Claude智能验证: {verification_result}"
+                    return f"[OK] Claude智能验证: {verification_result}"
         except Exception as e:
             logger.error(f"智能结果验证失败: {e}")
         return None
@@ -658,7 +658,7 @@ class ClaudeSkillsHookAdapter(BaseAdapter):
             quality_score += 25
 
         # 检查成功标记
-        success_indicators = ["成功", "success", "完成", "completed", "✅"]
+        success_indicators = ["成功", "success", "完成", "completed", "[OK]"]
         if any(indicator in result.lower() for indicator in success_indicators):
             quality_score += 25
 

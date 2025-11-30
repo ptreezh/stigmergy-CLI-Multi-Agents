@@ -281,7 +281,7 @@ RESPONSE_FILE="$QODER_CROSS_CLI_RESPONSE_FILE"
 if [ -f "$RESPONSE_FILE" ] && [ -s "$RESPONSE_FILE" ]; then
     # 发送完成通知
     if command -v osascript > /dev/null 2>&1; then
-        osascript -e 'display notification "✅ 跨CLI调用完成" with title "QoderCLI"'
+        osascript -e 'display notification "[OK] 跨CLI调用完成" with title "QoderCLI"'
     fi
 fi
 
@@ -395,7 +395,7 @@ exit 0
 
                 # 发送完成通知
                 await self._send_notification(
-                    "✅ 跨CLI调用完成",
+                    "[OK] 跨CLI调用完成",
                     "QoderCLI",
                     subtitle=f"{intent.target_cli.upper()} 任务已完成"
                 )

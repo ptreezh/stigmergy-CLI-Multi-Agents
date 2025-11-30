@@ -150,7 +150,7 @@ class CopilotIntegrationInstaller:
                     with open(self.config_path, 'w', encoding='utf-8') as f:
                         import json
                         json.dump(default_config, f, indent=2, ensure_ascii=False)
-                    logger.info(f"✅ 已创建默认配置文件: {self.config_path}")
+                    logger.info(f"[OK] 已创建默认配置文件: {self.config_path}")
                 except Exception as e:
                     logger.error(f"❌ 创建默认配置文件失败: {e}")
                     raise
@@ -214,7 +214,7 @@ class CopilotIntegrationInstaller:
             if not self._verify_installation():
                 return False
 
-            logger.info("✅ Copilot CLI跨CLI集成安装成功！")
+            logger.info("[OK] Copilot CLI跨CLI集成安装成功！")
             self._print_usage_instructions()
             return True
 
@@ -253,7 +253,7 @@ class CopilotIntegrationInstaller:
             logger.error(f"适配器文件不存在: {adapter_file}")
             return False
 
-        logger.info("✅ 环境检查通过")
+        logger.info("[OK] 环境检查通过")
         return True
 
     def _create_directories(self) -> bool:
@@ -275,7 +275,7 @@ class CopilotIntegrationInstaller:
                 logger.error(f"创建目录失败 {directory}: {e}")
                 return False
 
-        logger.info("✅ 目录创建完成")
+        logger.info("[OK] 目录创建完成")
         return True
 
     def _install_mcp_server(self, force: bool = False) -> bool:
@@ -317,7 +317,7 @@ class CopilotIntegrationInstaller:
             with open(self.mcp_config_file, 'w', encoding='utf-8') as f:
                 json.dump(mcp_config, f, indent=2, ensure_ascii=False)
 
-            logger.info(f"✅ MCP服务器配置已保存到: {self.mcp_config_file}")
+            logger.info(f"[OK] MCP服务器配置已保存到: {self.mcp_config_file}")
             return True
 
         except Exception as e:
@@ -367,7 +367,7 @@ class CopilotIntegrationInstaller:
 
                 logger.info(f"创建代理: {agent_name}")
 
-            logger.info("✅ 自定义代理创建完成")
+            logger.info("[OK] 自定义代理创建完成")
             return True
 
         except Exception as e:
@@ -418,7 +418,7 @@ Provide clear, structured results with execution details."""
             with open(permissions_config_file, 'w', encoding='utf-8') as f:
                 json.dump(permissions_config, f, indent=2, ensure_ascii=False)
 
-            logger.info("✅ 权限配置设置完成")
+            logger.info("[OK] 权限配置设置完成")
             return True
 
         except Exception as e:
@@ -455,7 +455,7 @@ Provide clear, structured results with execution details."""
             logger.error(f"验证MCP配置失败: {e}")
             return False
 
-        logger.info("✅ 安装验证通过")
+        logger.info("[OK] 安装验证通过")
         return True
 
     def _print_usage_instructions(self):
@@ -463,7 +463,7 @@ Provide clear, structured results with execution details."""
         print("\n" + "="*60)
         print("🎉 Copilot CLI跨CLI集成安装完成！")
         print("="*60)
-        print("\n📋 使用说明:")
+        print("\n[INFO] 使用说明:")
         print("1. 启动Copilot CLI:")
         print("   copilot")
         print("\n2. 跨CLI调用示例:")
@@ -513,7 +513,7 @@ Provide clear, structured results with execution details."""
                     shutil.rmtree(self.copilot_dir)
                     logger.info("删除配置目录")
 
-            logger.info("✅ 卸载完成")
+            logger.info("[OK] 卸载完成")
             return True
 
         except Exception as e:

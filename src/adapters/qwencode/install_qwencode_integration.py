@@ -25,7 +25,7 @@ QWENCODE_CONFIG_FILE = os.path.join(QWENCODE_CONFIG_DIR, "config.yml")
 def create_qwencode_config_directory():
     """创建QwenCode配置目录"""
     os.makedirs(QWENCODE_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建QwenCode配置目录: {QWENCODE_CONFIG_DIR}")
+    print(f"[OK] 创建QwenCode配置目录: {QWENCODE_CONFIG_DIR}")
 
 def install_qwencode_plugins():
     """安装QwenCode Plugin配置"""
@@ -88,11 +88,11 @@ def install_qwencode_plugins():
         with open(QWENCODE_CONFIG_FILE, 'w', encoding='utf-8') as f:
             yaml.dump(merged_config, f, default_flow_style=False, allow_unicode=True)
 
-        print(f"✅ QwenCode配置已安装: {QWENCODE_CONFIG_FILE}")
+        print(f"[OK] QwenCode配置已安装: {QWENCODE_CONFIG_FILE}")
         print("🔗 已安装的Plugin:")
         for plugin in merged_config.get('plugins', []):
             if plugin.get('name') == 'CrossCLIAdapterPlugin':
-                print(f"   - {plugin['name']}: ✅ 跨CLI协作感知")
+                print(f"   - {plugin['name']}: [OK] 跨CLI协作感知")
 
         return True
     except Exception as e:
@@ -118,7 +118,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -197,7 +197,7 @@ def uninstall_qwencode_integration():
             shutil.rmtree(adapter_dir)
             print(f"🗑️ 已删除适配器目录: {adapter_dir}")
 
-        print("✅ QwenCode集成已卸载")
+        print("[OK] QwenCode集成已卸载")
         return True
     except Exception as e:
         print(f"❌ 卸载失败: {e}")
@@ -257,7 +257,7 @@ def main():
 
         if success:
             print("\n[SUCCESS] QwenCode CLI集成安装成功！")
-            print("\n📋 安装摘要:")
+            print("\n[INFO] 安装摘要:")
             print(f"   [SUCCESS] 配置目录: {QWENCODE_CONFIG_DIR}")
             print(f"   [SUCCESS] 配置文件: {QWENCODE_CONFIG_FILE}")
             print(f"   [SUCCESS] 适配器目录: {os.path.join(QWENCODE_CONFIG_DIR, 'plugins')}")

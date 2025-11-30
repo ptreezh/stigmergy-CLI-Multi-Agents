@@ -269,7 +269,7 @@ class CodexSlashCommandAdapter(BaseCodexAdapter):
 - 错误次数: {self.error_count}
 
 ### 可用处理器
-{chr(10).join(f'- {cli}: ✅' for cli in self._direct_handlers.keys()) if self._direct_handlers else '- 无可用处理器'}
+{chr(10).join(f'- {cli}: [OK]' for cli in self._direct_handlers.keys()) if self._direct_handlers else '- 无可用处理器'}
 
 ---
 *无Factory抽象层 - 纯原生设计*

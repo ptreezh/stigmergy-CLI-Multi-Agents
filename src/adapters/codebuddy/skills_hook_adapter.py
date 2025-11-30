@@ -348,9 +348,9 @@ class CodeBuddySkillsHookAdapter(BaseAdapter):
         # 简单的结果选择逻辑
         if result1 and result2:
             # 选择长度更长且包含成功标记的结果
-            if "✅" in result1 or "成功" in result1:
+            if "[OK]" in result1 or "成功" in result1:
                 return result1
-            elif "✅" in result2 or "成功" in result2:
+            elif "[OK]" in result2 or "成功" in result2:
                 return result2
             return result1 if len(result1) > len(result2) else result2
         elif result1:
@@ -487,7 +487,7 @@ class CodeBuddySkillsHookAdapter(BaseAdapter):
             if result and self._is_cross_cli_result(result):
                 # 验证结果质量
                 if self._validate_result_quality(result):
-                    return "✅ 跨CLI结果验证通过"
+                    return "[OK] 跨CLI结果验证通过"
                 else:
                     return "⚠️ 跨CLI结果质量不佳，建议重新执行"
         except Exception as e:

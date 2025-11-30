@@ -316,12 +316,12 @@ if [ -f "$RESPONSE_FILE" ] && [ -s "$RESPONSE_FILE" ]; then
     case "$(uname -s)" in
         Darwin*)
             if command -v osascript > /dev/null 2>&1; then
-                osascript -e 'display notification "✅ 跨CLI调用完成" with title "QoderCLI" subtitle "任务执行成功"'
+                osascript -e 'display notification "[OK] 跨CLI调用完成" with title "QoderCLI" subtitle "任务执行成功"'
             fi
             ;;
         Linux*)
             if command -v notify-send > /dev/null 2>&1; then
-                notify-send "QoderCLI" "✅ 跨CLI调用完成" --urgency=low
+                notify-send "QoderCLI" "[OK] 跨CLI调用完成" --urgency=low
             fi
             ;;
     esac

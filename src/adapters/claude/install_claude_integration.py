@@ -25,7 +25,7 @@ CLAUDE_HOOKS_FILE = os.path.join(CLAUDE_CONFIG_DIR, "hooks.json")
 def create_claude_config_directory():
     """创建Claude配置目录"""
     os.makedirs(CLAUDE_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建Claude配置目录: {CLAUDE_CONFIG_DIR}")
+    print(f"[OK] 创建Claude配置目录: {CLAUDE_CONFIG_DIR}")
 
 def install_claude_hooks():
     """安装Claude Hook配置"""
@@ -85,10 +85,10 @@ def install_claude_hooks():
         with open(CLADE_HOOKS_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_hooks, f, indent=2, ensure_ascii=False)
 
-        print(f"✅ Claude Hook配置已安装: {CLAUDE_HOOKS_FILE}")
+        print(f"[OK] Claude Hook配置已安装: {CLAUDE_HOOKS_FILE}")
         print("🔗 已安装的Hook:")
         for hook_name in cross_cli_hooks.keys():
-            print(f"   - {hook_name}: ✅ 跨CLI协作感知")
+            print(f"   - {hook_name}: [OK] 跨CLI协作感知")
 
         return True
     except Exception as e:
@@ -115,7 +115,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -154,7 +154,7 @@ def verify_installation():
             if hook in hooks_config:
                 hook_config = hooks_config[hook]
                 if hook_config.get("enabled", False):
-                    print(f"✅ Hook {hook}: 已启用")
+                    print(f"[OK] Hook {hook}: 已启用")
                 else:
                     print(f"⚠️ Hook {hook}: 未启用")
             else:
@@ -181,7 +181,7 @@ def uninstall_claude_integration():
             shutil.rmtree(adapter_dir)
             print(f"🗑️ 已删除适配器目录: {adapter_dir}")
 
-        print("✅ Claude CLI集成已卸载")
+        print("[OK] Claude CLI集成已卸载")
         return True
     except Exception as e:
         print(f"❌ 卸载失败: {e}")
@@ -213,7 +213,7 @@ def main():
 
     args = parser.parse_args()
 
-    print("🤖 Claude CLI跨CLI协作集成安装器")
+    print("[INSTALL] Claude CLI跨CLI协作集成安装器")
     print("=" * 50)
 
     if args.uninstall:
@@ -247,12 +247,12 @@ def main():
 
         if success:
             print("\n🎉 Claude CLI集成安装成功！")
-            print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {CLAUDE_CONFIG_DIR}")
-            print(f"   ✅ Hooks文件: {CLAUDE_HOOKS_FILE}")
-            print("   ✅ 跨CLI协作感知: 已启用")
+            print("\n[INFO] 安装摘要:")
+            print(f"   [OK] 配置目录: {CLAUDE_CONFIG_DIR}")
+            print(f"   [OK] Hooks文件: {CLAUDE_HOOKS_FILE}")
+            print("   [OK] 跨CLI协作感知: 已启用")
 
-            print("\n🚀 下一步:")
+            print("\n[INSTALL] 下一步:")
             print("   1. 安装其他CLI工具的集成")
             print("   2. 运行: ai-cli-router init")
             print("   3. 开始使用: claude-cli '请用gemini帮我分析代码'")

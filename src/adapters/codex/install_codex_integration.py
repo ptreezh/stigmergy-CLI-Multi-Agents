@@ -25,7 +25,7 @@ CODEX_SLASH_COMMANDS_FILE = os.path.join(CODEX_CONFIG_DIR, "slash_commands.json"
 def create_codex_config_directory():
     """创建Codex配置目录"""
     os.makedirs(CODEX_CONFIG_DIR, exist_ok=True)
-    print(f"✅ 创建Codex配置目录: {CODEX_CONFIG_DIR}")
+    print(f"[OK] 创建Codex配置目录: {CODEX_CONFIG_DIR}")
 
 def install_codex_slash_commands():
     """安装Codex Slash Command配置"""
@@ -102,11 +102,11 @@ def install_codex_slash_commands():
         with open(CODEX_SLASH_COMMANDS_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_config, f, indent=2, ensure_ascii=False)
 
-        print(f"✅ Codex配置已安装: {CODEX_SLASH_COMMANDS_FILE}")
+        print(f"[OK] Codex配置已安装: {CODEX_SLASH_COMMANDS_FILE}")
         print("🔗 已安装的跨CLI协作命令:")
         for cmd_name in cross_cli_commands:
             cmd_config = merged_config['slash_commands'].get(cmd_name, {})
-            status = "✅" if cmd_config.get('enabled') else "❌"
+            status = "[OK]" if cmd_config.get('enabled') else "❌"
             print(f"   - /{cmd_name}: {status} - {cmd_config.get('description')}")
 
         return True
@@ -133,7 +133,7 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"✅ 复制适配器文件: {file_name}")
+                print(f"[OK] 复制适配器文件: {file_name}")
             else:
                 print(f"⚠️ 适配器文件不存在: {file_name}")
 
@@ -170,10 +170,10 @@ def verify_installation():
                 break
 
         if all_commands_found:
-            print("✅ 跨CLI协作Slash Commands已安装")
+            print("[OK] 跨CLI协作Slash Commands已安装")
             for cmd_name in cross_cli_commands:
                 cmd_config = slash_commands.get(cmd_name, {})
-                status = "✅" if cmd_config.get('enabled') else "❌"
+                status = "[OK]" if cmd_config.get('enabled') else "❌"
                 print(f"   - /{cmd_name}: {status} - {cmd_config.get('description')}")
         else:
             print("❌ 跨CLI协作Slash Commands未完全安装")
@@ -192,7 +192,7 @@ def verify_installation():
             print(f"❌ 缺失适配器文件: {missing_files}")
             return False
         else:
-            print("✅ 适配器文件已复制")
+            print("[OK] 适配器文件已复制")
 
         return True
     except Exception as e:
@@ -292,13 +292,13 @@ def main():
 
         if success:
             print("\n🎉 Codex CLI跨CLI协作集成安装成功！")
-            print("\n📋 安装摘要:")
-            print(f"   ✅ 配置目录: {CODEX_CONFIG_DIR}")
-            print(f"   ✅ 配置文件: {CODEX_SLASH_COMMANDS_FILE}")
-            print(f"   ✅ 适配器目录: {CODEX_CONFIG_DIR}")
-            print(f"   ✅ 跨CLI协作Slash Commands: 已启用")
+            print("\n[INFO] 安装摘要:")
+            print(f"   [OK] 配置目录: {CODEX_CONFIG_DIR}")
+            print(f"   [OK] 配置文件: {CODEX_SLASH_COMMANDS_FILE}")
+            print(f"   [OK] 适配器目录: {CODEX_CONFIG_DIR}")
+            print(f"   [OK] 跨CLI协作Slash Commands: 已启用")
 
-            print("\n🚀 下一步:")
+            print("\n[INSTALL] 下一步:")
             print("   1. 安装其他CLI工具的集成")
             print("   2. 使用 ai-cli-router deploy --all")
             print("   3. 使用 ai-cli-router init 初始化项目")
