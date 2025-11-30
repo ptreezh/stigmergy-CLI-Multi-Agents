@@ -1169,6 +1169,43 @@ async function runQuickDeploy() {
         console.log('  2. 查看状态: node src/main.js status');
         console.log('  3. 扫描环境: node src/main.js scan');
 
+        console.log('\n⚠️ 重要提示:');
+        console.log('  新安装的CLI工具需要注册或自行配置第三方API tokens接口：');
+        console.log('');
+        
+        console.log('\n🔧 各CLI工具启动指令:');
+        console.log('  • Claude CLI:     claude');
+        console.log('  • Gemini CLI:     gemini');
+        console.log('  • QwenCode CLI:   qwen');
+        console.log('  • iFlow CLI:       iflow');
+        console.log('  • Qoder CLI:       qodercli');
+        console.log('  • CodeBuddy CLI:   codebuddy');
+        console.log('  • GitHub Copilot:  gh copilot');
+        console.log('  • OpenAI Codex:    codex');
+        
+        console.log('\n📁 建议工作流程:');
+        console.log('  1. 新建项目目录:');
+        console.log('     mkdir my-ai-project');
+        console.log('     cd my-ai-project');
+        console.log('');
+        console.log('  2. 初始化项目:');
+        console.log('     node ../stigmergy-CLI-Multi-Agents/src/main.js init');
+        console.log('');
+        console.log('  3. 在新项目目录中使用CLI工具:');
+        console.log('     claude "设计一个用户认证系统"');
+        console.log('     gemini "请用qwen实现这个设计"');
+        console.log('     qwen "用iflow创建开发流程"');
+
+        console.log('\n🔑 API配置指南:');
+        console.log('  • Claude: 需要设置 ANTHROPIC_API_KEY');
+        console.log('  • Gemini: 需要设置 GOOGLE_API_KEY');
+        console.log('  • QwenCode: 需要设置 DASHSCOPE_API_KEY');
+        console.log('  • iFlow: 需要注册账号获取API密钥');
+        console.log('  • Qoder: 需要注册账号获取API密钥');
+        console.log('  • CodeBuddy: 需要设置 TENCENT_SECRET_ID/KEY');
+        console.log('  • Copilot: 需要登录 GitHub 账号');
+        console.log('  • Codex: 需要设置 OPENAI_API_KEY');
+
         console.log('\n🚀 跨AI工具协作示例:');
         console.log('  - 直接在各CLI工具中使用协作指令：');
         console.log('    例: qwen "请用gemini帮我翻译这段代码"');
