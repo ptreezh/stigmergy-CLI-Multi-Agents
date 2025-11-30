@@ -1165,9 +1165,15 @@ async function runQuickDeploy() {
     function showInitializationGuide() {
         console.log('\n🎉 部署完成！以下是使用指南：');
         console.log('\n📋 快速开始:');
-        console.log('  1. 初始化项目: node src/main.js init');
-        console.log('  2. 查看状态: node src/main.js status');
-        console.log('  3. 扫描环境: node src/main.js scan');
+        console.log('  1. 全局安装: npm install -g .');
+        console.log('  2. 初始化项目: stigmergy-cli init');
+        console.log('  3. 查看状态: stigmergy-cli status');
+        console.log('  4. 扫描环境: stigmergy-cli scan');
+        console.log('');
+        console.log('  或者使用 NPX（无需安装）:');
+        console.log('  1. 初始化项目: npx stigmergy-cli@latest init');
+        console.log('  2. 查看状态: npx stigmergy-cli@latest status');
+        console.log('  3. 扫描环境: npx stigmergy-cli@latest scan');
 
         console.log('\n⚠️ 重要提示:');
         console.log('  新安装的CLI工具需要注册或自行配置第三方API tokens接口：');
@@ -1189,9 +1195,10 @@ async function runQuickDeploy() {
         console.log('     cd my-ai-project');
         console.log('');
         console.log('  2. 初始化项目:');
-        console.log('     node ../stigmergy-CLI-Multi-Agents/src/main.js init');
+        console.log('     stigmergy-cli init');
+        console.log('     或者: npx stigmergy-cli@latest init');
         console.log('');
-        console.log('  3. 在新项目目录中使用CLI工具:');
+        console.log('  3. 在任何目录下使用CLI工具:');
         console.log('     claude "设计一个用户认证系统"');
         console.log('     gemini "请用qwen实现这个设计"');
         console.log('     qwen "用iflow创建开发流程"');
