@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/main.js",
     "deploy": "node src/deploy.js",
-    "deploy-all": "node src/deploy.js --all",
+    "deploy-tools": "node deployment/deploy.js",
+    "deploy-tools-all": "node deployment/deploy-with-install.js",
     "status": "node src/main.js status",
     "scan": "node src/main.js scan",
     "init": "node src/main.js init",

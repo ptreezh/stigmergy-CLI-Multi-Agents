@@ -1,8 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * Stigmergy CLI - 智能部署脚本
- * 默认全量部署，扫描询问用户是否需要安装未安装的CLI工具，支持自动化安装
+ * Stigmergy CLI - 项目构建和发布部署脚本
+ * =================================================================
+ * 这是项目的主部署脚本，用于：
+ * 1. 扫描系统中的CLI工具状态
+ * 2. 询问用户是否安装未安装的CLI工具和集成
+ * 3. 构建项目
+ * 4. 发布到NPM
+ * 5. 显示使用说明
+ * 
+ * 与 deployment/ 目录下的工具配置脚本不同：
+ * - deployment/deploy.js: 用于配置用户系统中已安装的AI工具
+ * - deployment/deploy-with-install.js: 增强版工具配置脚本，支持自动安装缺失的工具
+ * 
+ * 使用方法:
+ *   npm run deploy
+ * =================================================================
  */
 
 import { spawn } from 'child_process';
@@ -63,6 +77,12 @@ const CLI_TOOLS = [
         name: 'codex',
         displayName: 'Codex CLI',
         description: 'Codex代码分析CLI工具',
+        required: false
+    },
+    {
+        name: 'cline',
+        displayName: 'Cline CLI',
+        description: 'Cline自主编码代理CLI工具 (仅支持macOS/Linux)',
         required: false
     }
 ];
@@ -211,6 +231,15 @@ const CLI_INSTALL_CONFIGS = {
         installCommand: 'npm i -g @openai/codex --registry=https://registry.npmmirror.com',
         website: 'https://platform.openai.com',
         docs: 'https://platform.openai.com/docs/cli'
+    },
+    'cline': {
+        name: 'Cline CLI',
+        displayName: 'Cline CLI',
+        description: 'Cline自主编码代理CLI工具 (仅支持macOS/Linux)',
+        required: false,
+        installCommand: 'npm install -g cline',
+        website: 'https://cline.bot',
+        docs: 'https://docs.cline.bot'
     }
 };
 
@@ -222,12 +251,23 @@ async function checkCLIAvailability(cliName) {
             return false;
         }
 
+        // 平台检查 - Cline CLI仅支持macOS和Linux
+        if (cliName === 'cline') {
+            const os = process.platform;
+            if (os === 'win32') {
+                console.log('⚠️  Cline CLI不支持Windows平台');
+                return false;
+            }
+        }
+
         // 尝试常见的CLI命令名称
         const possibleCommands = [cliName, `${cliName}.cmd`, `${cliName}.py`, `${cliName}.sh`];
 
         for (const cmd of possibleCommands) {
             try {
-                const result = await executeCommand('where', [cmd], { shell: 'cmd.exe' });
+                // 在Unix-like系统上使用which命令
+                const whichCmd = process.platform === 'win32' ? 'where' : 'which';
+                const result = await executeCommand(whichCmd, [cmd]);
                 if (result.code === 0) {
                     return true;
                 }
@@ -469,6 +509,39 @@ async function askUserToInstall(results) {
         installCLIs: needInstallCLIs,
         installIntegrations: needInstallIntegrations
     };
+}
+
+// 安装单个CLI工具
+async function installCLITool(cliName, cliInfo) {
+    colorLog('cyan', `🔧 正在安装 ${cliInfo.displayName}...`);
+
+    try {
+        const installConfig = CLI_INSTALL_CONFIGS[cliName];
+        if (!installConfig) {
+            colorLog('yellow', `⚠️  ${cliInfo.displayName} 安装配置不存在，跳过`);
+            return { success: false, reason: 'Install config not found' };
+        }
+
+        // 执行安装命令
+        const result = await executeCommand(installConfig.installCommand, [], {
+            shell: true
+        });
+
+        if (result.code === 0) {
+            colorLog('green', `✅ ${cliInfo.displayName} 安装成功`);
+            return { success: true };
+        } else {
+            colorLog('red', `❌ ${cliInfo.displayName} 安装失败`);
+            if (result.stderr) {
+                console.log(colors.red + result.stderr + colors.reset);
+            }
+            return { success: false, reason: result.stderr };
+        }
+
+    } catch (error) {
+        colorLog('red', `❌ ${cliInfo.displayName} 安装过程出错: ${error.message}`);
+        return { success: false, reason: error.message };
+    }
 }
 
 // 批量安装CLI工具

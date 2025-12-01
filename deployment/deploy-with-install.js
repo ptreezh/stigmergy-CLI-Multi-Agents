@@ -1,8 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * Stigmergy-CLI - Zero Code Facility (带自动安装功能)
- * 增强版部署工具，支持自动安装缺失的CLI工具
+ * Stigmergy-CLI - 工具配置部署脚本 (增强版)
+ * =================================================================
+ * 这是一个增强版的工具扫描和配置脚本，用于：
+ * 1. 扫描用户系统中已安装的AI CLI工具
+ * 2. 自动安装缺失的CLI工具
+ * 3. 创建配置文件和目录结构
+ * 4. 生成使用说明文档
+ * 
+ * 与 src/deploy.js 不同：
+ * - src/deploy.js: 项目的主部署脚本，用于构建和发布整个项目
+ * - deployment/deploy.js: 基础版工具配置脚本，仅扫描已安装的工具
+ * 
+ * 使用方法:
+ *   npm run deploy-tools-all
+ *   node deployment/deploy-with-install.js
+ * =================================================================
  */
 
 const fs = require('fs');
