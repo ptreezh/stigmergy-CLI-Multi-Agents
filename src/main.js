@@ -28,9 +28,49 @@ class StigmergyCLIRouter {
         this.isInstalling = false;
     }
 
+    async checkCommandExists(command) {
+        try {
+            let result;
+            if (process.platform === 'win32') {
+                result = spawnSync('where', [command], { stdio: 'pipe' });
+            } else {
+                result = spawnSync('which', [command], { stdio: 'pipe' });
+            }
+            return result.status === 0;
+        } catch (error) {
+            return false;
+        }
+    }
+
     async loadAdapter(adapterName) {
         // 适配器名称映射 - 将用户可见的名称映射到实际目录名
         const adapterDirName = this.mapAdapterName(adapterName);
+
+        // 首先尝试从全局配置中获取CLI工具信息
+        try {
+            const globalConfigPath = join(this.config.localConfig, 'global-config.json');
+            const globalConfigData = await fs.readFile(globalConfigPath, 'utf8');
+            const globalConfig = JSON.parse(globalConfigData);
+            
+            if (globalConfig.availableTools) {
+                const cliTool = globalConfig.availableTools.find(tool => tool.name === adapterName);
+                if (cliTool) {
+                    // 创建基本的适配器配置
+                    return {
+                        loaded: true,
+                        name: cliTool.name,
+                        displayName: cliTool.displayName,
+                        description: cliTool.description,
+                        version: '1.0.0', // 默认版本
+                        integration_type: 'global_cli',
+                        path: cliTool.path,
+                        required: cliTool.required
+                    };
+                }
+            }
+        } catch (error) {
+            // 如果无法读取全局配置，继续尝试适配器文件
+        }
 
         // 尝试多个可能的路径
         const possibleBasePaths = [
@@ -51,10 +91,12 @@ class StigmergyCLIRouter {
             }
         }
 
-        // 所有路径都尝试过了但失败
-        const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterDirName, 'config.json');
-        console.error(`❌ 加载 ${adapterName} 适配器配置失败: 未找到配置文件在任何可能的路径中，最后尝试: ${lastPathAttempted}`);
-        return { loaded: false, error: "无法找到适配器配置文件" };
+        // 所有路径都尝试过了但失败，返回基本配置
+        return {
+            loaded: false,
+            name: adapterName,
+            error: "无法找到适配器配置文件"
+        };
     }
 
     async checkAdapterExists(adapterName) {
@@ -253,17 +295,75 @@ class StigmergyCLIRouter {
             adapters: {}
         };
 
-        // 检查可用的适配器
+        // 检查可用的适配器 - 优先使用全局配置
         const availableAdapters = [];
-        for (const adapterName of ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex']) {
-            const config = await this.loadAdapter(adapterName);
-            if (config.loaded) {
-                availableAdapters.push({
-                    name: adapterName,
-                    version: config.version,
-                    integrationType: config.integration_type,
-                    status: 'available'
-                });
+        
+        try {
+            // 尝试从全局配置加载CLI工具信息
+            const globalConfigPath = join(this.config.localConfig, 'global-config.json');
+            const globalConfigData = await fs.readFile(globalConfigPath, 'utf8');
+            const globalConfig = JSON.parse(globalConfigData);
+            
+            if (globalConfig.availableTools && globalConfig.availableTools.length > 0) {
+                console.log('📋 从全局配置加载CLI工具...');
+                for (const cliTool of globalConfig.availableTools) {
+                    availableAdapters.push({
+                        name: cliTool.name,
+                        version: cliTool.version || '1.0.0',
+                        integrationType: cliTool.integration_type || 'global_cli',
+                        status: 'available',
+                        displayName: cliTool.displayName,
+                        description: cliTool.description,
+                        path: cliTool.path
+                    });
+                }
+            }
+        } catch (error) {
+            console.log('⚠️  无法读取全局配置，将尝试适配器文件...');
+        }
+        
+        // 如果全局配置没有找到适配器，尝试从适配器文件加载
+        if (availableAdapters.length === 0) {
+            console.log('📂 尝试从适配器文件加载...');
+            for (const adapterName of ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex']) {
+                const config = await this.loadAdapter(adapterName);
+                if (config.loaded) {
+                    availableAdapters.push({
+                        name: adapterName,
+                        version: config.version,
+                        integrationType: config.integration_type,
+                        status: 'available'
+                    });
+                }
+            }
+        }
+        
+        // 如果还是没找到，进行基本的CLI检测
+        if (availableAdapters.length === 0) {
+            console.log('🔍 进行基本CLI工具检测...');
+            const CLI_TOOLS = [
+                { name: 'claude', displayName: 'Claude CLI' },
+                { name: 'gemini', displayName: 'Gemini CLI' },
+                { name: 'qwen', displayName: 'QwenCode CLI' },
+                { name: 'iflow', displayName: 'iFlow CLI' },
+                { name: 'qoder', displayName: 'Qoder CLI', command: 'qodercli' },
+                { name: 'codebuddy', displayName: 'CodeBuddy CLI' },
+                { name: 'copilot', displayName: 'GitHub Copilot CLI' },
+                { name: 'codex', displayName: 'OpenAI Codex CLI' }
+            ];
+            
+            for (const cliInfo of CLI_TOOLS) {
+                const command = cliInfo.command || cliInfo.name;
+                const available = await this.checkCommandExists(command);
+                if (available) {
+                    availableAdapters.push({
+                        name: cliInfo.name,
+                        version: '1.0.0',
+                        integrationType: 'cli',
+                        status: 'available',
+                        displayName: cliInfo.displayName
+                    });
+                }
             }
         }
 
