@@ -1,0 +1,53 @@
+{
+  "name": "cline",
+  "displayName": "Cline CLI",
+  "version": "1.0.0",
+  "integration_type": "mcp_server_system",
+  "config_file": "~/.config/cline/cline_mcp_settings.json",
+  "global_doc": "cline.md",
+  "description": "Cline CLI MCP Server集成适配器 - 支持Model Context Protocol工具扩展",
+  "architecture": {
+    "type": "nodejs_npm",
+    "install_command": "npm install -g cline",
+    "execution_command": "cline",
+    "npx_alternative": "npx -y cline",
+    "global_check_command": "npm list -g cline",
+    "api_key_required": true,
+    "system_requirements": ["Node.js 18+", "npm 7+"]
+  },
+  "mcp": {
+    "protocol_version": "2024-11-05",
+    "transport_mechanisms": ["stdio", "http"],
+    "server_directory": "~/Documents/Cline/MCP",
+    "settings_file": "cline_mcp_settings.json",
+    "tool_discovery_endpoint": "tool/list",
+    "resource_discovery_endpoint": "resource/list"
+  },
+  "capabilities": {
+    "file_operations": true,
+    "terminal_execution": true,
+    "browser_automation": true,
+    "tool_creation": true,
+    "context_management": true,
+    "multi_step_tasks": true,
+    "human_in_the_loop": true
+  },
+  "cross_cli_patterns": {
+    "chinese": [
+      "请用cline\\s*帮我?([^。！？\\n]*)",
+      "调用cline\\s*来([^。！？\\n]*)",
+      "用cline\\s*帮我?([^。！？\\n]*)"
+    ],
+    "english": [
+      "use\\s+cline\\s+to\\s+([^.\\n!?]*)",
+      "call\\s+cline\\s+to\\s+([^.\\n!?]*)",
+      "ask\\s+cline\\s+for\\s+([^.\\n!?]*)"
+    ]
+  },
+  "fallback_strategies": [
+    "direct_mcp_execution",
+    "tool_equivalent_generation", 
+    "manual_guidance_provision",
+    "alternative_suggestion"
+  ]
+}

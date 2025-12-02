@@ -30,7 +30,7 @@ def install_qoder_hooks():
             with open(QODER_CONFIG_FILE, 'r', encoding='utf-8') as f:
                 existing_config = json.load(f)
         except Exception as e:
-            print(f"⚠️ 读取现有config配置失败: {e}")
+            print(f"[WARNING] Failed to read existing config: {e}")
             existing_config = {}
 
     # 定义跨CLI协作的Hook配置
@@ -74,18 +74,19 @@ def install_qoder_hooks():
         with open(QODER_CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_config, f, indent=2, ensure_ascii=False)
 
-        print(f"[OK] Qoder配置已安装: {QODER_CONFIG_FILE}")
-        print("🔗 已安装的Hook:")
-        for hook_name in [hook.get('name') for hook in merged_config.get('hooks', [])]:
+        print(f"[OK] Qoder configuration installed: {QODER_CONFIG_FILE}")
+        print("Installed Hooks:")
+        for hook in merged_config.get('hooks', []):
+            hook_name = hook.get('name')
             if hook.get('enabled', False):
-                status = "❌"
-            else:
                 status = "[OK]"
+            else:
+                status = "[DISABLED]"
             print(f"   - {hook_name}: {status}")
 
         return True
     except Exception as e:
-        print(f"❌ 安装Qoder配置失败: {e}")
+        print(f"[ERROR] Failed to install Qoder configuration: {e}")
         return False
 
 def copy_adapter_file():
@@ -97,146 +98,98 @@ def copy_adapter_file():
 
         # 复制适配器文件
         adapter_files = [
-            "notification_hook_adapter.py",
-            "standalone_qoder_adapter.py"
+            ("notification_hook_adapter.py", "src/adapters/qoder/notification_hook_adapter.py"),
+            ("standalone_qoder_adapter.py", "src/adapters/qoder/standalone_qoder_adapter.py")
         ]
 
-        for file_name in adapter_files:
-            src_file = current_dir / file_name
-            dst_file = os.path.join(adapter_dir, file_name)
+        for target_name, source_path in adapter_files:
+            source_file = project_root / source_path
+            target_file = Path(adapter_dir) / target_name
 
-            if src_file.exists():
-                shutil.copy2(src_file, dst_file)
-                print(f"[OK] 复制适配器文件: {file_name}")
+            if source_file.exists():
+                shutil.copy2(source_file, target_file)
+                print(f"[OK] Copied adapter file: {target_name}")
             else:
-                print(f"⚠️ 适配器文件不存在: {file_name}")
+                print(f"[WARNING] Source adapter file not found: {source_file}")
 
         return True
     except Exception as e:
-        print(f"❌ 复制适配器文件失败: {e}")
+        print(f"[ERROR] Failed to copy adapter files: {e}")
         return False
 
 def verify_installation():
-    """验证安装是否成功"""
-    print("\n🔍 验证Qoder CLI集成安装...")
-
-    # 检查配置文件
-    if not os.path.exists(QODER_CONFIG_FILE):
-        print(f"❌ 配置文件不存在: {QODER_CONFIG_FILE}")
-        return False
-
+    """验证安装"""
     try:
+        # 检查配置文件
+        if not os.path.exists(QODER_CONFIG_FILE):
+            print("[ERROR] Qoder configuration file not found")
+            return False
+
+        # 读取配置文件
         with open(QODER_CONFIG_FILE, 'r', encoding='utf-8') as f:
             config = json.load(f)
 
+        # 检查Hook配置
         hooks = config.get('hooks', [])
-        cross_cli_hook = None
-        for hook in hooks:
-            if hook.get('name') == 'CrossCLINotificationHook':
-                cross_cli_hook = hook
-                break
+        cross_cli_hook_found = any(hook.get('name') == 'CrossCLINotificationHook' for hook in hooks)
 
-        if cross_cli_hook:
-            print("[OK] 跨CLI协作Hook已安装")
-            print(f"   - Hook名称: {cross_cli_hook.get('name')}")
-            print(f"   - 启用状态: {'[OK]' if cross_cli_hook.get('enabled') else '❌'}")
-            print(f"   - 支持的CLI工具: {cross_cli_hook.get('config', {}).get('supported_clis', [])}")
-            print(f"   - 自动检测: {'[OK]' if cross_cli_hook.get('config', {}).get('auto_detect') else '❌'}")
-        else:
-            print("❌ 跨CLI协作Hook未找到")
+        if not cross_cli_hook_found:
+            print("[ERROR] Cross-CLI Notification Hook not found in configuration")
             return False
 
-        # 检查适配器文件
-        adapter_dir = os.path.dirname(QODER_CONFIG_FILE)
-        required_files = ["notification_hook_adapter.py"]
-        missing_files = []
-
-        for file_name in required_files:
-            file_path = os.path.join(adapter_dir, file_name)
-            if not os.path.exists(file_path):
-                missing_files.append(file_name)
-
-        if missing_files:
-            print(f"❌ 缺失适配器文件: {missing_files}")
-            return False
-        else:
-            print("[OK] 适配器文件已复制")
-
+        print("[OK] Installation verified successfully")
         return True
     except Exception as e:
-        print(f"❌ 验证失败: {e}")
+        print(f"[ERROR] Installation verification failed: {e}")
         return False
 
 def uninstall_qoder_integration():
     """卸载Qoder集成"""
     try:
-        # 备份现有配置
-        if os.path.exists(QODER_CONFIG_FILE):
-            backup_file = f"{QODER_CONFIG_FILE}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            shutil.copy2(QODER_CONFIG_FILE, backup_file)
-            print(f"📦 已备份现有配置: {backup_file}")
+        # 检查配置文件
+        if not os.path.exists(QODER_CONFIG_FILE):
+            print("[WARNING] Qoder configuration file not found")
+            return True
 
-        # 移除跨CLI协作Hook
-        config_updated = False
-        if os.path.exists(QODER_CONFIG_FILE):
-            with open(QODER_CONFIG_FILE, 'r+', encoding='utf-8') as f:
-                config = json.load(f)
-                hooks = config.get('hooks', [])
+        # 读取配置文件
+        with open(QODER_CONFIG_FILE, 'r', encoding='utf-8') as f:
+            config = json.load(f)
 
-                # 移除跨CLI协作Hook
-                hooks = [hook for hook in hooks if hook.get('name') != 'CrossCLINotificationHook']
+        # 移除跨CLI通知Hook
+        hooks = config.get('hooks', [])
+        filtered_hooks = [hook for hook in hooks if hook.get('name') != 'CrossCLINotificationHook']
+        config['hooks'] = filtered_hooks
 
-                config['hooks'] = hooks
+        # 写入更新后的配置
+        with open(QODER_CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
 
-                f.seek(0)
-                f.truncate()
-                json.dump(config, f, indent=2, ensure_ascii=False)
-                config_updated = True
-
-            print(f"🗑️ Qoder跨CLI协作集成已卸载")
+        print("[OK] Qoder integration uninstalled successfully")
         return True
     except Exception as e:
-        print(f"❌ 卸载失败: {e}")
+        print(f"[ERROR] Failed to uninstall Qoder integration: {e}")
         return False
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Qoder CLI跨CLI协作集成安装脚本",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="安装Qoder CLI跨CLI协作集成"
-    )
-
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="验证Qoder CLI集成安装"
-    )
-
-    parser.add_argument(
-        "--uninstall",
-        action="store_true",
-        help="卸载Qoder CLI跨CLI协作集成"
-    )
-
+    """主函数"""
+    parser = argparse.ArgumentParser(description="Qoder CLI Notification Hook集成安装脚本")
+    parser.add_argument("--verify", action="store_true", help="验证安装")
+    parser.add_argument("--uninstall", action="store_true", help="卸载集成")
+    parser.add_argument("--install", action="store_true", help="安装集成")
     args = parser.parse_args()
 
-    print("[CONFIG] Qoder CLI跨CLI协作集成安装器")
+    print("Qoder CLI Cross-CLI Collaboration Integration Installer")
     print("=" * 50)
 
     if args.uninstall:
-        print("[UNINSTALL] 卸载模式...")
+        print("Uninstall mode...")
         success = uninstall_qoder_integration()
     elif args.verify:
-        print("🔍 验证模式...")
+        print("Verification mode...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
-
+        print("Installing Qoder CLI Cross-CLI Collaboration Integration...")
+        
         # 1. 安装配置
         config_success = install_qoder_hooks()
 
@@ -246,18 +199,18 @@ def main():
         success = config_success and adapter_success
 
         if success:
-            print("\n🎉 Qoder CLI跨CLI协作集成安装成功！")
-            print("\n[INFO] 安装摘要:")
-            print(f"   [OK] 配置文件: {QODER_CONFIG_FILE}")
-            print(f"   [OK] 适配器目录: {os.path.dirname(QODER_CONFIG_FILE)}")
-            print(f"   [OK] 跨CLI协作Hook: 已启用")
-
-            print("\n[INSTALL] 下一步:")
-            print("   1. 运行其他CLI工具的安装脚本")
-            print("   2. 使用 ai-cli-router deploy --all 安装所有工具")
-            print("   3. 使用 ai-cli-router init 初始化项目")
+            print("\nQoder CLI Cross-CLI Collaboration Integration installed successfully!")
+            print("\nInstallation Summary:")
+            print(f"   [OK] Configuration file: {QODER_CONFIG_FILE}")
+            print(f"   [OK] Adapter directory: {os.path.dirname(QODER_CONFIG_FILE)}")
+            print(f"   [OK] Cross-CLI Collaboration Hook: Enabled")
+            
+            print("\nNext steps:")
+            print("   1. Run installation scripts for other CLI tools")
+            print("   2. Use ai-cli-router deploy --all to install all tools")
+            print("   3. Use ai-cli-router init to initialize your project")
         else:
-            print("\n❌ Qoder CLI跨CLI协作集成安装失败")
+            print("\nQoder CLI Cross-CLI Collaboration Integration installation failed")
     else:
         parser.print_help()
 

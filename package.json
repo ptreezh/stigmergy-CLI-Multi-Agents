@@ -1,11 +1,11 @@
 {
-  "name": "stigmergy-cli",
-  "version": "1.0.1",
+  "name": "stigmergy",
+  "version": "1.0.65",
   "type": "module",
   "description": "Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统",
   "main": "src/main.js",
   "bin": {
-    "stigmergy-cli": "src/main.js"
+    "stigmergy": "src/main.js"
   },
   "scripts": {
     "start": "node src/main.js",
@@ -18,11 +18,12 @@
     "check-project": "node src/main.js check-project",
     "validate": "node src/main.js validate",
     "clean": "node src/main.js clean",
-    "build": "node src/build.js",
+    "build": "node src/main.js validate",
     "build-only": "node src/deploy.js --build",
     "quick-install": "node src/quick_install.js",
     "quick-deploy": "node src/main.js quick-deploy",
-    "publish-to-npm": "node publish.js",
+    "postinstall": "node src/postinstall.js",
+    "publish-to-npm": "node src/main.js validate",
     "unpublish": "npm unpublish",
     "version": "npm version patch",
     "test": "npm run validate"
@@ -56,7 +57,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents"
+    "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
   },
   "author": "Stigmergy CLI Team",
   "license": "MIT",
@@ -70,8 +71,7 @@
     "js-yaml": "^4.1.0",
     "node-fetch": "^3.3.2"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "npx": {
     "stigmergy-cli": "src/main.js"
   },

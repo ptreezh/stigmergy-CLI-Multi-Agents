@@ -404,7 +404,27 @@ async function installCLIIntegration(cliName, cliInfo) {
         }
 
         // 执行安装
-        const result = await executeCommand('python', [installScript, '--install'], {
+        const installScriptJs = join(__dirname, 'adapters', cliInfo.name, `install_${cliInfo.name}_integration.js`);
+        let installCommand = 'python';
+        let installArgs = [installScript, '--install'];
+        
+        // 检查Node.js版本的安装脚本是否存在
+        try {
+            await accessSync(installScriptJs);
+            installCommand = 'node';
+            installArgs = [installScriptJs, '--install'];
+        } catch (error) {
+            // 如果Node.js版本不存在，使用Python版本
+            try {
+                await accessSync(installScript);
+            } catch (error) {
+                colorLog('yellow', `⚠️  ${cliInfo.displayName} 安装脚本不存在，跳过`);
+                return { success: false, reason: 'Install script not found' };
+            }
+        }
+
+        // 执行安装
+        const result = await executeCommand(installCommand, installArgs, {
             cwd: __dirname
         });
 

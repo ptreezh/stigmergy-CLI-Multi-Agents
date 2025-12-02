@@ -1,47 +1,52 @@
 {
   "projectType": "initialized",
-  "createdAt": "2025-11-30T02:49:56.612Z",
+  "createdAt": "2025-12-02T04:44:29.969Z",
   "adapters": [
     {
       "name": "claude",
-      "displayName": "Claude CLI",
-      "required": true,
+      "version": "1.0.0",
+      "integrationType": "hook_system",
       "status": "available"
     },
     {
       "name": "gemini",
-      "displayName": "Gemini CLI",
-      "required": true,
+      "version": "1.0.0",
+      "integrationType": "extension_system",
       "status": "available"
     },
     {
       "name": "qwen",
-      "displayName": "QwenCode CLI",
-      "required": false,
+      "version": "1.0.0",
       "status": "available"
     },
     {
       "name": "iflow",
-      "displayName": "iFlow CLI",
-      "required": false,
+      "version": "1.0.0",
+      "integrationType": "native",
+      "status": "available"
+    },
+    {
+      "name": "qoder",
+      "version": "1.0.0",
+      "integrationType": "native",
       "status": "available"
     },
     {
       "name": "codebuddy",
-      "displayName": "CodeBuddy CLI",
-      "required": false,
+      "version": "1.0.0",
+      "integrationType": "native",
       "status": "available"
     },
     {
       "name": "copilot",
-      "displayName": "GitHub Copilot CLI",
-      "required": false,
+      "version": "1.0.0",
+      "integrationType": "mcp_server",
       "status": "available"
     },
     {
       "name": "codex",
-      "displayName": "OpenAI Codex CLI",
-      "required": false,
+      "version": "1.0.0",
+      "integrationType": "native",
       "status": "available"
     }
   ]

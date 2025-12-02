@@ -154,28 +154,28 @@ CLI_CONFIG_MAPPING = {
         global_doc="qwen.md",
         integration_type=IntegrationType.CLASS_INHERITANCE,
         install_script="install_qwencode_integration.py",
-        version_check_command="qwencode-cli --version"
+        version_check_command="qwen --version"
     ),
     "iflow": CLIConfigMapping(
         config_file="~/.config/iflow/hooks.yml",
         global_doc="iflow.md",
         integration_type=IntegrationType.WORKFLOW_PIPELINE,
         install_script="install_iflow_integration.py",
-        version_check_command="iflow-cli --version"
+        version_check_command="iflow --version"
     ),
     "qoder": CLIConfigMapping(
         config_file="~/.qoder/config.json",
         global_doc="qoder.md",
         integration_type=IntegrationType.NOTIFICATION_HOOK,
         install_script="install_qoder_integration.py",
-        version_check_command="qoder-cli --version"
+        version_check_command="qodercli --version"
     ),
     "codebuddy": CLIConfigMapping(
         config_file="~/.codebuddy/buddy_config.json",
         global_doc="codebuddy.md",
         integration_type=IntegrationType.HOOK_SYSTEM,
         install_script="install_codebuddy_integration.py",
-        version_check_command="codebuddy-cli --version"
+        version_check_command="codebuddy --version"
     ),
     "copilot": CLIConfigMapping(
         config_file="~/.copilot/mcp-config.json",

@@ -4,7 +4,7 @@
  * Stigmergy CLI - Multi-Agents NPX 部署管理器
  * 支持一键部署到各个AI CLI工具，实现真正的Stigmergy协作
  */
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -440,23 +440,35 @@ class StigmergyCLIRouter {
     }
 
     async checkToolAvailable(cliName) {
+        // Map tool names to their actual command names
+        const commandMap = {
+            'qoder': 'qodercli',
+            'qwen': 'qwen',
+            'iflow': 'iflow',
+            'codebuddy': 'codebuddy'
+        };
+        
+        const actualCommand = commandMap[cliName] || cliName;
+        
         try {
-            const { spawnSync } = require('child_process');
+            // 检查命令是否可用
             let result;
             if (process.platform === 'win32') {
-                result = spawnSync('where', [cliName], { stdio: 'pipe' });
+                result = spawnSync('where', [actualCommand], { stdio: 'pipe' });
             } else {
-                result = spawnSync('which', [cliName], { stdio: 'pipe' });
+                result = spawnSync('which', [actualCommand], { stdio: 'pipe' });
             }
-
             return result.status === 0;
         } catch (e) {
             // 如果系统命令失败，尝试npm检查
             try {
-                const { spawnSync } = require('child_process');
-                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
+                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { 
+                    encoding: 'utf-8',
+                    stdio: 'pipe',
+                    timeout: 10000
+                });
                 if (npmResult.status === 0 && npmResult.stdout) {
-                    return npmResult.stdout.includes(cliName);
+                    return npmResult.stdout.includes(actualCommand);
                 }
             } catch (e2) {
                 // 忽略npm检查错误
@@ -864,14 +876,24 @@ async function runQuickDeploy() {
 
     // 检测CLI工具是否可用的函数（与checkToolInstallation保持一致）
     async function checkToolAvailable(cliName) {
+        // Map tool names to their actual command names
+        const commandMap = {
+            'qoder': 'qodercli',
+            'qwen': 'qwen',
+            'iflow': 'iflow',
+            'codebuddy': 'codebuddy'
+        };
+        
+        const actualCommand = commandMap[cliName] || cliName;
+        
         try {
             // 检查命令是否可用
             const { spawnSync } = await import('child_process');
             let result;
             if (process.platform === 'win32') {
-                result = spawnSync('where', [cliName], { stdio: 'pipe' });
+                result = spawnSync('where', [actualCommand], { stdio: 'pipe' });
             } else {
-                result = spawnSync('which', [cliName], { stdio: 'pipe' });
+                result = spawnSync('which', [actualCommand], { stdio: 'pipe' });
             }
 
             return result.status === 0;
@@ -879,9 +901,13 @@ async function runQuickDeploy() {
             // 如果系统命令失败，尝试npm检查
             try {
                 const { spawnSync } = require('child_process');
-                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
+                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { 
+                    encoding: 'utf-8',
+                    stdio: 'pipe',
+                    timeout: 10000
+                });
                 if (npmResult.status === 0 && npmResult.stdout) {
-                    return npmResult.stdout.includes(cliName);
+                    return npmResult.stdout.includes(actualCommand);
                 }
             } catch (e2) {
                 // 忽略npm检查错误
