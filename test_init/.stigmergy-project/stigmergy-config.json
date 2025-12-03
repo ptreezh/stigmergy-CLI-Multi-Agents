@@ -1,0 +1,78 @@
+{
+  "projectType": "initialized",
+  "createdAt": "2025-12-03T14:40:51.915Z",
+  "adapters": [
+    {
+      "name": "claude",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "Claude CLI",
+      "description": "Anthropic Claude CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\claude"
+    },
+    {
+      "name": "gemini",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "Gemini CLI",
+      "description": "Google Gemini CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\gemini"
+    },
+    {
+      "name": "qwen",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "QwenCode CLI",
+      "description": "阿里云QwenCode CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\qwen"
+    },
+    {
+      "name": "iflow",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "iFlow CLI",
+      "description": "iFlow工作流CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\iflow"
+    },
+    {
+      "name": "qoder",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "Qoder CLI",
+      "description": "Qoder代码生成CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\qodercli"
+    },
+    {
+      "name": "codebuddy",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "CodeBuddy CLI",
+      "description": "CodeBuddy编程助手CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\codebuddy"
+    },
+    {
+      "name": "copilot",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "GitHub Copilot CLI",
+      "description": "GitHub Copilot CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\copilot"
+    },
+    {
+      "name": "codex",
+      "version": "1.0.0",
+      "integrationType": "global_cli",
+      "status": "available",
+      "displayName": "OpenAI Codex CLI",
+      "description": "OpenAI Codex代码分析CLI工具",
+      "path": "C:\\Users\\WIN10\\AppData\\Roaming\\npm\\codex"
+    }
+  ]
+}
