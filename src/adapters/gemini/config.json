@@ -5,5 +5,5 @@
   "integration_type": "extension_system",
   "config_file": "~/.config/gemini/extensions.json",
   "global_doc": "gemini.md",
-  "description": "Gemini CLI Extension集成适配器"
+  "description": "Gemini CLI Extension integration adapter"
 }

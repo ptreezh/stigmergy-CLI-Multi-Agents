@@ -1,6 +1,6 @@
 /**
- * CLI命令行工具 - 智能适配器管理器
- * 提供命令行接口管理Python/Node.js智能适配器
+ * CLI Command Line Tool - Smart Adapter Manager
+ * Provides command line interface to manage Python/Node.js smart adapters
  */
 
 import fs from 'fs/promises';
@@ -18,7 +18,7 @@ class CLIAdapterManager {
      */
     async initialize() {
         await this.integration.initialize();
-        console.log('✅ CLI适配器管理器初始化完成');
+        console.log('✅ CLI Adapter Manager initialized');
     }
 
     /**
@@ -54,7 +54,7 @@ class CLIAdapterManager {
      * 初始化适配器
      */
     async handleInit(args) {
-        console.log('🚀 初始化智能适配器系统...');
+        console.log('🚀 Initializing smart adapter system...');
         
         const force = args.includes('--force');
         const mode = args.find(arg => arg.startsWith('--mode='))?.split('=')[1] || 'hybrid';
@@ -75,28 +75,28 @@ class CLIAdapterManager {
             // 检查所有适配器状态
             const status = await this.integration.getSmartAdapterStatus();
             
-            console.log('\n📊 适配器状态:');
+            console.log('\n📊 Adapter status:');
             for (const [cliName, cliStatus] of Object.entries(status.systemStatus)) {
                 const adapterType = cliStatus.recommended?.type || 'none';
-                const adapterIcon = adapterType === 'python' ? '🐍' : adapterType === 'nodejs' ? '🟢' : '❌';
-                const fallbackIcon = cliStatus.fallback ? '🔄' : '';
+                const adapterIcon = adapterType === 'python' ? '[PYTHON]' : adapterType === 'nodejs' ? '[NODEJS]' : '[ERROR]';
+                const fallbackIcon = cliStatus.fallback ? '[FALLBACK]' : '';
                 
                 console.log(`  ${adapterIcon} ${fallbackIcon} ${cliName}: ${adapterType}`);
                 
                 if (cliStatus.pythonAdapter && cliStatus.pythonAdapter.available) {
-                    console.log(`    🐍 Python适配器: 可用`);
+                    console.log(`    [PYTHON] Python adapter: Available`);
                 }
                 if (cliStatus.nodejsAdapter && cliStatus.nodejsAdapter.available) {
-                    console.log(`    🟢 Node.js适配器: 可用`);
+                    console.log(`    [NODEJS] Node.js adapter: Available`);
                 }
             }
             
-            console.log('\n✅ 智能适配器系统初始化完成！');
-            console.log(`   集成模式: ${mode}`);
-            console.log(`   Python可用: ${status.pythonAvailable}`);
-            console.log(`   Node.js可用: ${status.nodeAvailable}`);
-            console.log(`   总适配器: ${status.totalCLIs}`);
-            console.log(`   可用适配器: ${status.availableCLIs}`);
+            console.log('\n✅ Smart adapter system initialized!');
+            console.log(`   Integration mode: ${mode}`);
+            console.log(`   Python available: ${status.pythonAvailable}`);
+            console.log(`   Node.js available: ${status.nodeAvailable}`);
+            console.log(`   Total adapters: ${status.totalCLIs}`);
+            console.log(`   Available adapters: ${status.availableCLIs}`);
             
             return true;
             
@@ -110,48 +110,48 @@ class CLIAdapterManager {
      * 处理状态检查
      */
     async handleStatus(args) {
-        console.log('📊 检查智能适配器状态...\n');
+        console.log('📊 Checking smart adapter status...\n');
         
         const status = await this.integration.getSmartAdapterStatus();
         
-        console.log('🔍 系统环境:');
-        console.log(`   平台: ${status.nodeAvailable ? process.platform : 'N/A'}`);
-        console.log(`   Python: ${status.pythonAvailable ? '✅ 可用' : '❌ 不可用'}`);
-        console.log(`   Node.js: ${status.nodeAvailable ? '✅ 可用' : '❌ 不可用'}`);
-        console.log(`   降级模式: ${status.fallbackMode ? '✅ 启用' : '❌ 未启用'}`);
+        console.log('🔍 System environment:');
+        console.log(`   Platform: ${status.nodeAvailable ? process.platform : 'N/A'}`);
+        console.log(`   Python: ${status.pythonAvailable ? '✅ Available' : '❌ Unavailable'}`);
+        console.log(`   Node.js: ${status.nodeAvailable ? '✅ Available' : '❌ Unavailable'}`);
+        console.log(`   Fallback mode: ${status.fallbackMode ? '✅ Enabled' : '❌ Disabled'}`);
         
-        console.log('\n📋 适配器详情:');
+        console.log('\n📋 Adapter details:');
         for (const [cliName, cliStatus] of Object.entries(status.systemStatus)) {
             const available = cliStatus.pythonAdapter?.available || cliStatus.nodejsAdapter?.available;
-            const icon = available ? '✅' : '❌';
+            const icon = available ? '[OK]' : '[ERROR]';
             const adapterType = cliStatus.recommended?.type || 'none';
             const confidence = cliStatus.recommended?.confidence || 0;
             
             console.log(`  ${icon} ${cliName} - ${adapterType} (${confidence})`);
             
             if (cliStatus.pythonAdapter) {
-                const pyStatus = cliStatus.pythonAdapter.available ? '✅ 可用' : '❌ 不可用';
+                const pyStatus = cliStatus.pythonAdapter.available ? '[AVAILABLE]' : '[UNAVAILABLE]';
                 const pyReason = cliStatus.pythonAdapter.reason || '';
-                console.log(`    🐍 Python: ${pyReason}`);
+                console.log(`    [PYTHON] Python: ${pyReason}`);
             }
             
             if (cliStatus.nodejsAdapter) {
-                const nodeStatus = cliStatus.nodejsAdapter.available ? '✅ 可用' : '❌ 不可用';
+                const nodeStatus = cliStatus.nodejsAdapter.available ? '[AVAILABLE]' : '[UNAVAILABLE]';
                 const nodeReason = cliStatus.nodejsAdapter.reason || '';
-                console.log(`    🟢 Node.js: ${nodeReason}`);
+                console.log(`    [NODEJS] Node.js: ${nodeReason}`);
             }
             
             if (cliStatus.fallback) {
-                console.log(`    🔄 已启用降级模式`);
+                console.log(`    [FALLBACK] Fallback mode enabled`);
             }
         }
         
-        console.log('\n📈 统计信息:');
-        console.log(`   总适配器: ${status.totalCLIs}`);
-        console.log(`   可用适配器: ${status.availableCLIs}`);
-        console.log(`   Python适配器: ${status.pythonAdapters}`);
-        console.log(`   Node.js适配器: ${status.nodeAdapters}`);
-        console.log(`   降级适配器: ${status.fallbackAdapters}`);
+        console.log('\n[STATS] Statistics:');
+        console.log(`   Total adapters: ${status.totalCLIs}`);
+        console.log(`   Available adapters: ${status.availableCLIs}`);
+        console.log(`   Python adapters: ${status.pythonAdapters}`);
+        console.log(`   Node.js adapters: ${status.nodeAdapters}`);
+        console.log(`   Fallback adapters: ${status.fallbackAdapters}`);
         
         return status;
     }
@@ -163,33 +163,33 @@ class CLIAdapterManager {
         const cliName = args[0];
         
         if (!cliName) {
-            console.error('❌ 请指定要检查的CLI名称');
-            console.log('用法: stigmergy-cli check <cli-name>');
+            console.error('❌ Please specify the CLI name to check');
+            console.log('Usage: stigmergy-cli check <cli-name>');
             return false;
         }
         
-        console.log(`🔍 检查 ${cliName} 适配器状态...\n`);
+        console.log(`🔍 Checking ${cliName} adapter status...\n`);
         
         const status = await this.integration.getSmartAdapterStatus();
         const cliStatus = status.systemStatus[cliName];
         
         if (!cliStatus) {
-            console.error(`❌ 未找到 ${cliName} 适配器`);
+            console.error(`❌ ${cliName} adapter not found`);
             return false;
         }
         
-        console.log(`📋 ${cliName} 详细状态:`);
-        console.log(`   推荐适配器: ${cliStatus.recommended?.type || 'none'}`);
-        console.log(`   置信度: ${cliStatus.recommended?.confidence || 0}`);
-        console.log(`   降级模式: ${cliStatus.fallback ? '是' : '否'}`);
+        console.log(`📋 ${cliName} detailed status:`);
+        console.log(`   Recommended adapter: ${cliStatus.recommended?.type || 'none'}`);
+        console.log(`   Confidence: ${cliStatus.recommended?.confidence || 0}`);
+        console.log(`   Fallback mode: ${cliStatus.fallback ? 'Yes' : 'No'}`);
         
         if (cliStatus.pythonAdapter) {
-            console.log(`\n🐍 Python适配器:`);
-            console.log(`   状态: ${cliStatus.pythonAdapter.available ? '✅ 可用' : '❌ 不可用'}`);
-            console.log(`   原因: ${cliStatus.pythonAdapter.reason || 'N/A'}`);
+            console.log(`\n🐍 Python adapter:`);
+            console.log(`   Status: ${cliStatus.pythonAdapter.available ? '[AVAILABLE]' : '[UNAVAILABLE]'}`);
+            console.log(`   Reason: ${cliStatus.pythonAdapter.reason || 'N/A'}`);
             
             if (cliStatus.pythonAdapter.files) {
-                console.log(`   文件: ${cliStatus.pythonAdapter.files.length} 个`);
+                console.log(`   Files: ${cliStatus.pythonAdapter.files.length}`);
                 cliStatus.pythonAdapter.files.forEach(file => {
                     console.log(`     - ${file}`);
                 });
@@ -197,10 +197,10 @@ class CLIAdapterManager {
         }
         
         if (cliStatus.nodejsAdapter) {
-            console.log(`\n🟢 Node.js适配器:`);
-            console.log(`   状态: ${cliStatus.nodejsAdapter.available ? '✅ 可用' : '❌ 不可用'}`);
-            console.log(`   原因: ${cliStatus.nodejsAdapter.reason || 'N/A'}`);
-            console.log(`   命令: ${cliStatus.nodejsAdapter.command || 'N/A'}`);
+            console.log(`\n🟢 Node.js adapter:`);
+            console.log(`   Status: ${cliStatus.nodejsAdapter.available ? '[AVAILABLE]' : '[UNAVAILABLE]'}`);
+            console.log(`   Reason: ${cliStatus.nodejsAdapter.reason || 'N/A'}`);
+            console.log(`   Command: ${cliStatus.nodejsAdapter.command || 'N/A'}`);
         }
         
         return cliStatus;
@@ -211,37 +211,37 @@ class CLIAdapterManager {
      */
     async handleExecute(args) {
         if (args.length === 0) {
-            console.error('❌ 请指定要执行的CLI和参数');
-            console.log('用法: stigmergy-cli execute <cli-name> [args...]');
+            console.error('[ERROR] Please specify the CLI and arguments to execute');
+            console.log('Usage: stigmergy-cli execute <cli-name> [args...]');
             return false;
         }
         
         const cliName = args[0];
         const cliArgs = args.slice(1);
         
-        console.log(`🚀 执行 ${cliName} (智能选择适配器)...\n`);
+        console.log(`[EXECUTE] Running ${cliName} (smart adapter selection)...\n`);
         
         try {
             const result = await this.integration.smartExecuteCLI(cliName, cliArgs);
             
             if (result.success) {
-                console.log(`✅ ${cliName} 执行成功`);
-                console.log(`   适配器: ${result.adapter}`);
-                console.log(`   方法: ${result.method}`);
+                console.log(`[SUCCESS] ${cliName} executed successfully`);
+                console.log(`   Adapter: ${result.adapter}`);
+                console.log(`   Method: ${result.method}`);
                 if (result.fallback) {
-                    console.log(`   降级: 是`);
+                    console.log(`   Fallback: Yes`);
                 }
             } else {
-                console.error(`❌ ${cliName} 执行失败: ${result.error}`);
+                console.error(`[ERROR] ${cliName} execution failed: ${result.error}`);
                 if (result.installCommand) {
-                    console.log(`💡 安装命令: ${result.installCommand}`);
+                    console.log(`[HINT] Installation command: ${result.installCommand}`);
                 }
             }
             
             return result;
             
         } catch (error) {
-            console.error(`❌ 执行异常: ${error.message}`);
+            console.error(`[EXCEPTION] Execution exception: ${error.message}`);
             return false;
         }
     }
@@ -254,29 +254,29 @@ class CLIAdapterManager {
         const force = args.includes('--force');
         
         if (!cliName) {
-            console.error('❌ 请指定要安装的CLI');
-            console.log('用法: stigmergy-cli install <cli-name> [--force]');
+            console.error('❌ Please specify the CLI to install');
+            console.log('Usage: stigmergy-cli install <cli-name> [--force]');
             return false;
         }
         
-        console.log(`📦 安装 ${cliName} (智能选择适配器)...\n`);
+        console.log(`[INSTALL] Installing ${cliName} (smart adapter selection)...\n`);
         
         try {
             const result = await this.integration.installCLI(cliName);
             
             if (result.success) {
-                console.log(`✅ ${cliName} 安装/检查完成`);
+                console.log(`[SUCCESS] ${cliName} installation/check completed`);
             } else {
-                console.error(`❌ ${cliName} 安装失败: ${result.message}`);
+                console.error(`[ERROR] ${cliName} installation failed: ${result.message}`);
                 if (result.installCommand) {
-                    console.log(`💡 请手动运行: ${result.installCommand}`);
+                    console.log(`[HINT] Please run manually: ${result.installCommand}`);
                 }
             }
             
             return result;
             
         } catch (error) {
-            console.error(`❌ 安装异常: ${error.message}`);
+            console.error(`[EXCEPTION] Installation exception: ${error.message}`);
             return false;
         }
     }
@@ -285,12 +285,12 @@ class CLIAdapterManager {
      * 处理配置
      */
     async handleConfig(args) {
-        console.log('⚙️ 配置智能适配器系统\n');
+        console.log('[CONFIG] Smart adapter system configuration\n');
         
         if (args.length === 0) {
             // 显示当前配置
             const config = this.integration.config;
-            console.log('当前配置:');
+            console.log('Current configuration:');
             console.log(JSON.stringify(config, null, 2));
             return config;
         }
@@ -305,7 +305,7 @@ class CLIAdapterManager {
             case 'reset':
                 return await this.resetConfig();
             default:
-                console.error(`❌ 未知配置操作: ${action}`);
+                console.error(`❌ Unknown config action: ${action}`);
                 return false;
         }
     }
@@ -317,20 +317,20 @@ class CLIAdapterManager {
         const mode = args[0];
         
         if (!mode) {
-            console.error('❌ 请指定要切换的模式');
-            console.log('用法: stigmergy-cli switch-mode <mode>');
-            console.log('可用模式: hybrid, python-only, nodejs-only');
+            console.error('❌ Please specify the mode to switch to');
+            console.log('Usage: stigmergy-cli switch-mode <mode>');
+            console.log('Available modes: hybrid, python-only, nodejs-only');
             return false;
         }
         
-        console.log(`🔄 切换到 ${mode} 模式...`);
+        console.log(`🔄 Switching to ${mode} mode...`);
         
         const result = await this.integration.switchIntegrationMode(mode);
         
         if (result.success) {
-            console.log(`✅ 已切换到 ${result.mode} 模式`);
+            console.log(`✅ Switched to ${result.mode} mode`);
         } else {
-            console.error(`❌ 模式切换失败: ${result.error}`);
+            console.error(`❌ Mode switch failed: ${result.error}`);
         }
         
         return result;
@@ -340,18 +340,18 @@ class CLIAdapterManager {
      * 处理统计信息
      */
     async handleStats(args) {
-        console.log('📈 智能适配器统计信息\n');
+        console.log('📈 Smart adapter statistics\n');
         
         const stats = await this.integration.getExecutionStats();
         
-        console.log('执行统计:');
-        console.log(`   总执行次数: ${stats.totalExecutions || 0}`);
-        console.log(`   Python执行: ${stats.pythonExecutions || 0}`);
-        console.log(`   Node.js执行: ${stats.nodeExecutions || 0}`);
-        console.log(`   成功率: ${stats.successRate || '0%'}`);
+        console.log('Execution statistics:');
+        console.log(`   Total executions: ${stats.totalExecutions || 0}`);
+        console.log(`   Python executions: ${stats.pythonExecutions || 0}`);
+        console.log(`   Node.js executions: ${stats.nodeExecutions || 0}`);
+        console.log(`   Success rate: ${stats.successRate || '0%'}`);
         
         if (stats.error) {
-            console.log(`   错误: ${stats.error}`);
+            console.log(`   Error: ${stats.error}`);
         }
         
         return stats;
@@ -362,7 +362,7 @@ class CLIAdapterManager {
      */
     async setConfig(args) {
         if (args.length !== 2) {
-            console.error('❌ 用法: config set <key> <value>');
+            console.error('❌ Usage: config set <key> <value>');
             return false;
         }
         
@@ -377,7 +377,7 @@ class CLIAdapterManager {
         this.integration.config[key] = parsedValue;
         await this.integration.saveConfig();
         
-        console.log(`✅ 配置已设置: ${key} = ${parsedValue}`);
+        console.log(`✅ Configuration set: ${key} = ${parsedValue}`);
         return true;
     }
 
@@ -386,7 +386,7 @@ class CLIAdapterManager {
      */
     async getConfig(args) {
         if (args.length !== 1) {
-            console.error('❌ 用法: config get <key>');
+            console.error('❌ Usage: config get <key>');
             return false;
         }
         
@@ -413,7 +413,7 @@ class CLIAdapterManager {
         
         await this.integration.saveConfig();
         
-        console.log('✅ 配置已重置为默认值');
+        console.log('✅ Configuration reset to default values');
         return true;
     }
 
@@ -447,12 +447,12 @@ class CLIAdapterManager {
 🎯 集成模式:
   hybrid      - 智能选择 (Python > Node.js)
   python-only - 仅使用Python适配器
-  nodejs-only  - 仅使用Node.js适配器
+  nodejs-only  - Use Node.js adapters only
 
-🔗 示例:
+[EXAMPLES] Examples:
   stigmergy-cli init --mode=hybrid
   stigmergy-cli status
-  stigmergy-cli execute claude "生成代码"
+  stigmergy-cli execute claude "generate code"
   stigmergy-cli check claude
   stigmergy-cli install gemini --force
   stigmergy-cli config set autoFallback true

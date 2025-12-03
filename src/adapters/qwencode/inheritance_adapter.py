@@ -1,12 +1,12 @@
 """
-QwenCode CLI Class Inheritance适配器 - 基于QwenCode官方Class Inheritance系统的原生集成
+QwenCode CLI Class Inheritance Adapter - Native integration based on QwenCode official Class Inheritance system
 
-这是TDD驱动的实现，基于test_qwencode_adapter.py中的测试用例
-完全符合项目约束条件：
-- 使用QwenCode CLI官方Class Inheritance机制
-- 不改变CLI启动和使用方式
-- 不依赖包装器
-- 完全无损扩展
+This is a TDD-driven implementation based on test cases in test_qwencode_adapter.py
+Fully compliant with project constraints:
+- Using QwenCode CLI official Class Inheritance mechanism
+- Not changing CLI startup and usage methods
+- Not depending on wrappers
+- Completely lossless extension
 """
 
 import os
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class PluginContext:
-    """QwenCode CLI Plugin上下文模拟类"""
+    """QwenCode CLI Plugin Context Simulation Class"""
 
     def __init__(self, prompt: str = "", metadata: Optional[Dict] = None):
         self.prompt = prompt
@@ -41,24 +41,24 @@ class PluginContext:
 
 class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
     """
-    QwenCode CLI Class Inheritance适配器
+    QwenCode CLI Class Inheritance Adapter
 
-    通过QwenCode CLI官方Class Inheritance系统实现跨CLI调用功能。
-    这是完全基于原生机制的无损扩展实现。
+    Implements cross-CLI calling functionality through QwenCode CLI official Class Inheritance system.
+    This is a completely native mechanism-based lossless extension implementation.
 
-    Inheritance机制:
-    - 继承BaseQwenCodePlugin类
-    - 重写关键方法实现跨CLI功能
-    - Plugin生命周期管理
-    - 配置文件驱动
+    Inheritance mechanism:
+    - Inherit BaseQwenCodePlugin class
+    - Override key methods to implement cross-CLI functionality
+    - Plugin lifecycle management
+    - Configuration file driven
     """
 
     def __init__(self, cli_name: str = "qwencode"):
         """
-        初始化QwenCode Inheritance适配器
+        Initialize QwenCode Inheritance Adapter
 
         Args:
-            cli_name: CLI工具名称，默认为"qwencode"
+            cli_name: CLI tool name, default is "qwencode"
         """
         super().__init__(cli_name)
 
@@ -158,11 +158,11 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
                         return result
 
                 self.base_class = MockBaseQwenCodePlugin
-                logger.info("QwenCode基础Plugin类导入成功")
+                logger.info("QwenCode base Plugin class imported successfully")
 
             except ImportError as e:
-                logger.warning(f"无法导入QwenCode基础类，使用模拟类: {e}")
-                # 创建模拟基础类
+                logger.warning(f"Failed to import QwenCode base class, using mock class: {e}")
+                # Create mock base class
                 class MockBaseQwenCodePlugin:
                     def __init__(self):
                         self.name = "BasePlugin"
@@ -180,7 +180,7 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
 
                 self.base_class = MockBaseQwenCodePlugin
 
-            # 创建插件模块
+            # Create plugin module
             plugin_module_path = f"qwencode.plugins.{self.plugin_name.lower()}"
             self.plugin_module = type('PluginModule', (), {})
 
@@ -188,21 +188,21 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             return True
 
         except Exception as e:
-            logger.error(f"设置Class Inheritance系统失败: {e}")
+            logger.error(f"Failed to setup Class Inheritance system: {e}")
             return False
 
     async def _load_plugins(self) -> bool:
         """
-        加载插件
+        Load plugins
 
         Returns:
-            bool: 加载是否成功
+            bool: Whether loading was successful
         """
         try:
-            # 读取现有配置
+            # Read existing configuration
             config = self._load_config()
 
-            # 添加我们的插件配置
+            # Add our plugin configuration
             cross_cli_plugin = {
                 "name": "CrossCLIAdapterPlugin",
                 "class": "CrossCLIAdapterPlugin",
@@ -221,7 +221,7 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
                 }
             }
 
-            # 检查是否已存在
+            # Check if already exists
             existing_plugins = config.get('plugins', [])
             plugin_exists = any(
                 plugin['name'] == cross_cli_plugin['name']
@@ -232,24 +232,24 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
                 existing_plugins.append(cross_cli_plugin)
                 config['plugins'] = existing_plugins
 
-                # 保存配置
+                # Save configuration
                 await self._save_config(config)
                 logger.info(f"加载Plugin: {cross_cli_plugin['name']}")
             else:
-                logger.info("Plugin已存在，跳过加载")
+                logger.info("Plugin already exists, skipping load")
 
             return True
 
         except Exception as e:
-            logger.error(f"加载Plugin失败: {e}")
+            logger.error(f"Failed to load Plugin: {e}")
             return False
 
     def _load_config(self) -> Dict[str, Any]:
         """
-        加载配置
+        Load configuration
 
         Returns:
-            Dict[str, Any]: 配置
+            Dict[str, Any]: Configuration
         """
         if os.path.exists(self.config_file):
             try:
@@ -300,45 +300,45 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             config_dir = os.path.expanduser("~/.config/qwencode")
             os.makedirs(config_dir, exist_ok=True)
 
-            # 创建适配器配置目录
+            # Create adapter configuration directory
             adapter_dir = os.path.join(config_dir, "adapters")
             os.makedirs(adapter_dir, exist_ok=True)
 
-            logger.info(f"配置目录已准备: {config_dir}")
+            logger.info(f"Configuration directory prepared: {config_dir}")
             return True
 
         except Exception as e:
-            logger.error(f"创建配置目录失败: {e}")
+            logger.error(f"Failed to create configuration directory: {e}")
             return False
 
     def _check_qwencode_environment(self) -> bool:
         """
-        检查QwenCode CLI环境
+        Check QwenCode CLI environment
 
         Returns:
-            bool: 环境是否可用
+            bool: Whether environment is available
         """
-        # 这里应该检查QwenCode CLI是否可用
-        # 暂时返回True，实际实现中需要检查CLI命令和配置
+        # Here should check if QwenCode CLI is available
+        # Temporarily return True, in actual implementation need to check CLI commands and configuration
         return True
 
     async def on_prompt_received(self, context: PluginContext) -> Optional[str]:
         """
-        接收到提示时的Plugin处理函数
+        Plugin processing function when prompt is received
 
-        这是核心Plugin，用于检测和执行跨CLI调用。
+        This is the core Plugin for detecting and executing cross-CLI calls.
 
         Args:
-            context: Plugin上下文
+            context: Plugin context
 
         Returns:
-            Optional[str]: 处理结果，如果返回None则让QwenCode继续正常处理
+            Optional[str]: Processing result, if None is returned then let QwenCode continue normal processing
         """
         try:
             self.plugin_calls_count += 1
             user_input = context.prompt
 
-            # 记录请求
+            # Record request
             request_record = {
                 'plugin_type': 'on_prompt_received',
                 'prompt': user_input,
@@ -347,19 +347,19 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             }
             self.processed_requests.append(request_record)
 
-            # 1. 检测是否为跨CLI调用意图
+            # 1. Detect if it's a cross-CLI call intent
             intent = self.parser.parse_intent(user_input, "qwencode")
 
             if not intent.is_cross_cli:
-                # 不是跨CLI调用，让QwenCode继续处理
+                # Not a cross-CLI call, let QwenCode continue processing
                 return None
 
-            # 2. 避免自我调用
+            # 2. Avoid self-invocation
             if intent.target_cli == self.cli_name:
-                # 目标是QwenCode自己，让QwenCode处理
+                # Target is QwenCode itself, let QwenCode handle it
                 return None
 
-            # 3. 执行跨CLI调用
+            # 3. Execute cross-CLI call
             result = await self._execute_cross_cli_call(
                 intent.target_cli,
                 intent.task,
@@ -373,16 +373,16 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             return None
 
         except Exception as e:
-            logger.error(f"接收到提示Plugin处理失败: {e}")
+            logger.error(f"Failed to process prompt Plugin: {e}")
             self.record_error()
             return None
 
     def _parse_cross_cli_intent(self, user_input: str) -> tuple:
         """
-        解析跨CLI调用意图（测试兼容方法）
+        Parse cross-CLI call intent (test compatibility method)
 
         Args:
-            user_input: 用户输入
+            user_input: User input
 
         Returns:
             tuple: (target_cli, task)
@@ -448,43 +448,43 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         Returns:
             Optional[str]: 处理结果
         """
-        # 可以在这里处理代码生成相关的跨CLI功能
+        # Can handle cross-CLI functionality related to code generation here
         return None
 
     async def on_error_occurred(self, context: PluginContext) -> Optional[str]:
         """
-        错误发生Plugin处理函数
+        Error occurred Plugin processing function
 
         Args:
-            context: Plugin上下文
+            context: Plugin context
 
         Returns:
-            Optional[str]: 处理结果
+            Optional[str]: Processing result
         """
-        # 可以在这里处理错误恢复逻辑
+        # Can handle error recovery logic here
         return None
 
     async def on_file_created(self, context: PluginContext) -> Optional[str]:
         """
-        文件创建Plugin处理函数
+        File created Plugin processing function
 
         Args:
-            context: Plugin上下文
+            context: Plugin context
 
         Returns:
-            Optional[str]: 处理结果
+            Optional[str]: Processing result
         """
         return None
 
     async def on_before_save(self, context: PluginContext) -> Optional[str]:
         """
-        保存前Plugin处理函数
+        Before save Plugin processing function
 
         Args:
-            context: Plugin上下文
+            context: Plugin context
 
         Returns:
-            Optional[str]: 处理结果
+            Optional[str]: Processing result
         """
         return None
 
@@ -495,37 +495,37 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         context: PluginContext
     ) -> Optional[str]:
         """
-        执行跨CLI调用
+        Execute cross-CLI call
 
         Args:
-            target_cli: 目标CLI工具
-            task: 要执行的任务
-            context: Plugin上下文
+            target_cli: Target CLI tool
+            task: Task to execute
+            context: Plugin context
 
         Returns:
-            Optional[str]: 执行结果
+            Optional[str]: Execution result
         """
         try:
-            logger.info(f"执行跨CLI调用: {target_cli} -> {task}")
+            logger.info(f"Execute cross-CLI call: {target_cli} -> {task}")
 
-            # 获取目标CLI适配器
+            # Get target CLI adapter
             target_adapter = self.get_adapter(target_cli)
 
             if not target_adapter:
-                logger.warning(f"目标CLI适配器不可用: {target_cli}")
+                logger.warning(f"Target CLI adapter unavailable: {target_cli}")
                 return self._format_error_result(
                     target_cli,
-                    f"目标CLI工具 '{target_cli}' 不可用或未安装"
+                    f"Target CLI tool '{target_cli}' is unavailable or not installed"
                 )
 
             if not target_adapter.is_available():
-                logger.warning(f"目标CLI工具不可用: {target_cli}")
+                logger.warning(f"Target CLI tool unavailable: {target_cli}")
                 return self._format_error_result(
                     target_cli,
-                    f"目标CLI工具 '{target_cli}' 当前不可用"
+                    f"Target CLI tool '{target_cli}' is currently unavailable"
                 )
 
-            # 构建执行上下文
+            # Build execution context
             execution_context = {
                 'source_cli': self.cli_name,
                 'target_cli': target_cli,
@@ -534,10 +534,10 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
                 'timestamp': datetime.now().isoformat()
             }
 
-            # 执行任务
+            # Execute task
             result = await target_adapter.execute_task(task, execution_context)
 
-            # 记录成功的跨CLI调用
+            # Record successful cross-CLI call
             self.processed_requests.append({
                 'type': 'cross_cli_execution',
                 'target_cli': target_cli,
@@ -547,14 +547,14 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
                 'timestamp': datetime.now().isoformat()
             })
 
-            # 格式化结果
+            # Format result
             formatted_result = self._format_result(target_cli, result)
 
-            logger.info(f"跨CLI调用成功: {target_cli}")
+            logger.info(f"Cross-CLI call successful: {target_cli}")
             return formatted_result
 
         except Exception as e:
-            logger.error(f"跨CLI调用失败: {target_cli}, {e}")
+            logger.error(f"Cross-CLI call failed: {target_cli}, {e}")
             self.record_error()
 
             self.processed_requests.append({
@@ -574,20 +574,20 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         result: str
     ) -> str:
         """
-        格式化成功的跨CLI调用结果
+        Format successful cross-CLI call result
 
         Args:
-            target_cli: 目标CLI工具
-            result: 执行结果
+            target_cli: Target CLI tool
+            result: Execution result
 
         Returns:
-            str: 格式化的结果
+            str: Formatted result
         """
-        return f"""## 🔗 跨CLI调用结果
+        return f"""## 🔗 Cross-CLI Call Result
 
-**源工具**: QwenCode CLI
-**目标工具**: {target_cli.upper()}
-**执行时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Source Tool**: QwenCode CLI
+**Target Tool**: {target_cli.upper()}
+**Execution Time**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ---
 
@@ -595,7 +595,7 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
 
 ---
 
-*此结果由跨CLI集成系统通过QwenCode Class Inheritance提供*"""
+*This result is provided by the Cross-CLI Integration System through QwenCode Class Inheritance*"""
 
     def _format_error_result(
         self,
@@ -603,43 +603,43 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         error_message: str
     ) -> str:
         """
-        格式化错误的跨CLI调用结果
+        Format error cross-CLI call result
 
         Args:
-            target_cli: 目标CLI工具
-            error_message: 错误信息
+            target_cli: Target CLI tool
+            error_message: Error message
 
         Returns:
-            str: 格式化的错误结果
+            str: Formatted error result
         """
-        return f"""## ❌ 跨CLI调用失败
+        return f"""## ❌ Cross-CLI Call Failed
 
-**源工具**: QwenCode CLI
-**目标工具**: {target_cli.upper()}
-**错误信息**: {error_message}
-**失败时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Source Tool**: QwenCode CLI
+**Target Tool**: {target_cli.upper()}
+**Error Message**: {error_message}
+**Failure Time**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-请检查目标CLI工具是否正确安装和配置。
+Please check if the target CLI tool is properly installed and configured.
 
 ---
 
-*此错误由跨CLI集成系统报告*"""
+*This error is reported by the Cross-CLI Integration System*"""
 
     def is_available(self) -> bool:
         """
-        检查适配器是否可用
+        Check if adapter is available
 
         Returns:
-            bool: 是否可用
+            bool: Whether available
         """
         return self.plugins_loaded and self._check_qwencode_environment()
 
     async def health_check(self) -> Dict[str, Any]:
         """
-        健康检查
+        Health check
 
         Returns:
-            Dict[str, Any]: 健康状态
+            Dict[str, Any]: Health status
         """
         base_health = await super().health_check()
 
@@ -655,22 +655,22 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             'base_class_loaded': self.base_class is not None
         }
 
-        # 检查环境
+        # Check environment
         try:
             qwencode_health['qwencode_environment'] = self._check_qwencode_environment()
         except Exception as e:
             qwencode_health['qwencode_environment_error'] = str(e)
 
-        # 合并基础健康信息
+        # Merge base health information
         base_health.update(qwencode_health)
         return base_health
 
     def get_statistics(self) -> Dict[str, Any]:
         """
-        获取适配器统计信息
+        Get adapter statistics
 
         Returns:
-            Dict[str, Any]: 统计信息
+            Dict[str, Any]: Statistics
         """
         base_stats = super().get_statistics()
 
@@ -688,10 +688,10 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
 
     def _calculate_success_rate(self) -> float:
         """
-        计算成功率
+        Calculate success rate
 
         Returns:
-            float: 成功率 (0.0 - 1.0)
+            float: Success rate (0.0 - 1.0)
         """
         total_cross_cli = self.cross_cli_calls_count
 
@@ -707,10 +707,10 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
 
     def _get_last_activity(self) -> Optional[str]:
         """
-        获取最后活动时间
+        Get last activity time
 
         Returns:
-            Optional[str]: 最后活动时间戳
+            Optional[str]: Last activity timestamp
         """
         if not self.processed_requests:
             return None
@@ -719,89 +719,89 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
 
     async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
         """
-        执行跨CLI任务 - QwenCode适配器的具体实现
+        Execute cross-CLI task - QwenCode adapter specific implementation
 
         Args:
-            task: 要执行的任务描述
-            context: 执行上下文信息
+            task: Task description to execute
+            context: Execution context information
 
         Returns:
-            str: 任务执行结果
+            str: Task execution result
         """
         try:
-            # QwenCode适配器的任务执行主要是通过Plugin系统
-            # 这里创建一个模拟的Plugin上下文来处理任务
+            # QwenCode adapter task execution is mainly through the Plugin system
+            # Here we create a mock Plugin context to handle the task
             plugin_context = PluginContext(
                 prompt=task,
                 metadata=context.get('metadata', {})
             )
 
-            # 检查是否为跨CLI调用
+            # Check if it's a cross-CLI call
             intent = self.parser.parse_intent(task, "qwencode")
             if intent.is_cross_cli and intent.target_cli != self.cli_name:
-                # 执行跨CLI调用
+                # Execute cross-CLI call
                 result = await self._execute_cross_cli_call(
                     intent.target_cli,
                     intent.task,
                     plugin_context
                 )
-                return result or f"QwenCode Inheritance适配器处理了任务: {task}"
+                return result or f"QwenCode Inheritance adapter processed task: {task}"
             else:
-                # 本地QwenCode任务处理
-                return f"QwenCode Inheritance适配器本地处理: {task}"
+                # Local QwenCode task processing
+                return f"QwenCode Inheritance adapter local processing: {task}"
 
         except Exception as e:
-            logger.error(f"执行任务失败: {task}, 错误: {e}")
+            logger.error(f"Task execution failed: {task}, Error: {e}")
             self.record_error()
             return f"任务执行失败: {str(e)}"
 
     async def cleanup(self) -> bool:
         """
-        清理适配器资源
+        Clean up adapter resources
 
         Returns:
-            bool: 清理是否成功
+            bool: Whether cleanup was successful
         """
         try:
-            # 清理统计信息
+            # Clean up statistics
             self.processed_requests.clear()
 
-            # 清理插件（如果需要）
-            # 这里可以实现插件卸载逻辑
+            # Clean up plugins (if needed)
+            # Plugin unload logic can be implemented here
 
-            logger.info("QwenCode Class Inheritance适配器清理完成")
+            logger.info("QwenCode Class Inheritance adapter cleanup completed")
             return True
 
         except Exception as e:
-            logger.error(f"清理QwenCode Class Inheritance适配器失败: {e}")
+            logger.error(f"Failed to clean up QwenCode Class Inheritance adapter: {e}")
             return False
 
 
-# 创建全局适配器实例
+# Create global adapter instance
 _global_adapter: Optional[QwenCodeInheritanceAdapter] = None
 
 
 def get_qwencode_inheritance_adapter() -> QwenCodeInheritanceAdapter:
     """
-    获取QwenCode Inheritance适配器实例
+    Get QwenCode Inheritance adapter instance
 
     Returns:
-        QwenCodeInheritanceAdapter: 适配器实例
+        QwenCodeInheritanceAdapter: Adapter instance
     """
     global _global_adapter
     if _global_adapter is None:
         _global_adapter = QwenCodeInheritanceAdapter()
-        # 异步初始化需要在调用时进行
+        # Async initialization needs to be done at call time
     return _global_adapter
 
 
-# 便捷函数
+# Convenience functions
 async def initialize_qwencode_adapter() -> bool:
     """
-    初始化QwenCode Inheritance适配器
+    Initialize QwenCode Inheritance adapter
 
     Returns:
-        bool: 初始化是否成功
+        bool: Whether initialization was successful
     """
     adapter = get_qwencode_inheritance_adapter()
     return await adapter.initialize()
@@ -809,10 +809,10 @@ async def initialize_qwencode_adapter() -> bool:
 
 def is_qwencode_adapter_available() -> bool:
     """
-    检查QwenCode Inheritance适配器是否可用
+    Check if QwenCode Inheritance adapter is available
 
     Returns:
-        bool: 是否可用
+        bool: Whether available
     """
     adapter = get_qwencode_inheritance_adapter()
     return adapter.is_available()

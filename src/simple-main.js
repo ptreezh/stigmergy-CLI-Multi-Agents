@@ -1,7 +1,7 @@
 
 /**
- * Stigmergy CLI - 简化版核心功能
- * 专注于实际的部署和使用需求
+ * Stigmergy CLI - Simplified Core Functionality
+ * Focused on practical deployment and usage requirements
  */
 
 import { existsSync, exists, mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -17,17 +17,17 @@ class SimpleStigmergyCLI {
     log(message, type = 'info') {
         const timestamp = new Date().toISOString();
         const prefix = {
-            'info': '📦 ',
-            'success': '✅ ',
-            'error': '❌ ',
-            'warning': '⚠️ '
-        }[type] || '📦 ';
+            'info': '[INFO] ',
+            'success': '[SUCCESS] ',
+            'error': '[ERROR] ',
+            'warning': '[WARN] '
+        }[type] || '[INFO] ';
 
         console.log(`${timestamp} ${prefix}${message}`);
     }
 
     scanEnvironment() {
-        this.log('扫描AI环境...', 'info');
+        this.log('Scanning AI environment...', 'info');
 
         const cliTools = [
             { name: 'claude', displayName: 'Claude CLI', doc: 'claude.md' },
@@ -44,14 +44,14 @@ class SimpleStigmergyCLI {
         for (const tool of cliTools) {
             if (existsSync(join(process.cwd(), `${tool.doc}`))) {
                 available.push(tool);
-                this.log(`发现 ${tool.displayName} (${tool.doc})`, 'success');
+                this.log(`Found ${tool.displayName} (${tool.doc})`, 'success');
             } else {
-                this.log(`未发现 ${tool.displayName}`, 'warning');
+                this.log(`Not found ${tool.displayName}`, 'warning');
             }
         }
 
         if (available.length > 0) {
-            this.log(`发现 ${available.length} 个AI CLI工具`, 'success');
+            this.log(`Found ${available.length} AI CLI tools`, 'success');
 
             // 生成简单的协作指南
             const collaborationGuide = this.generateCollaborationGuide(available);
@@ -75,29 +75,29 @@ class SimpleStigmergyCLI {
             // 生成项目配置
             this.initProject(process.cwd(), available);
 
-            this.log('协作指南已生成', 'success');
+            this.log('Collaboration guide generated', 'success');
             return true;
         } else {
-            this.log('未发现任何AI CLI工具', 'error');
+            this.log('No AI CLI tools found', 'error');
             return false;
         }
     }
 
     generateCollaborationGuide(available) {
-        let guide = '\n## 🤝 AI工具协作指南\n\n';
+        let guide = '\n## 🤝 AI Collaboration Guide\n\n';
 
         for (const tool of available) {
             const otherTools = available.filter(t => t.name !== tool.name);
 
-            guide += `### 使用 ${tool.displayName}\n\n`;
-            guide += `在${tool.displayName}中，您可以调用以下工具：\n\n`;
+            guide += `### Using ${tool.displayName}\n\n`;
+            guide += `In ${tool.displayName}, you can call the following tools:\n\n`;
 
             for (const other of otherTools.slice(0, 3)) {
-                guide += `- 请用${other.name}帮我${this.getRandomTask()}\n`;
+                guide += `- Please use ${other.name} to help me ${this.getRandomTask()}\n`;
             }
 
-            guide += '\n示例：\n';
-            guide += `\`\`\`请用${otherTools[0]?.name || 'qwen'}帮我生成一个Python函数\`\`\`\n\n`;
+            guide += '\nExample:\n';
+            guide += `\`\`\`Please use ${otherTools[0]?.name || 'qwen'} to help me generate a Python function\`\`\`\n\n`;
         }
 
         return guide;
@@ -105,25 +105,25 @@ class SimpleStigmergyCLI {
 
     getRandomTask() {
         const tasks = [
-            '生成用户认证模块',
-            '分析代码性能问题',
-            '创建数据库迁移脚本',
-            '实现API端点',
-            '优化SQL查询',
-            '生成测试用例',
-            '审查代码架构',
-            '重构遗留代码',
-            '设计系统架构文档',
-            '处理CSV数据并生成可视化图表',
-            '分析关键业务指标',
-            '实现缓存策略',
-            '优化应用启动时间'
+            'generate user authentication module',
+            'analyze code performance issues',
+            'create database migration scripts',
+            'implement API endpoints',
+            'optimize SQL queries',
+            'generate test cases',
+            'review code architecture',
+            'refactor legacy code',
+            'design system architecture documentation',
+            'process CSV data and generate visualization charts',
+            'analyze key business metrics',
+            'implement caching strategies',
+            'optimize application startup time'
         ];
         return tasks[Math.floor(Math.random() * tasks.length)];
     }
 
     initProject(projectPath, availableTools) {
-        this.log(`初始化Stigmergy项目: ${projectPath}`, 'info');
+        this.log(`Initializing Stigmergy project: ${projectPath}`, 'info');
 
         // 创建项目配置目录
         const configDir = join(projectPath, this.projectConfigDir);
@@ -148,124 +148,124 @@ class SimpleStigmergyCLI {
         for (const tool of availableTools) {
             const docContent = this.generateToolDoc(tool, availableTools);
             writeFileSync(join(projectPath, `${tool.name}.md`), docContent);
-            this.log(`生成 ${tool.name}.md`, 'success');
+            this.log(`Generating ${tool.name}.md`, 'success');
         }
 
         // 生成主要协作文档
         const mainDoc = this.generateMainDoc(availableTools);
         writeFileSync(join(projectPath, 'README.md'), mainDoc);
 
-        this.log(`项目初始化完成！发现 ${availableTools.length} 个AI CLI工具`, 'success');
+        this.log(`Project initialization completed! Found ${availableTools.length} AI CLI tools`, 'success');
     }
 
     generateToolDoc(tool, availableTools) {
         const otherTools = available.filter(t => t.name !== tool.name);
 
-        return `# ${tool.displayName} 协作指南
+        return `# ${tool.displayName} Collaboration Guide
 
-> 🚀 **Stigmergy协作增强** - 让您的${tool.displayName}能够与其他AI CLI工具智能协作
+> 🚀 **Stigmergy Collaboration Enhancement** - Enable your ${tool.displayName} to intelligently collaborate with other AI CLI tools
 
-## 📋 工具信息
+## 📋 Tool Information
 
-- **名称**: ${tool.displayName}
-- **配置文件**: ${tool.name}.json
-- **文档文件**: ${tool.doc}
+- **Name**: ${tool.displayName}
+- **Configuration File**: ${tool.name}.json
+- **Documentation File**: ${tool.doc}
 
-## 🤝 协作功能
+## 🤝 Collaboration Features
 
-### 中文协作指令
+### Chinese Collaboration Commands
 
-在${tool.displayName}中，您可以使用以下格式调用其他AI工具：
+In ${tool.displayName}, you can call other AI tools using the following format:
 
-\`\`\`请用{工具名}帮我{任务}\`\`\`
+\`\`\`请用{tool_name}帮我{task}\`\`\`
 
-### 示例
+### Example
 
-\`\`\`请用qwen帮我生成一个Python函数\`\`\`
+\`\`\`Please use qwen to help me generate a Python function\`\`\`
 
-## 🔧 可用的协作工具
+## 🔧 Available Collaboration Tools
 
-根据当前AI环境，您可以在${tool.displayName}中调用以下工具：
+Based on the current AI environment, you can call the following tools in ${tool.displayName}:
 
 ${otherTools.map(t => `- ${t.displayName} (${t.doc})`).join('\n')}
 
-## 💡 最佳实践
+## 💡 Best Practices
 
-### 1. 任务分解策略
-复杂任务可以分解为多个子任务，分配给不同的AI工具
+### 1. Task Decomposition Strategy
+Complex tasks can be decomposed into multiple subtasks and assigned to different AI tools
 
-### 2. 协作工作流示例
-1. 使用Claude进行架构设计
-2. 使用QwenCode实现核心功能
-3. 使用Gemini进行性能优化
+### 2. Collaboration Workflow Example
+1. Use Claude for architectural design
+2. Use QwenCode to implement core functionality
+3. Use Gemini for performance optimization
 
-### 3. 错误处理和恢复
-如果某个工具调用失败，可以尝试使用其他工具完成相同任务
+### 3. Error Handling and Recovery
+If a tool call fails, you can try to complete the same task using other tools
 
 ---
 
-**生成时间**: ${new Date().toLocaleString('zh-CN')}
-**项目路径**: ${process.cwd()}
-**Stigmergy版本**: 1.0.0
+**Generation Time**: ${new Date().toLocaleString('en-US')}
+**Project Path**: ${process.cwd()}
+**Stigmergy Version**: 1.0.0
 
-> 🎉 **通过Stigmergy协作，让每个AI工具都能发挥最大价值！** 🚀
+> 🎉 **Through Stigmergy collaboration, let each AI tool maximize its value!** 🚀
 `;
     }
 
     generateMainDoc(availableTools) {
-        let doc = `# Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统
+        let doc = `# Stigmergy CLI - Multi-Agents Cross-AI CLI Tool Collaboration System
 
-> 🚀 **真正的Stigmergy协作** - 让各个AI CLI工具智能协作，创造更大的价值！
+> 🚀 **True Stigmergy Collaboration** - Enable various AI CLI tools to intelligently collaborate and create greater value!
 
-## 📋 发现的AI工具
+## 📋 Discovered AI Tools
 
-当前项目已检测到以下可用的AI CLI工具：
+The current project has detected the following available AI CLI tools:
 
 ${available.map(tool => `- **${tool.displayName}** (${tool.name})`).join('\n')}
 
-## 🎯 使用方法
+## 🎯 Usage
 
-### 1. 项目初始化
+### 1. Project Initialization
 
 \`\`\`
 stigmergy-cli init
 \`\`\`
 
-### 2. 跨AI工具协作
+### 2. Cross-AI Tool Collaboration
 
-在任意AI工具中，您可以使用以下协作指令：
+In any AI tool, you can use the following collaboration commands:
 
-### 中文协作指令
-\`\`\`请用{工具名}帮我{任务}\`\`\`
+### Chinese Collaboration Commands
+\`\`\`请用{tool_name}帮我{task}\`\`\`
 
-### 示例
-\`\`\`请用qwen帮我生成一个Python函数\`\`\`
+### Example
+\`\`\`Please use qwen to help me generate a Python function\`\`\`
 
-## 🔧 管理命令
+## 🔧 Management Commands
 
 \`\`\`
-stigmergy-cli status          # 检查系统和工具状态
+stigmergy-cli status          # Check system and tool status
 \`\`\`
 
-## 📚 项目配置
+## 📚 Project Configuration
 
-- **全局配置**: \`~/.stigmergy-cli/global-config.json\`
-- **项目配置**: \`.stigmergy-project/stigmergy-config.json\`
+- **Global Configuration**: \`~/.stigmergy-cli/global-config.json\`
+- **Project Configuration**: \`.stigmergy-project/stigmergy-config.json\`
 
 ---
 
-**生成时间**: ${new Date().toLocaleString('zh-CN')}
+**Generation Time**: ${new Date().toLocaleString('en-US')}
 
-> 🎉 **让AI工具通过Stigmergy机制实现真正的智能协作！** 🚀
+> 🎉 **Let AI tools achieve true intelligent collaboration through the Stigmergy mechanism!** 🚀
 
-## 🔮 技术支持
+## 🔮 Technical Support
 
 - **GitHub**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
-- **文档**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/blob/main/README.md
+- **Documentation**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/blob/main/README.md
 
 ---
 
-**Stigmergy CLI v1.0.0** - 简化版，专注于核心协作功能
+**Stigmergy CLI v1.0.0** - Simplified version, focused on core collaboration features
 `;
 
         return doc;
@@ -284,27 +284,27 @@ async function main() {
             await cli.scanEnvironment();
             break;
         case 'status':
-            console.log('🔍 检查Stigmergy CLI状态...');
-            console.log('📁 全局配置:', cli.configDir);
-            console.log('📁 项目配置:', cli.projectConfigDir);
+            console.log('🔍 Checking Stigmergy CLI status...');
+            console.log('📁 Global configuration:', cli.configDir);
+            console.log('📁 Project configuration:', cli.projectConfigDir);
             break;
         case 'help':
         default:
             console.log(`
-🤖 Stigmergy CLI v1.0.0 - 简化版
+🤖 Stigmergy CLI v1.0.0 - Simplified Version
 
-📚 可用命令:
-  init              - 初始化项目(扫描AI环境并生成协作文档)
-  status            - 检查状态
-  help              - 显示帮助信息
+📚 Available Commands:
+  init              - Initialize project (scan AI environment and generate collaboration documents)
+  status            - Check status
+  help              - Show help information
 
-💡 使用方法:
-  stigmergy-cli init              # 初始化当前项目
+💡 Usage:
+  stigmergy-cli init              # Initialize current project
 
-🔗 项目地址: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
-🔧 配置目录: ~/.stigmergy-cli
+🔗 Project URL: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
+🔧 Configuration Directory: ~/.stigmergy-cli
 
-> 🎉 简化版 - 专注于核心协作功能，立即可用！
+> 🎉 Simplified Version - Focused on core collaboration features, ready to use!
             `);
             break;
     }

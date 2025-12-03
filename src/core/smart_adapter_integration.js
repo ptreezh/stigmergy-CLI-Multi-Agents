@@ -1,6 +1,6 @@
 /**
- * 智能适配器集成系统 - Python/Node.js自动选择
- * 优先使用Python，降级到Node.js，完全不影响现有功能
+ * Smart Adapter Integration System - Python/Node.js Auto Selection
+ * Prioritizes Python, falls back to Node.js, completely不影响 existing functionality
  */
 
 import fs from 'fs/promises';
@@ -43,17 +43,17 @@ class SmartAdapterIntegration {
             // 初始化适配器检测器
             await this.detector.initialize();
             
-            console.log('✅ 智能适配器系统初始化完成');
+            console.log('✅ Smart adapter system initialized');
             return true;
             
         } catch (error) {
-            console.error('❌ 智能适配器系统初始化失败:', error.message);
+            console.error('[ERROR] Smart adapter system initialization failed:', error.message);
             return false;
         }
     }
 
     /**
-     * 加载或创建配置文件
+     * Load or create configuration file
      */
     async loadOrCreateConfig() {
         try {

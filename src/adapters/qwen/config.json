@@ -1,1 +1,1 @@
-{"name": "qwen", "displayName": "qwen CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/qwen/config.json", "global_doc": "qwen.md", "description": "qwen CLI集成适配器"}
+{"name": "qwen", "displayName": "qwen CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/qwen/config.json", "global_doc": "qwen.md", "description": "qwen CLI integration adapter"}

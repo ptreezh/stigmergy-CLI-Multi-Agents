@@ -20,14 +20,14 @@ powershell -Command "iwr -useb https://raw.githubusercontent.com/ptreezh/stigmer
 ### 方法2: npm全局安装
 
 ```bash
-npm install -g @stigmergy-cli/deployer
-stigmergy-cli deploy
+npm install -g @stigmergy/deployer
+stigmergy deploy
 ```
 
 ### 方法3: npx临时使用
 
 ```bash
-npx @stigmergy-cli/deployer deploy
+npx @stigmergy/deployer deploy
 ```
 
 ### 方法4: 克隆仓库
@@ -72,16 +72,16 @@ npm --version
 
 ```bash
 # 部署系统
-stigmergy-cli deploy
+stigmergy deploy
 
 # 扫描工具
-stigmergy-cli scan
+stigmergy scan
 
 # 查看状态
-stigmergy-cli status
+stigmergy status
 
 # 清理配置
-stigmergy-cli clean
+stigmergy clean
 ```
 
 ### 跨CLI协作
@@ -114,11 +114,11 @@ gemini "call claude to design this API architecture"
 
 部署后，配置文件位于：
 
-- **Windows**: `C:\Users\{用户名}\.stigmergy-cli\`
-- **macOS/Linux**: `~/.stigmergy-cli/`
+- **Windows**: `C:\Users\{用户名}\.stigmergy\`
+- **macOS/Linux**: `~/.stigmergy/`
 
 ```
-.stigmergy-cli/
+.stigmergy/
 ├── config.json              # 主配置文件
 ├── router.json              # 智能路由配置
 ├── scan-results.json        # CLI工具扫描结果
@@ -169,10 +169,10 @@ node deploy.js
 ### 更新系统
 ```bash
 # 方法1: npm更新
-npm update -g @stigmergy-cli/deployer
+npm update -g @stigmergy/deployer
 
 # 方法2: 重新部署
-stigmergy-cli deploy
+stigmergy deploy
 
 # 方法3: 拉取最新代码
 git pull origin main
@@ -184,16 +184,16 @@ node deploy.js
 ### 卸载
 ```bash
 # 卸载npm包
-npm uninstall -g @stigmergy-cli/deployer
+npm uninstall -g @stigmergy/deployer
 
 # 清理配置文件
-stigmergy-cli clean
+stigmergy clean
 
 # 手动删除配置目录（Windows）
 rmdir /s "%USERPROFILE%\.stigmergy-cli"
 
 # 手动删除配置目录（macOS/Linux）
-rm -rf ~/.stigmergy-cli
+rm -rf ~/.stigmergy
 ```
 
 ## 🛠️ 故障排除
@@ -210,7 +210,7 @@ nvm use --lts
 #### 2. npm权限问题
 ```bash
 # Linux/macOS
-sudo npm install -g @stigmergy-cli/deployer
+sudo npm install -g @stigmergy/deployer
 
 # 或者配置npm权限
 npm config set prefix ~/.npm-global
@@ -223,7 +223,7 @@ export PATH=~/.npm-global/bin:$PATH
 npm config set registry https://registry.npmmirror.com/
 
 # 临时使用镜像
-npm install -g @stigmergy-cli/deployer --registry https://registry.npmmirror.com/
+npm install -g @stigmergy/deployer --registry https://registry.npmmirror.com/
 ```
 
 #### 4. CLI工具检测失败
@@ -233,7 +233,7 @@ echo $PATH  # Linux/macOS
 echo %PATH%  # Windows
 
 # 重新扫描
-stigmergy-cli scan
+stigmergy scan
 ```
 
 ### 获取帮助
@@ -246,7 +246,7 @@ stigmergy-cli scan
 
 安装完成后，你就可以：
 
-1. **查看系统状态**: `stigmergy-cli status`
+1. **查看系统状态**: `stigmergy status`
 2. **尝试跨CLI协作**: `claude "用gemini帮我写Python代码"`
 3. **探索更多功能**: 查看生成的配置文件和文档
 

@@ -5,7 +5,7 @@
 > Stigmergy CLI 通过插件系统让现有的AI CLI工具能够相互协作，而不是替代它们。
 
 [![Node.js](https://img.shields.io/badge/node-16+-green.svg)](https://nodejs.org)
-[![NPM](https://img.shields.io/badge/npm-stigmergy-cli-blue.svg)](https://www.npmjs.com/package/stigmergy-cli)
+[![NPM](https://img.shields.io/badge/npm-stigmergy-blue.svg)](https://www.npmjs.com/package/stigmergy)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 
@@ -18,28 +18,28 @@
 npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main quick-deploy
 ```
 
-或者，如果您已全局安装了stigmergy-cli：
+或者，如果您已全局安装了stigmergy：
 
 ```bash
 # 通过已安装的CLI运行
-npx stigmergy-cli quick-deploy
+npx stigmergy quick-deploy
 ```
 
 ### 手动安装
 
 ```bash
 # 通过NPM全局安装
-npm install -g stigmergy-cli
+npm install -g stigmergy
 
 # 初始化项目
-stigmergy-cli init
+stigmergy init
 
 # 智能部署（扫描环境+询问+自动安装）
-stigmergy-cli deploy
+stigmergy deploy
 
 # 或者使用npx（无需安装）
-npx stigmergy-cli init
-npx stigmergy-cli deploy
+npx stigmergy init
+npx stigmergy deploy
 ```
 
 ## ✨ 核心特性
@@ -67,7 +67,7 @@ npx stigmergy-cli deploy
 
 ```bash
 # 智能部署（推荐）
-stigmergy-cli deploy
+stigmergy deploy
 
 # 输出示例：
 🔍 扫描系统CLI工具状态...
@@ -111,13 +111,13 @@ stigmergy-cli deploy
 
 ```bash
 # 基本命令
-stigmergy-cli init          # 初始化项目
+stigmergy init          # 初始化项目
 stigmergy-cli status        # 查看状态
 stigmergy-cli scan          # 扫描环境
 
 # 部署命令
-stigmergy-cli deploy        # 智能部署（默认）
-stigmergy-cli deploy-all    # 全量部署
+stigmergy deploy        # 智能部署（默认）
+stigmergy deploy-all    # 全量部署
 
 # 项目管理
 stigmergy-cli check-project # 检查项目
@@ -178,7 +178,7 @@ npm i -g @openai/codex --registry=https://registry.npmmirror.com
 # 新开发环境快速配置
 git clone my-project
 cd my-project
-stigmergy-cli deploy
+stigmergy deploy
 
 # 现在可以在任何CLI中跨工具协作
 claude-cli "请用gemini帮我优化这段代码的性能"
@@ -189,7 +189,7 @@ claude-cli "请用gemini帮我优化这段代码的性能"
 # 团队共享项目配置
 git clone team-project
 cd team-project
-stigmergy-cli init
+stigmergy init
 
 # 所有团队成员使用相同的协作背景
 gemini-cli "用claude检查这个模块的设计模式"
@@ -250,7 +250,7 @@ npx stigmergy-cli --version
 2. **权限错误**
    ```bash
    # 使用管理员权限
-   sudo npm install -g stigmergy-cli
+   sudo npm install -g stigmergy
    ```
 
 3. **网络连接问题**
@@ -269,7 +269,7 @@ npx stigmergy-cli --version
 
 ```bash
 # 详细调试输出
-DEBUG=stigmergy:* stigmergy-cli deploy
+DEBUG=stigmergy:* stigmergy deploy
 
 # 仅扫描状态
 stigmergy-cli scan

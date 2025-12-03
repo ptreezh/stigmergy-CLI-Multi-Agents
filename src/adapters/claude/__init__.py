@@ -1,13 +1,13 @@
 """
-Claude CLI 适配器包
+Claude CLI Adapter Package
 
-基于 Claude CLI 官方 Hook 系统的原生集成
-支持多种实现方式，全部无抽象层
+Native integration based on Claude CLI official Hook system
+Supports multiple implementation approaches, all without abstraction layers
 """
 
 from .standalone_claude_adapter import get_standalone_claude_adapter, StandaloneClaudeAdapter
 
-# 向后兼容的别名
+# Backward compatible alias
 ClaudeHookAdapter = StandaloneClaudeAdapter
 
 __all__ = ['StandaloneClaudeAdapter', 'get_standalone_claude_adapter', 'ClaudeHookAdapter']
