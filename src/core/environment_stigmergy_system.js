@@ -1,6 +1,6 @@
 /**
- * 环境线索式协同系统 - 增量设计
- * 不影响现有系统功能，增强环境共享机制
+ * Environment Stigmergy System - Incremental Design
+ * Does not affect existing system functionality, enhances environment sharing mechanism
  */
 
 import fs from 'fs/promises';
@@ -63,7 +63,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 初始化环境线索系统 - 增量创建
+     * Initialize environment stigmergy system - incremental creation
      */
     async initializeEnvironmentSystem() {
         try {
@@ -73,10 +73,10 @@ class EnvironmentStigmergySystem {
             // 初始化环境缓存文件
             await this.initializeEnvironmentCache();
             
-            console.log('✅ 环境线索协同系统初始化完成');
+            console.log('[SUCCESS] Environment stigmergy system initialized');
             return true;
         } catch (error) {
-            console.error('❌ 环境线索系统初始化失败:', error.message);
+            console.error('[ERROR] Environment stigmergy system initialization failed:', error.message);
             return false;
         }
     }
@@ -104,7 +104,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 写入环境线索 - CLI调用时自动调用
+     * Write environment signal - automatically called when CLI is invoked
      */
     async writeEnvironmentSignal(cliName, userInput, context = {}) {
         try {
@@ -125,13 +125,13 @@ class EnvironmentStigmergySystem {
             
             return signal;
         } catch (error) {
-            console.error('❌ 写入环境线索失败:', error.message);
+            console.error('[ERROR] Failed to write environment signal:', error.message);
             return null;
         }
     }
 
     /**
-     * 读取环境线索 - CLI启动时自动调用
+     * Read environment signals - automatically called when CLI starts
      */
     async readEnvironmentSignals(cliName) {
         try {
@@ -150,7 +150,7 @@ class EnvironmentStigmergySystem {
                 collaborationSuggestions: this.generateCollaborationSuggestions(signals, cliName)
             };
         } catch (error) {
-            console.error('❌ 读取环境线索失败:', error.message);
+            console.error('[ERROR] Failed to read environment signals:', error.message);
             return { signals: [], context: {}, suggestions: [] };
         }
     }
@@ -171,7 +171,7 @@ class EnvironmentStigmergySystem {
             const match = userInput.match(pattern);
             if (match) {
                 const targetCli = match[1].toLowerCase();
-                // 映射到标准CLI名称
+                // Map to standard CLI name
                 return this.mapToStandardCliName(targetCli);
             }
         }
@@ -180,7 +180,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 映射到标准CLI名称
+     * Map to standard CLI name
      */
     mapToStandardCliName(cliName) {
         const mapping = {
@@ -203,7 +203,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 获取最近的协作信号
+     * Get recent collaboration signals
      */
     getRecentCollaborationSignals(signals, currentCli) {
         const allSignals = Object.values(signals).flat();
@@ -218,7 +218,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 分析环境上下文
+     * Analyze environment context
      */
     analyzeEnvironmentContext(signals, currentCli) {
         const allSignals = Object.values(signals).flat();
@@ -253,7 +253,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 生成协作建议
+     * Generate collaboration suggestions
      */
     generateCollaborationSuggestions(signals, currentCli) {
         const context = this.analyzeEnvironmentContext(signals, currentCli);
@@ -265,8 +265,8 @@ class EnvironmentStigmergySystem {
                 suggestions.push({
                     type: 'frequent_collaboration',
                     cli,
-                    reason: `最近频繁与${cli}协作 (${count}次)`,
-                    suggestion: `考虑使用${cli}继续当前任务`
+                    reason: `Recently collaborated frequently with ${cli} (${count} times)`,
+                    suggestion: `Consider using ${cli} to continue the current task`
                 });
             }
         });
@@ -276,8 +276,8 @@ class EnvironmentStigmergySystem {
             suggestions.push({
                 type: 'topic_based',
                 topic,
-                reason: `最近在处理"${topic}"相关任务`,
-                suggestion: `考虑使用专门的工具处理${topic}任务`
+                reason: `Recently processing "${topic}" related tasks`,
+                suggestion: `Consider using specialized tools to handle ${topic} tasks`
             });
         });
 
@@ -285,7 +285,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 更新环境缓存
+     * Update environment cache
      */
     async updateEnvironmentCache(type, data) {
         try {
@@ -313,25 +313,25 @@ class EnvironmentStigmergySystem {
             cache.lastUpdate = timestamp;
             await fs.writeFile(this.environmentCache, JSON.stringify(cache, null, 2));
         } catch (error) {
-            console.error('❌ 更新环境缓存失败:', error.message);
+            console.error('[ERROR] Failed to update environment cache:', error.message);
         }
     }
 
     /**
-     * 加载环境缓存
+     * Load environment cache
      */
     async loadEnvironmentCache() {
         try {
             const data = await fs.readFile(this.environmentCache, 'utf8');
             return JSON.parse(data);
         } catch (error) {
-            console.error('❌ 加载环境缓存失败:', error.message);
+            console.error('[ERROR] Failed to load environment cache:', error.message);
             return {};
         }
     }
 
     /**
-     * 记录协作日志
+     * Log collaboration
      */
     async logCollaboration(signal) {
         const logEntry = {
@@ -358,21 +358,21 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 提取主题
+     * Extract topics
      */
     extractTopics(userInput) {
         const topics = [];
         const topicPatterns = {
-            '代码生成': ['generate', 'create', 'write', 'build', 'implement', 'code'],
-            '代码分析': ['analyze', 'review', 'check', 'examine', 'audit'],
-            '调试': ['debug', 'fix', 'error', 'issue', 'problem'],
-            '文档': ['document', 'explain', 'comment', 'readme'],
-            '测试': ['test', 'spec', 'validate', 'verify'],
-            '部署': ['deploy', 'build', 'release', 'publish'],
+            'Code Generation': ['generate', 'create', 'write', 'build', 'implement', 'code'],
+            'Code Analysis': ['analyze', 'review', 'check', 'examine', 'audit'],
+            'Debugging': ['debug', 'fix', 'error', 'issue', 'problem'],
+            'Documentation': ['document', 'explain', 'comment', 'readme'],
+            'Testing': ['test', 'spec', 'validate', 'verify'],
+            'Deployment': ['deploy', 'build', 'release', 'publish'],
             'API': ['api', 'endpoint', 'route', 'service'],
-            '数据库': ['database', 'db', 'sql', 'query', 'schema'],
-            '前端': ['frontend', 'ui', 'component', 'react', 'vue'],
-            '后端': ['backend', 'server', 'service', 'microservice']
+            'Database': ['database', 'db', 'sql', 'query', 'schema'],
+            'Frontend': ['frontend', 'ui', 'component', 'react', 'vue'],
+            'Backend': ['backend', 'server', 'service', 'microservice']
         };
 
         const input = userInput.toLowerCase();
@@ -386,7 +386,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 获取最频繁的元素
+     * Get most frequent elements
      */
     getMostFrequent(arr, count) {
         const frequency = {};
@@ -401,7 +401,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 为CLI提供环境上下文
+     * Provide environment context for CLI
      */
     async getCliContext(cliName) {
         const signals = await this.readEnvironmentSignals(cliName);
@@ -416,7 +416,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 获取共享文件
+     * Get shared files
      */
     async getSharedFiles() {
         try {
@@ -438,7 +438,7 @@ class EnvironmentStigmergySystem {
     }
 
     /**
-     * 获取项目规格
+     * Get project specification
      */
     async getProjectSpec() {
         try {

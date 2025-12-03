@@ -1,8 +1,8 @@
 """
-QwenCode CLI Inheritance集成安装脚本
-为QwenCode CLI安装跨CLI协作感知能力
+QwenCode CLI Inheritance Integration Installation Script
+Install cross-CLI collaboration awareness capabilities for QwenCode CLI
 
-使用方法：
+Usage:
 python install_qwencode_integration.py [--verify|--uninstall]
 """
 
@@ -14,22 +14,22 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-# 获取当前文件目录
+# Get current file directory
 current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent.parent
 
-# QwenCode CLI配置路径
+# QwenCode CLI configuration paths
 QWENCODE_CONFIG_DIR = os.path.expanduser("~/.config/qwencode")
 QWENCODE_CONFIG_FILE = os.path.join(QWENCODE_CONFIG_DIR, "config.yml")
 
 def create_qwencode_config_directory():
-    """创建QwenCode配置目录"""
+    """Create QwenCode configuration directory"""
     os.makedirs(QWENCODE_CONFIG_DIR, exist_ok=True)
-    print(f"[OK] 创建QwenCode配置目录: {QWENCODE_CONFIG_DIR}")
+    print(f"[OK] Created QwenCode configuration directory: {QWENCODE_CONFIG_DIR}")
 
 def install_qwencode_plugins():
-    """安装QwenCode Plugin配置"""
-    # 读取现有config配置
+    """Install QwenCode Plugin configuration"""
+    # Read existing config configuration
     existing_config = {}
     if os.path.exists(QWENCODE_CONFIG_FILE):
         try:
@@ -37,10 +37,10 @@ def install_qwencode_plugins():
             with open(QWENCODE_CONFIG_FILE, 'r', encoding='utf-8') as f:
                 existing_config = yaml.safe_load(f) or {}
         except Exception as e:
-            print(f"⚠️ 读取现有config配置失败: {e}")
+            print(f"⚠️ Failed to read existing config configuration: {e}")
             existing_config = {}
 
-    # 定义跨CLI协作的Plugin配置
+    # Define cross-CLI collaboration Plugin configuration
     cross_cli_plugins = {
         "cross_cli_inheritance_adapter": {
             "name": "CrossCLIAdapterPlugin",
@@ -67,12 +67,12 @@ def install_qwencode_plugins():
         }
     }
 
-    # 合并配置（保留现有配置，添加协作功能）
+    # Merge configuration (preserve existing configuration, add collaboration features)
     merged_config = existing_config.copy()
     if 'plugins' not in merged_config:
         merged_config['plugins'] = []
 
-    # 检查是否已存在跨CLI插件
+    # Check if cross-CLI plugin already exists
     existing_plugins = merged_config.get('plugins', [])
     cross_cli_plugin_exists = any(
         plugin.get('name') == 'CrossCLIAdapterPlugin'
@@ -82,31 +82,31 @@ def install_qwencode_plugins():
     if not cross_cli_plugin_exists:
         merged_config['plugins'].append(cross_cli_plugins['cross_cli_inheritance_adapter'])
 
-    # 写入config配置文件
+    # Write config configuration file
     try:
         import yaml
         with open(QWENCODE_CONFIG_FILE, 'w', encoding='utf-8') as f:
             yaml.dump(merged_config, f, default_flow_style=False, allow_unicode=True)
 
-        print(f"[OK] QwenCode配置已安装: {QWENCODE_CONFIG_FILE}")
-        print("🔗 已安装的Plugin:")
+        print(f"[OK] QwenCode configuration installed: {QWENCODE_CONFIG_FILE}")
+        print("🔗 Installed Plugins:")
         for plugin in merged_config.get('plugins', []):
             if plugin.get('name') == 'CrossCLIAdapterPlugin':
-                print(f"   - {plugin['name']}: [OK] 跨CLI协作感知")
+                print(f"   - {plugin['name']}: [OK] Cross-CLI collaboration awareness")
 
         return True
     except Exception as e:
-        print(f"❌ 安装QwenCode配置失败: {e}")
+        print(f"[ERROR] Failed to install QwenCode configuration: {e}")
         return False
 
 def copy_adapter_file():
-    """复制适配器文件到QwenCode配置目录"""
+    """Copy adapter files to QwenCode configuration directory"""
     try:
         # 创建适配器目录
         adapter_dir = os.path.join(QWENCODE_CONFIG_DIR, "plugins")
         os.makedirs(adapter_dir, exist_ok=True)
 
-        # 复制适配器文件
+        # Copy adapter files
         adapter_files = [
             "inheritance_adapter.py",
             "standalone_qwencode_adapter.py"
@@ -118,36 +118,36 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"[OK] 复制适配器文件: {file_name}")
+                print(f"[OK] Copied adapter file: {file_name}")
             else:
-                print(f"⚠️ 适配器文件不存在: {file_name}")
+                print(f"[WARNING] Adapter file does not exist: {file_name}")
 
         return True
     except Exception as e:
-        print(f"❌ 复制适配器文件失败: {e}")
+        print(f"[ERROR] Failed to copy adapter files: {e}")
         return False
 
 def verify_installation():
-    """验证安装是否成功"""
-    print("\n🔍 验证QwenCode CLI集成安装...")
+    """Verify installation was successful"""
+    print("\n[VERIFY] Verifying QwenCode CLI integration installation...")
 
-    # 检查配置目录
+    # Check configuration directory
     if not os.path.exists(QWENCODE_CONFIG_DIR):
-        print(f"❌ 配置目录不存在: {QWENCODE_CONFIG_DIR}")
+        print(f"[ERROR] Configuration directory does not exist: {QWENCODE_CONFIG_DIR}")
         return False
 
-    # 检查配置文件
+    # Check configuration file
     if not os.path.exists(QWENCODE_CONFIG_FILE):
-        print(f"❌ 配置文件不存在: {QWENCODE_CONFIG_FILE}")
+        print(f"[ERROR] Configuration file does not exist: {QWENCODE_CONFIG_FILE}")
         return False
 
-    # 检查适配器目录
+    # Check adapter directory
     adapter_dir = os.path.join(QWENCODE_CONFIG_DIR, "plugins")
     if not os.path.exists(adapter_dir):
-        print(f"❌ 适配器目录不存在: {adapter_dir}")
+        print(f"[ERROR] Adapter directory does not exist: {adapter_dir}")
         return False
 
-    # 读取并验证配置
+    # Read and verify configuration
     try:
         import yaml
         with open(QWENCODE_CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -164,111 +164,111 @@ def verify_installation():
         if cross_cli_plugin:
             plugin_config = cross_cli_plugin.get('config', {})
             if plugin_config.get('cross_cli_enabled'):
-                print("[SUCCESS] 跨CLI协作插件: 已启用")
-                print("[SUCCESS] 支持的CLI工具:")
+                print("[SUCCESS] Cross-CLI collaboration plugin: Enabled")
+                print("[SUCCESS] Supported CLI tools:")
                 supported_clis = plugin_config.get('supported_clis', [])
                 for cli in supported_clis:
                     print(f"   - {cli}")
-                print("[SUCCESS] 自动检测: 已启用")
+                print("[SUCCESS] Auto-detection: Enabled")
                 return True
             else:
-                print("[WARNING] 跨CLI协作插件: 未启用")
+                print("[WARNING] Cross-CLI collaboration plugin: Disabled")
                 return False
         else:
-            print("❌ 跨CLI协作插件: 未找到")
+            print("[ERROR] Cross-CLI collaboration plugin: Not found")
             return False
 
     except Exception as e:
-        print(f"❌ 验证配置失败: {e}")
+        print(f"[ERROR] Failed to verify configuration: {e}")
         return False
 
 def uninstall_qwencode_integration():
-    """卸载QwenCode集成"""
+    """Uninstall QwenCode integration"""
     try:
-        # 备份现有配置
+        # Backup existing configuration
         if os.path.exists(QWENCODE_CONFIG_FILE):
             backup_file = f"{QWENCODE_CONFIG_FILE}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             shutil.copy2(QWENCODE_CONFIG_FILE, backup_file)
-            print(f"📦 已备份现有配置: {backup_file}")
+            print(f"[BACKUP] Backed up existing configuration: {backup_file}")
 
-        # 移除适配器目录
+        # Remove adapter directory
         adapter_dir = os.path.join(QWENCODE_CONFIG_DIR, "plugins")
         if os.path.exists(adapter_dir):
             shutil.rmtree(adapter_dir)
-            print(f"🗑️ 已删除适配器目录: {adapter_dir}")
+            print(f"[DELETE] Deleted adapter directory: {adapter_dir}")
 
-        print("[OK] QwenCode集成已卸载")
+        print("[OK] QwenCode integration uninstalled")
         return True
     except Exception as e:
-        print(f"❌ 卸载失败: {e}")
+        print(f"[ERROR] Uninstall failed: {e}")
         return False
 
 def main():
     parser = argparse.ArgumentParser(
-        description="QwenCode CLI跨CLI协作集成安装脚本",
+        description="QwenCode CLI Cross-CLI Collaboration Integration Installation Script",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
     parser.add_argument(
         "--install",
         action="store_true",
-        help="安装QwenCode CLI跨CLI协作集成"
+        help="Install QwenCode CLI Cross-CLI Collaboration Integration"
     )
 
     parser.add_argument(
         "--verify",
         action="store_true",
-        help="验证QwenCode CLI集成安装"
+        help="Verify QwenCode CLI integration installation"
     )
 
     parser.add_argument(
         "--uninstall",
         action="store_true",
-        help="卸载QwenCode CLI跨CLI协作集成"
+        help="Uninstall QwenCode CLI Cross-CLI Collaboration Integration"
     )
 
     args = parser.parse_args()
 
-    print("[INSTALL] QwenCode CLI跨CLI协作集成安装器")
+    print("[INSTALL] QwenCode CLI Cross-CLI Collaboration Integration Installer")
     print("=" * 60)
 
     if args.uninstall:
-        print("[UNINSTALL] 卸载模式...")
+        print("[UNINSTALL] Uninstall mode...")
         success = uninstall_qwencode_integration()
     elif args.verify:
-        print("[VERIFY] 验证模式...")
+        print("[VERIFY] Verification mode...")
         success = verify_installation()
     elif args.install or len(sys.argv) == 1:
-        print("[INSTALL] 安装模式...")
+        print("[INSTALL] Installation mode...")
 
-        # 1. 创建配置目录
-        print("Step 1. 创建配置目录...")
+        # 1. Create configuration directory
+        print("Step 1. Create configuration directory...")
         create_qwencode_config_directory()
 
-        # 2. 安装插件配置
-        print("Step 2. 安装插件配置...")
+        # 2. Install plugin configuration
+        print("Step 2. Install plugin configuration...")
         config_success = install_qwencode_plugins()
 
-        # 3. 复制适配器文件
-        print("Step 3. 复制适配器文件...")
+        # 3. Copy adapter files
+        print("Step 3. Copy adapter files...")
         adapter_success = copy_adapter_file()
 
         success = config_success and adapter_success
 
         if success:
-            print("\n[SUCCESS] QwenCode CLI集成安装成功！")
-            print("\n[INFO] 安装摘要:")
+            print("\n[SUCCESS] QwenCode CLI integration installed successfully!")
+            print("\n[INFO] Installation Summary:")
             print(f"   [SUCCESS] 配置目录: {QWENCODE_CONFIG_DIR}")
             print(f"   [SUCCESS] 配置文件: {QWENCODE_CONFIG_FILE}")
             print(f"   [SUCCESS] 适配器目录: {os.path.join(QWENCODE_CONFIG_DIR, 'plugins')}")
-            print("   [SUCCESS] 跨CLI协作: 已启用")
+            print("   [SUCCESS] Cross-CLI collaboration: Enabled")
 
-            print("\n[INFO] 下一步:")
+            print("\n[INFO] Next steps:")
             print("   1. 安装其他CLI工具的集成: ai-cli-router deploy --all")
             print("   2. 初始化项目: ai-cli-router init")
             print("   3. 开始协作: qwencode-cli '请用gemini帮我分析代码'")
         else:
-            print("\n❌ QwenCode CLI集成安装失败，请检查错误信息")
+            print("\n[ERROR] QwenCode CLI integration installation failed, please check error messages")
     else:
         parser.print_help()
 

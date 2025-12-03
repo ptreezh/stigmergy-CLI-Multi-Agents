@@ -1,1 +1,1 @@
-{"name": "codex", "displayName": "codex CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/codex/config.json", "global_doc": "codex.md", "description": "codex CLI集成适配器"}
+{"name": "codex", "displayName": "codex CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/codex/config.json", "global_doc": "codex.md", "description": "codex CLI integration adapter"}

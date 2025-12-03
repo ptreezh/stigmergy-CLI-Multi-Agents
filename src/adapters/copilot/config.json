@@ -5,7 +5,7 @@
   "integration_type": "mcp_server",
   "config_file": "~/.config/copilot/config.json",
   "global_doc": "copilot.md",
-  "description": "GitHub Copilot CLI MCP服务器集成适配器",
+  "description": "GitHub Copilot CLI MCP server integration adapter",
   "mcp_config": {
     "server_name": "stigmergy-copilot-integration",
     "command": "python",
@@ -23,7 +23,7 @@
   "custom_agents": {
     "cross_cli_caller": {
       "name": "CrossCLICaller",
-      "description": "跨CLI工具调用代理",
+      "description": "Cross-CLI tool calling agent",
       "version": "1.0.0",
       "tools": [
         "cross_cli_execute",
@@ -48,17 +48,17 @@
   ],
   "permissions": {
     "execute_external_cli": {
-      "description": "执行外部CLI工具",
+      "description": "Execute external CLI tools",
       "level": "high",
       "requires_approval": false
     },
     "read_config": {
-      "description": "读取CLI配置文件",
+      "description": "Read CLI configuration files",
       "level": "medium",
       "requires_approval": false
     },
     "write_logs": {
-      "description": "写入日志文件",
+      "description": "Write to log files",
       "level": "low",
       "requires_approval": false
     }

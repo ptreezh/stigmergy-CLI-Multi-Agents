@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Qoder CLI Notification Hook集成安装脚本
- * 为Qoder CLI安装跨CLI协作感知能力
+ * Qoder CLI Notification Hook Integration Installation Script
+ * Install cross-CLI collaboration awareness capabilities for Qoder CLI
  * 
- * 使用方法：
+ * Usage:
  * node install_qoder_integration.js [--verify|--uninstall]
  */
 
@@ -13,17 +13,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 
-// 获取当前文件目录
+// Get current file directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..', '..', '..');
 
-// Qoder CLI配置路径
+// Qoder CLI configuration paths
 const QODER_CONFIG_FILE = path.join(homedir(), '.qoder', 'config.json');
 
 async function installQoderHooks() {
-    /** 安装Qoder Notification Hook配置 */
-    // 读取现有config配置
+    /** Install Qoder Notification Hook configuration */
+    // Read existing config configuration
     let existingConfig = {};
     try {
         const configExists = await fs.access(QODER_CONFIG_FILE).then(() => true).catch(() => false);
@@ -36,7 +36,7 @@ async function installQoderHooks() {
         existingConfig = {};
     }
 
-    // 定义跨CLI协作的Hook配置
+    // Define cross-CLI collaboration Hook configuration
     const crossCliHooks = {
         "cross_cli_notification_hook": {
             "name": "CrossCLINotificationHook",
@@ -60,13 +60,13 @@ async function installQoderHooks() {
         }
     };
 
-    // 合并配置（保留现有hooks，添加协作功能）
+    // Merge configuration (preserve existing hooks, add collaboration features)
     const mergedConfig = { ...existingConfig };
     if (!mergedConfig.hooks) {
         mergedConfig.hooks = [];
     }
 
-    // 检查是否已存在跨CLI通知Hook
+    // Check if cross-CLI notification Hook already exists
     const existingHookNames = mergedConfig.hooks.map(hook => hook.name || '');
     const crossCliHookName = "CrossCLINotificationHook";
 
@@ -74,7 +74,7 @@ async function installQoderHooks() {
         mergedConfig.hooks.push(crossCliHooks.cross_cli_notification_hook);
     }
 
-    // 写入配置文件
+    // Write configuration file
     try {
         await fs.writeFile(QODER_CONFIG_FILE, JSON.stringify(mergedConfig, null, 2), 'utf8');
         console.log(`[OK] Qoder configuration installed: ${QODER_CONFIG_FILE}`);
@@ -94,13 +94,13 @@ async function installQoderHooks() {
 }
 
 async function copyAdapterFiles() {
-    /** 复制适配器文件到Qoder配置目录 */
+    /** Copy adapter files to Qoder configuration directory */
     try {
-        // 创建适配器目录
+        // Create adapter directory
         const adapterDir = path.dirname(QODER_CONFIG_FILE);
         await fs.mkdir(adapterDir, { recursive: true });
 
-        // 复制适配器文件
+        // Copy adapter files
         const adapterFiles = [
             "notification_hook_adapter.py",
             "standalone_qoder_adapter.py"
@@ -127,10 +127,10 @@ async function copyAdapterFiles() {
 }
 
 async function verifyInstallation() {
-    /** 验证安装 */
+    /** Verify installation */
     console.log("\n🔍 Verifying Qoder CLI integration installation...");
 
-    // 检查配置文件
+    // Check configuration file
     try {
         await fs.access(QODER_CONFIG_FILE);
     } catch (error) {
@@ -138,12 +138,12 @@ async function verifyInstallation() {
         return false;
     }
 
-    // 读取配置文件
+    // Read configuration file
     try {
         const configContent = await fs.readFile(QODER_CONFIG_FILE, 'utf8');
         const config = JSON.parse(configContent);
 
-        // 检查Hook配置
+        // Check Hook configuration
         const hooks = config.hooks || [];
         const crossCliHookFound = hooks.some(hook => hook.name === 'CrossCLINotificationHook');
 
@@ -161,25 +161,25 @@ async function verifyInstallation() {
 }
 
 async function uninstallQoderIntegration() {
-    /** 卸载Qoder集成 */
+    /** Uninstall Qoder integration */
     try {
-        // 检查配置文件
+        // Check configuration file
         const configExists = await fs.access(QODER_CONFIG_FILE).then(() => true).catch(() => false);
         if (!configExists) {
             console.warn("[WARNING] Qoder configuration file not found");
             return true;
         }
 
-        // 读取配置文件
+        // Read configuration file
         const configContent = await fs.readFile(QODER_CONFIG_FILE, 'utf8');
         const config = JSON.parse(configContent);
 
-        // 移除跨CLI通知Hook
+        // Remove cross-CLI notification Hook
         const hooks = config.hooks || [];
         const filteredHooks = hooks.filter(hook => hook.name !== 'CrossCLINotificationHook');
         config.hooks = filteredHooks;
 
-        // 写入更新后的配置
+        // Write updated configuration
         await fs.writeFile(QODER_CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
 
         console.log("[OK] Qoder integration uninstalled successfully");
@@ -191,7 +191,7 @@ async function uninstallQoderIntegration() {
 }
 
 async function main() {
-    /** 主函数 */
+    /** Main function */
     const args = process.argv.slice(2);
     const options = {
         verify: args.includes('--verify'),
@@ -211,10 +211,10 @@ async function main() {
     } else if (options.install) {
         console.log("Installing Qoder CLI Cross-CLI Collaboration Integration...");
         
-        // 1. 安装配置
+        // 1. Install configuration
         const configSuccess = await installQoderHooks();
 
-        // 2. 复制适配器文件
+        // 2. Copy adapter files
         const adapterSuccess = await copyAdapterFiles();
 
         const success = configSuccess && adapterSuccess;
@@ -240,7 +240,7 @@ async function main() {
     }
 }
 
-// 运行主函数
+// Run main function
 if (import.meta.url === `file://${process.argv[1]}`) {
     main().catch(error => {
         console.error(`[FATAL] ${error.message}`);

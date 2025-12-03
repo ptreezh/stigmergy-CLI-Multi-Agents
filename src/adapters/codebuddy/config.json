@@ -1,1 +1,1 @@
-{"name": "codebuddy", "displayName": "codebuddy CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/codebuddy/config.json", "global_doc": "codebuddy.md", "description": "codebuddy CLI集成适配器"}
+{"name": "codebuddy", "displayName": "codebuddy CLI", "version": "1.0.0", "integration_type": "native", "config_file": "~/.config/codebuddy/config.json", "global_doc": "codebuddy.md", "description": "codebuddy CLI integration adapter"}

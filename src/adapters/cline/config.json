@@ -5,7 +5,7 @@
   "integration_type": "mcp_server_system",
   "config_file": "~/.config/cline/cline_mcp_settings.json",
   "global_doc": "cline.md",
-  "description": "Cline CLI MCP Server集成适配器 - 支持Model Context Protocol工具扩展",
+  "description": "Cline CLI MCP Server integration adapter - Supports Model Context Protocol tool extensions",
   "architecture": {
     "type": "nodejs_npm",
     "install_command": "npm install -g cline",

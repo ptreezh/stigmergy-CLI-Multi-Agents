@@ -1,195 +1,195 @@
-# iFlow CLI官方Hook配置文件
-# 基于iFlow CLI官方文档的9种Hook类型配置
+# iFlow CLI Official Hook Configuration File
+# Configuration based on 9 Hook types from iFlow CLI official documentation
 
-# 跨CLI集成系统配置
+# Cross-CLI Integration System Configuration
 cross_cli_integration:
   enabled: true
   adapter: "IFlowOfficialHookAdapter"
   version: "1.0.0"
 
-# iFlow官方Hook配置
+# iFlow Official Hook Configuration
 hooks:
-  # 1. PreToolUse - 工具执行前触发
+  # 1. PreToolUse - Triggered before tool execution
   PreToolUse:
-    - matcher: "*"  # 匹配所有工具
+    - matcher: "*"  # Match all tools
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter PreToolUse"
           timeout: 30
-          description: "检测跨CLI调用意图和工具拦截"
-    - matcher: "Edit|Write|Replace"  # 专门匹配文件编辑工具
+          description: "Detect cross-CLI call intents and tool interception"
+    - matcher: "Edit|Write|Replace"  # Specifically match file editing tools
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter PreToolUse"
           timeout: 15
-          description: "文件编辑工具的跨CLI检测"
+          description: "Cross-CLI detection for file editing tools"
 
-  # 2. PostToolUse - 工具执行后触发
+  # 2. PostToolUse - Triggered after tool execution
   PostToolUse:
     - matcher: "*"
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter PostToolUse"
           timeout: 15
-          description: "工具执行结果处理"
+          description: "Tool execution result processing"
 
-  # 3. SetUpEnvironment - 环境设置时触发
+  # 3. SetUpEnvironment - Triggered when setting up environment
   SetUpEnvironment:
     - hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter SetUpEnvironment"
           timeout: 30
-          description: "初始化跨CLI环境"
+          description: "Initialize cross-CLI environment"
 
-  # 4. Stop - 主会话结束时触发
+  # 4. Stop - Triggered when main session ends
   Stop:
     - hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter Stop"
           timeout: 10
-          description: "清理跨CLI资源"
+          description: "Clean up cross-CLI resources"
 
-  # 5. SubagentStop - 子代理会话结束时触发
+  # 5. SubagentStop - Triggered when sub-agent session ends
   SubagentStop:
     - hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter SubagentStop"
           timeout: 10
-          description: "清理子代理资源"
+          description: "Clean up sub-agent resources"
 
-  # 6. SessionStart - 会话开始时触发
+  # 6. SessionStart - Triggered when session starts
   SessionStart:
-    - matcher: "startup|resume"  # 匹配新启动和恢复的会话
+    - matcher: "startup|resume"  # Match new startup and resumed sessions
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter SessionStart"
           timeout: 15
-          description: "会话开始时的跨CLI环境设置"
-    - matcher: "clear|compress"  # 匹配清理和压缩会话
+          description: "Cross-CLI environment setup when session starts"
+    - matcher: "clear|compress"  # Match clearing and compression sessions
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter SessionStart"
           timeout: 10
-          description: "特殊会话类型的处理"
+          description: "Processing of special session types"
 
-  # 7. SessionEnd - 会话结束时触发
+  # 7. SessionEnd - Triggered when session ends
   SessionEnd:
     - hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter SessionEnd"
           timeout: 15
-          description: "会话结束时的跨CLI总结"
+          description: "Cross-CLI summary when session ends"
 
-  # 8. UserPromptSubmit - 用户提示词提交时触发
+  # 8. UserPromptSubmit - Triggered when user prompt is submitted
   UserPromptSubmit:
-    - matcher: ".*"  # 匹配所有用户提示词
+    - matcher: ".*"  # Match all user prompts
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter UserPromptSubmit"
           timeout: 30
-          description: "核心跨CLI调用检测"
+          description: "Core cross-CLI call detection"
     - matcher: ".*claude.*|.*gemini.*|.*qwencode.*|.*qoder.*|.*codebuddy.*|.*codex.*"
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter UserPromptSubmit"
           timeout: 45
-          description: "包含CLI名称的提示词优先处理"
+          description: "Priority processing of prompts containing CLI names"
 
-  # 9. Notification - 通知发送时触发
+  # 9. Notification - Triggered when notification is sent
   Notification:
-    - matcher: ".*"  # 匹配所有通知
+    - matcher: ".*"  # Match all notifications
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter Notification"
           timeout: 10
-          description: "跨CLI状态通知"
+          description: "Cross-CLI status notifications"
     - matcher: ".*permission.*|.*error.*|.*warning.*"
       hooks:
         - type: "command"
           command: "python -m src.adapters.iflow.official_hook_adapter Notification"
           timeout: 5
-          description: "重要通知的特殊处理"
+          description: "Special processing of important notifications"
 
-    # 插件配置
+    # Plugin Configuration
     config:
-      # 跨CLI功能配置
+      # Cross-CLI Feature Configuration
       cross_cli_enabled: true
       collaboration_mode: "active"  # active, passive, disabled
       auto_detection: true
 
-      # 性能配置
+      # Performance Configuration
       timeout: 30
       max_concurrent_calls: 5
       retry_count: 3
       retry_delay: 1
 
-      # 错误处理配置
+      # Error Handling Configuration
       error_handling: "continue"   # continue, abort, fallback
       fallback_to_iflow: true
       show_error_details: true
 
-      # 协作配置
+      # Collaboration Configuration
       collaboration_enabled: true
       project_spec_enabled: true
       auto_collaboration: false
 
-      # 事件配置
+      # Event Configuration
       event_bus_enabled: true
       event_logging: true
       performance_monitoring: true
 
-# Hook事件配置
+# Hook Event Configuration
 hook_events:
-  # 用户输入事件
+  # User Input Events
   on_user_input:
-    description: "用户输入时触发，用于检测跨CLI调用意图"
+    description: "Triggered on user input, used to detect cross-CLI call intents"
     priority: 100
     async: true
     timeout: 10
 
-  # 命令生命周期事件
+  # Command Lifecycle Events
   on_command_start:
-    description: "命令开始执行时触发"
+    description: "Triggered when command starts executing"
     priority: 90
     async: true
     timeout: 5
 
   on_command_end:
-    description: "命令执行完成时触发"
+    description: "Triggered when command execution completes"
     priority: 90
     async: true
     timeout: 5
 
-  # 工作流事件
+  # Workflow Events
   on_workflow_stage:
-    description: "工作流阶段执行时触发"
+    description: "Triggered when workflow stage executes"
     priority: 80
     async: true
     timeout: 15
 
   on_pipeline_execute:
-    description: "流水线执行时触发"
+    description: "Triggered when pipeline executes"
     priority: 70
     async: true
     timeout: 20
 
-  # 错误处理事件
+  # Error Handling Events
   on_error:
-    description: "错误发生时触发"
+    description: "Triggered when error occurs"
     priority: 95
     async: true
     timeout: 5
 
-  # 输出处理事件
+  # Output Processing Events
   on_output_render:
-    description: "输出渲染时触发"
+    description: "Triggered when output renders"
     priority: 60
     async: true
     timeout: 10
 
-# 协作协议配置
+# Collaboration Protocol Configuration
 collaboration_protocols:
-  # 中文协议
+  # Chinese Protocols
   chinese:
     - pattern: "请用{cli}帮我{task}"
       priority: 100
@@ -204,7 +204,7 @@ collaboration_protocols:
     - pattern: "通过{cli}执行{task}"
       priority: 75
 
-  # 英文协议
+  # English Protocols
   english:
     - pattern: "use {cli} to {task}"
       priority: 100
@@ -219,45 +219,45 @@ collaboration_protocols:
     - pattern: "process {task} using {cli}"
       priority: 75
 
-# 支持的CLI工具
+# Supported CLI Tools
 supported_clis:
   - name: "claude"
     display_name: "Claude CLI"
-    description: "Anthropic Claude CLI工具"
+    description: "Anthropic Claude CLI Tool"
     integration_type: "hook"
 
   - name: "gemini"
     display_name: "Gemini CLI"
-    description: "Google Gemini CLI工具"
+    description: "Google Gemini CLI Tool"
     integration_type: "extension"
 
   - name: "qwencode"
     display_name: "QwenCode CLI"
-    description: "阿里巴巴QwenCode CLI工具"
+    description: "Alibaba QwenCode CLI Tool"
     integration_type: "inheritance"
 
   - name: "qoder"
     display_name: "Qoder CLI"
-    description: "Qoder编程助手CLI工具"
+    description: "Qoder Programming Assistant CLI Tool"
     integration_type: "plugin"
 
   - name: "codebuddy"
     display_name: "CodeBuddy CLI"
-    description: "CodeBuddy编程助手CLI工具"
+    description: "CodeBuddy Programming Assistant CLI Tool"
     integration_type: "buddy"
 
   - name: "codex"
     display_name: "Codex CLI"
-    description: "OpenAI Codex CLI工具"
+    description: "OpenAI Codex CLI Tool"
     integration_type: "extension"
 
-# 事件总线配置
+# Event Bus Configuration
 event_bus:
   enabled: true
   buffer_size: 1000
   async_dispatch: true
 
-  # 事件监听器
+  # Event Listeners
   listeners:
     - event: "cross_cli_detected"
       handler: "handle_cross_cli_detected"
@@ -275,7 +275,7 @@ event_bus:
       handler: "handle_error_occurred"
       async: true
 
-# 性能监控配置
+# Performance Monitoring Configuration
 performance_monitoring:
   enabled: true
   metrics:
@@ -285,18 +285,18 @@ performance_monitoring:
     - "error_count"
     - "response_time"
 
-  # 报告配置
+  # Report Configuration
   reporting:
-    interval: 60  # 秒
+    interval: 60  # seconds
     log_file: "~/.config/iflow/logs/performance.log"
     max_file_size: "10MB"
 
-# 日志配置
+# Logging Configuration
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-  # 日志文件
+  # Log Files
   handlers:
     - type: "file"
       filename: "~/.config/iflow/logs/hooks.log"
@@ -306,32 +306,32 @@ logging:
     - type: "console"
       enabled: true
 
-# 安全配置
+# Security Configuration
 security:
-  # 输入验证
+  # Input Validation
   input_validation:
     enabled: true
     max_length: 10000
     sanitize_html: true
 
-  # 权限检查
+  # Permission Check
   permission_check:
     enabled: true
     check_file_access: true
 
-  # 审计日志
+  # Audit Logs
   audit_logging:
     enabled: true
     log_file: "~/.config/iflow/logs/audit.log"
 
-# 缓存配置
+# Cache Configuration
 cache:
   enabled: true
-  ttl: 300  # 5分钟
+  ttl: 300  # 5 minutes
   max_size: "100MB"
 
-  # 缓存策略
+  # Cache Strategies
   strategies:
-    - "result_cache"      # 结果缓存
-    - "adapter_cache"     # 适配器缓存
-    - "config_cache"      # 配置缓存
+    - "result_cache"      # Result Cache
+    - "adapter_cache"     # Adapter Cache
+    - "config_cache"      # Configuration Cache

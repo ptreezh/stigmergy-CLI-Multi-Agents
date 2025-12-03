@@ -1,13 +1,13 @@
 """
-QwenCode CLI 适配器包
+QwenCode CLI Adapter Package
 
-基于 QwenCode CLI 官方 Class Inheritance 系统的原生集成
-完全无抽象层设计
+Native integration based on QwenCode CLI official Class Inheritance system
+Completely no abstraction layer design
 """
 
 from .standalone_qwencode_adapter import get_standalone_qwencode_adapter, StandaloneQwenCodeAdapter
 
-# 向后兼容的别名
+# Backward compatible alias
 QwenCodeInheritanceAdapter = StandaloneQwenCodeAdapter
 
 __all__ = ['StandaloneQwenCodeAdapter', 'get_standalone_qwencode_adapter', 'QwenCodeInheritanceAdapter']

@@ -73,7 +73,7 @@
   },
   "devDependencies": {},
   "npx": {
-    "stigmergy-cli": "src/main.js"
+    "stigmergy": "src/main.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {

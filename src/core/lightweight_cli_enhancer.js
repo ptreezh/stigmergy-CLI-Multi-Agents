@@ -1,6 +1,6 @@
 /**
- * 轻量级CLI增强器 - 增量到现有CLI
- * 不修改CLI原生行为，增加协同能力
+ * Lightweight CLI Enhancer - Incremental to existing CLI
+ * Does not modify CLI native behavior, adds collaborative capabilities
  */
 
 import fs from 'fs/promises';
@@ -30,7 +30,7 @@ class LightweightCLIEnhancer {
         const detection = await this.detector.detectCliInvocation(cliName, args, options.cwd);
 
         if (!detection) {
-            // 如果没有检测到特殊意图，直接执行原命令
+            // If no special intent is detected, execute the original command directly
             return this.executeOriginalCommand(cliName, args, options);
         }
 
@@ -42,7 +42,7 @@ class LightweightCLIEnhancer {
     }
 
     /**
-     * 执行原始命令 - 完全不改变行为
+     * Execute original command - completely unchanged behavior
      */
     async executeOriginalCommand(cliName, args, options = {}) {
         const cliCommands = {
@@ -66,24 +66,24 @@ class LightweightCLIEnhancer {
     }
 
     /**
-     * 生成增强参数
+     * Generate enhanced arguments
      */
     async generateEnhancedArgs(detection) {
         const enhancedArgs = [...detection.userInput.split(' ')];
         
-        // 添加上下文线索
+        // Add context clues
         if (this.enhancementConfig.enableContextSharing && detection.environmentContext) {
             const contextHint = this.generateContextHint(detection);
             if (contextHint) {
-                enhancedArgs.push(`[上下文: ${contextHint}]`);
+                enhancedArgs.push(`[Context: ${contextHint}]`);
             }
         }
 
-        // 添加协作提示
+        // Add collaboration hints
         if (this.enhancementConfig.enableCollaborationHints && detection.suggestions.length > 0) {
             const collaborationHint = this.generateCollaborationHint(detection.suggestions[0]);
             if (collaborationHint) {
-                enhancedArgs.push(`[协作提示: ${collaborationHint}]`);
+                enhancedArgs.push(`[Collaboration Hint: ${collaborationHint}]`);
             }
         }
 
@@ -91,57 +91,57 @@ class LightweightCLIEnhancer {
     }
 
     /**
-     * 生成上下文提示
+     * Generate context hint
      */
     generateContextHint(detection) {
         const context = detection.environmentContext;
         
         if (context.frequentCollaboration && Object.keys(context.frequentCollaboration).length > 0) {
             const frequentCli = Object.keys(context.frequentCollaboration)[0];
-            return `最近经常与${frequentCli}协作`;
+            return `Recently collaborated frequently with ${frequentCli}`;
         }
 
         if (context.commonTopics && context.commonTopics.length > 0) {
-            return `最近在处理${context.commonTopics[0]}相关任务`;
+            return `Recently processing ${context.commonTopics[0]} related tasks`;
         }
 
         return '';
     }
 
     /**
-     * 生成协作提示
+     * Generate collaboration hint
      */
     generateCollaborationHint(suggestion) {
         switch (suggestion.type) {
             case 'frequent_collaboration':
-                return `建议后续可使用${suggestion.cli}继续`;
+                return `Suggest using ${suggestion.cli} to continue`;
             case 'topic_based':
-                return `建议使用专门工具处理${suggestion.topic}任务`;
+                return `Suggest using specialized tools to handle ${suggestion.topic} tasks`;
             default:
                 return suggestion.suggestion;
         }
     }
 
     /**
-     * 执行增强命令
+     * Execute enhanced command
      */
     async executeEnhancedCommand(cliName, enhancedArgs, options, detection) {
-        // 先执行原始命令
+        // First execute the original command
         const result = await this.executeOriginalCommand(cliName, enhancedArgs, options);
 
-        // 后台处理协作逻辑
+        // Background processing of collaboration logic
         if (this.enhancementConfig.enableAutomaticFileSharing) {
             await this.handleAutomaticFileSharing(detection);
         }
 
-        // 记录协作结果
+        // Record collaboration result
         await this.logCollaborationResult(detection, result);
 
         return result;
     }
 
     /**
-     * 处理自动文件共享
+     * Handle automatic file sharing
      */
     async handleAutomaticFileSharing(detection) {
         if (!detection.collaborationIntent) {
@@ -149,10 +149,10 @@ class LightweightCLIEnhancer {
         }
 
         try {
-            // 检测当前目录中的重要文件
+            // Detect important files in the current directory
             const importantFiles = await this.detectImportantFiles();
             
-            // 自动共享相关文件到环境
+            // Automatically share relevant files to the environment
             for (const file of importantFiles) {
                 await this.detector.shareFileToEnvironment(
                     detection.cliName,
@@ -165,12 +165,12 @@ class LightweightCLIEnhancer {
                 );
             }
         } catch (error) {
-            console.error('❌ 自动文件共享失败:', error.message);
+            console.error('[ERROR] Automatic file sharing failed:', error.message);
         }
     }
 
     /**
-     * 检测重要文件
+     * Detect important files
      */
     async detectImportantFiles() {
         const workingDir = process.cwd();
@@ -209,19 +209,19 @@ class LightweightCLIEnhancer {
                         modified: stats.mtime
                     });
                 } catch (error) {
-                    // 忽略无法访问的文件
+                    // Ignore inaccessible files
                 }
             }
         }
 
-        // 按相关性排序
+        // Sort by relevance
         return importantFiles
             .sort((a, b) => b.relevanceScore - a.relevanceScore)
-            .slice(0, 5); // 最多共享5个文件
+            .slice(0, 5); // Share up to 5 files
     }
 
     /**
-     * 记录协作结果
+     * Log collaboration result
      */
     async logCollaborationResult(detection, result) {
         try {
@@ -242,12 +242,12 @@ class LightweightCLIEnhancer {
             const logLine = JSON.stringify(logEntry) + '\n';
             await fs.appendFile(logFile, logLine);
         } catch (error) {
-            console.error('❌ 记录协作结果失败:', error.message);
+            console.error('[ERROR] Failed to log collaboration result:', error.message);
         }
     }
 
     /**
-     * 创建CLI命令包装器
+     * Create CLI command wrapper
      */
     createCliWrapper(cliName) {
         return async (...args) => {
@@ -256,7 +256,7 @@ class LightweightCLIEnhancer {
     }
 
     /**
-     * 获取当前环境状态
+     * Get current environment status
      */
     async getEnvironmentStatus() {
         try {

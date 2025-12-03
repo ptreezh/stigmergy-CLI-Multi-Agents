@@ -1,6 +1,6 @@
 /**
- * CLI协同检测器 - 轻量级拦截，增强现有适配器
- * 增量设计，不影响现有系统
+ * CLI Interaction Detector - Lightweight interception, enhancing existing adapters
+ * Incremental design, does not affect existing systems
  */
 
 import fs from 'fs/promises';
@@ -46,16 +46,16 @@ class CLIInteractionDetector {
             const logDir = path.dirname(this.interactionLogFile);
             await fs.mkdir(logDir, { recursive: true });
             
-            console.log('✅ CLI协同检测器初始化完成');
+            console.log('[SUCCESS] CLI interaction detector initialized');
             return true;
         } catch (error) {
-            console.error('❌ CLI协同检测器初始化失败:', error.message);
+            console.error('[ERROR] CLI interaction detector initialization failed:', error.message);
             return false;
         }
     }
 
     /**
-     * 检测CLI调用 - 轻量级监控
+     * Detect CLI invocation - lightweight monitoring
      */
     async detectCliInvocation(command, args, workingDir = process.cwd()) {
         const cliName = this.detectCliFromCommand(command);
@@ -66,14 +66,14 @@ class CLIInteractionDetector {
 
         const userInput = args.join(' ');
         
-        // 检测协作意图
+        // Detect collaboration intent
         const collaborationIntent = await this.stigmergySystem.writeEnvironmentSignal(
             cliName, 
             userInput, 
             { workingDir, command }
         );
 
-        // 记录交互
+        // Record interaction
         await this.logInteraction({
             type: 'cli_invocation',
             cliName,
@@ -84,7 +84,7 @@ class CLIInteractionDetector {
             timestamp: new Date().toISOString()
         });
 
-        // 读取环境线索
+        // Read environment signals
         const environmentContext = await this.stigmergySystem.readEnvironmentSignals(cliName);
 
         return {
@@ -97,7 +97,7 @@ class CLIInteractionDetector {
     }
 
     /**
-     * 从命令检测CLI名称
+     * Detect CLI name from command
      */
     detectCliFromCommand(command) {
         const cmd = command.toLowerCase();
@@ -112,14 +112,14 @@ class CLIInteractionDetector {
     }
 
     /**
-     * 生成上下文增强参数
+     * Generate context-enhanced arguments
      */
     async generateContextEnhancedArgs(cliName, originalArgs, context) {
         const enhancedArgs = [...originalArgs];
         
-        // 如果检测到协作意图，添加上下文
+        // If collaboration intent is detected, add context
         if (context.collaborationIntent && context.collaborationSuggestions.length > 0) {
-            // 生成上下文提示
+            // Generate context hint
             const contextHint = this.generateContextHint(context);
             if (contextHint) {
                 enhancedArgs.push(`[环境线索: ${contextHint}]`);
@@ -139,14 +139,14 @@ class CLIInteractionDetector {
             return '';
         }
 
-        // 选择最相关的建议
+        // Select the most relevant suggestion
         const topSuggestion = suggestions[0];
         
         switch (topSuggestion.type) {
             case 'frequent_collaboration':
-                return `最近频繁与${topSuggestion.cli}协作，考虑继续协作`;
+                return `Recently collaborated frequently with ${topSuggestion.cli}, consider continuing collaboration`;
             case 'topic_based':
-                return `最近在处理"${topSuggestion.topic}"任务，可结合相关工具`;
+                return `Recently processing "${topSuggestion.topic}" tasks, can combine with related tools`;
             default:
                 return topSuggestion.suggestion;
         }
@@ -160,24 +160,24 @@ class CLIInteractionDetector {
             const logLine = JSON.stringify(interaction) + '\n';
             await fs.appendFile(this.interactionLogFile, logLine);
         } catch (error) {
-            console.error('❌ 记录交互日志失败:', error.message);
+            console.error('[ERROR] Failed to log interaction:', error.message);
         }
     }
 
     /**
-     * 创建CLI包装函数 - 最小化包装
+     * Create CLI wrapper function - minimal wrapping
      */
     createCliWrapper(cliName) {
         return async (args, options = {}) => {
-            // 检测调用
+            // Detect invocation
             const detection = await this.detectCliInvocation(cliName, args, options.cwd);
             
-            // 生成增强参数
+            // Generate enhanced arguments
             const enhancedArgs = detection 
                 ? await this.generateContextEnhancedArgs(cliName, args, detection.environmentContext)
                 : args;
 
-            // 执行原始命令
+            // Execute original command
             const command = this.cliCommands[cliName][0]; // 使用第一个命令
             const result = spawnSync(command, enhancedArgs, {
                 stdio: 'inherit',
@@ -185,7 +185,7 @@ class CLIInteractionDetector {
                 env: { ...process.env, ...options.env }
             });
 
-            // 记录结果
+            // Record result
             if (detection) {
                 await this.logInteraction({
                     type: 'cli_completion',
@@ -202,7 +202,7 @@ class CLIInteractionDetector {
     }
 
     /**
-     * 获取CLI建议
+     * Get CLI suggestions
      */
     async getCliSuggestions(cliName) {
         try {
@@ -215,13 +215,13 @@ class CLIInteractionDetector {
                 sharedFiles: environmentContext.sharedFiles
             };
         } catch (error) {
-            console.error('❌ 获取CLI建议失败:', error.message);
+            console.error('[ERROR] Failed to get CLI suggestions:', error.message);
             return { suggestions: [], context: {}, sharedFiles: {} };
         }
     }
 
     /**
-     * 共享文件到环境
+     * Share file to environment
      */
     async shareFileToEnvironment(cliName, filePath, metadata = {}) {
         try {
@@ -245,16 +245,16 @@ class CLIInteractionDetector {
 
             await fs.writeFile(shareFilePath, JSON.stringify(shareData, null, 2));
 
-            console.log(`✅ 文件已共享到环境: ${shareFileName}`);
+            console.log(`[SUCCESS] File shared to environment: ${shareFileName}`);
             return shareFilePath;
         } catch (error) {
-            console.error('❌ 共享文件失败:', error.message);
+            console.error('[ERROR] Failed to share file:', error.message);
             return null;
         }
     }
 
     /**
-     * 从环境获取共享文件
+     * Get shared files from environment
      */
     async getSharedFilesFromEnvironment(targetCli = null) {
         try {
@@ -274,14 +274,14 @@ class CLIInteractionDetector {
                 }
             }
 
-            // 按时间排序
+            // Sort by time
             sharedFiles.sort((a, b) => 
                 new Date(b.metadata.timestamp) - new Date(a.metadata.timestamp)
             );
 
             return sharedFiles;
         } catch (error) {
-            console.error('❌ 获取共享文件失败:', error.message);
+            console.error('[ERROR] Failed to get shared files:', error.message);
             return [];
         }
     }

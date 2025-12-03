@@ -1,7 +1,7 @@
 {
   "adapter_name": "QwenCode Inheritance Adapter",
   "version": "1.0.0",
-  "description": "QwenCode CLI Class Inheritance系统跨平台调用适配器",
+  "description": "QwenCode CLI Class Inheritance system cross-platform calling adapter",
   "extension_mechanism": "class_inheritance",
   "supported_plugins": [
     "on_before_execute",
