@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "adapter_name": "Claude CLI Skills-Hook Integration",
   "version": "2.0.0",
@@ -337,4 +338,345 @@
     "supported_versions": ">=2.0.0",
     "last_updated": "2025-01-24"
   }
+=======
+{
+  "adapter_name": "Claude CLI Skills-Hook Integration",
+  "version": "2.0.0",
+  "description": "Claude skills system integration configuration, supporting Claude-specialized intelligent features",
+  "skills_directory": "claude_skills",
+  "learning_enabled": true,
+  "intelligence_levels": ["basic", "standard", "advanced"],
+  "claude_features": [
+    "intelligent_analysis",
+    "context_awareness",
+    "learning_optimization",
+    "semantic_understanding",
+    "natural_language_processing",
+    "error_recovery",
+    "result_optimization",
+    "performance_monitoring"
+  ],
+  "claude_skills": [
+    {
+      "name": "claude_intelligent_analyzer",
+      "version": "2.0.0",
+      "author": "Smart CLI Router",
+      "description": "Claude Intelligent Analyzer - Provides deep semantic analysis and intelligent understanding",
+      "category": "intelligence",
+      "tags": ["analysis", "intelligence", "semantics", "understanding"],
+      "dependencies": ["asyncio", "json"],
+      "entry_point": "intelligent_analyzer.py",
+      "claude_features": [
+        "intelligent_analysis",
+        "semantic_understanding",
+        "context_awareness"
+      ],
+      "intelligence_level": "advanced",
+      "learning_enabled": true,
+      "hooks": [
+        "user_prompt_submit",
+        "cross_cli_request",
+        "response_generated"
+      ],
+      "config_schema": {
+        "analysis_depth": {
+          "type": "string",
+          "enum": ["basic", "standard", "deep"],
+          "default": "standard"
+        },
+        "context_memory_size": {
+          "type": "integer",
+          "default": 50
+        },
+        "semantic_threshold": {
+          "type": "float",
+          "default": 0.8
+        }
+      }
+    },
+    {
+      "name": "claude_context_manager",
+      "version": "2.0.0",
+      "author": "Smart CLI Router",
+      "description": "Claude Context Manager - Intelligently manages conversation context and session state",
+      "category": "context",
+      "tags": ["context", "session", "state", "management"],
+      "dependencies": ["asyncio", "json"],
+      "entry_point": "context_manager.py",
+      "claude_features": [
+        "context_awareness",
+        "learning_optimization",
+        "performance_monitoring"
+      ],
+      "intelligence_level": "advanced",
+      "learning_enabled": true,
+      "hooks": [
+        "session_start",
+        "session_end",
+        "user_prompt_submit",
+        "tool_use_post"
+      ],
+      "config_schema": {
+        "context_retention_time": {
+          "type": "integer",
+          "default": 3600
+        },
+        "max_context_items": {
+          "type": "integer",
+          "default": 100
+        },
+        "auto_context_cleanup": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    {
+      "name": "claude_learning_optimizer",
+      "version": "2.0.0",
+      "author": "Smart CLI Router",
+      "description": "Claude Learning Optimizer - Continuous learning and performance optimization",
+      "category": "learning",
+      "tags": ["learning", "optimization", "performance", "improvement"],
+      "dependencies": ["asyncio", "json", "statistics"],
+      "entry_point": "learning_optimizer.py",
+      "claude_features": [
+        "learning_optimization",
+        "performance_monitoring",
+        "intelligent_analysis"
+      ],
+      "intelligence_level": "advanced",
+      "learning_enabled": true,
+      "hooks": [
+        "session_end",
+        "error_handling",
+        "cross_cli_request"
+      ],
+      "config_schema": {
+        "learning_rate": {
+          "type": "float",
+          "default": 0.1
+        },
+        "optimization_interval": {
+          "type": "integer",
+          "default": 100
+        },
+        "performance_threshold": {
+          "type": "float",
+          "default": 0.8
+        }
+      }
+    },
+    {
+      "name": "claude_natural_language_processor",
+      "version": "2.0.0",
+      "author": "Smart CLI Router",
+      "description": "Claude Natural Language Processor - Advanced NLP features and language understanding",
+      "category": "nlp",
+      "tags": ["NLP", "language", "processing", "understanding"],
+      "dependencies": ["asyncio", "json", "nltk"],
+      "entry_point": "natural_language_processor.py",
+      "claude_features": [
+        "natural_language_processing",
+        "semantic_understanding",
+        "intelligent_analysis"
+      ],
+      "intelligence_level": "advanced",
+      "learning_enabled": true,
+      "hooks": [
+        "user_prompt_submit",
+        "response_generated",
+        "cross_cli_request"
+      ],
+      "config_schema": {
+        "language_model": {
+          "type": "string",
+          "enum": ["basic", "standard", "advanced"],
+          "default": "standard"
+        },
+        "sentiment_analysis": {
+          "type": "boolean",
+          "default": true
+        },
+        "entity_recognition": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    {
+      "name": "claude_error_recovery_specialist",
+      "version": "2.0.0",
+      "author": "Smart CLI Router",
+      "description": "Claude Error Recovery Specialist - Intelligent error analysis and automatic recovery",
+      "category": "recovery",
+      "tags": ["error", "recovery", "analysis", "processing"],
+      "dependencies": ["asyncio", "json"],
+      "entry_point": "error_recovery_specialist.py",
+      "claude_features": [
+        "error_recovery",
+        "intelligent_analysis",
+        "learning_optimization"
+      ],
+      "intelligence_level": "advanced",
+      "learning_enabled": true,
+      "hooks": [
+        "error_handling",
+        "session_end",
+        "cross_cli_request"
+      ],
+      "config_schema": {
+        "max_retry_attempts": {
+          "type": "integer",
+          "default": 3
+        },
+        "error_analysis_depth": {
+          "type": "string",
+          "enum": ["basic", "standard", "detailed"],
+          "default": "standard"
+        },
+        "auto_recovery_enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  ],
+  "feature_configurations": {
+    "intelligent_analysis": {
+      "enabled": true,
+      "depth_levels": {
+        "basic": {
+          "complexity_threshold": 0.3,
+          "analysis_timeout": 5
+        },
+        "standard": {
+          "complexity_threshold": 0.6,
+          "analysis_timeout": 10
+        },
+        "advanced": {
+          "complexity_threshold": 0.8,
+          "analysis_timeout": 20
+        }
+      }
+    },
+    "context_awareness": {
+      "enabled": true,
+      "memory_size": 1000,
+      "retention_policy": {
+        "important_items": "permanent",
+        "regular_items": "7_days",
+        "temporary_items": "1_hour"
+      }
+    },
+    "learning_optimization": {
+      "enabled": true,
+      "learning_rate": 0.1,
+      "optimimization_frequency": "continuous",
+      "performance_metrics": [
+        "response_time",
+        "success_rate",
+        "user_satisfaction",
+        "error_rate"
+      ]
+    },
+    "semantic_understanding": {
+      "enabled": true,
+      "models": ["bert", "gpt", "custom"],
+      "confidence_threshold": 0.8,
+      "fallback_to_pattern_matching": true
+    },
+    "natural_language_processing": {
+      "enabled": true,
+      "supported_languages": ["zh", "en", "ja", "ko", "fr", "de"],
+      "processing_pipeline": [
+        "tokenization",
+        "entity_recognition",
+        "sentiment_analysis",
+        "intent_classification"
+      ]
+    }
+  },
+  "learning_configuration": {
+    "global_learning_enabled": true,
+    "individual_skill_learning": true,
+    "collaborative_learning": true,
+    "learning_data_retention": "30_days",
+    "performance_tracking": {
+      "metrics": [
+        "execution_time",
+        "success_rate",
+        "error_frequency",
+        "user_feedback"
+      ],
+      "tracking_interval": "real_time",
+      "aggregation_period": "daily"
+    },
+    "optimimization_strategies": {
+      "auto_tuning": true,
+      "parameter_optimization": true,
+      "feature_selection": true,
+      "model_updates": true
+    }
+  },
+  "integration_settings": {
+    "hook_system": {
+      "compatible": true,
+      "hook_type_mapping": {
+        "user_prompt_submit": "user_prompt_submit",
+        "tool_use_pre": "tool_use_pre",
+        "tool_use_post": "tool_use_post",
+        "response_generated": "response_generated",
+        "error_handling": "error_handling"
+      },
+      "priority_levels": {
+        "critical": 100,
+        "high": 80,
+        "medium": 60,
+        "low": 40
+      }
+    },
+    "skills_system": {
+      "compatible": true,
+      "skill_discovery": "automatic",
+      "hot_reload": true,
+      "version_management": true
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "log_level": "INFO",
+    "metrics_collection": true,
+    "performance_profiling": true,
+    "learning_tracking": true,
+    "feature_usage_tracking": true,
+    "error_tracking": true
+  },
+  "security": {
+    "validate_skill_code": true,
+    "sandbox_execution": false,
+    "permission_check": true,
+    "audit_logging": true,
+    "learning_data_privacy": true
+  },
+  "performance": {
+    "async_execution": true,
+    "parallel_hook_processing": true,
+    "skill_caching": true,
+    "result_caching": true,
+    "learning_data_caching": true,
+    "memory_limit": "1GB",
+    "max_concurrent_skills": 20
+  },
+  "metadata": {
+    "name": "Claude CLI Skills-Hook Integration Configuration",
+    "description": "Claude-specialized skills system integration configuration, supporting intelligent analysis and learning optimization",
+    "author": "Smart CLI Router",
+    "license": "MIT",
+    "repository": "https://github.com/smart-cli-router",
+    "adapter_type": "claude_skills_integration",
+    "supported_versions": ">=2.0.0",
+    "last_updated": "2025-01-24"
+  }
+>>>>>>> temp-branch
 }
