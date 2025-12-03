@@ -191,6 +191,13 @@ CLI_CONFIG_MAPPING = {
         install_script="install_codex_integration.py",
         version_check_command="codex-cli --version"
     ),
+    "cline": CLIConfigMapping(
+        config_file="~/.config/cline/cline_mcp_settings.json",
+        global_doc="cline.md",
+        integration_type=IntegrationType.MCP_SERVER,
+        install_script="install_cline_integration.py",
+        version_check_command="cline --version"
+    ),
 }
 
 # 协作协议模板

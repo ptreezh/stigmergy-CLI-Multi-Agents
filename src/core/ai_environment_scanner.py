@@ -201,7 +201,8 @@ class AIEnvironmentScanner:
             "qoder": "Qoder CLI",
             "codebuddy": "CodeBuddy CLI",
             "copilot": "Copilot CLI",
-            "codex": "Codex CLI"
+            "codex": "Codex CLI",
+            "cline": "Cline CLI"
         }
         return display_names.get(cli_name, cli_name.upper())
 
@@ -323,6 +324,10 @@ class AIEnvironmentScanner:
         if "claude" in peer_clis:
             examples.append("请用claude审查这段代码")
             examples.append("调用claude进行架构分析")
+            
+        if "cline" in peer_clis:
+            examples.append("请用cline帮我分析这个项目")
+            examples.append("调用cline来生成文档")
 
         # 添加通用示例
         examples.append("请用{tool}帮我{task}")
