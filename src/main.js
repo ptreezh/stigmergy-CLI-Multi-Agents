@@ -380,14 +380,57 @@ class StigmergyCLIRouter {
         for (const adapter of availableAdapters) {
             // 确保md文件生成在项目目录中而不是系统根目录
             const mdPath = join(safeProjectPath, `${adapter.name}.md`);
-            const config = await this.loadAdapter(adapter.name);
-
-            if (config.loaded) {
-                const mdContent = await this.generateEnhancedMarkdown(adapter, projectConfig);
-                await fs.writeFile(mdPath, mdContent, 'utf8');
+            
+            // 跳过模板文件生成，直接生成基本文档
+            try {
+                const basicMdContent = this.generateBasicMarkdown(adapter);
+                await fs.writeFile(mdPath, basicMdContent, 'utf8');
                 console.log(`✅ 生成 ${adapter.name}.md`);
+            } catch (error) {
+                console.log(`❌ 生成 ${adapter.name}.md 失败: ${error.message}`);
             }
         }
+    }
+
+    async generateBasicMarkdown(adapter) {
+        const timestamp = new Date().toISOString();
+        return `# ${adapter.displayName || adapter.name} CLI 集成配置
+> 由 Stigmergy CLI 自动生成
+> 生成时间: ${timestamp}
+
+## 📋 基本信息
+- **CLI名称**: ${adapter.name}
+- **显示名称**: ${adapter.displayName || adapter.name}
+- **版本**: ${adapter.version || '1.0.0'}
+- **集成类型**: ${adapter.integrationType || 'CLI'}
+- **状态**: ${adapter.status || 'available'}
+${adapter.path ? `- **路径**: \`${adapter.path}\`` : ''}
+
+## 🚀 使用方法
+
+### 基本调用
+\`\`\`bash
+${adapter.name} --help
+\`\`\`
+
+### 通过 Stigmergy CLI 协作
+\`\`\`bash
+stigmergy call ${adapter.name}
+\`\`\`
+
+## 🔧 配置说明
+
+此文档由 Stigmergy CLI 自动生成，用于跨AI CLI工具协作系统的集成配置。
+
+## 📚 相关文档
+
+- [Stigmergy CLI 文档](https://github.com/ptreezh/stigmergy-CLI-Multi-Agents)
+- [CLI集成指南](./CLI_EXTENSION_GUIDE.md)
+
+---
+*生成时间: ${timestamp}*
+*工具: Stigmergy CLI v1.0.67*
+`;
     }
 
     async generateEnhancedMarkdown(adapter, projectConfig) {
