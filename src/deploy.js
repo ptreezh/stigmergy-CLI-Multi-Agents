@@ -243,7 +243,7 @@ const CLI_INSTALL_CONFIGS = {
     }
 };
 
-// 检查CLI工具是否可用
+// 检查CLI工具是否可用（使用统一的扫描逻辑）
 async function checkCLIAvailability(cliName) {
     try {
         const installConfig = CLI_INSTALL_CONFIGS[cliName];
@@ -445,13 +445,74 @@ async function installCLIIntegration(cliName, cliInfo) {
     }
 }
 
-// 扫描系统状态
+// 扫描系统状态（使用统一的扫描逻辑）
 async function scanSystemStatus() {
     colorLog('magenta', '🔍 扫描系统CLI工具状态...');
     console.log('');
 
-    const results = [];
+    // 尝试使用Python扫描器获取更准确的结果
+    try {
+        const result = await executeCommand('python', ['-c', `
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.core.ai_environment_scanner import AIEnvironmentScanner
+import asyncio
+import json
 
+async def scan():
+    scanner = AIEnvironmentScanner()
+    result = await scanner.scan_ai_environment('.')
+    # 只返回CLI工具信息
+    clis = []
+    for name, cli_info in result.available_clis.items():
+        clis.append({
+            'name': name,
+            'display_name': cli_info.display_name,
+            'available': True
+        })
+    print(json.dumps(clis))
+
+asyncio.run(scan())
+        `], {
+            cwd: __dirname,
+            timeout: 10000
+        });
+
+        if (result.code === 0) {
+            const pythonResults = JSON.parse(result.stdout);
+            const cliMap = {};
+            pythonResults.forEach(cli => {
+                cliMap[cli.name] = cli;
+            });
+
+            // 结合JavaScript和Python扫描结果
+            const results = [];
+            for (const cliInfo of CLI_TOOLS) {
+                const pythonCli = cliMap[cliInfo.name];
+                const isAvailable = pythonCli ? pythonCli.available : await checkCLIAvailability(cliInfo.name);
+                const integrationStatus = await checkCLIIntegration(cliInfo.name);
+
+                results.push({
+                    ...cliInfo,
+                    available: isAvailable,
+                    integration: integrationStatus
+                });
+
+                const statusIcon = isAvailable ? '✅' : '❌';
+                const integrationIcon = integrationStatus.installed ? '✅' : '❌';
+
+                console.log(`  ${statusIcon} ${integrationIcon} ${cliInfo.displayName.padEnd(20)} | CLI: ${isAvailable ? '可用' : '未安装'} | 集成: ${integrationStatus.installed ? '已安装' : '未安装'}`);
+            }
+
+            return results;
+        }
+    } catch (error) {
+        console.log('⚠️  Python扫描器不可用，使用备用扫描方法');
+    }
+
+    // 备用扫描方法
+    const results = [];
     for (const cliInfo of CLI_TOOLS) {
         const isAvailable = await checkCLIAvailability(cliInfo.name);
         const integrationStatus = await checkCLIIntegration(cliInfo.name);
@@ -462,7 +523,7 @@ async function scanSystemStatus() {
             integration: integrationStatus
         });
 
-        const statusIcon = isAvailable ? '🟢' : '🔴';
+        const statusIcon = isAvailable ? '✅' : '❌';
         const integrationIcon = integrationStatus.installed ? '✅' : '❌';
 
         console.log(`  ${statusIcon} ${integrationIcon} ${cliInfo.displayName.padEnd(20)} | CLI: ${isAvailable ? '可用' : '未安装'} | 集成: ${integrationStatus.installed ? '已安装' : '未安装'}`);
@@ -489,10 +550,9 @@ async function askUserToInstall(results) {
 
     // 显示未安装的CLI工具
     if (unavailableCLIs.length > 0) {
-        console.log('\n🔴 未安装的CLI工具:');
+        console.log('\n未安装的CLI工具:');
         unavailableCLIs.forEach(cli => {
-            const required = cli.required ? '(必需)' : '(可选)';
-            console.log(`  - ${cli.displayName} ${required} - ${cli.description}`);
+            console.log(`  ❌ ${cli.displayName} - ${cli.description}`);
         });
 
         console.log('');
@@ -508,10 +568,9 @@ async function askUserToInstall(results) {
 
     // 显示未安装的集成
     if (uninstalledIntegrations.length > 0) {
-        console.log('\n❌ 未安装的CLI集成:');
+        console.log('\n未安装的CLI集成:');
         uninstalledIntegrations.forEach(cli => {
-            const required = cli.required ? '(必需)' : '(可选)';
-            console.log(`  - ${cli.displayName} 集成 ${required}`);
+            console.log(`  ❌ ${cli.displayName} 集成`);
         });
 
         console.log('');
