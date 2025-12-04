@@ -31,7 +31,7 @@
 
 ### 2. 文档更新
 所有AI CLI工具的文档均已更新，包含详细的跨平台调用说明：
-- **Claude**: `CLAUDE.md`
+- **Claude**: `claude.md`
 - **Gemini**: `gemini.md`
 - **Qwen**: `qwen.md`
 - **iFlow**: `iflow.md`

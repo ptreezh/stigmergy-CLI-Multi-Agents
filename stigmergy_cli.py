@@ -74,20 +74,20 @@ class StigmergyCLIMain:
                 input("按回车键继续...")
     
     def _show_main_menu(self) -> str:
-        """显示主菜单"""
-        print("🎯 请选择操作:")
-        print("1. 📊 检查所有CLI工具状态")
-        print("2. 🔧 生成/更新全局记忆文档")
-        print("3. 🔗 跨CLI协作建议")
-        print("4. 🚀 执行跨CLI命令")
-        print("5. 🔍 验证安装和配置")
-        print("6. 🛠️ 系统诊断和修复")
-        print("7. 📚 查看CLI文档")
-        print("8. ⚙️ 系统配置管理")
-        print("0. 📋 退出")
+        """Show main menu"""
+        print("🎯 Please select an operation:")
+        print("1. 📊 Check all CLI tools status")
+        print("2. 🔧 Generate/Update global memory documents")
+        print("3. 🔗 Cross-CLI collaboration suggestions")
+        print("4. 🚀 Execute cross-CLI commands")
+        print("5. 🔍 Verify installation and configuration")
+        print("6. 🛠️ System diagnosis and repair")
+        print("7. 📚 View CLI documentation")
+        print("8. ⚙️ System configuration management")
+        print("0. 📋 Exit")
         print()
-        
-        choice = input("请输入选择 (0-8): ").strip()
+
+        choice = input("Please enter your choice (0-8): ").strip()
         return choice
     
     def _handle_menu_choice(self, choice: str) -> int:
@@ -107,22 +107,22 @@ class StigmergyCLIMain:
         if handler:
             return handler()
         else:
-            print("❌ 无效选择，请重新输入")
+            print("❌ Invalid choice, please re-enter")
             return 0
     
     def _check_cli_status(self) -> int:
-        """检查CLI状态"""
-        print("📊 检查CLI工具状态")
+        """Check CLI status"""
+        print("📊 Check CLI tools status")
         print("-" * 40)
-        
+
         all_available = True
         total_count = len(self.cli_executor.cli_configs)
         available_count = 0
-        
+
         for cli_name, config in self.cli_executor.cli_configs.items():
             status, message = self.cli_executor.check_cli_status(cli_name)
-            
-            # 状态图标
+
+            # Status icon
             if status == CLIStatus.AUTHENTICATED:
                 icon = "✅"
                 available_count += 1
@@ -135,50 +135,50 @@ class StigmergyCLIMain:
             else:
                 icon = "❌"
                 all_available = False
-            
+
             print(f"   {icon} {config.display_name:<20} {status.value}")
             print(f"      💬 {message}")
             print()
-        
-        print(f"📊 状态摘要: {available_count}/{total_count} 个CLI工具可用")
-        
+
+        print(f"📊 Status Summary: {available_count}/{total_count} CLI tools available")
+
         if all_available:
-            print("🎉 所有CLI工具都可用！")
+            print("🎉 All CLI tools are available!")
         else:
-            print("⚠️ 部分CLI工具需要配置或安装")
-        
+            print("⚠️ Some CLI tools require configuration or installation")
+
         return 0
     
     def _generate_global_memory(self) -> int:
-        """生成全局记忆文档"""
-        print("🔧 生成全局记忆文档")
+        """Generate global memory documents"""
+        print("🔧 Generate Global Memory Documents")
         print("-" * 40)
-        
+
         try:
-            # 导入全局记忆生成器
+            # Import global memory generator
             from generate_global_memory import GlobalMemoryGenerator
             generator = GlobalMemoryGenerator()
-            
+
             success = generator.generate_all_memories()
-            
+
             if success:
-                print("🎉 全局记忆文档生成完成！")
+                print("🎉 Global memory documents generation completed!")
                 memory_dir = Path('.') / 'global_memory'
                 if memory_dir.exists():
-                    print("📁 生成的文档:")
+                    print("📁 Generated documents:")
                     for file_path in memory_dir.glob('*'):
                         print(f"   📄 {file_path}")
             else:
-                print("❌ 全局记忆文档生成失败")
+                print("❌ Global memory documents generation failed")
                 return -1
-                
+
         except ImportError:
-            print("❌ 无法导入全局记忆生成器")
+            print("❌ Unable to import global memory generator")
             return -1
         except Exception as e:
-            print(f"❌ 生成过程出错: {e}")
+            print(f"❌ Generation process error: {e}")
             return -1
-        
+
         return 0
     
     def _suggest_collaboration(self) -> int:
@@ -193,35 +193,35 @@ class StigmergyCLIMain:
                 available_clis.append(cli_name)
         
         if len(available_clis) < 2:
-            print("⚠️ 可用CLI工具少于2个，无法进行协作")
+            print("⚠️ Available CLI tools less than 2, cannot perform collaboration")
             return 0
-        
-        print("💡 输入任务描述获取协作建议:")
-        task_description = input("任务描述: ").strip()
-        
+
+        print("💡 Enter task description to get collaboration suggestions:")
+        task_description = input("Task description: ").strip()
+
         if not task_description:
-            print("⚠️ 任务描述不能为空")
+            print("⚠️ Task description cannot be empty")
             return 0
-        
+
         suggestions = self.cli_mapper.suggest_optimal_collaboration(
             task_description, available_clis
         )
-        
+
         if not suggestions:
-            print("⚠️ 未找到合适的协作方案")
+            print("⚠️ No suitable collaboration plans found")
             return 0
-        
-        print("\n🎯 推荐协作方案:")
+
+        print("\n🎯 Recommended collaboration plans:")
         for i, (source, target, score) in enumerate(suggestions[:5], 1):
             source_compat = self.cli_mapper.get_cli_compatibility(source)
             target_compat = self.cli_mapper.get_cli_compatibility(target)
+
+            source_strength = source_compat.strengths[0] if source_compat.strengths else "Comprehensive capability"
+            target_strength = target_compat.strengths[0] if target_compat.strengths else "Comprehensive capability"
             
-            source_strength = source_compat.strengths[0] if source_compat.strengths else "综合能力"
-            target_strength = target_compat.strengths[0] if target_compat.strengths else "综合能力"
-            
-            print(f"   {i}. {source} → {target} (匹配度: {score:.2f})")
+            print(f"   {i}. {source} → {target} (Match Score: {score:.2f})")
             print(f"      🔸 {source_strength} → {target_strength}")
-        
+
         return 0
     
     def _execute_cross_cli_command(self) -> int:
@@ -229,9 +229,9 @@ class StigmergyCLIMain:
         print("🚀 执行跨CLI命令")
         print("-" * 40)
         
-        # 显示可用CLI
+        # Show available CLI
         available_clis = []
-        print("📋 可用的CLI工具:")
+        print("📋 Available CLI tools:")
         for i, (cli_name, config) in enumerate(self.cli_executor.cli_configs.items(), 1):
             status, _ = self.cli_executor.check_cli_status(cli_name)
             if status in [CLIStatus.AUTHENTICATED, CLIStatus.CONFIGURED]:
@@ -239,31 +239,31 @@ class StigmergyCLIMain:
                 available_clis.append(cli_name)
             else:
                 icon = "❌"
-            
+
             print(f"   {i:2d}. {icon} {config.display_name}")
-        
+
         if len(available_clis) < 1:
-            print("⚠️ 没有可用的CLI工具")
+            print("⚠️ No available CLI tools")
             return 0
-        
-        # 选择CLI
+
+        # Select CLI
         try:
-            cli_choice = int(input(f"\n选择CLI工具 (1-{len(available_clis)}): ")) - 1
+            cli_choice = int(input(f"\nSelect CLI tool (1-{len(available_clis)}): ")) - 1
             if cli_choice < 0 or cli_choice >= len(available_clis):
-                print("❌ 无效选择")
+                print("❌ Invalid choice")
                 return 0
-            
+
             selected_cli = available_clis[cli_choice]
         except ValueError:
-            print("❌ 输入格式错误")
+            print("❌ Input format error")
             return 0
-        
-        # 获取命令
-        print(f"\n🎯 选择了 {self.cli_executor.cli_configs[selected_cli].display_name}")
-        command_input = input("请输入命令或提示词: ").strip()
-        
+
+        # Get command
+        print(f"\n🎯 Selected {self.cli_executor.cli_configs[selected_cli].display_name}")
+        command_input = input("Please enter command or prompt: ").strip()
+
         if not command_input:
-            print("⚠️ 命令不能为空")
+            print("⚠️ Command cannot be empty")
             return 0
         
         # 检查是否为跨CLI调用

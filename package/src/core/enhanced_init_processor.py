@@ -76,6 +76,7 @@ class EnhancedInitProcessor:
     async def _detect_project_status(self, project_path: str) -> ProjectStatus:
         """检测项目状态"""
         existing_md_files = []
+        existing_md_files_lower = set()  # 用于追踪已找到的文档（不区分大小写）
         project_path_obj = Path(project_path)
 
         # 检查是否存在CLI工具的MD文档
@@ -84,7 +85,16 @@ class EnhancedInitProcessor:
         for cli in cli_tools:
             md_file = project_path_obj / f"{cli}.md"
             if md_file.exists() and md_file.is_file():
+                # 规范化工具名称为小写进行重复检查
+                normalized_name = cli.lower()
+
+                # 如果这个名称已经记录过（不区分大小写），则跳过
+                if normalized_name in existing_md_files_lower:
+                    logger.warning(f"检测到重复的CLI文档（不区分大小写）: {cli}.md，跳过记录")
+                    continue
+
                 existing_md_files.append(cli)
+                existing_md_files_lower.add(normalized_name)
                 logger.debug(f"发现现有文档: {cli}.md")
 
         is_existing = len(existing_md_files) > 0
@@ -108,7 +118,18 @@ class EnhancedInitProcessor:
 
         try:
             # 增强所有现有的MD文档（不仅仅是当前CLI的文档）
+            # 创建一个集合来跟踪已经处理的文档名称（不区分大小写）
+            processed_names = set()
+
             for cli_name in ai_environment.available_clis:
+                # 规范化工具名称为小写进行重复检查
+                normalized_name = cli_name.lower()
+
+                # 如果这个名称已经处理过（不区分大小写），则跳过
+                if normalized_name in processed_names:
+                    logger.warning(f"检测到重复的CLI工具名（不区分大小写）在增强过程中: {cli_name}，跳过处理")
+                    continue
+
                 md_path = Path(project_path) / f"{cli_name}.md"
 
                 if md_path.exists():
@@ -142,6 +163,8 @@ class EnhancedInitProcessor:
                             enhancement_time=datetime.now()
                         )
 
+                        # 添加到已处理集合中
+                        processed_names.add(normalized_name)
                         enhanced_count += 1
                         logger.info(f"成功增强 {cli_name}.md")
 
@@ -162,6 +185,8 @@ class EnhancedInitProcessor:
             if enhanced_count < len(ai_environment.available_clis):
                 missing_count = len(ai_environment.available_clis) - enhanced_count
                 message += f"，{missing_count} 个文档增强失败"
+                if missing_count > 0:
+                    logger.warning(f"有 {missing_count} 个CLI工具由于重复名称等原因未被增强")
 
             return InitResult(
                 project_type="existing_project",
@@ -183,7 +208,18 @@ class EnhancedInitProcessor:
 
         try:
             # 为每个可用的CLI工具生成完整的MD文档
+            # 创建一个集合来跟踪已经生成的文档名称（不区分大小写）
+            generated_names = set()
+
             for cli_name, cli_info in ai_environment.available_clis.items():
+                # 规范化工具名称为小写进行重复检查
+                normalized_name = cli_name.lower()
+
+                # 如果这个名称已经处理过（不区分大小写），则跳过
+                if normalized_name in generated_names:
+                    logger.warning(f"检测到重复的CLI工具名（不区分大小写）: {cli_name}，跳过生成")
+                    continue
+
                 logger.info(f"生成文档: {cli_name}.md")
 
                 try:
@@ -202,6 +238,8 @@ class EnhancedInitProcessor:
                         generation_time=datetime.now()
                     )
 
+                    # 添加到已生成集合中
+                    generated_names.add(normalized_name)
                     generated_count += 1
                     logger.info(f"成功生成 {cli_name}.md")
 
@@ -218,6 +256,8 @@ class EnhancedInitProcessor:
             if generated_count < len(ai_environment.available_clis):
                 missing_count = len(ai_environment.available_clis) - generated_count
                 message += f"，{missing_count} 个文档生成失败"
+                if missing_count > 0:
+                    logger.warning(f"有 {missing_count} 个CLI工具由于重复名称等原因未生成文档")
 
             return InitResult(
                 project_type="new_project",

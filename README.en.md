@@ -49,6 +49,12 @@ npx stigmergy-cli deploy
 - **Seamless Integration**: Does not change the existing usage of CLI tools
 - **Smart Routing**: Automatically identifies collaboration intent and delegates to the appropriate tool
 
+### 🔧 Enhanced CLI Help Information Parsing
+- **Real-time Extraction**: Dynamically parses actual CLI `--help` output to get latest command specifications
+- **Smart Options Detection**: Automatically identifies global options, subcommands, and parameters
+- **Graceful Fallback**: Falls back to preset templates when real-time parsing fails
+- **Persistent Updates**: Stores parsed results for future use, continuously improving accuracy
+
 ### 📋 Supported CLI Tools
 
 #### Core Tools (Required)

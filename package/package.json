@@ -1,11 +1,11 @@
 {
   "name": "stigmergy",
-  "version": "1.0.61",
+  "version": "1.0.68",
   "type": "module",
   "description": "Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统",
   "main": "src/main.js",
   "bin": {
-    "stigmergy": "src/enhanced-main.js"
+    "stigmergy": "src/main.js"
   },
   "scripts": {
     "start": "node src/main.js",
@@ -72,7 +72,7 @@
   },
   "devDependencies": {},
   "npx": {
-    "stigmergy-cli": "src/main.js"
+    "stigmergy": "src/main.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {

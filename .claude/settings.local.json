@@ -59,7 +59,13 @@
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "Bash(git config:*)",
-      "Bash(npm pack --dry-run)"
+      "Bash(npm pack --dry-run)",
+      "Bash(stigmergy --help:*)",
+      "Bash(stigmergy scan:*)",
+      "Bash(stigmergy status:*)",
+      "Bash(stigmergy deploy:*)",
+      "Bash(gemini:*)",
+      "Bash(stigmergy validate:*)"
     ],
     "deny": [],
     "ask": []

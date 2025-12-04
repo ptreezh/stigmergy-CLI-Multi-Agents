@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Stigmergy CLI - Multi-Agents NPX 部署管理器
- * 支持一键部署到各个AI CLI工具，实现真正的Stigmergy协作
+ * Stigmergy CLI - Multi-Agents NPX Deployment Manager
+ * Support one-click deployment to AI CLI tools, enabling true Stigmergy collaboration
  */
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 
 const CONFIG = {
     repo: 'https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git',
-    localConfig: join(homedir(), '.stigmergy-cli'),
+    localConfig: join(homedir(), '.stigmergy'),
     templatesDir: join(__dirname, 'templates'),
     adaptersDir: join(__dirname, 'adapters')
 };
@@ -53,8 +53,8 @@ class StigmergyCLIRouter {
 
         // 所有路径都尝试过了但失败
         const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterDirName, 'config.json');
-        console.error(`❌ 加载 ${adapterName} 适配器配置失败: 未找到配置文件在任何可能的路径中，最后尝试: ${lastPathAttempted}`);
-        return { loaded: false, error: "无法找到适配器配置文件" };
+        console.error(`❌ Failed to load ${adapterName} adapter configuration: Config file not found in any possible paths, last attempt: ${lastPathAttempted}`);
+        return { loaded: false, error: "Unable to find adapter configuration file" };
     }
 
     async checkAdapterExists(adapterName) {
@@ -92,19 +92,19 @@ class StigmergyCLIRouter {
 
     async installAdapter(adapterName, force = false) {
         if (this.isInstalling) {
-            console.log('⚠️  正在安装中，请稍候...');
+            console.log('[WARN] Installation in progress, please wait...');
             return;
         }
 
         this.isInstalling = true;
 
         try {
-            console.log(`🚀 开始安装 ${adapterName} 适配器...`);
+            console.log(`[INSTALL] Starting installation of ${adapterName} adapter...`);
 
             // 检查适配器是否已存在
             const exists = await this.checkAdapterExists(adapterName);
             if (exists && !force) {
-                console.log(`✅ ${adapterName} 适配器已存在`);
+                console.log(`[OK] ${adapterName} adapter already exists`);
                 this.isInstalling = false;
                 return;
             }
@@ -112,7 +112,7 @@ class StigmergyCLIRouter {
             // 加载适配器配置
             const config = await this.loadAdapter(adapterName);
             if (!config.loaded) {
-                console.error(`❌ ${adapterName} 适配器配置加载失败: ${config.error}`);
+                console.error(`❌ ${adapterName} adapter configuration loading failed: ${config.error}`);
                 this.isInstalling = false;
                 return;
             }
@@ -139,13 +139,13 @@ class StigmergyCLIRouter {
             const logsDir = join(adapterConfigDir, 'logs');
             await fs.mkdir(logsDir, { recursive: true });
 
-            console.log(`✅ ${adapterName} 适配器安装完成`);
+            console.log(`[OK] ${adapterName} adapter installation completed`);
 
             this.adapters.set(adapterName, config);
             this.isInstalling = false;
 
         } catch (error) {
-            console.error(`❌ ${adapterName} 适配器安装失败: ${error.message}`);
+            console.error(`❌ ${adapterName} adapter installation failed: ${error.message}`);
         } finally {
             this.isInstalling = false;
         }
@@ -183,7 +183,7 @@ class StigmergyCLIRouter {
     }
 
     async deployAll(force = false) {
-        console.log('🚀 开始部署所有适配器...');
+        console.log('🚀 Starting deployment of all adapters...');
 
         const adapterNames = ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex'];
 
@@ -191,7 +191,7 @@ class StigmergyCLIRouter {
             await this.installAdapter(adapterName, force);
         }
 
-        console.log('✅ 所有适配器部署完成！');
+        console.log('✅ All adapters deployed successfully!');
 
         // 更新全局配置
         await this.updateGlobalConfig();
@@ -212,18 +212,18 @@ class StigmergyCLIRouter {
         };
 
         await fs.writeFile(globalConfigPath, JSON.stringify(globalConfig, null, 2));
-        console.log('✅ 全局配置已更新');
+        console.log('✅ Global configuration updated');
     }
 
     async initProject(projectPath = process.cwd()) {
-        console.log('🚀 初始化Stigmergy CLI项目...');
+        console.log('🚀 Initializing Stigmergy CLI project...');
 
         // 验证并修复路径 - 确保不在系统根目录创建项目文件
         let safeProjectPath = projectPath;
         if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
             safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
             // 如果用户在磁盘根目录运行，创建一个专门的项目目录
-            console.log('⚠️  检测到在磁盘根目录运行，将自动创建项目目录进行初始化');
+            console.log('⚠️  Detected running in disk root directory, will automatically create project directory for initialization');
 
             // 创建带序号的项目目录
             let projectDirName = 'ProjStig';
@@ -239,7 +239,7 @@ class StigmergyCLIRouter {
             // 创建项目目录
             await fs.mkdir(targetDir, { recursive: true });
             safeProjectPath = targetDir;
-            console.log(`📁 项目目录创建成功: ${safeProjectPath}`);
+            console.log(`📁 Project directory created successfully: ${safeProjectPath}`);
         }
 
         // 创建项目配置目录
@@ -273,8 +273,8 @@ class StigmergyCLIRouter {
         const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
         await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
-        console.log(`✅ Stigmergy项目初始化完成！`);
-        console.log(`📊 发现 ${availableAdapters.length} 个可用的AI CLI工具:`, availableAdapters.map(a => a.name).join(', '));
+        console.log(`✅ Stigmergy project initialization completed!`);
+        console.log(`📊 Discovered ${availableAdapters.length} available AI CLI tools:`, availableAdapters.map(a => a.name).join(', '));
 
         // 生成增强的MD文档
         for (const adapter of availableAdapters) {
@@ -285,7 +285,7 @@ class StigmergyCLIRouter {
             if (config.loaded) {
                 const mdContent = await this.generateEnhancedMarkdown(adapter, projectConfig);
                 await fs.writeFile(mdPath, mdContent, 'utf8');
-                console.log(`✅ 生成 ${adapter.name}.md`);
+                console.log(`✅ Generated ${adapter.name}.md`);
             }
         }
     }
@@ -316,7 +316,7 @@ class StigmergyCLIRouter {
 
             return content; // 返回内容而不是直接写入文件
         } catch (error) {
-            console.error(`❌ 生成 ${adapter.name}.md 失败: ${error.message}`);
+            console.error(`❌ Failed to generate ${adapter.name}.md: ${error.message}`);
             throw error;
         }
     }
@@ -325,16 +325,16 @@ class StigmergyCLIRouter {
         const currentAdapter = adapter.name;
         const otherAdapters = availableAdapters.filter(a => a.name !== currentAdapter);
 
-        let section = '\n### 🔄 跨AI工具协作指南\n\n';
+        let section = '\n### 🔄 Cross-AI Tool Collaboration Guide\n\n';
 
         // 中文协作示例
-        section += '#### 中文协作指令\n\n';
+        section += '#### Chinese Collaboration Commands\n\n';
         for (const otherAdapter of otherAdapters.slice(0, 3)) {
             section += `- 请用${otherAdapter.name}帮我{this.getRandomTask()}\n`;
         }
 
         // 英文协作示例
-        section += '\n#### 英文协作指令\n\n';
+        section += '\n#### English Collaboration Commands\n\n';
         for (const otherAdapter of otherAdapters.slice(0, 3)) {
             section += `- use ${otherAdapter.name} to ${this.getRandomTask()}\n`;
         }
@@ -362,16 +362,16 @@ class StigmergyCLIRouter {
     }
 
     async checkProject(projectPath = process.cwd()) {
-        console.log('🔍 检查项目配置...');
+        console.log('[CHECK] Checking project configuration...');
 
         try {
             // 检查项目配置目录
             const projectConfigDir = join(projectPath, '.stigmergy-project');
             try {
                 await fs.access(projectConfigDir);
-                console.log('✅ 项目配置目录存在');
+                console.log('✅ Project configuration directory exists');
             } catch {
-                console.log('⚠️  项目配置目录不存在，需要初始化');
+                console.log('⚠️  Project configuration directory does not exist, needs initialization');
                 return;
             }
 
@@ -381,37 +381,37 @@ class StigmergyCLIRouter {
                 const projectConfig = await fs.readFile(projectConfigPath, 'utf8');
                 const config = JSON.parse(projectConfig);
 
-                console.log('✅ 项目配置文件存在');
-                console.log(`📊 项目类型: ${config.projectType}`);
-                console.log(`📅 创建时间: ${config.createdAt}`);
+                console.log('✅ Project configuration file exists');
+                console.log(`📊 Project type: ${config.projectType}`);
+                console.log(`📅 Created at: ${config.createdAt}`);
 
                 if (config.adapters) {
-                    console.log(`🔧 已配置适配器: ${config.adapters.length} 个`);
+                    console.log(`🔧 Configured adapters: ${config.adapters.length}`);
                     for (const adapter of config.adapters) {
                         console.log(`   - ${adapter.name} (${adapter.status})`);
                     }
                 }
             } catch (configErr) {
-                console.log('⚠️  项目配置文件不存在或格式错误');
+                console.log('⚠️  Project configuration file does not exist or has incorrect format');
             }
 
             // 检查全局配置
             try {
                 const globalConfigPath = join(this.config.localConfig, 'global-config.json');
                 await fs.access(globalConfigPath);
-                console.log('✅ 全局配置存在');
+                console.log('✅ Global configuration exists');
             } catch {
-                console.log('⚠️  全局配置不存在，需要部署');
+                console.log('⚠️  Global configuration does not exist, needs deployment');
             }
 
-            console.log('✅ 项目检查完成');
+            console.log('✅ Project check completed');
         } catch (error) {
-            console.error(`❌ 检查项目时出错: ${error.message}`);
+            console.error(`❌ Error checking project: ${error.message}`);
         }
     }
 
     async scanSystem() {
-        console.log('🔍 扫描系统环境...');
+        console.log('[SCAN] Scanning system environment...');
 
         // 这里会实现扫描逻辑，类似于deploy.js中的功能
         const CLI_TOOLS = [
@@ -426,17 +426,17 @@ class StigmergyCLIRouter {
         ];
 
         console.log('');
-        console.log('📋 扫描结果:');
+        console.log('[RESULTS] Scan results:');
 
         for (const cliInfo of CLI_TOOLS) {
             const available = await this.checkToolAvailable(cliInfo.name);
             const status = available ? '✅' : '❌';
-            const required = cliInfo.required ? '(必需)' : '(可选)';
-            console.log(`  ${status} ${cliInfo.displayName} ${required} - ${available ? '可用' : '不可用'}`);
+            const required = cliInfo.required ? '(Required)' : '(Optional)';
+            console.log(`  ${status} ${cliInfo.displayName} ${required} - ${available ? 'Available' : 'Unavailable'}`);
         }
 
         console.log('');
-        console.log('💡 提示: 使用 "stigmergy-cli deploy" 部署未安装的工具');
+        console.log('[TIP] Use "stigmergy deploy" to deploy uninstalled tools');
     }
 
     async checkToolAvailable(cliName) {
@@ -466,7 +466,7 @@ class StigmergyCLIRouter {
     }
 
     async checkStatus() {
-        console.log('🔍 检查Stigmergy CLI状态...');
+        console.log('🔍 Checking Stigmergy CLI status...');
 
         // 检查全局配置
         const globalConfigPath = join(this.config.localConfig, 'global-config.json');
@@ -474,7 +474,7 @@ class StigmergyCLIRouter {
         try {
             globalConfig = JSON.parse(await fs.readFile(globalConfigPath, 'utf8'));
         } catch {
-            console.log('⚠️  全局配置文件不存在');
+            console.log('⚠️  Global configuration file does not exist');
             return;
         }
 
@@ -484,7 +484,7 @@ class StigmergyCLIRouter {
         try {
             localConfig = JSON.parse(await fs.readFile(localConfigPath, 'utf8'));
         } catch {
-            console.log('⚠️  项目配置文件不存在');
+            console.log('⚠️  Project configuration file does not exist');
         }
 
         // 检查适配器状态
@@ -493,38 +493,38 @@ class StigmergyCLIRouter {
             const exists = await this.checkAdapterExists(adapterName);
             adapterStatuses.push({
                 name: adapterName,
-                status: exists ? '✅ 已安装' : '❌ 未安装',
+                status: exists ? '[OK] Installed' : '[X] Not installed',
                 config: adapter.config_file
             });
         }
 
-        console.log('\n📊 全局配置:');
-        console.log(`   仓库: ${globalConfig.repo}`);
-        console.log(`   版本: ${globalConfig.version}`);
-        console.log(`   最后更新: ${globalConfig.lastUpdate}`);
+        console.log('\n📊 Global configuration:');
+        console.log(`   Repository: ${globalConfig.repo}`);
+        console.log(`   Version: ${globalConfig.version}`);
+        console.log(`   Last updated: ${globalConfig.lastUpdate}`);
 
-        console.log('\n🤖 可用适配器:');
+        console.log('\n🤖 Available adapters:');
         for (const status of adapterStatuses) {
             console.log(`   ${status.name}: ${status.status} ${status.config ? `(${status.config})` : ''}`);
         }
 
         if (localConfig) {
-            console.log('\n📁 项目配置:');
-            console.log(`   类型: ${localConfig.projectType}`);
-            console.log(`   创建时间: ${localConfig.createdAt}`);
-            console.log(`   可用工具: ${localConfig.adapters.map(a => a.name).join(', ')}`);
+            console.log('\n📁 Project configuration:');
+            console.log(`   Type: ${localConfig.projectType}`);
+            console.log(`   Created at: ${localConfig.createdAt}`);
+            console.log(`   Available tools: ${localConfig.adapters.map(a => a.name).join(', ')}`);
         }
 
-        console.log('\n🔍 适配器详细状态:');
+        console.log('\n🔍 Adapter detailed status:');
         for (const status of adapterStatuses) {
             if (!status.status) {
-                console.log(`   ❌ ${status.name}: 需要安装`);
+                console.log(`   ❌ ${status.name}: needs installation`);
             }
         }
     }
 
     async validate(scope = 'project') {
-        console.log(`🔍 验证 ${scope} 配置...`);
+        console.log(`🔍 Validating ${scope} configuration...`);
 
         if (scope === 'project') {
             const projectConfigPath = join(process.cwd(), '.stigmergy-project', 'stigmergy-config.json');
@@ -532,15 +532,15 @@ class StigmergyCLIRouter {
                 const projectConfig = await fs.readFile(projectConfigPath, 'utf8');
                 const config = JSON.parse(projectConfig);
 
-                console.log('✅ 项目配置验证通过');
-                console.log(`📊 项目类型: ${config.projectType}`);
-                console.log(`📅 创建时间: ${config.createdAt}`);
-                console.log(`🔧 适配器数量: ${config.adapters ? config.adapters.length : 0}`);
+                console.log('✅ Project configuration validation passed');
+                console.log(`📊 Project type: ${config.projectType}`);
+                console.log(`📅 Created at: ${config.createdAt}`);
+                console.log(`🔧 Number of adapters: ${config.adapters ? config.adapters.length : 0}`);
 
                 return true;
             } catch (error) {
-                console.log('⚠️  项目配置验证失败或不存在');
-                console.log('💡 提示: 使用 stigmergy-cli init 初始化项目配置');
+                console.log('⚠️  Project configuration validation failed or does not exist');
+                console.log('💡 Tip: Use stigmergy init to initialize project configuration');
                 return false;
             }
         } else if (scope === 'global') {
@@ -549,18 +549,18 @@ class StigmergyCLIRouter {
                 const globalConfig = await fs.readFile(globalConfigPath, 'utf8');
                 const config = JSON.parse(globalConfig);
 
-                console.log('✅ 全局配置验证通过');
-                console.log(`📊 版本: ${config.version}`);
-                console.log(`📅 最后更新: ${config.lastUpdate}`);
+                console.log('✅ Global configuration validation passed');
+                console.log(`📊 Version: ${config.version}`);
+                console.log(`📅 Last updated: ${config.lastUpdate}`);
 
                 return true;
             } catch (error) {
-                console.log('⚠️  全局配置验证失败或不存在');
-                console.log('💡 提示: 使用 stigmergy-cli deploy 部署全局配置');
+                console.log('⚠️  Global configuration validation failed or does not exist');
+                console.log('💡 Tip: Use stigmergy deploy to deploy global configuration');
                 return false;
             }
         } else {
-            console.log('⚠️  未知的验证范围，使用 "project" 或 "global"');
+            console.log('⚠️  Unknown validation scope, use "project" or "global"');
             return false;
         }
     }
@@ -606,31 +606,31 @@ async function main() {
             break;
         default:
             console.log(`
-🤖 Stigmergy CLI v1.0.0 - Multi-Agents跨AI CLI工具协作系统
+[AI] Stigmergy CLI v1.0.0 - Multi-Agents Cross-AI CLI Tool Collaboration System
 
-📚 可用命令:
-  install              - 安装所有AI CLI工具适配器
-  deploy [options]    - 部署适配器到本地配置
-  init [path]         - 初始化项目(默认当前目录)
-  status              - 检查系统和适配器状态
-  check-project [path]  - 检查项目配置
-  validate [scope]    - 验证配置
-  clean [options]     - 清理缓存和临时文件
+[INFO] Available Commands:
+  install              - Install all AI CLI tool adapters
+  deploy [options]    - Deploy adapters to local configuration
+  init [path]         - Initialize project (default: current directory)
+  status              - Check system and adapter status
+  check-project [path]  - Check project configuration
+  validate [scope]    - Validate configuration
+  clean [options]     - Clean cache and temporary files
 
-💡 快速开始:
-  npx stigmergy-cli init          # 初始化当前项目
-  npx stigmergy-cli deploy        # 一键部署
-  npx stigmergy-cli status          # 查看状态
+[TIP] Quick Start:
+  stigmergy init          # Initialize current project
+  stigmergy deploy        # One-click deployment
+  stigmergy status          # Check status
 
-🚀 快速部署:
+[DEPLOY] Quick Deploy:
   npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main quick-deploy
 
-📖 文档: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme
-🔧 配置: ~/.stigmergy-cli/global-config.json
-🔧 项目: .stigmergy-project/project-config.json
+[DOC] Documentation: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme
+[CONFIG] Global Config: ~/.stigmergy/global-config.json
+[CONFIG] Project Config: .stigmergy-project/project-config.json
 
-🌟 全球访问:
-  npx stigmergy-cli install --global
+[GLOBAL] Global Access:
+  npm install -g stigmergy && stigmergy install --global
             `);
             break;
     }
@@ -649,9 +649,9 @@ async function directoryExists(dirPath) {
 
 // 远程快速部署函数
 async function runQuickDeploy() {
-    console.log('🤖 Stigmergy CLI - 远程快速部署系统');
+    console.log('🤖 Stigmergy CLI - Remote Rapid Deployment System');
     console.log('==================================');
-    console.log('此脚本将自动检测、安装和配置跨AI CLI工具协作系统');
+    console.log('This script will automatically detect, install and configure cross-AI CLI tool collaboration system');
     console.log('');
 
     // 定义支持的AI工具及其npm包名称
@@ -688,14 +688,14 @@ async function runQuickDeploy() {
             name: 'qoder',
             displayName: 'Qoder CLI',
             npmPackage: '@qoder-ai/qodercli',
-            description: 'Qoder代码生成CLI工具',
+            description: 'Qoder Code Generation CLI Tool',
             website: 'https://qoder.ai'
         },
         {
             name: 'codebuddy',
             displayName: 'CodeBuddy CLI',
             npmPackage: '@tencent-ai/codebuddy-code',
-            description: '腾讯CodeBuddy编程助手',
+            description: 'Tencent CodeBuddy Programming Assistant',
             website: 'https://codebuddy.qq.com'
         },
         {
@@ -709,7 +709,7 @@ async function runQuickDeploy() {
             name: 'ollama',
             displayName: 'Ollama CLI',
             npmPackage: 'ollama',
-            description: 'Ollama本地模型CLI工具',
+            description: 'Ollama Local Model CLI Tool',
             website: 'https://ollama.ai'
         },
         {
@@ -751,7 +751,7 @@ async function runQuickDeploy() {
 
     // 检测已安装的AI工具
     async function detectInstalledTools() {
-        console.log('🔍 正在检测您系统中已安装的AI工具...');
+        console.log('🔍 Detecting AI tools installed in your system...');
 
         const installedTools = [];
         const notInstalledTools = [];
@@ -760,10 +760,10 @@ async function runQuickDeploy() {
             const isInstalled = await checkToolInstallation(tool.name);
             if (isInstalled) {
                 installedTools.push(tool);
-                console.log(`✅ ${tool.displayName} - 已安装`);
+                console.log(`✅ ${tool.displayName} - Installed`);
             } else {
                 notInstalledTools.push(tool);
-                console.log(`❌ ${tool.displayName} - 未安装`);
+                console.log(`❌ ${tool.displayName} - Not installed`);
             }
         }
 
@@ -773,18 +773,18 @@ async function runQuickDeploy() {
     // 安装指定的工具
     async function installTools(toolsToInstall) {
         if (toolsToInstall.length === 0) {
-            console.log('\n✅ 无需安装额外工具，继续配置系统...');
+            console.log('\n✅ No additional tools needed, continuing system configuration...');
             return;
         }
 
-        console.log(`\n📦 正在安装 ${toolsToInstall.length} 个AI工具...`);
+        console.log(`\n📦 Installing ${toolsToInstall.length} AI tools...`);
 
         for (const toolName of toolsToInstall) {
             // 找到工具信息
             const tool = AI_TOOLS.find(t => t.name === toolName);
             if (!tool) continue;
 
-            console.log(`\n🔄 安装 ${tool.displayName}...`);
+            console.log(`\n🔄 Installing ${tool.displayName}...`);
 
             const { spawn } = await import('child_process');
             await new Promise((resolve) => {
@@ -807,7 +807,7 @@ async function runQuickDeploy() {
                 installProcess.stdout.on('data', (data) => {
                     const output = data.toString();
                     if (output.includes('added') || output.includes('updated')) {
-                        console.log(`✅ ${tool.displayName} 安装成功`);
+                        console.log(`✅ ${tool.displayName} installation successful`);
                     }
                 });
 
@@ -818,15 +818,15 @@ async function runQuickDeploy() {
                         return; // 忽略警告
                     }
                     if (errOutput.includes('ERR') || errOutput.includes('error')) {
-                        console.log(`❌ ${tool.displayName} 安装出错: ${errOutput.trim()}`);
+                        console.log(`❌ ${tool.displayName} installation error: ${errOutput.trim()}`);
                     }
                 });
 
                 installProcess.on('close', (code) => {
                     if (code === 0) {
-                        console.log(`✅ ${tool.displayName} 安装完成`);
+                        console.log(`✅ ${tool.displayName} installation completed`);
                     } else {
-                        console.log(`⚠️ ${tool.displayName} 安装可能未完成 (退出码: ${code})`);
+                        console.log(`⚠️ ${tool.displayName} installation may not be complete (exit code: ${code})`);
                     }
                     resolve(); // 继续下一个工具的安装
                 });
@@ -892,7 +892,7 @@ async function runQuickDeploy() {
 
     // 配置系统 - 运行本地init命令，为所有已安装的CLI配置插件
     async function configureSystem() {
-        console.log('\n⚙️  正在配置Stigmergy CLI协作系统...');
+        console.log('\n⚙️  Configuring Stigmergy CLI collaboration system...');
 
         // 检测所有支持的CLI工具是否已安装
         const allCLITools = [
@@ -915,26 +915,26 @@ async function runQuickDeploy() {
             const available = await checkToolAvailable(cliInfo.name);
             if (available) {
                 availableCLIs.push(cliInfo);
-                console.log(`✅ ${cliInfo.displayName} - 可用`);
+                console.log(`✅ ${cliInfo.displayName} - Available`);
             } else {
                 unavailableCLIs.push(cliInfo);
-                console.log(`❌ ${cliInfo.displayName} - 不可用`);
+                console.log(`❌ ${cliInfo.displayName} - Unavailable`);
             }
         }
 
-        console.log(`\n📊 检测结果: ${availableCLIs.length} 个可用, ${unavailableCLIs.length} 个不可用`);
+        console.log(`\n📊 Detection results: ${availableCLIs.length} available, ${unavailableCLIs.length} unavailable`);
 
         // 初始化项目配置
         try {
             const projectPath = process.cwd();
-            console.log('\n🚀 初始化Stigmergy CLI项目...');
+            console.log('\n🚀 Initializing Stigmergy CLI project...');
 
             // 验证并修复路径 - 确保不在系统根目录创建项目文件
             let safeProjectPath = projectPath;
             if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
                 safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
                 // 如果用户在磁盘根目录运行，创建一个专门的项目目录
-                console.log('⚠️  检测到在磁盘根目录运行，将自动创建项目目录进行初始化');
+                console.log('⚠️  Detected running in disk root directory, will automatically create project directory for initialization');
 
                 // 创建带序号的项目目录
                 let projectDirName = 'ProjStig';
@@ -950,7 +950,7 @@ async function runQuickDeploy() {
                 // 创建项目目录
                 await fs.mkdir(targetDir, { recursive: true });
                 safeProjectPath = targetDir;
-                console.log(`📁 项目目录创建成功: ${safeProjectPath}`);
+                console.log(`📁 Project directory created successfully: ${safeProjectPath}`);
             }
 
             // 创建项目配置目录
@@ -973,11 +973,11 @@ async function runQuickDeploy() {
             const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
             await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
-            console.log(`✅ Stigmergy项目初始化完成！`);
+            console.log(`✅ Stigmergy project initialization completed!`);
             if (availableCLIs.length > 0) {
-                console.log(`📊 为 ${availableCLIs.length} 个已安装的AI CLI工具配置协作:`, availableCLIs.map(a => a.name).join(', '));
+                console.log(`📊 Configuring collaboration for ${availableCLIs.length} installed AI CLI tools:`, availableCLIs.map(a => a.name).join(', '));
             } else {
-                console.log(`📊 没有检测到已安装的AI CLI工具`);
+                console.log(`📊 No installed AI CLI tools detected`);
             }
 
             // 为所有已安装的CLI生成配置文档
@@ -987,35 +987,35 @@ async function runQuickDeploy() {
 
                 try {
                     // 为CLI生成基本配置文档
-                    const mdContent = `# ${cliInfo.displayName} 配置
+                    const mdContent = `# ${cliInfo.displayName} Configuration
 
-## 基本信息
-- **名称**: ${cliInfo.name}
-- **显示名称**: ${cliInfo.displayName}
-- **状态**: 已安装
-- **必需**: ${cliInfo.required ? '是' : '否'}
+## Basic Information
+- **Name**: ${cliInfo.name}
+- **Display Name**: ${cliInfo.displayName}
+- **Status**: Installed
+- **Required**: ${cliInfo.required ? 'Yes' : 'No'}
 
-## Stigmergy协作配置
-此工具已配置为参与跨AI工具协作系统。
+## Stigmergy Collaboration Configuration
+This tool has been configured to participate in the cross-AI tool collaboration system.
 
-## 协作指令示例
-- 中文: "请用${cliInfo.name}帮我{任务}"
-- 英文: "use ${cliInfo.name} to {task}"
+## Collaboration Command Examples
+- Chinese: "请用${cliInfo.name}帮我{任务}"
+- English: "use ${cliInfo.name} to {task}"
 
 ---
-生成时间: ${new Date().toISOString()}
+Generated at: ${new Date().toISOString()}
 `;
                     await fs.writeFile(mdPath, mdContent);
-                    console.log(`✅ 生成 ${cliInfo.name}.md`);
+                    console.log(`✅ Generated ${cliInfo.name}.md`);
                 } catch (error) {
-                    console.log(`⚠️ 生成 ${cliInfo.name}.md 失败: ${error.message}`);
+                    console.log(`⚠️ Failed to generate ${cliInfo.name}.md: ${error.message}`);
                 }
             }
 
-            console.log('✅ 项目配置完成');
+            console.log('✅ Project configuration completed');
 
             // 为已安装的CLI配置集成插件（如果支持）
-            console.log('\n🔄 为已安装的CLI配置协作插件...');
+            console.log('\n🔄 Configuring collaboration plugins for installed CLIs...');
             for (const cliInfo of availableCLIs) {
                 try {
                     // 检查是否存在对应的集成安装脚本
@@ -1034,7 +1034,7 @@ async function runQuickDeploy() {
                     }
 
                     if (fileExists) {
-                        console.log(`\n🔄 配置 ${cliInfo.displayName} 集成插件...`);
+                        console.log(`\n🔄 Configuring ${cliInfo.displayName} integration plugin...`);
 
                         // 不同CLI工具有可能使用不同的安装参数
                         const installArgs = determineInstallArgs(cliInfo.name);
@@ -1092,24 +1092,24 @@ async function runQuickDeploy() {
                         await new Promise((resolve) => {
                             integrationProcess.on('close', (integrationCode) => {
                                 if (integrationCode === 0) {
-                                    console.log(`✅ ${cliInfo.displayName} 集成插件配置成功`);
+                                    console.log(`✅ ${cliInfo.displayName} integration plugin configuration successful`);
                                 } else {
-                                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置可能未完成 (退出码: ${integrationCode})`);
+                                    console.log(`⚠️ ${cliInfo.displayName} integration plugin configuration may not be complete (exit code: ${integrationCode})`);
                                 }
                                 resolve();
                             });
                         });
                     } else {
-                        console.log(`ℹ️ ${cliInfo.displayName} - 暂无特殊集成插件配置`);
+                        console.log(`ℹ️ ${cliInfo.displayName} - No special integration plugin configuration available`);
                     }
                 } catch (error) {
-                    console.log(`⚠️ ${cliInfo.displayName} 集成插件配置过程中出错: ${error.message}`);
+                    console.log(`⚠️ ${cliInfo.displayName} integration plugin configuration error: ${error.message}`);
                 }
             }
 
-            console.log('\n✅ 系统配置成功');
+            console.log('\n✅ System configuration successful');
         } catch (error) {
-            console.log(`❌ 系统配置失败: ${error.message}`);
+            console.log(`❌ System configuration failed: ${error.message}`);
         }
     }
 
@@ -1117,19 +1117,19 @@ async function runQuickDeploy() {
     // 询问用户输入（使用命令行参数而不是inquirer）
     async function promptForTools(notInstalledTools) {
         if (notInstalledTools.length === 0) {
-            console.log('\n🎉 您已经安装了所有支持的AI工具！');
+            console.log('\n🎉 You have already installed all supported AI tools!');
             return [];
         }
 
-        console.log('\n🎯 检测到您还可以安装以下AI工具：');
+        console.log('\n🎯 The following additional AI tools are available for installation:');
         for (let i = 0; i < notInstalledTools.length; i++) {
             const tool = notInstalledTools[i];
             console.log(`${i + 1}. ${tool.displayName} - ${tool.description}`);
-            console.log(`   npm包: ${tool.npmPackage}`);
+            console.log(`   npm package: ${tool.npmPackage}`);
         }
 
-        console.log('\n💡 提示: 您可以稍后通过 "npm install -g <package>" 手动安装这些工具');
-        console.log('   或者现在选择要安装的工具编号，用空格分隔 (如: 1 3 4), 0表示不安装任何工具:');
+        console.log('\n💡 Tip: You can manually install these tools later with "npm install -g <package>"');
+        console.log('   Or select tool numbers to install now, separated by spaces (e.g. 1 3 4), 0 to skip all:');
 
         return new Promise(async (resolve) => {
             const readline = await import('readline');
@@ -1139,7 +1139,7 @@ async function runQuickDeploy() {
                 output: process.stdout
             });
 
-            rl.question('请选择要安装的工具编号: ', (answer) => {
+            rl.question('Please select tool numbers to install: ', (answer) => {
                 rl.close();
 
                 const selections = answer.trim().split(/\s+/).map(Number).filter(n => !isNaN(n));
@@ -1161,9 +1161,9 @@ async function runQuickDeploy() {
         });
     }
 
-    // 自动全局安装 stigmergy-cli
+    // 自动全局安装 stigmergy
     async function installStigmergyGlobally() {
-        console.log('\n🌍 正在全局安装 stigmergy-cli...');
+        console.log('\n🌍 Installing stigmergy globally...');
         
         try {
             const { spawn } = await import('child_process');
@@ -1190,49 +1190,49 @@ async function runQuickDeploy() {
 
                 installProcess.on('close', (code) => {
                     if (code === 0) {
-                        console.log('[OK] stigmergy-cli 已成功全局安装！');
-                        console.log('      现在可以在任何目录运行: stigmergy-cli <command>');
+                        console.log('[OK] stigmergy successfully installed globally!');
+                        console.log('      You can now run from any directory: stigmergy <command>');
                         resolve();
                     } else {
-                        console.log('[WARN] 全局安装可能未成功，但您可以手动安装:');
-                        console.log('      npm install -g stigmergy-cli');
+                        console.log('[WARN] Global installation may not have succeeded, but you can install manually:');
+                        console.log('      npm install -g stigmergy');
                         resolve(); // 不阻塞流程
                     }
                 });
 
                 installProcess.on('error', (error) => {
-                    console.log('[WARN] 全局安装失败，您可以手动安装:');
-                    console.log('      npm install -g stigmergy-cli');
-                    console.log(`      错误: ${error.message}`);
+                    console.log('[WARN] Global installation failed, you can install manually:');
+                    console.log('      npm install -g stigmergy');
+                    console.log(`      Error: ${error.message}`);
                     resolve(); // 不阻塞流程
                 });
             });
         } catch (error) {
-            console.log('[WARN] 全局安装失败，您可以手动安装:');
-            console.log('      npm install -g stigmergy-cli');
-            console.log(`      错误: ${error.message}`);
+            console.log('[WARN] Global installation failed, you can install manually:');
+            console.log('      npm install -g stigmergy');
+            console.log(`      Error: ${error.message}`);
         }
     }
 
     // 显示初始化指南
     function showInitializationGuide() {
-        console.log('\n🎉 部署完成！以下是使用指南：');
-        console.log('\n📋 快速开始:');
-        console.log('  现在已全局安装！可以在任何目录运行:');
-        console.log('  • 初始化项目: stigmergy-cli init');
-        console.log('  • 查看状态: stigmergy-cli status');
-        console.log('  • 扫描环境: stigmergy-cli scan');
+        console.log('\n🎉 Deployment completed! Here is the usage guide:');
+        console.log('\n📋 Quick Start:');
+        console.log('  Now globally installed! Can run from any directory:');
+        console.log('  • Initialize project: stigmergy init');
+        console.log('  • Check status: stigmergy status');
+        console.log('  • Scan environment: stigmergy scan');
         console.log('');
-        console.log('  或者使用 NPX（无需安装）:');
-        console.log('  • 初始化项目: npx stigmergy-cli@latest init');
-        console.log('  • 查看状态: npx stigmergy-cli@latest status');
-        console.log('  • 扫描环境: npx stigmergy-cli@latest scan');
+        console.log('  Or use NPX (no installation required):');
+        console.log('  • Initialize project: npx stigmergy@latest init');
+        console.log('  • Check status: npx stigmergy@latest status');
+        console.log('  • Scan environment: npx stigmergy@latest scan');
 
-        console.log('\n⚠️ 重要提示:');
-        console.log('  新安装的CLI工具需要注册或自行配置第三方API tokens接口：');
+        console.log('\n⚠️ Important Notice:');
+        console.log('  Newly installed CLI tools require registration or configuration of third-party API tokens:');
         console.log('');
         
-        console.log('\n🔧 各CLI工具启动指令:');
+        console.log('\n🔧 CLI Tool Startup Commands:');
         console.log('  • Claude CLI:     claude');
         console.log('  • Gemini CLI:     gemini');
         console.log('  • QwenCode CLI:   qwen');
@@ -1242,43 +1242,43 @@ async function runQuickDeploy() {
         console.log('  • GitHub Copilot:  gh copilot');
         console.log('  • OpenAI Codex:    codex');
         
-        console.log('\n📁 建议工作流程:');
-        console.log('  1. 新建项目目录:');
+        console.log('\n📁 Recommended Workflow:');
+        console.log('  1. Create project directory:');
         console.log('     mkdir my-ai-project');
         console.log('     cd my-ai-project');
         console.log('');
-        console.log('  2. 初始化项目:');
-        console.log('     stigmergy-cli init');
-        console.log('     或者: npx stigmergy-cli@latest init');
+        console.log('  2. Initialize project:');
+        console.log('     stigmergy init');
+        console.log('     Or: npx stigmergy@latest init');
         console.log('');
-        console.log('  3. 在任何目录下使用CLI工具:');
-        console.log('     claude "设计一个用户认证系统"');
-        console.log('     gemini "请用qwen实现这个设计"');
-        console.log('     qwen "用iflow创建开发流程"');
+        console.log('  3. Use CLI tools from any directory:');
+        console.log('     claude "Design a user authentication system"');
+        console.log('     gemini "Implement this design using qwen"');
+        console.log('     qwen "Create development workflow using iflow"');
 
-        console.log('\n🔑 API配置指南:');
-        console.log('  • Claude: 需要设置 ANTHROPIC_API_KEY');
-        console.log('  • Gemini: 需要设置 GOOGLE_API_KEY');
-        console.log('  • QwenCode: 需要设置 DASHSCOPE_API_KEY');
-        console.log('  • iFlow: 需要注册账号获取API密钥');
-        console.log('  • Qoder: 需要注册账号获取API密钥');
-        console.log('  • CodeBuddy: 需要微信扫码认证或设置 TENCENT_SECRET_ID/KEY');
-        console.log('  • Copilot: 需要登录 GitHub 账号');
-        console.log('  • Codex: 需要设置 OPENAI_API_KEY');
+        console.log('\n🔑 API Configuration Guide:');
+        console.log('  • Claude: Requires ANTHROPIC_API_KEY');
+        console.log('  • Gemini: Requires GOOGLE_API_KEY');
+        console.log('  • QwenCode: Requires DASHSCOPE_API_KEY');
+        console.log('  • iFlow: Requires registration to get API key');
+        console.log('  • Qoder: Requires registration to get API key');
+        console.log('  • CodeBuddy: Requires WeChat QR authentication or TENCENT_SECRET_ID/KEY');
+        console.log('  • Copilot: Requires GitHub account login');
+        console.log('  • Codex: Requires OPENAI_API_KEY');
 
-        console.log('\n🚀 跨AI工具协作示例:');
-        console.log('  - 直接在各CLI工具中使用协作指令：');
-        console.log('    例: qwen "请用gemini帮我翻译这段代码"');
-        console.log('    例: gemini "调用qwen分析这个需求"');
-        console.log('    例: claude "使用iflow创建工作流"');
+        console.log('\n🚀 Cross-AI Tool Collaboration Examples:');
+        console.log('  - Use collaboration commands directly in CLI tools:');
+        console.log('    Example: qwen "Help me translate this code using gemini"');
+        console.log('    Example: gemini "Analyze this requirement using qwen"');
+        console.log('    Example: claude "Create workflow using iflow"');
 
-        console.log('\n💡 高级功能:');
-        console.log('  - 项目背景共享：所有AI工具共享PROJECT_SPEC.json');
-        console.log('  - 任务分配：自动分配和跟踪协作任务');
-        console.log('  - Stigmergy协作：通过环境线索实现间接协同');
+        console.log('\n💡 Advanced Features:');
+        console.log('  - Project background sharing: All AI tools share PROJECT_SPEC.json');
+        console.log('  - Task assignment: Automatic allocation and tracking of collaboration tasks');
+        console.log('  - Stigmergy collaboration: Indirect collaboration through environmental cues');
 
-        console.log('\n🔗 想了解更多？访问: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
-        console.log('\n🎊 祝您在多AI工具协作中取得成功！');
+        console.log('\n🔗 Want to learn more? Visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
+        console.log('\n🎊 Success in your multi-AI tool collaboration!');
     }
 
     try {
@@ -1294,13 +1294,13 @@ async function runQuickDeploy() {
         // 配置系统
         await configureSystem();
 
-        // 自动全局安装 stigmergy-cli
+        // 自动全局安装 stigmergy
         await installStigmergyGlobally();
 
         // 显示使用指南
         showInitializationGuide();
     } catch (error) {
-        console.error(`\n❌ 部署过程中发生错误: ${error.message}`);
+        console.error(`\n❌ Error occurred during deployment: ${error.message}`);
         console.error(error.stack);
         process.exit(1);
     }

@@ -1,167 +1,303 @@
-# 🔧 Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统
+# 🔧 Stigmergy CLI - Multi-Agents Cross-AI CLI Tool Collaboration System
 
-> **⚠️ 重要澄清：这不是一个独立的CLI工具，而是一个增强系统！**
->
-> Stigmergy CLI 通过插件系统让现有的AI CLI工具能够相互协作，而不是替代它们。
+> **⚠️ Important Clarification: This is not a standalone CLI tool, but an enhancement system!**
+> 
+> Stigmergy CLI enables existing AI CLI tools to collaborate with each other through a plugin system, rather than replacing them.
 
 [![Node.js](https://img.shields.io/badge/node-16+-green.svg)](https://nodejs.org)
 [![NPM](https://img.shields.io/badge/npm-stigmergy-blue.svg)](https://www.npmjs.com/package/stigmergy)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 一键部署（推荐）
+### One-Click Deployment (Recommended)
 
 ```bash
-# 一键部署完整协作系统（检测+安装+配置）
+# One-click deployment of the complete collaboration system (detection + installation + configuration)
 npx -y git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git#main quick-deploy
 ```
 
-或者，如果您已全局安装了stigmergy：
+This command will:
+- Scan your system for available AI CLI tools
+- Install missing tools with your permission
+- Configure automatic cross-tool collaboration
+- Set up hook integrations for seamless communication
+
+**How It Works:** After deployment, each AI CLI tool gets a hook adapter that enables natural language cross-tool collaboration. Simply say "use [tool] to [task]" in any supported CLI.
+
+### Manual Installation
 
 ```bash
-# 通过已安装的CLI运行
-npx stigmergy quick-deploy
-```
-
-### 手动安装
-
-```bash
-# 通过NPM全局安装
+# Install globally via NPM
 npm install -g stigmergy
 
-# 初始化项目
+# Initialize project
 stigmergy init
 
-# 智能部署（扫描环境+询问+自动安装）
+# Intelligent deployment (scan environment + prompt + auto-install)
 stigmergy deploy
 
-# 或者使用npx（无需安装）
+# Or use npx (no installation required)
 npx stigmergy init
 npx stigmergy deploy
 ```
 
-## ✨ 核心特性
+## ✨ Core Features
 
-### 🎯 跨CLI直接协作
-- **自然语言调用**: 在任何支持的CLI中直接调用其他AI工具
-- **无缝集成**: 不改变现有CLI工具的使用方式
-- **智能路由**: 自动识别协作意图并委派到合适的工具
+### Direct Cross-CLI Collaboration
+- **Natural Language Invocation**: Simply say "use gemini to translate" in any supported CLI
+- **Hook-Based Integration**: Each AI CLI gets transparent cross-tool capabilities
+- **Smart Intent Detection**: Automatically recognizes collaboration requests and routes them appropriately
+- **No Special Commands**: Collaboration happens naturally within normal CLI usage
 
-### 📋 支持的CLI工具
+### Enhanced CLI Help Information Parsing
+- **Real-time Extraction**: Dynamically parses actual CLI `--help` output to get latest command specifications
+- **Smart Options Detection**: Automatically identifies global options, subcommands, and parameters
+- **Graceful Fallback**: Falls back to preset templates when real-time parsing fails
+- **Persistent Updates**: Stores parsed results for future use, continuously improving accuracy
 
-#### 核心工具（必需）
-- **Claude CLI** - Anthropic Claude CLI工具
-- **Gemini CLI** - Google Gemini CLI工具
+### Supported CLI Tools
 
-#### 扩展工具（可选）
-- **QwenCode CLI** - 阿里云QwenCode CLI工具
-- **iFlow CLI** - iFlow工作流CLI工具
-- **Qoder CLI** - Qoder代码生成CLI工具
-- **CodeBuddy CLI** - CodeBuddy编程助手CLI工具
-- **GitHub Copilot CLI** - GitHub Copilot CLI工具
-- **Codex CLI** - OpenAI Codex代码分析CLI工具
+#### Core Tools (Required)
+- **Claude CLI** - Anthropic Claude CLI Tool
+- **Gemini CLI** - Google Gemini CLI Tool
 
-### 🧩 智能部署系统
+#### Extension Tools (Optional)
+- **QwenCode CLI** - Alibaba Cloud QwenCode CLI Tool
+- **iFlow CLI** - iFlow Workflow CLI Tool
+- **Qoder CLI** - Qoder Code Generation CLI Tool
+- **CodeBuddy CLI** - CodeBuddy Programming Assistant CLI Tool
+- **GitHub Copilot CLI** - GitHub Copilot CLI Tool
+- **Codex CLI** - OpenAI Codex Code Analysis CLI Tool
+- **Cline CLI** - Cline AI Assistant CLI Tool - Supports task lifecycle hooks and multi-agent orchestration
+
+### Intelligent Deployment System
 
 ```bash
-# 智能部署（推荐）
+# Intelligent deployment (recommended)
 stigmergy deploy
 
-# 输出示例：
-🔍 扫描系统CLI工具状态...
+# Sample output:
+🔍 Scanning system CLI tool status...
 
-  🔴 ❌ Claude CLI           | CLI: 未安装 | 集成: 未安装
-  🟢 ✅ Gemini CLI          | CLI: 可用 | 集成: 已安装
-  🔴 ❌ QwenCode CLI       | CLI: 未安装 | 集成: 未安装
+  🔴 ❌ Claude CLI           | CLI: Not installed | Integration: Not installed
+  🟢 ✅ Gemini CLI          | CLI: Available | Integration: Installed
+  🔴 ❌ QwenCode CLI       | CLI: Not installed | Integration: Not installed
 
-📋 检测到以下未安装的工具:
+📋 Detected the following tools not installed:
 
-🔴 未安装的CLI工具:
-  - Claude CLI (必需) - Anthropic Claude CLI工具
-  - QwenCode CLI (可选) - 阿里云QwenCode CLI工具
+🔴 CLI Tools Not Installed:
+  - Claude CLI (Required) - Anthropic Claude CLI Tool
+  - QwenCode CLI (Optional) - Alibaba Cloud QwenCode CLI Tool
 
-是否要尝试自动安装 2 个CLI工具？ (Y/n): Y
+Would you like to try automatically installing 2 CLI tools? (Y/n): Y
 ```
 
-## 🎯 跨CLI协作示例
+## 🎯 Cross-CLI Collaboration Examples
 
-安装完成后，在任何支持的CLI中都可以直接调用其他工具：
+After installation, you can directly call other tools within any supported CLI:
 
-### 在Claude CLI中
+### In Claude CLI
 ```bash
-# 调用其他AI工具
-请用gemini帮我翻译这段代码
-调用qwen分析这个需求
-用iflow创建工作流
-让qoder生成Python代码
-启动codebuddy助手
+# Cross-AI tool collaboration (natural language)
+Please use gemini to translate this code to Python
+Call qwen to analyze this requirement
+Use iflow to create a development workflow
+Ask qoder to generate Python code
+Have codebuddy assist with debugging
 ```
 
-### 在Gemini CLI中
+### In Gemini CLI
 ```bash
-# 跨工具协作
-用claude检查代码质量
-让qwen帮我写文档
-使用copilot生成代码片段
+# Natural language cross-CLI collaboration
+Use claude to review this code for security issues
+Call qwen for Chinese localization
+Let copilot suggest performance improvements
+Ask codex for architectural analysis
 ```
 
-## 🛠️ 完整命令列表
+### In QwenCode CLI
+```bash
+# Multi-tool orchestration with natural language
+Let claude check for security vulnerabilities
+Use gemini to optimize this algorithm
+Call iflow to automate the deployment process
+Ask copilot to improve code completion
+```
+
+## 🔧 Advanced Features
+
+### Real-time CLI Help Parsing
+The system now includes advanced real-time CLI help parsing capabilities:
+
+```python
+# Example of real-time help parsing
+specs = _parse_cli_help(cli_name)
+# Automatically extracts:
+# - Global options (--help, --version, --verbose, etc.)
+# - Subcommands (chat, file, config, auth, etc.)
+# - Parameters (input, output, model, temperature, etc.)
+# - Usage patterns and examples
+```
+
+### Persistent Storage Mechanism
+- **Dynamic Templates**: Updated CLI command specifications are stored persistently
+- **Continuous Improvement**: Each successful parse improves future accuracy
+- **Fallback Support**: Preset templates ensure functionality even when real-time parsing fails
+
+### Internationalization
+- **Global Design**: Fully English-based interface for international users
+- **Multi-language Support**: Ready for expansion to multiple languages
+- **Cross-platform Compatibility**: Works seamlessly across Windows, Linux, and macOS
+
+## 📊 Global Memory Documents
+
+The system generates comprehensive memory documents for each CLI tool:
+
+### JSON Format
+```json
+{
+  "cli_name": "claude",
+  "display_name": "Claude CLI",
+  "command": "claude",
+  "description": "Anthropic Claude CLI Tool",
+  "version_info": "...",
+  "command_specs": {
+    "global_options": {
+      "--help": "Show help information",
+      "--version": "Show version information",
+      "--verbose": "Detailed output"
+    },
+    "subcommands": {
+      "chat": "Chat mode",
+      "file": "File processing mode",
+      "config": "Configuration management"
+    },
+    "parameters": {
+      "input": "Input file or prompt",
+      "output": "Output file path",
+      "model": "Model selection",
+      "temperature": "Creativity parameter (0.0-1.0)",
+      "max_tokens": "Maximum tokens",
+      "timeout": "Timeout (seconds)"
+    }
+  }
+}
+```
+
+### Markdown Documentation
+- **Comprehensive Guides**: Detailed documentation for each CLI tool
+- **Usage Examples**: Practical examples for common use cases
+- **Integration Patterns**: Best practices for cross-CLI collaboration
+- **Command Reference**: Complete command specifications and parameters
+
+## 🛠️ Local Generation and Management
+
+### Generate Global Memory Documents
+```bash
+# Generate comprehensive memory documents for all tools
+python generate_global_memory.py
+
+# Creates:
+# - global_memory/claude_global_memory.json
+# - global_memory/claude_global_memory.md
+# - global_memory/gemini_global_memory.json
+# - global_memory/gemini_global_memory.md
+# ... and more for all supported CLIs
+```
+
+### Advanced Command Specification Generation
+The enhanced `generate_global_memory.py` script now includes:
+
+1. **Real-time CLI Parsing**: Directly calls `--help` commands to extract accurate specifications
+2. **Smart Pattern Recognition**: Uses regex and intelligent parsing to extract options, subcommands, and parameters
+3. **Fallback Templates**: Provides comprehensive default templates when live parsing isn't available
+4. **Dynamic Updates**: Continuously improves templates based on real-world CLI behavior
+5. **Persistent Storage**: Saves parsed specifications for improved future accuracy
+
+## 🌐 Cross-Platform Support
+
+### Windows
+```bash
+# Windows deployment
+npx stigmergy-cli deploy
+```
+
+### Linux/macOS
+```bash
+# Unix-like systems
+npx stigmergy-cli deploy
+```
+
+## 📄 Global Memory Documentation
+
+### CLI Command Specifications
+Each CLI tool gets detailed command specifications including:
+- **Global Options**: Common flags like `--help`, `--version`, `--verbose`
+- **Subcommands**: Specific modes like `chat`, `file`, `config`, `auth`
+- **Parameters**: Detailed parameter definitions with descriptions
+- **Usage Examples**: Practical usage patterns and best practices
+
+### Collaboration Patterns
+- **Automatic Recognition**: Detects cross-CLI collaboration patterns
+- **Template Matching**: Matches natural language patterns to CLI commands
+- **Intelligent Routing**: Routes requests to the most appropriate CLI tool
+
+## Complete Command List
 
 ```bash
-# 基本命令
-stigmergy init          # 初始化项目
-stigmergy-cli status        # 查看状态
-stigmergy-cli scan          # 扫描环境
+# Basic commands
+stigmergy init              # Initialize project in current directory
+stigmergy status            # Check system and adapter status
+stigmergy scan              # Scan environment for available AI CLI tools
 
-# 部署命令
-stigmergy deploy        # 智能部署（默认）
-stigmergy deploy-all    # 全量部署
+# Project management
+stigmergy check-project     # Check project configuration
+stigmergy validate [scope]  # Validate configuration (project/global)
+stigmergy clean [options]   # Clean cache and temporary files
 
-# 项目管理
-stigmergy-cli check-project # 检查项目
-stigmergy-cli validate      # 验证配置
-stigmergy-cli clean         # 清理环境
+# Testing/debugging
+stigmergy call <cli> [args] # Direct CLI tool invocation (for testing)
 
-# 开发命令
-npm run build              # 构建项目
-npm run publish-to-npm     # 发布到NPM
-npm run test               # 运行测试
+# Development commands
+npm run build               # Build project
+npm run publish-to-npm      # Publish to NPM
+npm run test                # Run tests
 ```
 
-## 📁 项目结构
+## Project Structure
 
 ```
 stigmergy-CLI-Multi-Agents/
-├── package.json          # NPM包配置
+├── package.json          # NPM Package Configuration
 ├── src/
-│   ├── main.js          # 主入口文件
-│   ├── deploy.js        # 智能部署脚本
-│   ├── adapters/        # CLI适配器
+│   ├── main.js          # Main Entry Point
+│   ├── deploy.js        # Smart Deployment Script
+│   ├── adapters/        # CLI Adapters
 │   │   ├── claude/
 │   │   ├── gemini/
 │   │   ├── qwencode/
 │   │   └── ...
-│   └── core/            # 核心模块
-├── adapters/            # CLI安装脚本
+│   └── core/            # Core Modules
+├── adapters/            # CLI Installation Scripts
 │   ├── claude/install_claude_integration.py
 │   ├── gemini/install_gemini_integration.py
 │   └── ...
-└── templates/           # 配置模板
+└── templates/           # Configuration Templates
 ```
 
-## 🔧 自动安装CLI工具
+## 🔧 Automated CLI Tool Installation
 
-智能部署脚本支持自动安装所有CLI工具：
+The smart deployment script supports automatic installation of all CLI tools:
 
-### 核心工具
+### Core Tools
 ```bash
 npm install -g @anthropic-ai/claude-code
 npm install -g @google/gemini-cli
 ```
 
-### 扩展工具
+### Extension Tools
 ```bash
 npm install -g @qwen-code/qwen-code@latest
 npm install -g @iflow-ai/iflow-cli@latest
@@ -171,131 +307,163 @@ npm install -g @github/copilot
 npm i -g @openai/codex --registry=https://registry.npmmirror.com
 ```
 
-## 🎯 使用场景
+## 🎯 Use Cases
 
-### 场景1：个人开发者环境
+### Case 1: Personal Developer Environment
 ```bash
-# 新开发环境快速配置
+# Quick configuration for new development environment
 git clone my-project
 cd my-project
 stigmergy deploy
 
-# 现在可以在任何CLI中跨工具协作
-claude-cli "请用gemini帮我优化这段代码的性能"
+# Now you can cross-CLI collaboration in any CLI
+claude "Please use gemini to help me optimize this code's performance"
 ```
 
-### 场景2：团队协作
+### Case 2: Team Collaboration
 ```bash
-# 团队共享项目配置
+# Team shared project configuration
 git clone team-project
 cd team-project
 stigmergy init
 
-# 所有团队成员使用相同的协作背景
-gemini-cli "用claude检查这个模块的设计模式"
+# All team members use the same collaboration context
+gemini "Use claude to check the design patterns of this module"
 ```
 
-### 场景3：多语言开发
+### Case 3: Multi-language Development
 ```bash
-# 不同AI工具专长互补
-qwen-cli "用copilot生成前端组件"
-iflow-cli "让gemini创建API文档"
+# Different AI tools complement each other's strengths
+qwen "Use copilot to generate frontend components"
+iflow "Let gemini create API documentation"
 ```
 
-## 🔧 开发环境设置
+## 🔧 Development Environment Setup
 
 ```bash
-# 克隆项目
+# Clone project
 git clone https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git
 cd stigmergy-CLI-Multi-Agents
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 开发模式运行
+# Development mode execution
 npm run start
 npm run status
 npm run scan
 
-# 构建和发布
+# Build and publish
 npm run build
 npm run publish-to-npm
 ```
 
-## 🚀 发布新版本
+## 🚀 Publishing New Versions
 
 ```bash
-# 更新版本号
-npm version patch    # 补丁版本
-npm version minor    # 次版本
-npm version major    # 主版本
+# Update version number
+npm version patch    # Patch version
+npm version minor    # Minor version
+npm version major    # Major version
 
-# 发布到NPM
+# Publish to NPM
 npm run publish-to-npm
 
-# 验证发布
-npx stigmergy-cli --version
+# Validate publication
+npx stigmergy --version
 ```
 
-## 🛠️ 故障排除
+## 🛠️ Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **Node.js版本不兼容**
+1. **Node.js version incompatible**
    ```bash
-   # 确保使用Node.js 16+
+   # Ensure using Node.js 16+
    node --version
    ```
 
-2. **权限错误**
+2. **Permission errors**
    ```bash
-   # 使用管理员权限
+   # Use administrator privileges
    sudo npm install -g stigmergy
    ```
 
-3. **网络连接问题**
+3. **Network connection issues**
    ```bash
-   # 设置NPM镜像
+   # Set NPM mirror
    npm config set registry https://registry.npmmirror.com
    ```
 
-4. **CLI工具安装失败**
+4. **CLI tool installation failure**
    ```bash
-   # 手动安装特定工具
+   # Manually install specific tool
    npm install -g @anthropic-ai/claude-code
    ```
 
-### 调试模式
+### Debug Mode
 
 ```bash
-# 详细调试输出
+# Verbose debug output
 DEBUG=stigmergy:* stigmergy deploy
 
-# 仅扫描状态
-stigmergy-cli scan
+# Scan status only
+stigmergy scan
 ```
 
-## 📚 更多信息
+## 📚 More Information
 
 - **GitHub**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
-- **NPM**: https://www.npmjs.com/package/stigmergy-cli
-- **文档**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme
-- **问题反馈**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues
+- **NPM**: https://www.npmjs.com/package/stigmergy
+- **Documentation**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme
+- **Issue Tracking**: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues
 
-## 🤝 贡献
+## 🚀 Getting Started
 
-欢迎提交 Pull Request 和 Issue！
+### Prerequisites
+- Node.js 16+ (for deployment scripts)
+- Python 3.8+ (for advanced features)
+- Git (for installation)
 
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+### Quick Setup
+1. **Install the system**
+   ```bash
+   npm install -g stigmergy
+   ```
 
-## 📄 许可证
+2. **Initialize project**
+   ```bash
+   stigmergy init
+   ```
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+3. **Deploy integrations**
+   ```bash
+   stigmergy deploy
+   ```
+
+4. **Start collaborating**
+   ```bash
+   claude "Please use gemini to help me analyze this code"
+   gemini "Ask claude to review the security aspects"
+   ```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For support, please open an issue in the GitHub repository or contact the maintainers.
 
 ---
 
-**🎯 Stigmergy CLI - 真正的跨CLI协作，让每个AI工具都能发挥最大价值！**
+**🎯 Stigmergy CLI - True Cross-CLI Collaboration, Making Every AI Tool Deliver Maximum Value!**

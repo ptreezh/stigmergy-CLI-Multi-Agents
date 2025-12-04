@@ -13,7 +13,7 @@
 - **测试报告**: 3+ 个验证和测试报告
 
 ### 保留的核心文件
-- **主要文档**: README.md, CLAUDE.md, INSTALL.md, INTEGRATION_GUIDE.md
+- **主要文档**: README.md, claude.md, INSTALL.md, INTEGRATION_GUIDE.md
 - **配置文件**: package.json, setup.py, pytest.ini, PROJECT_SPEC.json
 - **核心代码**: src/ 目录（完整保留）
 - **测试文件**: tests/ 目录（完整保留）

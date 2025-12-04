@@ -1,9 +1,0 @@
-{
-  "name": "gemini",
-  "displayName": "Gemini CLI",
-  "version": "1.0.0",
-  "integration_type": "extension_system",
-  "config_file": "~/.config/gemini/extensions.json",
-  "global_doc": "gemini.md",
-  "description": "Gemini CLI Extension integration adapter"
-}

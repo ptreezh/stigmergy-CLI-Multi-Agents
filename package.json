@@ -1,63 +1,54 @@
 {
   "name": "stigmergy",
-  "version": "1.0.65",
-  "type": "module",
-  "description": "Stigmergy CLI - Multi-Agents跨AI CLI工具协作系统",
-  "main": "src/main.js",
+  "version": "1.0.68",
+  "type": "commonjs",
+  "description": "Stigmergy CLI - Multi-Agents 跨AI CLI工具协作系统",
+  "main": "src/index.js",
   "bin": {
-    "stigmergy": "src/main.js"
+    "stigmergy": "src/index.js"
   },
   "scripts": {
-    "start": "node src/main.js",
+    "start": "node src/index.js",
+    "test": "node test/real-test.js",
+    "test:all": "node test/test-all-clis.js",
+    "test:cross-cli": "node test/cross-cli-real-test.js",
+    "build": "node scripts/build.js",
     "deploy": "node src/deploy.js",
-    "deploy-tools": "node deployment/deploy.js",
-    "deploy-tools-all": "node deployment/deploy-with-install.js",
-    "status": "node src/main.js status",
-    "scan": "node src/main.js scan",
-    "init": "node src/main.js init",
-    "check-project": "node src/main.js check-project",
-    "validate": "node src/main.js validate",
-    "clean": "node src/main.js clean",
-    "build": "node src/main.js validate",
-    "build-only": "node src/deploy.js --build",
-    "quick-install": "node src/quick_install.js",
-    "quick-deploy": "node src/main.js quick-deploy",
-    "postinstall": "node src/postinstall.js",
-    "publish-to-npm": "node src/main.js validate",
-    "unpublish": "npm unpublish",
-    "version": "npm version patch",
-    "test": "npm run validate"
+    "status": "node src/index.js status",
+    "scan": "node src/index.js scan",
+    "init": "node src/index.js init",
+    "validate": "node src/index.js validate",
+    "clean": "node src/index.js clean",
+    "dev": "node --watch src/index.js",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
   },
   "keywords": [
     "ai",
     "cli",
-    "router",
     "collaboration",
-    "smart-cli",
+    "multi-agents",
+    "nodejs-first",
+    "ansi-encoding",
+    "cross-cli",
     "claude-cli",
     "gemini-cli",
     "qwen-cli",
     "iflow-cli",
-    "qoder-cli",
-    "codebuddy-cli",
-    "copilot-cli",
-    "cross-platform",
-    "automation",
-    "tools",
-    "stigmergy",
-    "multi-agents"
+    "real-testing",
+    "python-free"
   ],
   "files": [
     "src/**/*.js",
-    "src/**/*.py",
     "config/**/*.json",
     "templates/**/*.md",
-    "bin/**/*.bat",
-    "adapters/**/*"
+    "bin/**/*.cmd",
+    "test/**/*.js",
+    "scripts/**/*.js"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
   },
   "author": "Stigmergy CLI Team",
   "license": "MIT",
@@ -66,14 +57,38 @@
   },
   "dependencies": {
     "commander": "^12.0.0",
-    "inquirer": "^9.0.0",
-    "chalk": "^5.0.0",
+    "inquirer": "^8.2.6",
+    "chalk": "^4.1.2",
     "js-yaml": "^4.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^2.6.7",
+    "child_process": "^1.0.2",
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "os": "^0.1.2",
+    "crypto": "^1.0.1",
+    "events": "^3.3.0",
+    "util": "^0.12.5",
+    "semver": "^7.5.4",
+    "glob": "^10.3.10",
+    "chokidar": "^3.5.3",
+    "table": "^6.8.1",
+    "figures": "^3.2.0",
+    "ora": "^5.4.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.3",
+    "nodemon": "^3.0.1"
+  },
+  "config": {
+    "encoding": "ansi",
+    "platform": "nodejs-first",
+    "python-free": true,
+    "real-testing": true,
+    "unicode-free": true
+  },
   "npx": {
-    "stigmergy": "src/main.js"
+    "stigmergy": "src/index.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {

@@ -5,7 +5,7 @@
 ```
 smart-cli-router/
 ├── 📄 README.md                    # 项目主要说明文档
-├── 📄 CLAUDE.md                    # Claude Code 项目指导文档
+├── 📄 claude.md                    # Claude Code 项目指导文档
 ├── 📄 INSTALL.md                   # 安装说明
 ├── 📄 INTEGRATION_GUIDE.md         # 集成指南
 ├── 📄 PROJECT_SPEC.json            # 项目规范（空文件，待填充）
@@ -52,7 +52,7 @@ smart-cli-router/
 
 ### 保留的核心文件
 
-- **项目文档**: README.md, CLAUDE.md, INSTALL.md, INTEGRATION_GUIDE.md
+- **项目文档**: README.md, claude.md, INSTALL.md, INTEGRATION_GUIDE.md
 - **技术文档**: 移动到 `docs/` 目录统一管理
 - **核心代码**: `src/` 目录下的所有源代码
 - **测试代码**: `tests/` 目录下的所有测试文件
@@ -70,7 +70,7 @@ smart-cli-router/
 ## 🔍 快速导航
 
 - **新用户** → 阅读 `README.md` 开始使用
-- **开发者** → 查看 `CLAUDE.md` 了解开发指南
+- **开发者** → 查看 `claude.md` 了解开发指南
 - **安装部署** → 参考 `INSTALL.md` 和 `deployment/` 目录
 - **技术架构** → 查看 `docs/` 目录下的技术文档
 - **源代码** → 浏览 `src/` 目录

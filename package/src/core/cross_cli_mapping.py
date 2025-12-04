@@ -38,6 +38,8 @@ class CollaborationType(Enum):
     MULTI_AGENT = "multi_agent"
     TASK_MANAGEMENT = "task_management"
     TOOL_EXECUTION = "tool_execution"
+    CONFIGURATION = "configuration"
+    DEPLOYMENT = "deployment"
 
 class ParameterMappingType(Enum):
     """参数映射类型"""

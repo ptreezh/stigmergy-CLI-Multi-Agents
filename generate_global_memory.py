@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-全局记忆文档生成器
-为每个CLI工具创建详细的记忆文档
+Global Memory Document Generator
+Create detailed memory documents for each CLI tool
 """
 
 import json
 import os
 import sys
+import platform
+import tempfile
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional, Tuple
 
 # 导入CLI调用系统
 sys.path.insert(0, str(Path(__file__).parent / 'src' / 'core'))
@@ -216,146 +218,146 @@ class GlobalMemoryGenerator:
             return False
     
     def _convert_to_markdown(self, memory_doc: Dict[str, Any]) -> str:
-        """转换为Markdown格式"""
+        """Convert to Markdown format"""
         md_content = []
-        
-        # 标题
-        md_content.append(f"# {memory_doc['display_name']} 全局记忆文档")
+
+        # Title
+        md_content.append(f"# {memory_doc['display_name']} Global Memory Document")
         md_content.append("")
-        
-        # 基本信息
-        md_content.append("## 📋 基本信息")
-        md_content.append(f"- **CLI名称**: {memory_doc['cli_name']}")
-        md_content.append(f"- **显示名称**: {memory_doc['display_name']}")
-        md_content.append(f"- **命令**: `{memory_doc['command']}`")
-        md_content.append(f"- **描述**: {memory_doc['description']}")
-        md_content.append(f"- **开发者**: {memory_doc.get('developer', 'Unknown')}")
-        md_content.append(f"- **官网**: {memory_doc.get('website', 'N/A')}")
+
+        # Basic information
+        md_content.append("## Basic Information")
+        md_content.append(f"- **CLI Name**: {memory_doc['cli_name']}")
+        md_content.append(f"- **Display Name**: {memory_doc['display_name']}")
+        md_content.append(f"- **Command**: `{memory_doc['command']}`")
+        md_content.append(f"- **Description**: {memory_doc['description']}")
+        md_content.append(f"- **Developer**: {memory_doc.get('developer', 'Unknown')}")
+        md_content.append(f"- **Website**: {memory_doc.get('website', 'N/A')}")
         md_content.append("")
-        
-        # 系统信息
-        md_content.append("## 🔧 系统信息")
-        md_content.append(f"- **认证方式**: {memory_doc['system_info']['auth_method']}")
-        md_content.append(f"- **必需环境变量**: {', '.join(memory_doc['system_info']['required_env_vars'])}")
-        md_content.append(f"- **可选环境变量**: {', '.join(memory_doc['system_info']['optional_env_vars'])}")
-        md_content.append(f"- **配置文件**: {', '.join(memory_doc['system_info']['config_files'])}")
-        md_content.append(f"- **权限级别**: {memory_doc['system_info']['permission_level']}")
+
+        # System information
+        md_content.append("## System Information")
+        md_content.append(f"- **Authentication Method**: {memory_doc['system_info']['auth_method']}")
+        md_content.append(f"- **Required Environment Variables**: {', '.join(memory_doc['system_info']['required_env_vars'])}")
+        md_content.append(f"- **Optional Environment Variables**: {', '.join(memory_doc['system_info']['optional_env_vars'])}")
+        md_content.append(f"- **Configuration Files**: {', '.join(memory_doc['system_info']['config_files'])}")
+        md_content.append(f"- **Permission Level**: {memory_doc['system_info']['permission_level']}")
         md_content.append("")
-        
-        # 状态
-        md_content.append("## 📊 当前状态")
-        md_content.append(f"- **状态**: {memory_doc['status']['current_status']}")
-        md_content.append(f"- **状态信息**: {memory_doc['status']['status_message']}")
-        md_content.append(f"- **最后检查**: {memory_doc['status']['last_checked']}")
+
+        # Status
+        md_content.append("## Current Status")
+        md_content.append(f"- **Status**: {memory_doc['status']['current_status']}")
+        md_content.append(f"- **Status Message**: {memory_doc['status']['status_message']}")
+        md_content.append(f"- **Last Checked**: {memory_doc['status']['last_checked']}")
         if memory_doc['status'].get('version_info'):
-            md_content.append(f"- **版本信息**: {memory_doc['status']['version_info']}")
+            md_content.append(f"- **Version Information**: {memory_doc['status']['version_info']}")
         md_content.append("")
-        
-        # 输入输出规格
-        md_content.append("## 📥 输入输出规格")
-        md_content.append(f"- **输入格式**: {memory_doc['io_specifications']['input_format']}")
-        md_content.append(f"- **输出格式**: {memory_doc['io_specifications']['output_format']}")
-        md_content.append(f"- **支持的文件类型**: {', '.join(memory_doc['io_specifications']['supported_file_types'])}")
-        md_content.append(f"- **批处理**: {'支持' if memory_doc['io_specifications']['batch_processing'] else '不支持'}")
-        md_content.append(f"- **流式处理**: {'支持' if memory_doc['io_specifications']['streaming_support'] else '不支持'}")
+
+        # Input/Output specifications
+        md_content.append("## Input/Output Specifications")
+        md_content.append(f"- **Input Format**: {memory_doc['io_specifications']['input_format']}")
+        md_content.append(f"- **Output Format**: {memory_doc['io_specifications']['output_format']}")
+        md_content.append(f"- **Supported File Types**: {', '.join(memory_doc['io_specifications']['supported_file_types'])}")
+        md_content.append(f"- **Batch Processing**: {'Supported' if memory_doc['io_specifications']['batch_processing'] else 'Not supported'}")
+        md_content.append(f"- **Streaming**: {'Supported' if memory_doc['io_specifications']['streaming_support'] else 'Not supported'}")
         md_content.append("")
-        
-        # 使用示例
-        md_content.append("## 💡 使用示例")
+
+        # Usage examples
+        md_content.append("## Usage Examples")
         for example in memory_doc['usage_examples']:
             md_content.append(f"### {example['description']}")
             md_content.append(f"```bash")
             md_content.append(example['command'])
             md_content.append("```")
             md_content.append("")
-        
-        # 集成能力
-        md_content.append("## 🔗 集成能力")
+
+        # Integration capabilities
+        md_content.append("## Integration Capabilities")
         integration = memory_doc['integration_capabilities']['integration_capabilities']
-        md_content.append(f"- **文件处理**: {'支持' if integration['can_process_files'] else '不支持'}")
-        md_content.append(f"- **图像处理**: {'支持' if integration['supports_images'] else '不支持'}")
-        md_content.append(f"- **工作流**: {'支持' if integration['supports_workflows'] else '不支持'}")
-        md_content.append(f"- **代码生成**: {'支持' if integration['can_generate_code'] else '不支持'}")
+        md_content.append(f"- **File Processing**: {'Supported' if integration['can_process_files'] else 'Not supported'}")
+        md_content.append(f"- **Image Processing**: {'Supported' if integration['supports_images'] else 'Not supported'}")
+        md_content.append(f"- **Workflows**: {'Supported' if integration['supports_workflows'] else 'Not supported'}")
+        md_content.append(f"- **Code Generation**: {'Supported' if integration['can_generate_code'] else 'Not supported'}")
         md_content.append("")
-        
-        # 跨CLI协作
-        md_content.append("## 🌐 跨CLI协作")
+
+        # Cross-CLI collaboration
+        md_content.append("## Cross-CLI Collaboration")
         collaboration = memory_doc['integration_capabilities']['cross_cli_collaboration']
-        md_content.append(f"- **可调用其他CLI**: {'支持' if collaboration['can_call_other_clis'] else '不支持'}")
-        md_content.append(f"- **支持的目标CLI**: {', '.join(collaboration['supported_target_clis'])}")
-        
+        md_content.append(f"- **Can Call Other CLIs**: {'Supported' if collaboration['can_call_other_clis'] else 'Not supported'}")
+        md_content.append(f"- **Supported Target CLIs**: {', '.join(collaboration['supported_target_clis'])}")
+
         if collaboration.get('supported_collaborations'):
-            md_content.append("- **协作能力**:")
+            md_content.append("- **Collaboration Capabilities**:")
             for task in collaboration['supported_collaborations']:
                 md_content.append(f"  - {task}")
         md_content.append("")
-        
-        # 常见错误
-        md_content.append("## ⚠️ 常见错误")
+
+        # Common errors
+        md_content.append("## Common Errors")
         for error in memory_doc['error_handling']['common_errors']:
             md_content.append(f"### {error['error']}")
-            md_content.append(f"- **原因**: {error['cause']}")
-            md_content.append(f"- **解决方法**: {error['solution']}")
+            md_content.append(f"- **Cause**: {error['cause']}")
+            md_content.append(f"- **Solution**: {error['solution']}")
             md_content.append("")
-        
-        # 性能信息
-        md_content.append("## ⚡ 性能特征")
+
+        # Performance information
+        md_content.append("## Performance Characteristics")
         perf = memory_doc['performance_characteristics']
-        md_content.append(f"- **典型响应时间**: {perf['typical_response_time']}")
-        md_content.append(f"- **并发请求**: {perf['concurrent_requests']}")
-        md_content.append(f"- **速率限制**: {perf['rate_limits']}")
+        md_content.append(f"- **Typical Response Time**: {perf['typical_response_time']}")
+        md_content.append(f"- **Concurrent Requests**: {perf['concurrent_requests']}")
+        md_content.append(f"- **Rate Limit**: {perf['rate_limits']}")
         md_content.append("")
-        
-        # 更新历史
-        md_content.append("## 📅 更新历史")
-        md_content.append(f"- **最后更新**: {memory_doc['update_history']['last_updated']}")
+
+        # Update history
+        md_content.append("## Update History")
+        md_content.append(f"- **Last Updated**: {memory_doc['update_history']['last_updated']}")
         if memory_doc['update_history'].get('recent_changes'):
-            md_content.append("- **最近更改**:")
+            md_content.append("- **Recent Changes**:")
             for change in memory_doc['update_history']['recent_changes']:
                 md_content.append(f"  - {change}")
         md_content.append("")
-        
-        # 文档元信息
+
+        # Document metadata
         md_content.append("---")
-        md_content.append(f"*文档生成时间: {memory_doc['metadata']['generation_timestamp']}*")
-        md_content.append(f"*生成工具: {memory_doc['metadata']['generated_by']}*")
-        md_content.append(f"*编码安全: {memory_doc['metadata']['encoding_safe']}*")
-        md_content.append(f"*跨平台: {memory_doc['metadata']['cross_platform']}*")
+        md_content.append(f"*Document Generation Time: {memory_doc['metadata']['generation_timestamp']}*")
+        md_content.append(f"*Generation Tool: {memory_doc['metadata']['generated_by']}*")
+        md_content.append(f"*Encoding Safe: {memory_doc['metadata']['encoding_safe']}*")
+        md_content.append(f"*Cross Platform: {memory_doc['metadata']['cross_platform']}*")
         
         return "\n".join(md_content)
     
     # 以下是各种辅助方法的具体实现
     
     def _get_cli_category(self, cli_name: str) -> str:
-        """获取CLI类别"""
+        """Get CLI category"""
         categories = {
-            'claude': 'AI对话助手',
-            'gemini': 'AI对话助手',
-            'qwencode': '代码生成助手',
-            'iflow': '工作流管理',
-            'qoder': '代码生成助手',
-            'codebuddy': '编程学习助手',
-            'copilot': '代码补全助手',
-            'codex': '代码分析助手'
+            'claude': 'AI Chat Assistant',
+            'gemini': 'AI Chat Assistant',
+            'qwencode': 'Code Generation Assistant',
+            'iflow': 'Workflow Management',
+            'qoder': 'Code Generation Assistant',
+            'codebuddy': 'Programming Learning Assistant',
+            'copilot': 'Code Completion Assistant',
+            'codex': 'Code Analysis Assistant'
         }
-        return categories.get(cli_name, '未分类')
+        return categories.get(cli_name, 'Uncategorized')
     
     def _get_cli_developer(self, cli_name: str) -> str:
-        """获取CLI开发者"""
+        """Get CLI developer"""
         developers = {
             'claude': 'Anthropic',
             'gemini': 'Google',
-            'qwencode': '阿里云',
-            'iflow': 'iFlow团队',
-            'qoder': 'Qoder团队',
-            'codebuddy': 'CodeBuddy团队',
+            'qwencode': 'Alibaba Cloud',
+            'iflow': 'iFlow Team',
+            'qoder': 'Qoder Team',
+            'codebuddy': 'CodeBuddy Team',
             'copilot': 'GitHub/Microsoft',
             'codex': 'OpenAI'
         }
         return developers.get(cli_name, 'Unknown')
     
     def _get_cli_website(self, cli_name: str) -> str:
-        """获取CLI官网"""
+        """Get CLI website"""
         websites = {
             'claude': 'https://www.anthropic.com',
             'gemini': 'https://ai.google.dev',
@@ -436,7 +438,7 @@ class GlobalMemoryGenerator:
         return status.value
     
     def _get_max_file_size(self, cli_name: str) -> str:
-        """获取最大文件大小"""
+        """Get maximum file size"""
         sizes = {
             'claude': '10MB',
             'gemini': '20MB',
@@ -448,9 +450,9 @@ class GlobalMemoryGenerator:
             'codex': '10MB'
         }
         return sizes.get(cli_name, '5MB')
-    
+
     def _supports_batch_processing(self, cli_name: str) -> bool:
-        """是否支持批处理"""
+        """Whether supports batch processing"""
         batch_support = {
             'claude': True,
             'gemini': True,
@@ -462,9 +464,9 @@ class GlobalMemoryGenerator:
             'codex': True
         }
         return batch_support.get(cli_name, False)
-    
+
     def _supports_streaming(self, cli_name: str) -> bool:
-        """是否支持流式处理"""
+        """Whether supports streaming"""
         streaming_support = {
             'claude': True,
             'gemini': True,
@@ -476,9 +478,9 @@ class GlobalMemoryGenerator:
             'codex': False
         }
         return streaming_support.get(cli_name, False)
-    
+
     def _supports_interactive_mode(self, cli_name: str) -> bool:
-        """是否支持交互模式"""
+        """Whether supports interactive mode"""
         interactive_support = {
             'claude': True,
             'gemini': True,
@@ -492,96 +494,343 @@ class GlobalMemoryGenerator:
         return interactive_support.get(cli_name, True)
     
     def _get_detailed_command_specs(self, cli_name: str) -> Dict[str, Any]:
-        """获取详细命令规格"""
-        # 这里应该解析实际的帮助信息，现在提供基本模板
+        """Get detailed command specifications - Enhanced: real-time parsing of CLI help information"""
+        # Try to parse CLI help information in real-time
+        parsed_specs = self._parse_cli_help(cli_name)
+
+        # If real-time parsing fails, use preset template (graceful fallback)
+        if not parsed_specs:
+            # Get from preset template
+            default_specs = self._get_default_command_specs(cli_name)
+            # Update parsed results to preset template for next use
+            updated_specs = self._update_specs_with_real_data(cli_name, default_specs)
+            return updated_specs
+
+        # Update real-time parsed results to preset template
+        updated_specs = self._update_specs_with_real_data(cli_name, parsed_specs)
+        return updated_specs
+
+    def _parse_cli_help(self, cli_name: str) -> Dict[str, Any]:
+        """解析CLI帮助信息"""
+        try:
+            config = self.cli_executor.cli_configs[cli_name]
+
+            # 获取帮助信息
+            help_result = self.cli_executor.execute_cli_command(CLICommand(
+                cli_name=cli_name,
+                command_type='help',
+                command='--help',
+                description='获取CLI帮助信息',
+                parameters={},
+                input_files=[],
+                output_files=[]
+            ))
+
+            if not help_result.success:
+                print(f"⚠️ 无法获取 {cli_name} 的帮助信息")
+                return {}
+
+            help_text = help_result.stdout
+            if not help_text:
+                return {}
+
+            return self._extract_command_specs_from_help(help_text, cli_name)
+
+        except Exception as e:
+            print(f"⚠️ 解析 {cli_name} 帮助信息失败: {e}")
+            return {}
+
+    def _extract_command_specs_from_help(self, help_text: str, cli_name: str) -> Dict[str, Any]:
+        """从帮助文本中提取命令规格"""
+        import re
+
+        global_options = {}
+        subcommands = {}
+        parameters = {}
+
+        lines = help_text.split('\n')
+
+        # 解析全局选项
+        in_global_options = False
+        for line in lines:
+            line = line.strip()
+            if any(keyword in line.lower() for keyword in ['options:', 'global options:', 'flags:']):
+                in_global_options = True
+                continue
+
+            if in_global_options:
+                # 匹配选项格式，如: --help, -h, --verbose 等
+                option_match = re.match(r'(-{1,2}[\w-]+(?:,\s*-[\w])?)\s+(.*)', line)
+                if option_match:
+                    options = option_match.group(1)
+                    description = option_match.group(2).strip()
+
+                    # 分割多个选项，如 "--help, -h"
+                    option_list = [opt.strip() for opt in options.split(',')]
+                    for opt in option_list:
+                        if opt and not opt.startswith('(-'):
+                            clean_opt = opt.strip()
+                            if clean_opt.startswith('-'):
+                                global_options[clean_opt] = description
+                elif line.startswith('--') or line.startswith('-'):
+                    # 处理单独的选项行
+                    parts = line.split(None, 1)
+                    if len(parts) >= 1:
+                        option = parts[0]
+                        description = parts[1] if len(parts) > 1 else ""
+                        global_options[option] = description
+                else:
+                    # 如果不是选项格式，退出选项解析状态
+                    if line and not line.startswith(' ') and not line.startswith('\t'):
+                        in_global_options = False
+
+        # 解析子命令
+        in_subcommands = False
+        for line in lines:
+            line = line.strip()
+            if any(keyword in line.lower() for keyword in ['commands:', 'subcommands:', 'available commands']):
+                in_subcommands = True
+                continue
+
+            if in_subcommands:
+                # 匹配子命令格式，如: "command    description"
+                subcmd_match = re.match(r'^([a-zA-Z][\w-]*)\s+([^(].*)', line)
+                if subcmd_match:
+                    subcmd = subcmd_match.group(1)
+                    description = subcmd_match.group(2).strip()
+                    subcommands[subcmd] = description
+                elif line and line[0].isalpha() and ' ' in line and not line.startswith('--'):
+                    # 检查是否是子命令（第一个词是字母且不以--开头）
+                    parts = line.split(None, 1)
+                    if len(parts) == 2:
+                        subcmd, desc = parts[0], parts[1]
+                        if re.match(r'^[a-zA-Z][\w-]*$', subcmd):  # 检查是否是有效的子命令格式
+                            subcommands[subcmd] = desc
+
+        # 解析参数
+        for line in lines:
+            line = line.strip()
+            # 查找参数相关的描述
+            if any(keyword in line.lower() for keyword in ['parameter', 'option', 'argument', 'input', 'output', 'model', 'temperature', 'token']):
+                # 这里可以使用更具体的正则表达式来匹配参数
+                param_match = re.search(r'--([\w-]+)', line)
+                if param_match:
+                    param = param_match.group(1)
+                    description = line.split('--' + param, 1)[1].strip().split()[0] if '--' + param in line else line
+                    parameters[param] = description
+
+        # 如果没有解析到任何内容，尝试更通用的模式
+        if not global_options and not subcommands and not parameters:
+            # 扫描整个帮助文本寻找常见命令模式
+            for line in lines:
+                line = line.strip()
+
+                # 寻找常见选项/ Find common options
+                if '--help' in line:
+                    global_options['--help'] = 'Show help information'
+                if '--version' in line:
+                    global_options['--version'] = 'Show version information'
+                if '--verbose' in line or '--debug' in line:
+                    global_options['--verbose'] = 'Verbose output'
+                if '--quiet' in line or '--silent' in line:
+                    global_options['--quiet'] = 'Quiet mode'
+
+                # 寻找常见子命令/ Find common subcommands
+                if 'chat' in line.lower():
+                    subcommands['chat'] = 'Chat mode'
+                if 'file' in line.lower():
+                    subcommands['file'] = 'File processing mode'
+                if 'config' in line.lower():
+                    subcommands['config'] = 'Configuration management'
+                if 'auth' in line.lower():
+                    subcommands['auth'] = 'Authentication management'
+
         return {
-            "global_options": {
-                "--help": "显示帮助信息",
-                "--version": "显示版本信息",
-                "--verbose": "详细输出",
-                "--quiet": "静默模式"
-            },
-            "subcommands": {
-                "chat": "对话模式",
-                "file": "文件处理模式",
-                "config": "配置管理",
-                "auth": "认证管理"
-            },
-            "parameters": {
-                "input": "输入文件或提示词",
-                "output": "输出文件路径",
-                "model": "模型选择",
-                "temperature": "创造性参数(0.0-1.0)",
-                "max_tokens": "最大令牌数",
-                "timeout": "超时时间(秒)"
-            }
+            "global_options": global_options if global_options else self._get_default_global_options(cli_name),
+            "subcommands": subcommands if subcommands else self._get_default_subcommands(cli_name),
+            "parameters": parameters if parameters else self._get_default_parameters(cli_name)
         }
+
+    def _get_default_global_options(self, cli_name: str) -> Dict[str, str]:
+        """Get default global options"""
+        return {
+            "--help": "Show help information",
+            "--version": "Show version information",
+            "--verbose": "Verbose output",
+            "--quiet": "Quiet mode"
+        }
+
+    def _get_default_subcommands(self, cli_name: str) -> Dict[str, str]:
+        """Get default subcommands"""
+        default_subcommands = {
+            "chat": "Chat mode",
+            "file": "File processing mode",
+            "config": "Configuration management",
+            "auth": "Authentication management"
+        }
+        # Provide more specific default subcommands based on different CLI types
+        if cli_name in ['gemini', 'claude']:
+            default_subcommands.update({
+                "generate": "Content generation",
+                "translate": "Translation function",
+                "review": "Code review"
+            })
+        elif cli_name in ['copilot', 'codebuddy']:
+            default_subcommands.update({
+                "suggest": "Code suggestion",
+                "complete": "Code completion",
+                "learn": "Learning mode"
+            })
+        elif cli_name in ['iflow']:
+            default_subcommands.update({
+                "workflow": "Workflow management",
+                "run": "Run workflow",
+                "create": "Create workflow"
+            })
+        return default_subcommands
+
+    def _get_default_parameters(self, cli_name: str) -> Dict[str, str]:
+        """Get default parameters"""
+        default_params = {
+            "input": "Input file or prompt",
+            "output": "Output file path",
+            "model": "Model selection",
+            "temperature": "Creativity parameter (0.0-1.0)",
+            "max_tokens": "Maximum tokens",
+            "timeout": "Timeout (seconds)"
+        }
+        # Provide more specific default parameters based on different CLI types
+        if cli_name in ['gemini', 'claude']:
+            default_params.update({
+                "system": "System prompt",
+                "user": "User input",
+                "stream": "Streaming output"
+            })
+        elif cli_name in ['copilot', 'codebuddy']:
+            default_params.update({
+                "context": "Context information",
+                "language": "Programming language",
+                "file": "Processing file"
+            })
+        elif cli_name in ['iflow']:
+            default_params.update({
+                "workflow": "Workflow name",
+                "execute": "Execute action",
+                "status": "Status query"
+            })
+        return default_params
+
+    def _get_default_command_specs(self, cli_name: str) -> Dict[str, Any]:
+        """Get default command specifications (for graceful fallback) - Enhanced: prioritize previously parsed results"""
+        # First try to load previously parsed results from persistent storage
+        try:
+            specs_dir = self.memory_dir / 'cli_specs'
+            spec_file = specs_dir / f'{cli_name}_specs.json'
+
+            if spec_file.exists():
+                with open(spec_file, 'r', encoding='utf-8') as f:
+                    saved_specs = json.load(f)
+
+                # Ensure returned specifications contain all required fields
+                return {
+                    "global_options": saved_specs.get("global_options", self._get_default_global_options(cli_name)),
+                    "subcommands": saved_specs.get("subcommands", self._get_default_subcommands(cli_name)),
+                    "parameters": saved_specs.get("parameters", self._get_default_parameters(cli_name))
+                }
+        except Exception as e:
+            print(f"Failed to load previous parsed results for {cli_name}: {e}")
+
+        # If no data in persistent storage or loading fails, return default template
+        return {
+            "global_options": self._get_default_global_options(cli_name),
+            "subcommands": self._get_default_subcommands(cli_name),
+            "parameters": self._get_default_parameters(cli_name)
+        }
+
+    def _update_specs_with_real_data(self, cli_name: str, parsed_specs: Dict[str, Any]) -> Dict[str, Any]:
+        """Update preset template with real-time parsed data"""
+        # Here we can implement persistent storage of parsed specification information for next use
+        # For example, save parsed results to configuration file
+        try:
+            # Use the same directory structure as memory documents
+            specs_dir = self.memory_dir / 'cli_specs'
+            specs_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save parsed results to file as updated preset template
+            spec_file = specs_dir / f'{cli_name}_specs.json'
+            with open(spec_file, 'w', encoding='utf-8') as f:
+                json.dump(parsed_specs, f, indent=2, ensure_ascii=False)
+
+        except Exception as e:
+            print(f"Failed to save parsed results for {cli_name}: {e}")
+
+        return parsed_specs
     
     def _get_comprehensive_usage_examples(self, cli_name: str) -> List[Dict[str, str]]:
-        """获取全面的使用示例"""
+        """Get comprehensive usage examples"""
         config = self.cli_executor.cli_configs[cli_name]
         examples = []
-        
-        # 基础使用
+
+        # Basic usage
         examples.append({
-            "description": f"{config.display_name} 基础对话",
-            "command": f"{config.command} \"你好，请介绍一下你的功能\"",
+            "description": f"{config.display_name} Basic Chat",
+            "command": f"{config.command} \"Hello, please introduce your features\"",
             "category": "basic",
-            "purpose": "基本对话测试"
+            "purpose": "Basic chat test"
         })
-        
-        # 文件处理
+
+        # File processing
         if config.supported_file_types:
             examples.append({
-                "description": f"{config.display_name} 处理文件",
+                "description": f"{config.display_name} Process Files",
                 "command": f"{config.command} --file example.py",
                 "category": "file_processing",
-                "purpose": "文件内容分析"
+                "purpose": "File content analysis"
             })
-        
-        # 代码生成
+
+        # Code generation
         if config.output_format == 'code':
             examples.append({
-                "description": f"{config.display_name} 代码生成",
-                "command": f"{config.command} \"请生成一个Python快排算法\"",
+                "description": f"{config.display_name} Code Generation",
+                "command": f"{config.command} \"Please generate a Python quick sort algorithm\"",
                 "category": "code_generation",
-                "purpose": "代码生成示例"
+                "purpose": "Code generation example"
             })
-        
-        # 跨CLI协作
+
+        # Cross-CLI collaboration
         examples.append({
-            "description": f"{config.display_name} 跨CLI协作",
-            "command": f"{config.command} \"请用claude帮我审查这段代码的质量\"",
+            "description": f"{config.display_name} Cross-CLI Collaboration",
+            "command": f"{config.command} \"Please use claude to review the code quality\"",
             "category": "cross_cli",
-            "purpose": "跨工具协作示例"
+            "purpose": "Cross-tool collaboration example"
         })
-        
-        # 批处理
+
+        # Batch processing
         if self._supports_batch_processing(cli_name):
             examples.append({
-                "description": f"{config.display_name} 批处理模式",
+                "description": f"{config.display_name} Batch Mode",
                 "command": f"{config.command} --batch --input-dir ./src --output-dir ./output",
                 "category": "batch",
-                "purpose": "批量文件处理"
+                "purpose": "Batch file processing"
             })
-        
-        # 流式处理
+
+        # Streaming processing
         if self._supports_streaming(cli_name):
             examples.append({
-                "description": f"{config.display_name} 流式输出",
-                "command": f"{config.command} --stream \"写一首关于编程的诗\"",
+                "description": f"{config.display_name} Streaming Output",
+                "command": f"{config.command} --stream \"Write a poem about programming\"",
                 "category": "streaming",
-                "purpose": "实时输出示例"
+                "purpose": "Real-time output example"
             })
-        
-        # 配置管理
+
+        # Configuration management
         examples.append({
-            "description": f"{config.display_name} 配置管理",
+            "description": f"{config.display_name} Configuration Management",
             "command": f"{config.command} config set model gpt-4",
             "category": "configuration",
-            "purpose": "设置默认模型"
+            "purpose": "Set default model"
         })
-        
+
         return examples
     
     def _get_api_compatibility(self, cli_name: str) -> Dict[str, Any]:

@@ -648,12 +648,12 @@ function showUsageInstructions() {
     colorLog('cyan', '📦 现在任何人都可以使用以下命令:');
     console.log('');
     console.log(colors.yellow + '  # 基本命令');
-    console.log(colors.cyan + '  npx stigmergy-cli init      # 初始化项目');
-    console.log(colors.cyan + '  npx stigmergy-cli status     # 查看状态');
-    console.log(colors.cyan + '  npx stigmergy-cli scan      # 扫描环境');
+    console.log(colors.cyan + '  stigmergy init      # 初始化项目');
+    console.log(colors.cyan + '  stigmergy status     # 查看状态');
+    console.log(colors.cyan + '  stigmergy scan      # 扫描环境');
     console.log('');
     console.log(colors.yellow + '  # 部署命令');
-    console.log(colors.cyan + '  npx stigmergy-cli deploy    # 智能部署');
+    console.log(colors.cyan + '  stigmergy deploy    # 智能部署');
     console.log(colors.cyan + '  npm run deploy-all           # 全量部署');
     console.log('');
     console.log(colors.yellow + '  # 协作示例');
@@ -719,7 +719,7 @@ async function deploy(options = {}) {
             colorLog('green', '✅ 部署完成！');
             colorLog('cyan', '使用以下命令测试:');
             console.log(colors.cyan + '  node src/main.js status');
-            console.log(colors.cyan + '  npx stigmergy-cli status (发布后)');
+            console.log(colors.cyan + '  stigmergy status (发布后)');
         }
 
     } catch (error) {

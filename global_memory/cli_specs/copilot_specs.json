@@ -1,0 +1,28 @@
+{
+  "global_options": {
+    "--help": "显示帮助信息",
+    "--version": "显示版本信息",
+    "--verbose": "详细输出",
+    "--quiet": "静默模式"
+  },
+  "subcommands": {
+    "chat": "对话模式",
+    "file": "文件处理模式",
+    "config": "配置管理",
+    "auth": "认证管理",
+    "suggest": "代码建议",
+    "complete": "代码补全",
+    "learn": "学习模式"
+  },
+  "parameters": {
+    "input": "输入文件或提示词",
+    "output": "输出文件路径",
+    "model": "模型选择",
+    "temperature": "创造性参数(0.0-1.0)",
+    "max_tokens": "最大令牌数",
+    "timeout": "超时时间(秒)",
+    "context": "上下文信息",
+    "language": "编程语言",
+    "file": "处理文件"
+  }
+}

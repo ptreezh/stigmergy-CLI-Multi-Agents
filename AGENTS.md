@@ -1,4 +1,4 @@
-# AGENTS.md
+# agents.md
 
 This file provides guidance to Qoder (qoder.com) when working with code in this repository.
 
@@ -60,7 +60,7 @@ stigmergy-CLI-Multi-Agents/
 │   ├── main.js               # Main entry point
 │   └── deploy.js             # Deployment script
 ├── package.json              # NPM configuration
-├── AGENTS.md                 # Qoder guidance documentation
+├── agents.md                 # Qoder guidance documentation
 ├── CLI_EXTENSION_GUIDE.md    # Guide for adding new CLI tools
 └── README.md                 # Project documentation
 ```
@@ -72,7 +72,7 @@ Each AI CLI tool uses a different integration approach:
 - **Gemini**: Extension system
 - **Qwen**: Class inheritance
 - **iFlow**: Workflow pipeline
-- **Qoder**: Notification hook (generates AGENTS.md)
+- **Qoder**: Notification hook (generates agents.md)
 - **CodeBuddy**: Skills integration
 - **Copilot**: MCP server
 - **Codex**: Slash commands
