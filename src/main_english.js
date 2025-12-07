@@ -452,8 +452,9 @@ class StigmergyInstaller {
                 const installCmd = toolInfo.install.split(' ');
                 const result = spawnSync(installCmd[0], installCmd.slice(1), {
                     encoding: 'utf8',
-                    timeout: 120000,
-                    stdio: 'inherit'
+                    timeout: 300000, // Increased to 5 minutes for CLI tools that download binaries
+                    stdio: 'inherit',
+                    env: process.env
                 });
 
                 if (result.status === 0) {
@@ -645,7 +646,7 @@ async function main() {
                         toolsToInstall = options.filter(opt => answers.selectedTools.includes(opt.toolName));
                     }
 
-                    console.log('\n[INFO] Installing selected tools...');
+                    console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
                     await installer.installTools(toolsToInstall, missingTools);
                 }
             } else {
@@ -665,8 +666,48 @@ async function main() {
             const setupOptions = await installer.showInstallOptions(setupMissing);
 
             if (setupOptions.length > 0) {
-                console.log('\n[INFO] Installing all missing tools...');
-                await installer.installTools(setupOptions, setupMissing);
+                // Use inquirer for interactive selection during setup as well
+                const inquirer = require('inquirer');
+
+                const choices = setupOptions.map(opt => ({
+                    name: `${opt.toolInfo.name} - ${opt.toolInfo.install}`,
+                    value: opt.toolName
+                }));
+
+                choices.push(new inquirer.Separator(' = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='),
+                             { name: 'All missing tools', value: 'all' },
+                             { name: 'Skip installation', value: 'skip' });
+
+                const answers = await inquirer.prompt([
+                    {
+                        type: 'checkbox',
+                        name: 'selectedTools',
+                        message: 'Select tools to install during setup (Space to select, Enter to confirm):',
+                        choices: choices,
+                        validate: function (answer) {
+                            if (answer.length < 1) {
+                                return 'You must choose at least one option.';
+                            }
+                            return true;
+                        }
+                    }
+                ]);
+
+                if (answers.selectedTools.includes('skip')) {
+                    console.log('[INFO] Skipping CLI tool installation during setup');
+                } else {
+                    let toolsToInstall;
+                    if (answers.selectedTools.includes('all')) {
+                        toolsToInstall = setupOptions;
+                    } else {
+                        toolsToInstall = setupOptions.filter(opt => answers.selectedTools.includes(opt.toolName));
+                    }
+
+                    console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
+                    await installer.installTools(toolsToInstall, setupMissing);
+                }
+            } else {
+                console.log('\n[INFO] All required tools are already installed!');
             }
 
             await installer.deployHooks(setupAvailable);
@@ -712,7 +753,8 @@ async function main() {
 
             // Show final message to guide users
             console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
-            console.log('[USAGE] Run "stigmergy install" to install missing AI CLI tools.');
+            console.log('[USAGE] Run "stigmergy setup" to complete full configuration and install missing AI CLI tools.');
+            console.log('[USAGE] Run "stigmergy install" to install only missing AI CLI tools.');
             console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
             break;
 
