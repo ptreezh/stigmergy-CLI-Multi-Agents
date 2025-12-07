@@ -65,7 +65,16 @@
       "Bash(stigmergy status:*)",
       "Bash(stigmergy deploy:*)",
       "Bash(gemini:*)",
-      "Bash(stigmergy validate:*)"
+      "Bash(stigmergy validate:*)",
+      "Bash(claude-cli:*)",
+      "Bash(gemini-cli:*)",
+      "Bash(qwen:*)",
+      "Bash(iflow:*)",
+      "Bash(codebuddy:*)",
+      "Bash(qwencode-cli:*)",
+      "Bash(qodercli:*)",
+      "Bash(npm version:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

@@ -9,7 +9,7 @@ import path from 'path';
 
 const chineseToEnglishMap = {
     // System messages
-    '🤖 Stigmergy CLI - 远程快速部署系统': '🤖 Stigmergy CLI - Remote Rapid Deployment System',
+    '[DEPLOY] Stigmergy CLI - 远程快速部署系统': '[DEPLOY] Stigmergy CLI - Remote Rapid Deployment System',
     '此脚本将自动检测、安装和配置跨AI CLI工具协作系统': 'This script will automatically detect, install and configure cross-AI CLI tool collaboration system',
 
     // Status messages
@@ -141,20 +141,20 @@ async function fixChineseMessages() {
 
         // Additional patterns that need special handling
         content = content.replace(/正在安装 \$\{tool\.displayName\}/g, 'Installing ${tool.displayName}');
-        content = content.replace(/✅ \$\{tool\.displayName\} - 已安装/g, '✅ ${tool.displayName} - Installed');
-        content = content.replace(/❌ \$\{tool\.displayName\} - 未安装/g, '❌ ${tool.displayName} - Not installed');
-        content = content.replace(/🔄 安装 \$\{tool\.displayName\}\.\.\./g, '🔄 Installing ${tool.displayName}...');
-        content = content.replace(/✅ \$\{tool\.displayName\} 安装成功/g, '✅ ${tool.displayName} installation successful');
-        content = content.replace(/❌ \$\{tool\.displayName\} 安装出错: \$\{errOutput\.trim\(\)\}/g, '❌ ${tool.displayName} installation error: ${errOutput.trim()}');
-        content = content.replace(/✅ \$\{tool\.displayName\} 安装完成/g, '✅ ${tool.displayName} installation completed');
-        content = content.replace(/⚠️ \$\{tool\.displayName\} 安装可能未完成 \(退出码: \$\{code\}\)/g, '⚠️ ${tool.displayName} installation may not be complete (exit code: ${code})');
-        content = content.replace(/✅ \$\{cliInfo\.displayName\} - 可用/g, '✅ ${cliInfo.displayName} - Available');
-        content = content.replace(/❌ \$\{cliInfo\.displayName\} - 不可用/g, '❌ ${cliInfo.displayName} - Unavailable');
-        content = content.replace(/✅ \$\{availableAdapters\.length\} 个可用的AI CLI工具: /g, '✅ ${availableAdapters.length} available AI CLI tools: ');
-        content = content.replace(/📊 项目类型: \$\{config\.projectType\}/g, '📊 Project type: ${config.projectType}');
-        content = content.replace(/📅 创建时间: \$\{config\.createdAt\}/g, '📅 Created at: ${config.createdAt}');
-        content = content.replace(/🔧 已配置适配器: \$\{config\.adapters\.length\} 个/g, '🔧 Configured adapters: ${config.adapters.length}');
-        content = content.replace(/✅ 生成 \$\{adapter\.name\}\.md/g, '✅ Generated ${adapter.name}.md');
+        content = content.replace(/\[OK\] \$\{tool\.displayName\} - 已安装/g, '[OK] ${tool.displayName} - Installed');
+        content = content.replace(/\[X\] \$\{tool\.displayName\} - 未安装/g, '[X] ${tool.displayName} - Not installed');
+        content = content.replace(/\[INSTALL\] 安装 \$\{tool\.displayName\}\.\.\./g, '[INSTALL] Installing ${tool.displayName}...');
+        content = content.replace(/\[OK\] \$\{tool\.displayName\} 安装成功/g, '[OK] ${tool.displayName} installation successful');
+        content = content.replace(/\[ERROR\] \$\{tool\.displayName\} 安装出错: \$\{errOutput\.trim\(\)\}/g, '[ERROR] ${tool.displayName} installation error: ${errOutput.trim()}');
+        content = content.replace(/\[OK\] \$\{tool\.displayName\} 安装完成/g, '[OK] ${tool.displayName} installation completed');
+        content = content.replace(/\[WARN\] \$\{tool\.displayName\} 安装可能未完成 \(退出码: \$\{code\}\)/g, '[WARN] ${tool.displayName} installation may not be complete (exit code: ${code})');
+        content = content.replace(/\[OK\] \$\{cliInfo\.displayName\} - 可用/g, '[OK] ${cliInfo.displayName} - Available');
+        content = content.replace(/\[X\] \$\{cliInfo\.displayName\} - 不可用/g, '[X] ${cliInfo.displayName} - Unavailable');
+        content = content.replace(/\[INFO\] \$\{availableAdapters\.length\} 个可用的AI CLI工具: /g, '[INFO] ${availableAdapters.length} available AI CLI tools: ');
+        content = content.replace(/\[INFO\] 项目类型: \$\{config\.projectType\}/g, '[INFO] Project type: ${config.projectType}');
+        content = content.replace(/\[DATE\] 创建时间: \$\{config\.createdAt\}/g, '[DATE] Created at: ${config.createdAt}');
+        content = content.replace(/\[CONFIG\] 已配置适配器: \$\{config\.adapters\.length\} 个/g, '[CONFIG] Configured adapters: ${config.adapters.length}');
+        content = content.replace(/\[OK\] 生成 \$\{adapter\.name\}\.md/g, '[OK] Generated ${adapter.name}.md');
 
         console.log('💾 Writing fixed content back to file...');
         await fs.writeFile(mainJsPath, content, 'utf8');

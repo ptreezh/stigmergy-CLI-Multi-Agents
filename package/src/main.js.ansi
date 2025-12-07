@@ -1,0 +1,496 @@
+#!/usr/bin/env node
+
+/**
+ * Stigmergy CLI - Multi-Agents NPX Deployment Manager
+ * Support one-click deployment to AI CLI tools, enabling true Stigmergy collaboration
+ */
+
+import { spawn } from 'child_process';
+import fs from 'fs/promises';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { homedir } from 'os';
+import { createHash } from 'crypto';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const CONFIG = {
+    repo: 'https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git',
+    localConfig: join(homedir(), '.stigmergy'),
+    templatesDir: join(__dirname, 'templates'),
+    adaptersDir: join(__dirname, 'adapters')
+};
+
+class StigmergyCLIRouter {
+    constructor() {
+        this.config = CONFIG;
+        this.adapters = new Map();
+        this.isInstalling = false;
+    }
+
+    async loadAdapter(adapterName) {
+        // Adapter name mapping - map user-visible names to actual directory names
+        const adapterDirName = this.mapAdapterName(adapterName);
+
+        // Try multiple possible paths
+        const possibleBasePaths = [
+            join(__dirname, 'adapters'),           // Search from current file directory
+            join(dirname(__dirname), 'adapters'),  // Search from parent directory
+        ];
+
+        for (const basePath of possibleBasePaths) {
+            try {
+                const configPath = join(basePath, adapterDirName, 'config.json');
+                const configData = await fs.readFile(configPath, 'utf8');
+                const config = JSON.parse(configData);
+                // Successfully found configuration, return
+                return { ...config, loaded: true };
+            } catch (error) {
+                // Continue trying next path
+                continue;
+            }
+        }
+
+        // If no configuration found, return default configuration
+        return {
+            name: adapterName,
+            version: '1.0.0',
+            type: 'cli',
+            loaded: false
+        };
+    }
+
+    mapAdapterName(adapterName) {
+        const mapping = {
+            'claude': 'claude',
+            'gemini': 'gemini',
+            'qwen': 'qwen',
+            'iflow': 'iflow',
+            'codebuddy': 'codebuddy',
+            'copilot': 'copilot'
+        };
+
+        return mapping[adapterName.toLowerCase()] || adapterName;
+    }
+
+    async install(adapterName = 'all') {
+        if (this.isInstalling) {
+            console.log('⚠️  Installation is in progress...');
+            return;
+        }
+
+        this.isInstalling = true;
+        console.log('🚀 Starting Stigmergy CLI installation...');
+
+        try {
+            if (adapterName === 'all') {
+                // Install all adapters
+                const adapters = ['claude', 'gemini', 'qwen', 'iflow', 'codebuddy'];
+                let successCount = 0;
+
+                for (const adapter of adapters) {
+                    try {
+                        await this.installAdapter(adapter);
+                        successCount++;
+                    } catch (error) {
+                        console.error(`❌ Failed to install ${adapter}:`, error.message);
+                    }
+                }
+
+                console.log(`✅ Installation complete: ${successCount}/${adapters.length} adapters installed`);
+            } else {
+                await this.installAdapter(adapterName);
+                console.log(`✅ ${adapterName} adapter installed successfully`);
+            }
+        } catch (error) {
+            console.error('❌ Installation failed:', error.message);
+            throw error;
+        } finally {
+            this.isInstalling = false;
+        }
+    }
+
+    async installAdapter(adapterName) {
+        const adapter = await this.loadAdapter(adapterName);
+
+        if (!adapter.loaded) {
+            console.log(`⚠️  ${adapterName} adapter configuration not found, creating default configuration...`);
+        }
+
+        // Deploy configuration
+        await this.deployAdapter(adapter);
+    }
+
+    async deployAdapter(adapter) {
+        const configDir = join(this.config.localConfig, adapter.name);
+        await fs.mkdir(configDir, { recursive: true });
+
+        // Create configuration file
+        const configFile = join(configDir, 'config.json');
+        const configContent = {
+            name: adapter.name,
+            version: adapter.version || '1.0.0',
+            type: adapter.type || 'cli',
+            installed: new Date().toISOString(),
+            ...adapter
+        };
+
+        await fs.writeFile(configFile, JSON.stringify(configContent, null, 2));
+
+        // Install hooks if available
+        if (adapter.hooks) {
+            await this.installHooks(adapter.name, adapter.hooks);
+        }
+    }
+
+    async installHooks(adapterName, hooks) {
+        const hookDir = join(this.config.localConfig, adapterName, 'hooks');
+        await fs.mkdir(hookDir, { recursive: true });
+
+        for (const [hookName, hookConfig] of Object.entries(hooks)) {
+            const hookFile = join(hookDir, hookName);
+            await fs.writeFile(hookFile, hookConfig.content || '', 'utf8');
+
+            // Make executable on Unix systems
+            if (process.platform !== 'win32') {
+                await fs.chmod(hookFile, '755');
+            }
+        }
+    }
+
+    async status() {
+        console.log('📊 Stigmergy CLI Status:');
+        console.log('=========================');
+
+        try {
+            const adapters = ['claude', 'gemini', 'qwen', 'iflow', 'codebuddy'];
+
+            for (const adapterName of adapters) {
+                const configDir = join(this.config.localConfig, adapterName);
+                const configFile = join(configDir, 'config.json');
+
+                try {
+                    const configData = await fs.readFile(configFile, 'utf8');
+                    const config = JSON.parse(configData);
+
+                    console.log(`✅ ${adapterName}: Installed (${config.installed})`);
+                } catch (error) {
+                    console.log(`❌ ${adapterName}: Not installed`);
+                }
+            }
+
+            console.log('\n📁 Configuration directory:', this.config.localConfig);
+        } catch (error) {
+            console.error('❌ Failed to get status:', error.message);
+        }
+    }
+
+    async init(projectPath = process.cwd()) {
+        console.log(`🔧 Initializing Stigmergy CLI in: ${projectPath}`);
+
+        try {
+            const stigmergyDir = join(projectPath, '.stigmergy');
+            await fs.mkdir(stigmergyDir, { recursive: true });
+
+            // Create project configuration
+            const projectConfig = {
+                name: require(join(projectPath, 'package.json')).name || 'unnamed-project',
+                version: '1.0.0',
+                initialized: new Date().toISOString(),
+                adapters: []
+            };
+
+            const configFile = join(stigmergyDir, 'project.json');
+            await fs.writeFile(configFile, JSON.stringify(projectConfig, null, 2));
+
+            console.log('✅ Project initialized successfully');
+            console.log(`📁 Configuration created: ${configFile}`);
+        } catch (error) {
+            console.error('❌ Initialization failed:', error.message);
+            throw error;
+        }
+    }
+}
+
+/**
+ * Parse command line arguments into parameters and tool selection
+ * @param {string[]} args - Array of command line arguments
+ * @returns {Object} - { parameters: {}, tool: string|null }
+ */
+function parseArguments(args) {
+    const parameters = {};
+    let tool = null;
+
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+
+        if (arg.startsWith('--')) {
+            if (arg.includes('=')) {
+                // Format: --key=value
+                const [key, value] = arg.substring(2).split('=', 2);
+                if (key === 'tool') {
+                    tool = value;
+                } else {
+                    parameters[key] = value;
+                }
+            } else {
+                // Format: --key value
+                const key = arg.substring(2);
+                if (key === 'tool') {
+                    tool = args[i + 1];
+                    i++; // Skip next argument as it's the value
+                } else if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
+                    parameters[key] = args[i + 1];
+                    i++; // Skip next argument as it's the value
+                } else {
+                    parameters[key] = true;
+                }
+            }
+        }
+    }
+
+    return { parameters, tool };
+}
+
+// Skills command processing function
+async function handleSkillsCommand(args) {
+    try {
+        // Use the original ES6 module
+        const { default: SkillsManager } = await import('./skills/skills-manager.js');
+        const skillsManager = new SkillsManager();
+
+        const command = args[0] || 'list';
+
+        switch (command) {
+            case 'init':
+                await skillsManager.init();
+                break;
+            case 'list':
+                await skillsManager.listSkills(args[1]);
+                break;
+            case 'execute':
+            case 'run':
+                const skillId = args[1];
+                if (!skillId) {
+                    console.error('❌ Skill ID required');
+                    console.log('Usage: stigmergy skills execute <skill-id> [--key=value] [--tool <tool>]');
+                    return;
+                }
+
+                // Parse arguments properly
+                const argList = args.slice(2);
+                const { parameters, tool } = parseArguments(argList);
+
+                console.log(`🔧 Executing skill: ${skillId}`);
+                if (tool) {
+                    console.log(`🛠️  Using tool: ${tool}`);
+                }
+                if (Object.keys(parameters).length > 0) {
+                    console.log(`📋 Parameters: ${JSON.stringify(parameters)}`);
+                }
+
+                try {
+                    const result = await skillsManager.executeSkill(skillId, parameters, tool);
+                    console.log('✅ Skill execution successful');
+                    console.log('📤 Command:', result.command);
+                    console.log('📋 Output:', result.output);
+                } catch (error) {
+                    console.error('❌ Skill execution failed:', error.message);
+                }
+                break;
+            case 'add':
+                console.log('🚧 Add custom skills feature in development...');
+                break;
+            case 'help':
+                console.log(`
+🎯 Skills System Usage Guide:
+
+📋 Available Commands:
+  stigmergy skills init              - Initialize Skills system
+  stigmergy skills list [category]   - List available skills
+  stigmergy skills execute <skill>   - Execute specified skill
+  stigmergy skills run <skill>       - Execute specified skill (alias)
+  stigmergy skills add               - Add custom skills
+  stigmergy skills help              - Show this help
+
+📝 Skill Categories:
+  development   - Development related skills
+  language      - Language processing skills
+  analysis      - Analysis type skills
+
+⚡ Execution Examples:
+  stigmergy skills execute code-analysis --file=app.js --focus=security
+  stigmergy skills execute translation --text="Hello" --to=zh --tool=gemini
+  stigmergy skills execute code-generation --requirement="user login" --language=python
+
+🔧 Parameter Format:
+  --parameter=value    (e.g., --file=app.js)
+  --tool <tool>        (Specify AI tool to use)
+
+💡 Tip: Use 'stigmergy skills list' to view all available skills and parameters
+                `);
+                break;
+            default:
+                console.error(`❌ Unknown skills command: ${command}`);
+                console.log('Use "stigmergy skills help" to see available commands');
+                break;
+        }
+    } catch (error) {
+        console.error('❌ Skills command error:', error.message);
+        console.error('Stack:', error.stack);
+    }
+}
+
+// Natural Language command processing function
+async function handleNaturalLanguageCommand(args) {
+    try {
+        // Use dynamic import for ES6 module compatibility
+        const NaturalLanguageIntegration = (await import('./natural-language/nl-integration.cjs')).default;
+        const integration = new NaturalLanguageIntegration();
+
+        const command = args[0] || '';
+
+        if (!command || command === 'help') {
+            console.log(`
+🎯 Natural Language Skills System
+
+Usage: stigmergy nl [options] [natural language command]
+
+Examples:
+  stigmergy nl "Please help me translate this code to English"
+  stigmergy nl "Analyze the security of this React component"
+  stigmergy nl "Generate Python code for user login"
+  stigmergy nl "Generate documentation for this API"
+
+Options:
+  --tool <name>    Specify AI tool (claude, gemini, qwen, iflow, codebuddy)
+  --interactive    Enter interactive mode
+  --help           Show this help
+
+Supported Skills:
+  • Translation     - Translate text
+  • Code Analysis  - Analyze code
+  • Code Generation - Generate code
+  • Documentation  - Create docs
+
+AI Tools:
+  claude, gemini, qwen, iflow, codebuddy
+            `);
+            return;
+        }
+
+        // Extract tool option
+        let aiTool = 'claude';
+        const toolIndex = args.findIndex(arg => arg.startsWith('--tool='));
+        if (toolIndex !== -1) {
+            aiTool = args[toolIndex].split('=')[1];
+            args.splice(toolIndex, 1);
+        }
+
+        // Interactive mode
+        if (args.includes('--interactive') || args.includes('-i')) {
+            const NaturalLanguageCLI = (await import('./natural-language-cli.cjs')).default;
+            const cli = new NaturalLanguageCLI();
+            await cli.interactiveMode(aiTool);
+            return;
+        }
+
+        // Process natural language command
+        const input = args.join(' ');
+
+        console.log(`🤖 Natural Language Skills (${aiTool})`);
+        console.log(`Input: "${input}"`);
+        console.log('');
+
+        const result = await integration.processNaturalLanguageInput(input, aiTool);
+
+        if (result.success) {
+            console.log('✅ Natural language processing successful!');
+            console.log(`🎯 Detected skill: ${result.skill} (confidence: ${result.confidence}/10)`);
+            console.log(`📋 Parameters: ${JSON.stringify(result.parameters, null, 2)}`);
+            console.log(`🛠️  Tool: ${result.execution.tool || aiTool}`);
+            console.log(`📤 Command: ${result.execution.command}`);
+            console.log(`📋 Output: ${result.execution.output}`);
+        } else {
+            console.log(`❌ Processing failed: ${result.error || result.message}`);
+            if (result.suggestion) {
+                console.log(`💡 Suggestion: ${result.suggestion}`);
+            }
+        }
+
+    } catch (error) {
+        console.error('❌ Natural language command error:', error.message);
+        console.error('Stack:', error.stack);
+    }
+}
+
+// Main function
+async function main() {
+    const args = process.argv.slice(2);
+    const command = args[0];
+
+    const router = new StigmergyCLIRouter();
+
+    switch (command) {
+        case 'install':
+            await router.install(args[1]);
+            break;
+        case 'deploy':
+            // Deploy logic
+            console.log('🚀 Deploying adapters...');
+            break;
+        case 'init':
+            await router.init(args[1]);
+            break;
+        case 'status':
+            await router.status();
+            break;
+        case 'check-project':
+            await router.validate(args[1] || 'project');
+            break;
+        case 'validate':
+            await router.validate(args[1] || 'project');
+            break;
+        case 'skills':
+            await handleSkillsCommand(args.slice(1));
+            break;
+        case 'nl':
+        case 'natural':
+            await handleNaturalLanguageCommand(args.slice(1));
+            break;
+        case 'clean':
+            // Cleanup functionality
+            break;
+        default:
+            console.log(`
+[AI] Stigmergy CLI v1.0.0 - Multi-Agents Cross-AI CLI Tool Collaboration System
+
+[INFO] Available Commands:
+  install              - Install all AI CLI tool adapters
+  deploy [options]    - Deploy adapters to local configuration
+  init [path]         - Initialize project (default: current directory)
+  status              - Check system and adapter status
+  check-project [path]  - Check project configuration
+  validate [scope]    - Validate configuration
+  skills [command]    - Manage AI skills and capabilities
+  nl [command]        - Natural language skills processing
+  clean [options]     - Clean cache and temporary files
+
+[TIP] Quick Start:
+  stigmergy init          # Initialize current project
+  stigmergy install        # Install all adapters
+  stigmergy status         # Check installation status
+
+[SKILLS] Natural Language Processing:
+  stigmergy nl "Translate this code to English"
+  stigmergy nl "Analyze React component security"
+  stigmergy nl "Generate Python login code"
+
+For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
+            `);
+            break;
+    }
+}
+
+main();

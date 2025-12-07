@@ -1,0 +1,89 @@
+{
+  "name": "stigmergy-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Stigmergy AI Skills System - Natural Language Skills for AI CLI Tools",
+  "main": "src/index.js",
+  "bin": {
+    "stigmergy-skill": "src/index.js",
+    "sg-skill": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node test/all-tests.js",
+    "test:unit": "node test/unit/*.test.cjs",
+    "test:integration": "node test/integration/*.test.cjs",
+    "test:e2e": "node test/e2e/*.test.cjs",
+    "test:encoding": "node test/encoding-tests.js",
+    "test:natural-language": "node test/natural-language-tests.js",
+    "validate": "npm run test && npm run build",
+    "build": "node build/build.js",
+    "lint": "eslint src/**/*.js test/**/*.js",
+    "lint:fix": "eslint src/**/*.js test/**/*.js --fix",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run test && npm run lint"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "skills",
+    "natural-language",
+    "claude",
+    "gemini",
+    "qwen",
+    "automation",
+    "translation",
+    "code-analysis",
+    "code-generation",
+    "documentation",
+    "stigmergy"
+  ],
+  "author": "Stigmergy CLI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git",
+    "directory": "skills-package"
+  },
+  "bugs": {
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues"
+  },
+  "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/tree/main/skills-package",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "src/",
+    "test/",
+    "build/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^9.4.1",
+    "inquirer": "^8.2.4",
+    "ora": "^5.4.1"
+  },
+  "peerDependencies": {
+    "stigmergy": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "stigmergy": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "stigmergy": {
+    "type": "skills-package",
+    "compatibility": ">=1.0.0",
+    "core-dependency": "stigmergy"
+  }
+}

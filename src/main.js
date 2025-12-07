@@ -367,7 +367,7 @@ const hook = new StigmergyHook();
         console.log('\n[RESULT] Hook Deployment Result: ' + deployedCount + '/' + availableTools.length + ' hooks deployed');
     }
 
-    async setupGlobalConfiguration() {
+    async setupGlobalConfiguration(availableTools = []) {
         await this.ensureDirectory(this.stigmergyDir);
 
         const globalConfig = {
@@ -492,7 +492,7 @@ async function main() {
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.73');
+        console.log('Version: 1.0.74');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -518,14 +518,14 @@ async function main() {
     }
 
     if (args.includes('--version') || args.includes('version')) {
-        console.log('1.0.73');
+        console.log('1.0.74');
         return;
     }
 
     // Auto-install mode for postinstall script
     if (args.includes('auto-install')) {
         console.log('[AUTO-INSTALL] Stigmergy CLI - Automated Installation and Deployment');
-        console.log('Multi-AI CLI Tools Collaboration System v1.0.73');
+        console.log('Multi-AI CLI Tools Collaboration System v1.0.74');
         console.log('='.repeat(60));
 
         // Disable interactive prompts for auto-install mode
@@ -553,7 +553,7 @@ async function main() {
 
     // Start automated installation and deployment
     console.log('[START] Stigmergy CLI - Automated Installation and Deployment');
-    console.log('Multi-AI CLI Tools Collaboration System v1.0.73');
+    console.log('Multi-AI CLI Tools Collaboration System v1.0.74');
     console.log('='.repeat(60));
 
     // Step 1: Scan available CLI tools
