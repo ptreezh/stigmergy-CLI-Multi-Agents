@@ -1,6 +1,6 @@
 {
   "name": "stigmergy",
-  "version": "1.0.72",
+  "version": "1.0.73",
   "type": "commonjs",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
   "main": "src/index.js",
@@ -21,7 +21,8 @@
     "clean": "node src/index.js clean",
     "dev": "node --watch src/index.js",
     "lint": "eslint src/",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "postinstall": "node src/main.js auto-install"
   },
   "keywords": [
     "ai",

@@ -29,13 +29,13 @@ class StigmergyCLIRouter {
     }
 
     async loadAdapter(adapterName) {
-        // 适配器名称映射 - 将用户可见的名称映射到实际目录名
+        // Adapter name mapping - map user-visible names to actual directory names
         const adapterDirName = this.mapAdapterName(adapterName);
 
-        // 尝试多个可能的路径
+        // Try multiple possible paths
         const possibleBasePaths = [
-            join(__dirname, 'adapters'),           // 从当前文件目录查找
-            join(dirname(__dirname), 'adapters'),  // 从当前目录的父目录查找
+            join(__dirname, 'adapters'),           // Look from current file directory
+            join(dirname(__dirname), 'adapters'),  // Look from parent directory of current directory
         ];
 
         for (const basePath of possibleBasePaths) {
@@ -43,28 +43,28 @@ class StigmergyCLIRouter {
                 const configPath = join(basePath, adapterDirName, 'config.json');
                 const configData = await fs.readFile(configPath, 'utf8');
                 const config = JSON.parse(configData);
-                // 成功找到配置，返回
+                // Successfully found configuration, return
                 return { ...config, loaded: true };
             } catch (error) {
-                // 继续尝试下一个路径
+                // Continue trying next path
                 continue;
             }
         }
 
-        // 所有路径都尝试过了但失败
+        // All paths have been tried but failed
         const lastPathAttempted = join(possibleBasePaths[possibleBasePaths.length - 1], adapterDirName, 'config.json');
-        console.error(`❌ Failed to load ${adapterName} adapter configuration: Config file not found in any possible paths, last attempt: ${lastPathAttempted}`);
+        console.error(`[ERROR] Failed to load ${adapterName} adapter configuration: Config file not found in any possible paths, last attempt: ${lastPathAttempted}`);
         return { loaded: false, error: "Unable to find adapter configuration file" };
     }
 
     async checkAdapterExists(adapterName) {
-        // 适配器名称映射 - 将用户可见的名称映射到实际目录名
+        // Adapter name mapping - map user-visible names to actual directory names
         const adapterDirName = this.mapAdapterName(adapterName);
 
-        // 使用与loadAdapter相同的路径检测逻辑
+        // Use the same path detection logic as loadAdapter
         const possibleBasePaths = [
-            join(__dirname, 'adapters'),           // 从当前文件目录查找
-            join(dirname(__dirname), 'adapters'),  // 从当前目录的父目录查找
+            join(__dirname, 'adapters'),           // Look from current file directory
+            join(dirname(__dirname), 'adapters'),  // Look from parent directory of current directory
         ];
 
         for (const basePath of possibleBasePaths) {
@@ -73,7 +73,7 @@ class StigmergyCLIRouter {
                 await fs.access(configPath);
                 return true;
             } catch {
-                // 继续尝试下一个路径
+                // Continue trying next path
                 continue;
             }
         }
@@ -81,11 +81,11 @@ class StigmergyCLIRouter {
         return false;
     }
 
-    // 适配器名称映射方法
+    // Adapter name mapping method
     mapAdapterName(adapterName) {
-        // 将用户接口名称映射到实际的适配器目录名称
+        // Map user interface names to actual adapter directory names
         const nameMap = {
-            'qwen': 'qwencode'  // qwen在内部对应qwencode目录
+            'qwen': 'qwencode'  // qwen corresponds to qwencode directory internally
         };
         return nameMap[adapterName] || adapterName;
     }
@@ -101,7 +101,7 @@ class StigmergyCLIRouter {
         try {
             console.log(`[INSTALL] Starting installation of ${adapterName} adapter...`);
 
-            // 检查适配器是否已存在
+            // Check if adapter already exists
             const exists = await this.checkAdapterExists(adapterName);
             if (exists && !force) {
                 console.log(`[OK] ${adapterName} adapter already exists`);
@@ -109,33 +109,33 @@ class StigmergyCLIRouter {
                 return;
             }
 
-            // 加载适配器配置
+            // Load adapter configuration
             const config = await this.loadAdapter(adapterName);
             if (!config.loaded) {
-                console.error(`❌ ${adapterName} adapter configuration loading failed: ${config.error}`);
+                console.error(`[ERROR] ${adapterName} adapter configuration loading failed: ${config.error}`);
                 this.isInstalling = false;
                 return;
             }
 
-            // 创建配置目录
+            // Create configuration directory
             const adapterConfigDir = join(this.config.localConfig, adapterName);
             await fs.mkdir(adapterConfigDir, { recursive: true });
 
-            // 使用映射后的目录名查找源配置文件
+            // Use mapped directory name to find source configuration file
             const adapterDirName = this.mapAdapterName(adapterName);
             const adapterConfigFile = join(__dirname, 'src', 'adapters', adapterDirName, 'config.json');
             const targetConfigFile = join(adapterConfigDir, 'config.json');
             await fs.copyFile(adapterConfigFile, targetConfigFile);
 
-            // 创建钩子目录
+            // Create hooks directory
             const hooksDir = join(adapterConfigDir, 'hooks');
             await fs.mkdir(hooksDir, { recursive: true });
 
-            // 复制钩子文件
+            // Copy hooks files
             const adapterHooksDir = join(__dirname, 'src', 'adapters', adapterDirName);
             await this.copyDirectory(adapterHooksDir, hooksDir);
 
-            // 创建日志目录
+            // Create logs directory
             const logsDir = join(adapterConfigDir, 'logs');
             await fs.mkdir(logsDir, { recursive: true });
 
@@ -145,7 +145,7 @@ class StigmergyCLIRouter {
             this.isInstalling = false;
 
         } catch (error) {
-            console.error(`❌ ${adapterName} adapter installation failed: ${error.message}`);
+            console.error(`[ERROR] ${adapterName} adapter installation failed: ${error.message}`);
         } finally {
             this.isInstalling = false;
         }
@@ -183,7 +183,7 @@ class StigmergyCLIRouter {
     }
 
     async deployAll(force = false) {
-        console.log('🚀 Starting deployment of all adapters...');
+        console.log('[DEPLOY] Starting deployment of all adapters...');
 
         const adapterNames = ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex'];
 
@@ -191,9 +191,9 @@ class StigmergyCLIRouter {
             await this.installAdapter(adapterName, force);
         }
 
-        console.log('✅ All adapters deployed successfully!');
+        console.log('[OK] All adapters deployed successfully!');
 
-        // 更新全局配置
+        // Update global configuration
         await this.updateGlobalConfig();
     }
 
@@ -212,48 +212,48 @@ class StigmergyCLIRouter {
         };
 
         await fs.writeFile(globalConfigPath, JSON.stringify(globalConfig, null, 2));
-        console.log('✅ Global configuration updated');
+        console.log('[OK] Global configuration updated');
     }
 
     async initProject(projectPath = process.cwd()) {
-        console.log('🚀 Initializing Stigmergy CLI project...');
+        console.log('[INIT] Initializing Stigmergy CLI project...');
 
-        // 验证并修复路径 - 确保不在系统根目录创建项目文件
+        // Validate and fix path - ensure not creating project files in system root directory
         let safeProjectPath = projectPath;
         if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
             safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
-            // 如果用户在磁盘根目录运行，创建一个专门的项目目录
-            console.log('⚠️  Detected running in disk root directory, will automatically create project directory for initialization');
+            // If user is running in disk root directory, create a dedicated project directory
+            console.log('[WARN] Detected running in disk root directory, will automatically create project directory for initialization');
 
-            // 创建带序号的项目目录
+            // Create numbered project directory
             let projectDirName = 'ProjStig';
             let counter = 1;
             let targetDir = join(safeProjectPath, projectDirName);
 
-            // 检查目录是否存在，如果存在则添加序号
-            while (await directoryExists(targetDir)) {
+            // Check if directory exists, add number if exists
+            while (await this.directoryExists(targetDir)) {
                 targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
                 counter++;
             }
 
-            // 创建项目目录
+            // Create project directory
             await fs.mkdir(targetDir, { recursive: true });
             safeProjectPath = targetDir;
-            console.log(`📁 Project directory created successfully: ${safeProjectPath}`);
+            console.log(`[DIR] Project directory created successfully: ${safeProjectPath}`);
         }
 
-        // 创建项目配置目录
+        // Create project configuration directory
         const projectConfigDir = join(safeProjectPath, '.stigmergy-project');
         await fs.mkdir(projectConfigDir, { recursive: true });
 
-        // 生成项目配置
+        // Generate project configuration
         const projectConfig = {
             projectType: 'initialized',
             createdAt: new Date().toISOString(),
             adapters: {}
         };
 
-        // 检查可用的适配器
+        // Check available adapters
         const availableAdapters = [];
         for (const adapterName of ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot', 'codex']) {
             const config = await this.loadAdapter(adapterName);
@@ -269,23 +269,23 @@ class StigmergyCLIRouter {
 
         projectConfig.adapters = availableAdapters;
 
-        // 保存项目配置
+        // Save project configuration
         const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
         await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
-        console.log(`✅ Stigmergy project initialization completed!`);
-        console.log(`📊 Discovered ${availableAdapters.length} available AI CLI tools:`, availableAdapters.map(a => a.name).join(', '));
+        console.log(`[OK] Stigmergy project initialization completed!`);
+        console.log(`[INFO] Discovered ${availableAdapters.length} available AI CLI tools:`, availableAdapters.map(a => a.name).join(', '));
 
-        // 生成增强的MD文档
+        // Generate enhanced MD documents
         for (const adapter of availableAdapters) {
-            // 确保md文件生成在项目目录中而不是系统根目录
+            // Ensure md file is generated in project directory not system root
             const mdPath = join(safeProjectPath, `${adapter.name}.md`);
             const config = await this.loadAdapter(adapter.name);
 
             if (config.loaded) {
                 const mdContent = await this.generateEnhancedMarkdown(adapter, projectConfig);
                 await fs.writeFile(mdPath, mdContent, 'utf8');
-                console.log(`✅ Generated ${adapter.name}.md`);
+                console.log(`[OK] Generated ${adapter.name}.md`);
             }
         }
     }
@@ -296,7 +296,7 @@ class StigmergyCLIRouter {
         try {
             const template = await fs.readFile(templatePath, 'utf8');
 
-            // 替换模板变量
+            // Replace template variables
             let content = template
                 .replace(/\{adapterName\}/g, adapter.name)
                 .replace(/\{displayName\}/g, adapter.displayName || adapter.name)
@@ -306,17 +306,17 @@ class StigmergyCLIRouter {
                 .replace(/\{globalDoc\}/g, adapter.global_doc || 'N/A')
                 .replace(/\{projectPath\}/g, process.cwd())
                 .replace(/\{availableTools\}/g, projectConfig.adapters.map(a => a.name).join(', '))
-                .replace(/\{currentTime\}/g, new Date().toLocaleString('zh-CN'))
+                .replace(/\{currentTime\}/g, new Date().toLocaleString('en-US'))
                 .replace(/\{currentTimeISO\}/g, new Date().toISOString())
                 .replace(/\{repoUrl\}/g, this.config.repo);
 
-            // 添加协作指南
+            // Add collaboration guide
             const collaborationSection = this.generateCollaborationSection(adapter, projectConfig.adapters);
             content = content.replace(/\{collaborationSection\}/g, collaborationSection);
 
-            return content; // 返回内容而不是直接写入文件
+            return content; // Return content instead of writing file directly
         } catch (error) {
-            console.error(`❌ Failed to generate ${adapter.name}.md: ${error.message}`);
+            console.error(`[ERROR] Failed to generate ${adapter.name}.md: ${error.message}`);
             throw error;
         }
     }
@@ -325,15 +325,15 @@ class StigmergyCLIRouter {
         const currentAdapter = adapter.name;
         const otherAdapters = availableAdapters.filter(a => a.name !== currentAdapter);
 
-        let section = '\n### 🔄 Cross-AI Tool Collaboration Guide\n\n';
+        let section = '\n### [SYNC] Cross-AI Tool Collaboration Guide\n\n';
 
-        // 中文协作示例
+        // Chinese collaboration examples (for documentation)
         section += '#### Chinese Collaboration Commands\n\n';
         for (const otherAdapter of otherAdapters.slice(0, 3)) {
             section += `- 请用${otherAdapter.name}帮我{this.getRandomTask()}\n`;
         }
 
-        // 英文协作示例
+        // English collaboration examples
         section += '\n#### English Collaboration Commands\n\n';
         for (const otherAdapter of otherAdapters.slice(0, 3)) {
             section += `- use ${otherAdapter.name} to ${this.getRandomTask()}\n`;
@@ -344,19 +344,19 @@ class StigmergyCLIRouter {
 
     getRandomTask() {
         const tasks = [
-            '生成用户认证模块',
-            '分析代码性能问题',
-            '创建数据库迁移脚本',
-            '实现API端点',
-            '优化SQL查询',
-            '生成测试用例',
-            '审查代码架构',
-            '重构遗留代码',
-            '设计系统架构文档',
-            '处理CSV数据并生成可视化图表',
-            '分析关键业务指标',
-            '实现缓存策略',
-            '优化应用启动时间'
+            'generate user authentication module',
+            'analyze code performance issues',
+            'create database migration script',
+            'implement API endpoint',
+            'optimize SQL query',
+            'generate test cases',
+            'review code architecture',
+            'refactor legacy code',
+            'design system architecture document',
+            'process CSV data and generate visualizations',
+            'analyze key business metrics',
+            'implement caching strategy',
+            'optimize application startup time'
         ];
         return tasks[Math.floor(Math.random() * tasks.length)];
     }
@@ -365,129 +365,218 @@ class StigmergyCLIRouter {
         console.log('[CHECK] Checking project configuration...');
 
         try {
-            // 检查项目配置目录
+            // Check project configuration directory
             const projectConfigDir = join(projectPath, '.stigmergy-project');
             try {
                 await fs.access(projectConfigDir);
-                console.log('✅ Project configuration directory exists');
+                console.log('[OK] Project configuration directory exists');
             } catch {
-                console.log('⚠️  Project configuration directory does not exist, needs initialization');
+                console.log('[WARN] Project configuration directory does not exist, needs initialization');
                 return;
             }
 
-            // 检查项目配置文件
+            // Check project configuration file
             const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
             try {
                 const projectConfig = await fs.readFile(projectConfigPath, 'utf8');
                 const config = JSON.parse(projectConfig);
 
-                console.log('✅ Project configuration file exists');
-                console.log(`📊 Project type: ${config.projectType}`);
-                console.log(`📅 Created at: ${config.createdAt}`);
+                console.log('[OK] Project configuration file exists');
+                console.log(`[INFO] Project type: ${config.projectType}`);
+                console.log(`[DATE] Created at: ${config.createdAt}`);
 
                 if (config.adapters) {
-                    console.log(`🔧 Configured adapters: ${config.adapters.length}`);
+                    console.log(`[CONFIG] Configured adapters: ${config.adapters.length}`);
                     for (const adapter of config.adapters) {
                         console.log(`   - ${adapter.name} (${adapter.status})`);
                     }
                 }
             } catch (configErr) {
-                console.log('⚠️  Project configuration file does not exist or has incorrect format');
+                console.log('[WARN] Project configuration file does not exist or has incorrect format');
             }
 
-            // 检查全局配置
+            // Check global configuration
             try {
                 const globalConfigPath = join(this.config.localConfig, 'global-config.json');
                 await fs.access(globalConfigPath);
-                console.log('✅ Global configuration exists');
+                console.log('[OK] Global configuration exists');
             } catch {
-                console.log('⚠️  Global configuration does not exist, needs deployment');
+                console.log('[WARN] Global configuration does not exist, needs deployment');
             }
 
-            console.log('✅ Project check completed');
+            console.log('[OK] Project check completed');
         } catch (error) {
-            console.error(`❌ Error checking project: ${error.message}`);
+            console.error(`[ERROR] Error checking project: ${error.message}`);
         }
     }
 
     async scanSystem() {
         console.log('[SCAN] Scanning system environment...');
 
-        // 这里会实现扫描逻辑，类似于deploy.js中的功能
-        const CLI_TOOLS = [
-            { name: 'claude', displayName: 'Claude CLI', required: true },
-            { name: 'gemini', displayName: 'Gemini CLI', required: true },
-            { name: 'qwen', displayName: 'QwenCode CLI', required: false },
-            { name: 'iflow', displayName: 'iFlow CLI', required: false },
-            { name: 'qoder', displayName: 'Qoder CLI', required: false },
-            { name: 'codebuddy', displayName: 'CodeBuddy CLI', required: false },
-            { name: 'copilot', displayName: 'GitHub Copilot CLI', required: false },
-            { name: 'ollama', displayName: 'Ollama CLI', required: false }
+        // Use the same detection logic as quick-deploy for consistency
+        // Define supported AI tools and their details
+        const AI_TOOLS = [
+            {
+                name: 'claude',
+                displayName: 'Claude CLI',
+                required: true
+            },
+            {
+                name: 'gemini',
+                displayName: 'Gemini CLI',
+                required: true
+            },
+            {
+                name: 'qwen',
+                displayName: 'QwenCode CLI',
+                required: false
+            },
+            {
+                name: 'iflow',
+                displayName: 'iFlow CLI',
+                required: false
+            },
+            {
+                name: 'qoder',
+                displayName: 'Qoder CLI',
+                required: false
+            },
+            {
+                name: 'codebuddy',
+                displayName: 'CodeBuddy CLI',
+                required: false
+            },
+            {
+                name: 'copilot',
+                displayName: 'GitHub Copilot CLI',
+                required: false
+            },
+            {
+                name: 'ollama',
+                displayName: 'Ollama CLI',
+                required: false
+            },
+            {
+                name: 'codex',
+                displayName: 'OpenAI Codex CLI',
+                required: false
+            }
         ];
 
         console.log('');
         console.log('[RESULTS] Scan results:');
 
-        for (const cliInfo of CLI_TOOLS) {
-            const available = await this.checkToolAvailable(cliInfo.name);
-            const status = available ? '✅' : '❌';
-            const required = cliInfo.required ? '(Required)' : '(Optional)';
-            console.log(`  ${status} ${cliInfo.displayName} ${required} - ${available ? 'Available' : 'Unavailable'}`);
+        // Detect installed AI tools using the same logic as quick-deploy
+        for (const tool of AI_TOOLS) {
+            const isInstalled = await this.checkToolInstalled(tool.name);
+            const status = isInstalled ? '[OK]' : '[X]';
+            const required = tool.required ? '(Required)' : '(Optional)';
+            console.log(`  ${status} ${tool.displayName} ${required} - ${isInstalled ? 'Available' : 'Unavailable'}`);
         }
 
         console.log('');
         console.log('[TIP] Use "stigmergy deploy" to deploy uninstalled tools');
     }
 
-    async checkToolAvailable(cliName) {
-        try {
-            const { spawnSync } = require('child_process');
-            let result;
-            if (process.platform === 'win32') {
-                result = spawnSync('where', [cliName], { stdio: 'pipe' });
-            } else {
-                result = spawnSync('which', [cliName], { stdio: 'pipe' });
+    // Use smart detection function that intelligently tries multiple command name variations
+    async checkToolInstalled(toolName) {
+        // Generate possible command name variations
+        const possibleNames = [
+            toolName,                                     // Original name (e.g., qoder)
+            `${toolName}cli`,                             // Add 'cli' suffix (e.g., qodercli)
+            `${toolName}-cli`,                            // Add '-cli' suffix (e.g., qoder-cli)
+            `${toolName}cmd`,                             // Add 'cmd' suffix (e.g., qodercmd)
+            `${toolName}-cmd`,                            // Add '-cmd' suffix (e.g., qoder-cmd)
+            `${toolName}tool`,                            // Add 'tool' suffix (e.g., qodertool)
+            `${toolName}-tool`,                           // Add '-tool' suffix (e.g., qoder-tool)
+            toolName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()  // Convert camelCase to kebab-case
+        ];
+
+        // Remove duplicates while preserving order
+        const uniqueNames = [...new Set(possibleNames)];
+
+        // Try each possible name variation
+        for (const commandName of uniqueNames) {
+            // 1. First, try the standard where/which command check
+            try {
+                const { spawnSync } = await import('child_process');
+                let result;
+                if (process.platform === 'win32') {
+                    result = spawnSync('where', [commandName], { stdio: 'pipe' });
+                } else {
+                    result = spawnSync('which', [commandName], { stdio: 'pipe' });
+                }
+
+                if (result.status === 0 && result.stdout.toString().trim() !== '') {
+                    return true;
+                }
+            } catch (e) {
+                // If where/which fails, continue to try next possible name
             }
 
-            return result.status === 0;
-        } catch (e) {
-            // 如果系统命令失败，尝试npm检查
+            // 2. Try version command check (more reliable than just existence)
             try {
-                const { spawnSync } = require('child_process');
-                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
-                if (npmResult.status === 0 && npmResult.stdout) {
-                    return npmResult.stdout.includes(cliName);
+                const { spawnSync } = await import('child_process');
+                const versionCommands = [
+                    `${commandName} --version`,
+                    `${commandName} -v`,
+                    `${commandName} version`
+                ];
+
+                for (const cmd of versionCommands) {
+                    try {
+                        const result = spawnSync(cmd, { shell: true, stdio: 'pipe', timeout: 3000 });
+                        if (result.status === 0 && (result.stdout.toString().trim() !== '' || result.stderr.toString().trim() !== '')) {
+                            return true;
+                        }
+                    } catch (cmdError) {
+                        // Try next version command
+                        continue;
+                    }
                 }
-            } catch (e2) {
-                // 忽略npm检查错误
+            } catch (e) {
+                // If version command fails, continue to try next possible name
             }
-            return false;
         }
+
+        // 3. Finally, try npm list check as fallback
+        try {
+            const { spawnSync } = require('child_process');
+            const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
+            if (npmResult.status === 0 && npmResult.stdout) {
+                // Check if the tool name appears in npm output (for any variant)
+                return npmResult.stdout.includes(toolName);
+            }
+        } catch (e2) {
+            // Ignore npm check errors
+        }
+
+        return false;
     }
 
     async checkStatus() {
-        console.log('🔍 Checking Stigmergy CLI status...');
+        console.log('[STATUS] Checking Stigmergy CLI status...');
 
-        // 检查全局配置
+        // Check global configuration
         const globalConfigPath = join(this.config.localConfig, 'global-config.json');
         let globalConfig;
         try {
             globalConfig = JSON.parse(await fs.readFile(globalConfigPath, 'utf8'));
         } catch {
-            console.log('⚠️  Global configuration file does not exist');
+            console.log('[WARN] Global configuration file does not exist');
             return;
         }
 
-        // 检查本地配置
+        // Check local configuration
         const localConfigPath = join(process.cwd(), '.stigmergy-project', 'stigmergy-config.json');
         let localConfig;
         try {
             localConfig = JSON.parse(await fs.readFile(localConfigPath, 'utf8'));
         } catch {
-            console.log('⚠️  Project configuration file does not exist');
+            console.log('[WARN] Project configuration file does not exist');
         }
 
-        // 检查适配器状态
+        // Check adapter status
         const adapterStatuses = [];
         for (const [adapterName, adapter] of this.adapters) {
             const exists = await this.checkAdapterExists(adapterName);
@@ -498,33 +587,33 @@ class StigmergyCLIRouter {
             });
         }
 
-        console.log('\n📊 Global configuration:');
+        console.log('\n[INFO] Global configuration:');
         console.log(`   Repository: ${globalConfig.repo}`);
         console.log(`   Version: ${globalConfig.version}`);
         console.log(`   Last updated: ${globalConfig.lastUpdate}`);
 
-        console.log('\n🤖 Available adapters:');
+        console.log('\n[ADAPTERS] Available adapters:');
         for (const status of adapterStatuses) {
             console.log(`   ${status.name}: ${status.status} ${status.config ? `(${status.config})` : ''}`);
         }
 
         if (localConfig) {
-            console.log('\n📁 Project configuration:');
+            console.log('\n[PROJECT] Project configuration:');
             console.log(`   Type: ${localConfig.projectType}`);
             console.log(`   Created at: ${localConfig.createdAt}`);
             console.log(`   Available tools: ${localConfig.adapters.map(a => a.name).join(', ')}`);
         }
 
-        console.log('\n🔍 Adapter detailed status:');
+        console.log('\n[STATUS] Adapter detailed status:');
         for (const status of adapterStatuses) {
             if (!status.status) {
-                console.log(`   ❌ ${status.name}: needs installation`);
+                console.log(`   [X] ${status.name}: needs installation`);
             }
         }
     }
 
     async validate(scope = 'project') {
-        console.log(`🔍 Validating ${scope} configuration...`);
+        console.log(`[VALIDATE] Validating ${scope} configuration...`);
 
         if (scope === 'project') {
             const projectConfigPath = join(process.cwd(), '.stigmergy-project', 'stigmergy-config.json');
@@ -532,15 +621,15 @@ class StigmergyCLIRouter {
                 const projectConfig = await fs.readFile(projectConfigPath, 'utf8');
                 const config = JSON.parse(projectConfig);
 
-                console.log('✅ Project configuration validation passed');
-                console.log(`📊 Project type: ${config.projectType}`);
-                console.log(`📅 Created at: ${config.createdAt}`);
-                console.log(`🔧 Number of adapters: ${config.adapters ? config.adapters.length : 0}`);
+                console.log('[OK] Project configuration validation passed');
+                console.log(`[INFO] Project type: ${config.projectType}`);
+                console.log(`[DATE] Created at: ${config.createdAt}`);
+                console.log(`[CONFIG] Number of adapters: ${config.adapters ? config.adapters.length : 0}`);
 
                 return true;
             } catch (error) {
-                console.log('⚠️  Project configuration validation failed or does not exist');
-                console.log('💡 Tip: Use stigmergy init to initialize project configuration');
+                console.log('[WARN] Project configuration validation failed or does not exist');
+                console.log('[TIP] Tip: Use stigmergy init to initialize project configuration');
                 return false;
             }
         } else if (scope === 'global') {
@@ -549,29 +638,29 @@ class StigmergyCLIRouter {
                 const globalConfig = await fs.readFile(globalConfigPath, 'utf8');
                 const config = JSON.parse(globalConfig);
 
-                console.log('✅ Global configuration validation passed');
-                console.log(`📊 Version: ${config.version}`);
-                console.log(`📅 Last updated: ${config.lastUpdate}`);
+                console.log('[OK] Global configuration validation passed');
+                console.log(`[INFO] Version: ${config.version}`);
+                console.log(`[DATE] Last updated: ${config.lastUpdate}`);
 
                 return true;
             } catch (error) {
-                console.log('⚠️  Global configuration validation failed or does not exist');
-                console.log('💡 Tip: Use stigmergy deploy to deploy global configuration');
+                console.log('[WARN] Global configuration validation failed or does not exist');
+                console.log('[TIP] Tip: Use stigmergy deploy to deploy global configuration');
                 return false;
             }
         } else {
-            console.log('⚠️  Unknown validation scope, use "project" or "global"');
+            console.log('[WARN] Unknown validation scope, use "project" or "global"');
             return false;
         }
     }
 }
 
-// 命令处理
+// Command handling
 async function main() {
     const args = process.argv.slice(2);
     const command = args[0];
 
-    // 检查是否为快速部署命令
+    // Check if it's a quick deploy command
     if (args.includes('quick-deploy') || args.includes('deploy')) {
         await runQuickDeploy();
         return;
@@ -602,7 +691,7 @@ async function main() {
             await router.validate(args[1] || 'project');
             break;
         case 'clean':
-            // 清理功能实现
+            // Clean functionality implementation
             break;
         default:
             console.log(`
@@ -636,7 +725,7 @@ async function main() {
     }
 }
 
-// 添加一个全局的directoryExists函数
+// Add a global directoryExists function
 async function directoryExists(dirPath) {
     try {
         const { stat } = await fs;
@@ -647,41 +736,41 @@ async function directoryExists(dirPath) {
     }
 }
 
-// 远程快速部署函数
+// Remote quick deployment function
 async function runQuickDeploy() {
-    console.log('🤖 Stigmergy CLI - Remote Rapid Deployment System');
+    console.log('[DEPLOY] Stigmergy CLI - Remote Rapid Deployment System');
     console.log('==================================');
     console.log('This script will automatically detect, install and configure cross-AI CLI tool collaboration system');
     console.log('');
 
-    // 定义支持的AI工具及其npm包名称
+    // Define supported AI tools and their npm package names
     const AI_TOOLS = [
         {
             name: 'claude',
             displayName: 'Claude CLI',
             npmPackage: '@anthropic-ai/claude-code',
-            description: 'Anthropic Claude CLI工具',
+            description: 'Anthropic Claude CLI tool',
             website: 'https://claude.ai/cli'
         },
         {
             name: 'gemini',
             displayName: 'Gemini CLI',
             npmPackage: '@google/gemini-cli',
-            description: 'Google Gemini CLI工具',
+            description: 'Google Gemini CLI tool',
             website: 'https://ai.google.dev/cli'
         },
         {
             name: 'qwen',
             displayName: 'QwenCode CLI',
             npmPackage: '@qwen-code/qwen-code@latest',
-            description: '阿里云QwenCode CLI工具',
+            description: 'Alibaba QwenCode CLI tool',
             website: 'https://qwen.aliyun.com'
         },
         {
             name: 'iflow',
             displayName: 'iFlow CLI',
             npmPackage: '@iflow-ai/iflow-cli@latest',
-            description: 'iFlow工作流CLI工具',
+            description: 'iFlow CLI tool',
             website: 'https://iflow.ai'
         },
         {
@@ -702,7 +791,7 @@ async function runQuickDeploy() {
             name: 'copilot',
             displayName: 'GitHub Copilot CLI',
             npmPackage: '@github/copilot',
-            description: 'GitHub Copilot CLI工具',
+            description: 'GitHub Copilot CLI tool',
             website: 'https://github.com/features/copilot'
         },
         {
@@ -716,42 +805,90 @@ async function runQuickDeploy() {
             name: 'codex',
             displayName: 'OpenAI Codex CLI',
             npmPackage: '@openai/codex --registry=https://registry.npmmirror.com',
-            description: 'OpenAI Codex代码分析CLI工具',
+            description: 'OpenAI Codex code analysis CLI tool',
             website: 'https://platform.openai.com'
         }
     ];
 
-    // 检测AI工具的函数
+    // Detect AI tool installation function with smart command name variants
     async function checkToolInstallation(toolName) {
-        try {
-            // 检查命令是否可用
-            const { spawnSync } = await import('child_process');
-            let result;
-            if (process.platform === 'win32') {
-                result = spawnSync('where', [toolName], { stdio: 'pipe' });
-            } else {
-                result = spawnSync('which', [toolName], { stdio: 'pipe' });
+        // Generate possible command name variations
+        const possibleNames = [
+            toolName,                                     // Original name (e.g., qoder)
+            `${toolName}cli`,                             // Add 'cli' suffix (e.g., qodercli)
+            `${toolName}-cli`,                            // Add '-cli' suffix (e.g., qoder-cli)
+            `${toolName}cmd`,                             // Add 'cmd' suffix (e.g., qodercmd)
+            `${toolName}-cmd`,                            // Add '-cmd' suffix (e.g., qoder-cmd)
+            `${toolName}tool`,                            // Add 'tool' suffix (e.g., qodertool)
+            `${toolName}-tool`,                           // Add '-tool' suffix (e.g., qoder-tool)
+            toolName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()  // Convert camelCase to kebab-case
+        ];
+
+        // Remove duplicates while preserving order
+        const uniqueNames = [...new Set(possibleNames)];
+
+        // Try each possible name variation
+        for (const commandName of uniqueNames) {
+            // 1. First, try the standard where/which command check
+            try {
+                const { spawnSync } = await import('child_process');
+                let result;
+                if (process.platform === 'win32') {
+                    result = spawnSync('where', [commandName], { stdio: 'pipe' });
+                } else {
+                    result = spawnSync('which', [commandName], { stdio: 'pipe' });
+                }
+
+                if (result.status === 0 && result.stdout.toString().trim() !== '') {
+                    return true;
+                }
+            } catch (e) {
+                // If where/which fails, continue to try next possible name
             }
 
-            return result.status === 0;
-        } catch (e) {
-            // 如果系统命令失败，尝试npm检查
+            // 2. Try version command check (more reliable than just existence)
             try {
-                const { spawnSync } = require('child_process');
-                const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
-                if (npmResult.status === 0 && npmResult.stdout) {
-                    return npmResult.stdout.includes(toolName);
+                const { spawnSync } = await import('child_process');
+                const versionCommands = [
+                    `${commandName} --version`,
+                    `${commandName} -v`,
+                    `${commandName} version`
+                ];
+
+                for (const cmd of versionCommands) {
+                    try {
+                        const result = spawnSync(cmd, { shell: true, stdio: 'pipe', timeout: 3000 });
+                        if (result.status === 0 && (result.stdout.toString().trim() !== '' || result.stderr.toString().trim() !== '')) {
+                            return true;
+                        }
+                    } catch (cmdError) {
+                        // Try next version command
+                        continue;
+                    }
                 }
-            } catch (e2) {
-                // 忽略npm检查错误
+            } catch (e) {
+                // If version command fails, continue to try next possible name
             }
-            return false;
         }
+
+        // 3. Finally, try npm list check as fallback
+        try {
+            const { spawnSync } = require('child_process');
+            const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
+            if (npmResult.status === 0 && npmResult.stdout) {
+                // Check if the tool name appears in npm output (for any variant)
+                return npmResult.stdout.includes(toolName);
+            }
+        } catch (e2) {
+            // Ignore npm check errors
+        }
+
+        return false;
     }
 
-    // 检测已安装的AI工具
+    // Detect installed AI tools
     async function detectInstalledTools() {
-        console.log('🔍 Detecting AI tools installed in your system...');
+        console.log('[DETECT] Detecting AI tools installed in your system...');
 
         const installedTools = [];
         const notInstalledTools = [];
@@ -760,43 +897,43 @@ async function runQuickDeploy() {
             const isInstalled = await checkToolInstallation(tool.name);
             if (isInstalled) {
                 installedTools.push(tool);
-                console.log(`✅ ${tool.displayName} - Installed`);
+                console.log(`[OK] ${tool.displayName} - Installed`);
             } else {
                 notInstalledTools.push(tool);
-                console.log(`❌ ${tool.displayName} - Not installed`);
+                console.log(`[X] ${tool.displayName} - Not installed`);
             }
         }
 
         return { installedTools, notInstalledTools };
     }
 
-    // 安装指定的工具
+    // Install specified tools
     async function installTools(toolsToInstall) {
         if (toolsToInstall.length === 0) {
-            console.log('\n✅ No additional tools needed, continuing system configuration...');
+            console.log('\n[OK] No additional tools needed, continuing system configuration...');
             return;
         }
 
-        console.log(`\n📦 Installing ${toolsToInstall.length} AI tools...`);
+        console.log(`\n[INSTALL] Installing ${toolsToInstall.length} AI tools...`);
 
         for (const toolName of toolsToInstall) {
-            // 找到工具信息
+            // Find tool info
             const tool = AI_TOOLS.find(t => t.name === toolName);
             if (!tool) continue;
 
-            console.log(`\n🔄 Installing ${tool.displayName}...`);
+            console.log(`\n[INSTALL] Installing ${tool.displayName}...`);
 
             const { spawn } = await import('child_process');
             await new Promise((resolve) => {
-                // 处理带额外参数的npm包名（如codex）
+                // Handle npm package names with extra arguments (like codex)
                 let npmArgs = ['install', '-g'];
                 const packageWithArgs = tool.npmPackage;
 
-                // 分割包名和参数
+                // Split package name and arguments
                 const parts = packageWithArgs.split(' ');
-                npmArgs.push(parts[0]); // 添加包名
+                npmArgs.push(parts[0]); // Add package name
                 if (parts.length > 1) {
-                    npmArgs = npmArgs.concat(parts.slice(1)); // 添加额外参数
+                    npmArgs = npmArgs.concat(parts.slice(1)); // Add extra arguments
                 }
 
                 const installProcess = spawn('npm', npmArgs, {
@@ -807,65 +944,65 @@ async function runQuickDeploy() {
                 installProcess.stdout.on('data', (data) => {
                     const output = data.toString();
                     if (output.includes('added') || output.includes('updated')) {
-                        console.log(`✅ ${tool.displayName} installation successful`);
+                        console.log(`[OK] ${tool.displayName} installation successful`);
                     }
                 });
 
                 installProcess.stderr.on('data', (data) => {
-                    // 忽略大部分npm警告，只显示关键错误
+                    // Ignore most npm warnings, only show critical errors
                     const errOutput = data.toString();
                     if (errOutput.includes('WARN') || errOutput.includes('deprecated')) {
-                        return; // 忽略警告
+                        return; // Ignore warnings
                     }
                     if (errOutput.includes('ERR') || errOutput.includes('error')) {
-                        console.log(`❌ ${tool.displayName} installation error: ${errOutput.trim()}`);
+                        console.log(`[ERROR] ${tool.displayName} installation error: ${errOutput.trim()}`);
                     }
                 });
 
                 installProcess.on('close', (code) => {
                     if (code === 0) {
-                        console.log(`✅ ${tool.displayName} installation completed`);
+                        console.log(`[OK] ${tool.displayName} installation completed`);
                     } else {
-                        console.log(`⚠️ ${tool.displayName} installation may not be complete (exit code: ${code})`);
+                        console.log(`[WARN] ${tool.displayName} installation may not be complete (exit code: ${code})`);
                     }
-                    resolve(); // 继续下一个工具的安装
+                    resolve(); // Continue to next tool installation
                 });
             });
         }
     }
 
-    // 适配器名称映射函数
+    // Adapter name mapping function
     function mapAdapterName(adapterName) {
-        // 将用户接口名称映射到实际的适配器目录名称
+        // Map user interface names to actual adapter directory names
         const nameMap = {
-            'qwen': 'qwencode'  // qwen在内部对应qwencode目录
+            'qwen': 'qwencode'  // qwen corresponds to qwencode directory internally
         };
         return nameMap[adapterName] || adapterName;
     }
 
-    // 确定特定CLI工具的安装参数
+    // Determine specific CLI tool installation arguments
     function determineInstallArgs(cliName) {
-        // 不同的CLI工具有不同的参数格式来触发安装
+        // Different CLI tools have different parameter formats to trigger installation
         const installArgMap = {
-            'claude': ['--install'], // Claude脚本支持--install
-            'gemini': ['--install'], // Gemini脚本支持--install
-            'qwen': ['--install'],   // QwenCode脚本支持--install
-            'iflow': ['--install'],  // iFlow脚本支持--install
-            'qoder': ['--install'],  // Qoder脚本支持--install
-            'codebuddy': ['--install'], // CodeBuddy脚本支持--install
-            'codex': ['--install'],  // Codex脚本支持--install
-            'copilot': ['--force'],  // Copilot脚本使用--force进行安装
-            'ollama': []             // Ollama没有集成脚本
+            'claude': ['--install'], // Claude script supports --install
+            'gemini': ['--install'], // Gemini script supports --install
+            'qwen': ['--install'],   // QwenCode script supports --install
+            'iflow': ['--install'],  // iFlow script supports --install
+            'qoder': ['--install'],  // Qoder script supports --install
+            'codebuddy': ['--install'], // CodeBuddy script supports --install
+            'codex': ['--install'],  // Codex script supports --install
+            'copilot': ['--force'],  // Copilot script uses --force for installation
+            'ollama': []             // Ollama has no integrated script
         };
 
-        // 返回相应的安装参数数组
+        // Return corresponding installation arguments array
         return installArgMap[cliName] || ['--install'];
     }
 
-    // 检测CLI工具是否可用的函数（与checkToolInstallation保持一致）
+    // Detect CLI tool availability function (consistent with checkToolInstallation)
     async function checkToolAvailable(cliName) {
         try {
-            // 检查命令是否可用
+            // Check if command is available
             const { spawnSync } = await import('child_process');
             let result;
             if (process.platform === 'win32') {
@@ -876,7 +1013,7 @@ async function runQuickDeploy() {
 
             return result.status === 0;
         } catch (e) {
-            // 如果系统命令失败，尝试npm检查
+            // If system command fails, try npm check
             try {
                 const { spawnSync } = require('child_process');
                 const npmResult = spawnSync('npm', ['list', '-g', '--depth=0'], { encoding: 'utf-8' });
@@ -884,17 +1021,17 @@ async function runQuickDeploy() {
                     return npmResult.stdout.includes(cliName);
                 }
             } catch (e2) {
-                // 忽略npm检查错误
+                // Ignore npm check errors
             }
             return false;
         }
     }
 
-    // 配置系统 - 运行本地init命令，为所有已安装的CLI配置插件
+    // Configure system - run local init command, configure plugins for all installed CLIs
     async function configureSystem() {
-        console.log('\n⚙️  Configuring Stigmergy CLI collaboration system...');
+        console.log('\n[CONFIG] Configuring Stigmergy CLI collaboration system...');
 
-        // 检测所有支持的CLI工具是否已安装
+        // Detect if all supported CLI tools are installed
         const allCLITools = [
             { name: 'claude', displayName: 'Claude CLI', required: true },
             { name: 'gemini', displayName: 'Gemini CLI', required: true },
@@ -907,7 +1044,7 @@ async function runQuickDeploy() {
             { name: 'ollama', displayName: 'Ollama CLI', required: false }
         ];
 
-        // 检测每个CLI工具是否可用
+        // Detect if each CLI tool is available
         const availableCLIs = [];
         const unavailableCLIs = [];
 
@@ -915,49 +1052,49 @@ async function runQuickDeploy() {
             const available = await checkToolAvailable(cliInfo.name);
             if (available) {
                 availableCLIs.push(cliInfo);
-                console.log(`✅ ${cliInfo.displayName} - Available`);
+                console.log(`[OK] ${cliInfo.displayName} - Available`);
             } else {
                 unavailableCLIs.push(cliInfo);
-                console.log(`❌ ${cliInfo.displayName} - Unavailable`);
+                console.log(`[X] ${cliInfo.displayName} - Unavailable`);
             }
         }
 
-        console.log(`\n📊 Detection results: ${availableCLIs.length} available, ${unavailableCLIs.length} unavailable`);
+        console.log(`\n[INFO] Detection results: ${availableCLIs.length} available, ${unavailableCLIs.length} unavailable`);
 
-        // 初始化项目配置
+        // Initialize project configuration
         try {
             const projectPath = process.cwd();
-            console.log('\n🚀 Initializing Stigmergy CLI project...');
+            console.log('\n[INIT] Initializing Stigmergy CLI project...');
 
-            // 验证并修复路径 - 确保不在系统根目录创建项目文件
+            // Validate and fix path - ensure not creating project files in system root directory
             let safeProjectPath = projectPath;
             if (safeProjectPath === '/' || safeProjectPath === 'C:\\' || safeProjectPath === 'D:\\' ||
                 safeProjectPath === 'E:\\' || safeProjectPath.endsWith(':\\')) {
-                // 如果用户在磁盘根目录运行，创建一个专门的项目目录
-                console.log('⚠️  Detected running in disk root directory, will automatically create project directory for initialization');
+                // If user is running in disk root directory, create a dedicated project directory
+                console.log('[WARN] Detected running in disk root directory, will automatically create project directory for initialization');
 
-                // 创建带序号的项目目录
+                // Create numbered project directory
                 let projectDirName = 'ProjStig';
                 let counter = 1;
                 let targetDir = join(safeProjectPath, projectDirName);
 
-                // 检查目录是否存在，如果存在则添加序号
+                // Check if directory exists, add number if exists
                 while (await directoryExists(targetDir)) {
                     targetDir = join(safeProjectPath, `${projectDirName}${counter}`);
                     counter++;
                 }
 
-                // 创建项目目录
+                // Create project directory
                 await fs.mkdir(targetDir, { recursive: true });
                 safeProjectPath = targetDir;
-                console.log(`📁 Project directory created successfully: ${safeProjectPath}`);
+                console.log(`[DIR] Project directory created successfully: ${safeProjectPath}`);
             }
 
-            // 创建项目配置目录
+            // Create project configuration directory
             const projectConfigDir = join(safeProjectPath, '.stigmergy-project');
             await fs.mkdir(projectConfigDir, { recursive: true });
 
-            // 生成项目配置 - 只包含已安装的工具
+            // Generate project configuration - only include installed tools
             const projectConfig = {
                 projectType: 'initialized',
                 createdAt: new Date().toISOString(),
@@ -969,24 +1106,24 @@ async function runQuickDeploy() {
                 }))
             };
 
-            // 保存项目配置
+            // Save project configuration
             const projectConfigPath = join(projectConfigDir, 'stigmergy-config.json');
             await fs.writeFile(projectConfigPath, JSON.stringify(projectConfig, null, 2));
 
-            console.log(`✅ Stigmergy project initialization completed!`);
+            console.log(`[OK] Stigmergy project initialization completed!`);
             if (availableCLIs.length > 0) {
-                console.log(`📊 Configuring collaboration for ${availableCLIs.length} installed AI CLI tools:`, availableCLIs.map(a => a.name).join(', '));
+                console.log(`[INFO] Configuring collaboration for ${availableCLIs.length} installed AI CLI tools:`, availableCLIs.map(a => a.name).join(', '));
             } else {
-                console.log(`📊 No installed AI CLI tools detected`);
+                console.log(`[INFO] No installed AI CLI tools detected`);
             }
 
-            // 为所有已安装的CLI生成配置文档
+            // Generate configuration documents for all installed CLIs
             for (const cliInfo of availableCLIs) {
-                // 确保md文件生成在项目目录中而不是系统根目录
+                // Ensure md file is generated in project directory not system root
                 const mdPath = join(safeProjectPath, `${cliInfo.name}.md`);
 
                 try {
-                    // 为CLI生成基本配置文档
+                    // Generate basic configuration document for CLI
                     const mdContent = `# ${cliInfo.displayName} Configuration
 
 ## Basic Information
@@ -1006,48 +1143,48 @@ This tool has been configured to participate in the cross-AI tool collaboration 
 Generated at: ${new Date().toISOString()}
 `;
                     await fs.writeFile(mdPath, mdContent);
-                    console.log(`✅ Generated ${cliInfo.name}.md`);
+                    console.log(`[OK] Generated ${cliInfo.name}.md`);
                 } catch (error) {
-                    console.log(`⚠️ Failed to generate ${cliInfo.name}.md: ${error.message}`);
+                    console.log(`[WARN] Failed to generate ${cliInfo.name}.md: ${error.message}`);
                 }
             }
 
-            console.log('✅ Project configuration completed');
+            console.log('[OK] Project configuration completed');
 
-            // 为已安装的CLI配置集成插件（如果支持）
-            console.log('\n🔄 Configuring collaboration plugins for installed CLIs...');
+            // Configure integration plugins for installed CLIs (if supported)
+            console.log('\n[SYNC] Configuring collaboration plugins for installed CLIs...');
             for (const cliInfo of availableCLIs) {
                 try {
-                    // 检查是否存在对应的集成安装脚本
-                    const adapterDirName = mapAdapterName(cliInfo.name); // 使用映射函数处理qwen->qwencode
+                    // Check if corresponding integration installation script exists
+                    const adapterDirName = mapAdapterName(cliInfo.name); // Use mapping function to handle qwen->qwencode
                     const installScriptPath = join(__dirname, 'adapters', adapterDirName, `install_${adapterDirName}_integration.py`);
 
-                    // 尝 versfs来检查文件是否存在
+                    // Check if file exists using fs
                     const { access } = await import('fs/promises');
                     let fileExists = false;
                     try {
                         await access(installScriptPath);
                         fileExists = true;
                     } catch {
-                        // 文件不存在
+                        // File does not exist
                         fileExists = false;
                     }
 
                     if (fileExists) {
-                        console.log(`\n🔄 Configuring ${cliInfo.displayName} integration plugin...`);
+                        console.log(`\n[SYNC] Configuring ${cliInfo.displayName} integration plugin...`);
 
-                        // 不同CLI工具有可能使用不同的安装参数
+                        // Different CLIs may use different installation parameters
                         const installArgs = determineInstallArgs(cliInfo.name);
 
                         const childProcess = await import('child_process');
                         const { spawn } = childProcess;
 
-                        // 对于Copilot，需要处理npx环境下的路径问题
+                        // For Copilot, need to handle path issues in npx environment
                         let additionalEnv = {};
                         if (cliInfo.name === 'copilot') {
-                            // 设置项目根目录环境变量，帮助Python脚本找到配置文件
-                            // __dirname是src目录，所以需要获取父目录作为项目根目录
-                            const projectRoot = join(__dirname, '..');  // 从src目录回到项目根目录
+                            // Set project root directory environment variable to help Python script find configuration file
+                            // __dirname is src directory, so need to get parent directory as project root
+                            const projectRoot = join(__dirname, '..');  // From src directory back to project root
                             additionalEnv = {
                                 ...process.env,
                                 PROJECT_ROOT: projectRoot,
@@ -1057,7 +1194,7 @@ Generated at: ${new Date().toISOString()}
                             additionalEnv = process.env;
                         }
 
-                        // 运行集成安装脚本，使用特定于该工具的安装参数
+                        // Run integration installation script with CLI-specific installation parameters
                         const integrationProcess = spawn('python', [
                             installScriptPath,
                             ...installArgs
@@ -1069,21 +1206,21 @@ Generated at: ${new Date().toISOString()}
 
                         integrationProcess.stdout.on('data', (data) => {
                             const line = data.toString();
-                            // 过滤一些冗长的输出
-                            if (!line.includes('CLI跨CLI协作集成安装器') &&
-                                !line.includes('QwenCode CLI跨CLI协作集成安装器') &&
-                                !line.includes('Copilot CLI跨CLI集成安装脚本')) {
+                            // Filter verbose output
+                            if (!line.includes('CLI Cross-CLI Collaboration Integration Installer') &&
+                                !line.includes('QwenCode CLI Cross-CLI Collaboration Integration Installer') &&
+                                !line.includes('Copilot CLI Cross-CLI Integration Installation Script')) {
                                 console.log(line.trim());
                             }
                         });
 
                         integrationProcess.stderr.on('data', (data) => {
                             const errorLine = data.toString().trim();
-                            // 过滤特定的Python错误信息
-                            if (!errorLine.includes('CLADE_CONFIG_DIR') && // Claude脚本错误
-                                !errorLine.includes('argument --install: ignored explicit argument') && // Copilot参数错误
-                                !errorLine.includes('No such file or directory') && // Copilot路径错误
-                                !errorLine.includes('loading config file failed') && // Copilot配置文件错误
+                            // Filter specific Python errors
+                            if (!errorLine.includes('CLADE_CONFIG_DIR') && // Claude script error
+                                !errorLine.includes('argument --install: ignored explicit argument') && // Copilot parameter error
+                                !errorLine.includes('No such file or directory') && // Copilot path error
+                                !errorLine.includes('loading config file failed') && // Copilot config file error
                                 errorLine.length > 0) {
                                 console.error(errorLine);
                             }
@@ -1092,43 +1229,43 @@ Generated at: ${new Date().toISOString()}
                         await new Promise((resolve) => {
                             integrationProcess.on('close', (integrationCode) => {
                                 if (integrationCode === 0) {
-                                    console.log(`✅ ${cliInfo.displayName} integration plugin configuration successful`);
+                                    console.log(`[OK] ${cliInfo.displayName} integration plugin configuration successful`);
                                 } else {
-                                    console.log(`⚠️ ${cliInfo.displayName} integration plugin configuration may not be complete (exit code: ${integrationCode})`);
+                                    console.log(`[WARN] ${cliInfo.displayName} integration plugin configuration may not be complete (exit code: ${integrationCode})`);
                                 }
                                 resolve();
                             });
                         });
                     } else {
-                        console.log(`ℹ️ ${cliInfo.displayName} - No special integration plugin configuration available`);
+                        console.log(`[INFO] ${cliInfo.displayName} - No special integration plugin configuration available`);
                     }
                 } catch (error) {
-                    console.log(`⚠️ ${cliInfo.displayName} integration plugin configuration error: ${error.message}`);
+                    console.log(`[WARN] ${cliInfo.displayName} integration plugin configuration error: ${error.message}`);
                 }
             }
 
-            console.log('\n✅ System configuration successful');
+            console.log('\n[OK] System configuration successful');
         } catch (error) {
-            console.log(`❌ System configuration failed: ${error.message}`);
+            console.log(`[ERROR] System configuration failed: ${error.message}`);
         }
     }
 
 
-    // 询问用户输入（使用命令行参数而不是inquirer）
+    // Prompt for user input (use command line arguments instead of inquirer)
     async function promptForTools(notInstalledTools) {
         if (notInstalledTools.length === 0) {
-            console.log('\n🎉 You have already installed all supported AI tools!');
+            console.log('\n[SUCCESS] You have already installed all supported AI tools!');
             return [];
         }
 
-        console.log('\n🎯 The following additional AI tools are available for installation:');
+        console.log('\n[TARGET] The following additional AI tools are available for installation:');
         for (let i = 0; i < notInstalledTools.length; i++) {
             const tool = notInstalledTools[i];
             console.log(`${i + 1}. ${tool.displayName} - ${tool.description}`);
             console.log(`   npm package: ${tool.npmPackage}`);
         }
 
-        console.log('\n💡 Tip: You can manually install these tools later with "npm install -g <package>"');
+        console.log('\n[TIP] Tip: You can manually install these tools later with "npm install -g <package>"');
         console.log('   Or select tool numbers to install now, separated by spaces (e.g. 1 3 4), 0 to skip all:');
 
         return new Promise(async (resolve) => {
@@ -1150,7 +1287,7 @@ Generated at: ${new Date().toISOString()}
 
                 const selectedTools = [];
                 for (const selection of selections) {
-                    const index = selection - 1; // 转换为0基索引
+                    const index = selection - 1; // Convert to 0-based index
                     if (index >= 0 && index < notInstalledTools.length) {
                         selectedTools.push(notInstalledTools[index].name);
                     }
@@ -1161,13 +1298,13 @@ Generated at: ${new Date().toISOString()}
         });
     }
 
-    // 自动全局安装 stigmergy
+    // Install stigmergy globally automatically
     async function installStigmergyGlobally() {
-        console.log('\n🌍 Installing stigmergy globally...');
-        
+        console.log('\n[GLOBAL] Installing stigmergy globally...');
+
         try {
             const { spawn } = await import('child_process');
-            
+
             await new Promise((resolve, reject) => {
                 const installProcess = spawn('npm', ['install', '-g', '.'], {
                     stdio: ['pipe', 'pipe', 'pipe'],
@@ -1181,7 +1318,7 @@ Generated at: ${new Date().toISOString()}
                 });
 
                 installProcess.stderr.on('data', (data) => {
-                    // 过滤npm的警告信息
+                    // Filter npm warning messages
                     const stderr = data.toString();
                     if (!stderr.includes('WARN')) {
                         output += stderr;
@@ -1196,7 +1333,7 @@ Generated at: ${new Date().toISOString()}
                     } else {
                         console.log('[WARN] Global installation may not have succeeded, but you can install manually:');
                         console.log('      npm install -g stigmergy');
-                        resolve(); // 不阻塞流程
+                        resolve(); // Don't block process
                     }
                 });
 
@@ -1204,7 +1341,7 @@ Generated at: ${new Date().toISOString()}
                     console.log('[WARN] Global installation failed, you can install manually:');
                     console.log('      npm install -g stigmergy');
                     console.log(`      Error: ${error.message}`);
-                    resolve(); // 不阻塞流程
+                    resolve(); // Don't block process
                 });
             });
         } catch (error) {
@@ -1214,10 +1351,10 @@ Generated at: ${new Date().toISOString()}
         }
     }
 
-    // 显示初始化指南
+    // Show initialization guide
     function showInitializationGuide() {
-        console.log('\n🎉 Deployment completed! Here is the usage guide:');
-        console.log('\n📋 Quick Start:');
+        console.log('\n[SUCCESS] Deployment completed! Here is the usage guide:');
+        console.log('\n[QUICK] Quick Start:');
         console.log('  Now globally installed! Can run from any directory:');
         console.log('  • Initialize project: stigmergy init');
         console.log('  • Check status: stigmergy status');
@@ -1228,11 +1365,11 @@ Generated at: ${new Date().toISOString()}
         console.log('  • Check status: npx stigmergy@latest status');
         console.log('  • Scan environment: npx stigmergy@latest scan');
 
-        console.log('\n⚠️ Important Notice:');
+        console.log('\n[WARN] Important Notice:');
         console.log('  Newly installed CLI tools require registration or configuration of third-party API tokens:');
         console.log('');
-        
-        console.log('\n🔧 CLI Tool Startup Commands:');
+
+        console.log('\n[CONFIG] CLI Tool Startup Commands:');
         console.log('  • Claude CLI:     claude');
         console.log('  • Gemini CLI:     gemini');
         console.log('  • QwenCode CLI:   qwen');
@@ -1241,8 +1378,8 @@ Generated at: ${new Date().toISOString()}
         console.log('  • CodeBuddy CLI:   codebuddy');
         console.log('  • GitHub Copilot:  gh copilot');
         console.log('  • OpenAI Codex:    codex');
-        
-        console.log('\n📁 Recommended Workflow:');
+
+        console.log('\n[WORKFLOW] Recommended Workflow:');
         console.log('  1. Create project directory:');
         console.log('     mkdir my-ai-project');
         console.log('     cd my-ai-project');
@@ -1256,7 +1393,7 @@ Generated at: ${new Date().toISOString()}
         console.log('     gemini "Implement this design using qwen"');
         console.log('     qwen "Create development workflow using iflow"');
 
-        console.log('\n🔑 API Configuration Guide:');
+        console.log('\n[KEY] API Configuration Guide:');
         console.log('  • Claude: Requires ANTHROPIC_API_KEY');
         console.log('  • Gemini: Requires GOOGLE_API_KEY');
         console.log('  • QwenCode: Requires DASHSCOPE_API_KEY');
@@ -1266,41 +1403,41 @@ Generated at: ${new Date().toISOString()}
         console.log('  • Copilot: Requires GitHub account login');
         console.log('  • Codex: Requires OPENAI_API_KEY');
 
-        console.log('\n🚀 Cross-AI Tool Collaboration Examples:');
+        console.log('\n[DEPLOY] Cross-AI Tool Collaboration Examples:');
         console.log('  - Use collaboration commands directly in CLI tools:');
         console.log('    Example: qwen "Help me translate this code using gemini"');
         console.log('    Example: gemini "Analyze this requirement using qwen"');
         console.log('    Example: claude "Create workflow using iflow"');
 
-        console.log('\n💡 Advanced Features:');
+        console.log('\n[ADVANCED] Advanced Features:');
         console.log('  - Project background sharing: All AI tools share PROJECT_SPEC.json');
         console.log('  - Task assignment: Automatic allocation and tracking of collaboration tasks');
         console.log('  - Stigmergy collaboration: Indirect collaboration through environmental cues');
 
-        console.log('\n🔗 Want to learn more? Visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
-        console.log('\n🎊 Success in your multi-AI tool collaboration!');
+        console.log('\n[LINK] Want to learn more? Visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
+        console.log('\n[SUCCESS] Success in your multi-AI tool collaboration!');
     }
 
     try {
-        // 检测已安装的AI工具
+        // Detect installed AI tools
         const { installedTools, notInstalledTools } = await detectInstalledTools();
 
-        // 询问用户是否安装更多工具
+        // Ask user if to install more tools
         const toolsToInstall = await promptForTools(notInstalledTools);
 
-        // 安装选中的工具
+        // Install selected tools
         await installTools(toolsToInstall);
 
-        // 配置系统
+        // Configure system
         await configureSystem();
 
-        // 自动全局安装 stigmergy
+        // Install stigmergy globally automatically
         await installStigmergyGlobally();
 
-        // 显示使用指南
+        // Show usage guide
         showInitializationGuide();
     } catch (error) {
-        console.error(`\n❌ Error occurred during deployment: ${error.message}`);
+        console.error(`\n[ERROR] Error occurred during deployment: ${error.message}`);
         console.error(error.stack);
         process.exit(1);
     }
