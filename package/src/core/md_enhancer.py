@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 
-from .models import (
+from models import (
     CLIInfo, AIEnvironmentInfo, CollaborationGuide,
     MarkdownSection, EnhancementResult, CLI_CONFIG_MAPPING
 )

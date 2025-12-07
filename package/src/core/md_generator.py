@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from .models import (
+from models import (
     CLIInfo, AIEnvironmentInfo, GeneratedDocument, CLI_CONFIG_MAPPING
 )
 

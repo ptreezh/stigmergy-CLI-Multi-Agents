@@ -8,13 +8,13 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
-from .models import (
+from models import (
     ProjectStatus, InitResult, EnhancementResult, GeneratedDocument,
     AIEnvironmentInfo, CLI_CONFIG_MAPPING
 )
-from .ai_environment_scanner import AIEnvironmentScanner
-from .md_enhancer import MDDocumentEnhancer
-from .md_generator import MDDocumentGenerator
+from ai_environment_scanner import AIEnvironmentScanner
+from md_enhancer import MDDocumentEnhancer
+from md_generator import MDDocumentGenerator
 
 import logging
 logger = logging.getLogger(__name__)

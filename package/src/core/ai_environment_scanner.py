@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
-from .models import (
+from models import (
     CLIInfo, ProjectCLIInfo, AIEnvironmentInfo, CollaborationGuide,
     CLIStatus, IntegrationType, CLI_CONFIG_MAPPING, COLLABORATION_PROTOCOLS
 )

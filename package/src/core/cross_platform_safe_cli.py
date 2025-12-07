@@ -22,6 +22,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+# Import the single source of truth for CLI configurations
+from models import CLI_CONFIG_MAPPING, CLIStatus
+
 # 导入跨平台编码库
 sys.path.insert(0, str(Path(__file__).parent / 'src' / 'core'))
 try:
@@ -277,176 +280,143 @@ class CrossPlatformSafeCLI:
         return logger
     
     def _load_cli_configs(self) -> Dict[str, CLIConfig]:
-        """加载CLI配置"""
+        """加载CLI配置 - 使用单一来源的真相 (models.py CLI_CONFIG_MAPPING)"""
         configs = {}
-        
-        # Claude CLI配置
-        configs['claude'] = CLIConfig(
-            name='claude',
-            display_name='Claude CLI',
-            command='claude',
-            description='Anthropic Claude CLI工具',
-            required_env_vars=['ANTHROPIC_API_KEY'],
-            optional_env_vars=['ANTHROPIC_BASE_URL', 'ANTHROPIC_API_URL'],
-            config_files=['~/.claude/config.json', '~/.config/claude/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='claude --version',
-            auth_command='claude auth',
-            help_command='claude --help'
-        )
-        
-        # Gemini CLI配置
-        configs['gemini'] = CLIConfig(
-            name='gemini',
-            display_name='Gemini CLI',
-            command='gemini',
-            description='Google Gemini CLI工具',
-            required_env_vars=['GEMINI_API_KEY'],
-            optional_env_vars=['GOOGLE_CLOUD_PROJECT', 'GOOGLE_APPLICATION_CREDENTIALS'],
-            config_files=['~/.gemini/config.json', '~/.config/gemini/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h', '.png', '.jpg', '.jpeg'],
-            input_format='text_or_image',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='gemini --version',
-            auth_command='gemini auth',
-            help_command='gemini --help'
-        )
-        
-        # QwenCode CLI配置
-        configs['qwencode'] = CLIConfig(
-            name='qwencode',
-            display_name='QwenCode CLI',
-            command='qwencode',
-            description='阿里云QwenCode CLI工具',
-            required_env_vars=['QWEN_API_KEY'],
-            optional_env_vars=['QWEN_BASE_URL', 'QWEN_MODEL'],
-            config_files=['~/.qwencode/config.json', '~/.config/qwencode/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='qwencode --version',
-            auth_command='qwencode auth',
-            help_command='qwencode --help'
-        )
-        
-        # iFlow CLI配置
-        configs['iflow'] = CLIConfig(
-            name='iflow',
-            display_name='iFlow CLI',
-            command='iflow',
-            description='iFlow工作流CLI工具',
-            required_env_vars=['IFLOW_API_KEY'],
-            optional_env_vars=['IFLOW_BASE_URL', 'IFLOW_WORKSPACE'],
-            config_files=['~/.iflow/config.json', '~/.config/iflow/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.yml', '.yaml', '.json', '.txt', '.md'],
-            input_format='workflow',
-            output_format='workflow',
-            permission_level=PermissionLevel.USER,
-            version_check_command='iflow --version',
-            help_command='iflow --help'
-        )
-        
-        # Qoder CLI配置
-        configs['qoder'] = CLIConfig(
-            name='qoder',
-            display_name='Qoder CLI',
-            command='qoder',
-            description='Qoder代码生成CLI工具',
-            required_env_vars=['QODER_API_KEY'],
-            optional_env_vars=['QODER_BASE_URL', 'QODER_MODEL'],
-            config_files=['~/.qoder/config.json', '~/.config/qoder/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='code',
-            permission_level=PermissionLevel.USER,
-            version_check_command='qoder --version',
-            help_command='qoder --help'
-        )
-        
-        # CodeBuddy CLI配置
-        configs['codebuddy'] = CLIConfig(
-            name='codebuddy',
-            display_name='CodeBuddy CLI',
-            command='codebuddy',
-            description='CodeBuddy编程助手CLI工具',
-            required_env_vars=['CODEBUDDY_API_KEY'],
-            optional_env_vars=['CODEBUDDY_BASE_URL', 'CODEBUDDY_MODEL'],
-            config_files=['~/.codebuddy/config.json', '~/.config/codebuddy/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='codebuddy --version',
-            help_command='codebuddy --help'
-        )
-        
-        # Copilot CLI配置
-        configs['copilot'] = CLIConfig(
-            name='copilot',
-            display_name='GitHub Copilot CLI',
-            command='copilot',
-            description='GitHub Copilot CLI工具',
-            required_env_vars=['GITHUB_TOKEN'],
-            optional_env_vars=['COPILOT_API_KEY', 'COPILOT_MODEL'],
-            config_files=['~/.config/copilot/config.json', '~/.config/github/copilot/config.json'],
-            auth_method='oauth_or_token',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='copilot --version',
-            auth_command='copilot auth',
-            help_command='copilot --help'
-        )
-        
-        # Codex CLI配置
-        configs['codex'] = CLIConfig(
-            name='codex',
-            display_name='Codex CLI',
-            command='codex',
-            description='OpenAI Codex代码分析CLI工具',
-            required_env_vars=['OPENAI_API_KEY'],
-            optional_env_vars=['OPENAI_ORGANIZATION', 'OPENAI_BASE_URL'],
-            config_files=['~/.codex/config.json', '~/.config/codex/config.json'],
-            auth_method='api_key',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='codex --version',
-            help_command='codex --help'
-        )
-        
-        # Cline CLI配置
-        configs['cline'] = CLIConfig(
-            name='cline',
-            display_name='Cline CLI',
-            command='cline',
-            description='Cline AI助手CLI工具 - 支持任务生命周期钩子和多智能体编排',
-            required_env_vars=['ANTHROPIC_API_KEY'],  # Cline支持多种API提供商
-            optional_env_vars=['OPENAI_API_KEY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'CLINE_MODEL', 'CLINE_PROVIDER'],
-            config_files=['~/.cline/config.json', '~/.config/cline/config.json'],
-            auth_method='api_key_or_oauth',
-            supported_file_types=['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h', '.json', '.yml', '.yaml'],
-            input_format='text',
-            output_format='text',
-            permission_level=PermissionLevel.USER,
-            version_check_command='cline --version',
-            auth_command='cline auth',
-            help_command='cline --help'
-        )
-        
+
+        # 定义从models.py格式到cross_platform_safe_cli格式的映射
+        cli_metadata = {
+            'claude': {
+                'display_name': 'Claude CLI',
+                'command': 'claude',
+                'description': 'Anthropic Claude CLI工具',
+                'required_env_vars': ['ANTHROPIC_API_KEY'],
+                'optional_env_vars': ['ANTHROPIC_BASE_URL', 'ANTHROPIC_API_URL'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'text',
+                'auth_command': 'claude auth',
+            },
+            'gemini': {
+                'display_name': 'Gemini CLI',
+                'command': 'gemini',
+                'description': 'Google Gemini CLI工具',
+                'required_env_vars': ['GEMINI_API_KEY'],
+                'optional_env_vars': ['GOOGLE_CLOUD_PROJECT', 'GOOGLE_APPLICATION_CREDENTIALS'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h', '.png', '.jpg', '.jpeg'],
+                'input_format': 'text_or_image',
+                'output_format': 'text',
+                'auth_command': 'gemini auth',
+            },
+            'qwen': {
+                'display_name': 'Qwen CLI',
+                'command': 'qwen',
+                'description': 'Alibaba Qwen CLI工具',
+                'required_env_vars': ['QWEN_API_KEY'],
+                'optional_env_vars': ['QWEN_BASE_URL', 'QWEN_MODEL'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'text',
+                'auth_command': 'qwen auth',
+            },
+            'iflow': {
+                'display_name': 'iFlow CLI',
+                'command': 'iflow',
+                'description': 'iFlow工作流CLI工具',
+                'required_env_vars': ['IFLOW_API_KEY'],
+                'optional_env_vars': ['IFLOW_BASE_URL', 'IFLOW_WORKSPACE'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.yml', '.yaml', '.json', '.txt', '.md'],
+                'input_format': 'workflow',
+                'output_format': 'workflow',
+                'auth_command': 'iflow auth',
+            },
+            'qoder': {
+                'display_name': 'Qoder CLI',
+                'command': 'qodercli',
+                'description': 'Qoder代码生成CLI工具',
+                'required_env_vars': ['QODER_API_KEY'],
+                'optional_env_vars': ['QODER_BASE_URL', 'QODER_MODEL'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'code',
+                'auth_command': 'qodercli auth',
+            },
+            'codebuddy': {
+                'display_name': 'CodeBuddy CLI',
+                'command': 'codebuddy',
+                'description': 'CodeBuddy编程助手CLI工具',
+                'required_env_vars': ['CODEBUDDY_API_KEY'],
+                'optional_env_vars': ['CODEBUDDY_BASE_URL', 'CODEBUDDY_MODEL'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'text',
+                'auth_command': 'codebuddy auth',
+            },
+            'copilot': {
+                'display_name': 'GitHub Copilot CLI',
+                'command': 'copilot',
+                'description': 'GitHub Copilot CLI工具',
+                'required_env_vars': ['GITHUB_TOKEN'],
+                'optional_env_vars': ['COPILOT_API_KEY', 'COPILOT_MODEL'],
+                'auth_method': 'oauth_or_token',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'text',
+                'auth_command': 'copilot auth',
+            },
+            'codex': {
+                'display_name': 'Codex CLI',
+                'command': 'codex',
+                'description': 'OpenAI Codex代码分析CLI工具',
+                'required_env_vars': ['OPENAI_API_KEY'],
+                'optional_env_vars': ['OPENAI_ORGANIZATION', 'OPENAI_BASE_URL'],
+                'auth_method': 'api_key',
+                'supported_file_types': ['.txt', '.md', '.py', '.js', '.ts', '.java', '.cpp', '.c', '.h'],
+                'input_format': 'text',
+                'output_format': 'text',
+                'auth_command': 'codex auth',
+            },
+        }
+
+        # 使用单一来源的真相：CLI_CONFIG_MAPPING from models.py
+        for cli_name, config_mapping in CLI_CONFIG_MAPPING.items():
+            if cli_name in cli_metadata:
+                meta = cli_metadata[cli_name]
+
+                # 从models.py的config_file提取配置文件列表
+                config_files = [config_mapping.config_file]
+                if cli_name == 'copilot':
+                    config_files.append('~/.config/github/copilot/config.json')
+                elif cli_name != 'qoder':
+                    # 为其他CLI添加备用配置文件路径
+                    alt_config = config_mapping.config_file.replace('~/.', '~/.config/')
+                    if alt_config != config_mapping.config_file:
+                        config_files.append(alt_config)
+
+                # 从单一来源创建CLIConfig
+                configs[cli_name] = CLIConfig(
+                    name=cli_name,
+                    display_name=meta['display_name'],
+                    command=meta['command'],
+                    description=meta['description'],
+                    required_env_vars=meta['required_env_vars'],
+                    optional_env_vars=meta['optional_env_vars'],
+                    config_files=config_files,
+                    auth_method=meta['auth_method'],
+                    supported_file_types=meta['supported_file_types'],
+                    input_format=meta['input_format'],
+                    output_format=meta['output_format'],
+                    permission_level=PermissionLevel.USER,
+                    version_check_command=config_mapping.version_check_command,
+                    auth_command=meta.get('auth_command'),
+                    help_command=f"{meta['command']} --help"
+                )
+
         return configs
     
     def check_cli_status(self, cli_name: str) -> Tuple[CLIStatus, str]:

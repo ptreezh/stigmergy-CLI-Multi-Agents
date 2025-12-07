@@ -140,56 +140,56 @@ CLI_CONFIG_MAPPING = {
         global_doc="claude.md",
         integration_type=IntegrationType.HOOK_SYSTEM,
         install_script="install_claude_integration.py",
-        version_check_command="claude-cli --version"
+        version_check_command="claude --version"
     ),
     "gemini": CLIConfigMapping(
         config_file="~/.config/gemini/extensions.json",
         global_doc="gemini.md",
         integration_type=IntegrationType.EXTENSION_SYSTEM,
         install_script="install_gemini_integration.py",
-        version_check_command="gemini-cli --version"
+        version_check_command="gemini --version"
     ),
     "qwen": CLIConfigMapping(
         config_file="~/.config/qwencode/config.yml",
         global_doc="qwen.md",
         integration_type=IntegrationType.CLASS_INHERITANCE,
         install_script="install_qwencode_integration.py",
-        version_check_command="qwencode-cli --version"
+        version_check_command="qwen --version"
     ),
     "iflow": CLIConfigMapping(
         config_file="~/.config/iflow/hooks.yml",
         global_doc="iflow.md",
         integration_type=IntegrationType.WORKFLOW_PIPELINE,
         install_script="install_iflow_integration.py",
-        version_check_command="iflow-cli --version"
+        version_check_command="iflow --version"
     ),
     "qoder": CLIConfigMapping(
         config_file="~/.qoder/config.json",
         global_doc="qoder.md",
         integration_type=IntegrationType.NOTIFICATION_HOOK,
         install_script="install_qoder_integration.py",
-        version_check_command="qoder-cli --version"
+        version_check_command="qodercli --version"
     ),
     "codebuddy": CLIConfigMapping(
         config_file="~/.codebuddy/buddy_config.json",
         global_doc="codebuddy.md",
         integration_type=IntegrationType.HOOK_SYSTEM,
         install_script="install_codebuddy_integration.py",
-        version_check_command="codebuddy-cli --version"
+        version_check_command="codebuddy --version"
     ),
     "copilot": CLIConfigMapping(
         config_file="~/.copilot/mcp-config.json",
         global_doc="copilot.md",
         integration_type=IntegrationType.MCP_SERVER,
         install_script="install_copilot_integration.py",
-        version_check_command="copilot-cli --version"
+        version_check_command="copilot --version"
     ),
     "codex": CLIConfigMapping(
         config_file="~/.config/codex/slash_commands.json",
         global_doc="codex.md",
         integration_type=IntegrationType.SLASH_COMMAND,
         install_script="install_codex_integration.py",
-        version_check_command="codex-cli --version"
+        version_check_command="codex --version"
     ),
 }
 
