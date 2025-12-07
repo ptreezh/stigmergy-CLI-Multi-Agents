@@ -71,6 +71,149 @@ const CLI_TOOLS = {
     }
 };
 
+class SmartRouter {
+    constructor() {
+        this.tools = CLI_TOOLS;
+        this.routeKeywords = ['use', 'help', 'please', 'write', 'generate', 'explain', 'analyze', 'translate', 'code', 'article'];
+        this.defaultTool = 'claude';
+    }
+
+    shouldRoute(userInput) {
+        return this.routeKeywords.some(keyword =>
+            userInput.toLowerCase().includes(keyword.toLowerCase())
+        );
+    }
+
+    smartRoute(userInput) {
+        const input = userInput.trim();
+
+        // Detect tool-specific keywords
+        for (const [toolName, toolInfo] of Object.entries(this.tools)) {
+            for (const keyword of this.extractKeywords(toolName)) {
+                if (input.toLowerCase().includes(keyword.toLowerCase())) {
+                    // Extract clean parameters
+                    const cleanInput = input
+                        .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
+                        .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, '')
+                        .trim();
+                    return { tool: toolName, prompt: cleanInput };
+                }
+            }
+        }
+
+        // Default routing
+        const cleanInput = input
+            .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, '')
+            .trim();
+        return { tool: this.defaultTool, prompt: cleanInput };
+    }
+
+    extractKeywords(toolName) {
+        const keywordMap = {
+            claude: ['claude', 'anthropic'],
+            gemini: ['gemini', 'google', '谷歌'],
+            qwen: ['qwen', '通义', '阿里'],
+            iflow: ['iflow', '心流', 'intelligent'],
+            qoder: ['qoder', 'qodercli'],
+            codebuddy: ['codebuddy', 'buddy'],
+            copilot: ['copilot', 'github'],
+            codex: ['codex', 'openai']
+        };
+        return keywordMap[toolName] || [toolName];
+    }
+
+    async executeTool(toolName, prompt) {
+        const tool = this.tools[toolName];
+        if (!tool) {
+            return { success: false, error: `Unknown tool: ${toolName}` };
+        }
+
+        if (!this.checkCLI(toolName)) {
+            return { success: false, error: `${tool.name} is not available` };
+        }
+
+        try {
+            const result = spawnSync(toolName, [prompt], {
+                encoding: 'utf8',
+                timeout: 30000
+            });
+
+            return {
+                success: result.status === 0,
+                output: result.stdout,
+                error: result.stderr
+            };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+
+    checkCLI(toolName) {
+        try {
+            const tool = this.tools[toolName];
+            const command = tool.version.split(' ')[0];
+            const args = tool.version.split(' ').slice(1);
+
+            const result = spawnSync(command, args, {
+                stdio: 'ignore',
+                timeout: 10000,
+                env: { ...process.env }
+            });
+            return result.status === 0;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async analyzeCLIHelp(toolName) {
+        const tool = this.tools[toolName];
+        if (!tool) return null;
+
+        try {
+            const result = spawnSync(toolName, ['--help'], {
+                encoding: 'utf8',
+                timeout: 15000
+            });
+
+            if (result.status === 0) {
+                return this.parseHelpOutput(result.stdout);
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    parseHelpOutput(helpText) {
+        const capabilities = {
+            commands: [],
+            options: [],
+            examples: [],
+            features: []
+        };
+
+        // Extract commands
+        const commandMatches = helpText.match(/^\s{0,4}([a-z][a-z0-9_-]+)\s+.+$/gm);
+        if (commandMatches) {
+            capabilities.commands = commandMatches.map(match => match.trim());
+        }
+
+        // Extract options
+        const optionMatches = helpText.match(/--[a-z-]+/g);
+        if (optionMatches) {
+            capabilities.options = [...new Set(optionMatches)];
+        }
+
+        // Extract examples
+        const exampleMatches = helpText.match(/(example|Usage|用法)[:：]\s*\n([\s\S]*?)(?=\n\n|\n[A-Z]|\n$)/gi);
+        if (exampleMatches) {
+            capabilities.examples = exampleMatches.map(match => match.replace(/^(example|Usage|用法)[:：]\s*/i, '').trim());
+        }
+
+        return capabilities;
+    }
+}
+
 class StigmergyInstaller {
     constructor() {
         this.homeDir = os.homedir();
@@ -497,6 +640,8 @@ async function main() {
         console.log('  install         Auto-install missing CLI tools');
         console.log('  deploy          Deploy hooks to installed tools');
         console.log('  setup           Complete setup and configuration');
+        console.log('  call <tool>     Execute prompt with specified or auto-routed AI CLI');
+        console.log('  call <tool>     Execute prompt with specified or auto-routed AI CLI');
         console.log('');
         console.log('[WORKFLOW] Automated Workflow:');
         console.log('  1. npm install -g stigmergy        # Install Stigmergy');
@@ -541,7 +686,12 @@ async function main() {
     }
 
     // Define valid commands
-    const validCommands = ['help', '--help', '-h', 'version', '--version', 'status', 'scan', 'install', 'deploy', 'setup', 'auto-install'];
+    const validCommands = ['help', '--help', '-h', 'version', '--version', 'status', 'scan', 'install', 'deploy', 'setup', 'auto-install', 'call'];
+
+    // Handle call command
+    if (args[0] === 'call') {
+        return await handleCallCommand(args.slice(1));
+    }
 
     // Check for invalid commands
     const hasValidCommand = args.some(arg => validCommands.includes(arg));
@@ -558,6 +708,8 @@ async function main() {
         console.log('  install         Auto-install missing CLI tools');
         console.log('  deploy          Deploy hooks to installed tools');
         console.log('  setup           Complete setup and configuration');
+        console.log('  call <tool>     Execute prompt with specified or auto-routed AI CLI');
+        console.log('  call <tool>     Execute prompt with specified or auto-routed AI CLI');
         console.log('');
         console.log('Run "stigmergy --help" for more information.');
         process.exit(1);
@@ -594,6 +746,137 @@ async function main() {
     await installer.showUsageInstructions();
 }
 
+// Memory Management System
+class MemoryManager {
+    constructor(stigmergyDir) {
+        this.memoryDir = path.join(stigmergyDir, 'memory');
+        this.globalMemoryFile = path.join(this.memoryDir, 'global.json');
+        this.projectMemoryFile = path.join(process.cwd(), '.stigmergy-memory.json');
+    }
+
+    async ensureDirectory() {
+        await fs.mkdir(this.memoryDir, { recursive: true });
+    }
+
+    async saveGlobalMemory(data) {
+        await this.ensureDirectory();
+        await fs.writeFile(this.globalMemoryFile, JSON.stringify({
+            lastUpdated: new Date().toISOString(),
+            ...data
+        }, null, 2));
+    }
+
+    async loadGlobalMemory() {
+        try {
+            await this.ensureDirectory();
+            const data = await fs.readFile(this.globalMemoryFile, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            return {};
+        }
+    }
+
+    async saveProjectMemory(data) {
+        const memory = await this.loadProjectMemory();
+        await fs.writeFile(this.projectMemoryFile, JSON.stringify({
+            ...memory,
+            lastUpdated: new Date().toISOString(),
+            ...data
+        }, null, 2));
+    }
+
+    async loadProjectMemory() {
+        try {
+            const data = await fs.readFile(this.projectMemoryFile, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            return {
+                projectName: path.basename(process.cwd()),
+                createdAt: new Date().toISOString(),
+                interactions: []
+            };
+        }
+    }
+
+    async addInteraction(tool, prompt, response) {
+        const interaction = {
+            timestamp: new Date().toISOString(),
+            tool,
+            prompt,
+            response,
+            duration: Date.now() - new Date().getTime()
+        };
+
+        await this.saveProjectMemory({
+            lastInteraction: interaction,
+            interactions: (await this.loadProjectMemory()).interactions.concat(interaction).slice(-100) // Keep last 100
+        });
+    }
+}
+
+// Call Command Handler
+async function handleCallCommand(args) {
+    const router = new SmartRouter();
+    const memoryManager = new MemoryManager(path.join(os.homedir(), '.stigmergy'));
+
+    if (args.length === 0) {
+        console.log('[ERROR] Call command requires a tool name and/or prompt');
+        console.log('');
+        console.log('Usage: stigmergy call <tool> <prompt>');
+        console.log('       stigmergy call <prompt> (auto-route to best tool)');
+        console.log('');
+        console.log('Available tools:', Object.keys(CLI_TOOLS).join(', '));
+        return;
+    }
+
+    let toolName, prompt;
+
+    // Check if first argument is a valid tool
+    if (CLI_TOOLS[args[0]]) {
+        toolName = args[0];
+        prompt = args.slice(1).join(' ');
+    } else {
+        // Auto-route based on keywords
+        const routeResult = router.smartRoute(args.join(' '));
+        toolName = routeResult.tool;
+        prompt = routeResult.prompt || args.join(' ');
+    }
+
+    if (!prompt) {
+        console.log('[ERROR] Prompt is required');
+        return;
+    }
+
+    console.log(`[CALL] Routing to: ${CLI_TOOLS[toolName].name}`);
+    console.log(`[PROMPT] ${prompt}`);
+    console.log('='.repeat(60));
+
+    const result = await router.executeTool(toolName, prompt);
+
+    if (result.success) {
+        console.log('[SUCCESS] Execution completed');
+        if (result.output) {
+            console.log('[OUTPUT]');
+            console.log(result.output);
+        }
+
+        // Save to memory
+        await memoryManager.addInteraction(toolName, prompt, result.output || 'Success');
+        console.log(`[MEMORY] Interaction saved to project memory`);
+    } else {
+        console.log('[ERROR] Execution failed');
+        if (result.error) {
+            console.log('[ERROR]', result.error);
+        }
+
+        // Save failed interaction to memory
+        await memoryManager.addInteraction(toolName, prompt, result.error || 'Failed');
+    }
+
+    console.log('');
+    console.log('[INFO] For help with CLI usage: stigmergy help');
+}
+
 // Setup stdin for interactive prompts
 if (require.main === module) {
     if (process.stdin.isTTY) {
@@ -607,4 +890,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { main, StigmergyInstaller, CLI_TOOLS };
+module.exports = { main, StigmergyInstaller, CLI_TOOLS, SmartRouter, MemoryManager };

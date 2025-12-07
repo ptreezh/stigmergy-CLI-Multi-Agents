@@ -79,7 +79,11 @@
       "Bash(stigmergy:*)",
       "Bash(npm cache clean:*)",
       "Bash(nul:*)",
-      "Bash(npx -y stigmergy@latest:*)"
+      "Bash(npx -y stigmergy@latest:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(~/.stigmergy-test/claude.js)",
+      "Bash(~/.stigmergy-test/claude.cmd)",
+      "Bash(\"C:\\Users\\WIN10\\.stigmergy-test\\testai-wrapper.cmd\":*)"
     ],
     "deny": [],
     "ask": []
