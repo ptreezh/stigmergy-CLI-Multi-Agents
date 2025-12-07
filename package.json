@@ -1,11 +1,11 @@
 {
   "name": "stigmergy",
-  "version": "1.0.74",
+  "version": "1.0.75",
   "type": "commonjs",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
   "main": "src/index.js",
   "bin": {
-    "stigmergy": "src/index.js"
+    "stigmergy": "src/main.js"
   },
   "scripts": {
     "start": "node src/main.js",

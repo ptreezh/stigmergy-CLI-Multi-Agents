@@ -74,7 +74,9 @@
       "Bash(qwencode-cli:*)",
       "Bash(qodercli:*)",
       "Bash(npm version:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(stigmergy:*)"
     ],
     "deny": [],
     "ask": []
