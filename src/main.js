@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Stigmergy CLI - Automated Installation and Deployment System
- * Multi-Agents Cross-AI CLI Tools Collaboration System
+ * Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
+ * International Version - Pure ANSI Characters Only
+ * Version: 1.0.76
  */
 
 const { spawn, spawnSync } = require('child_process');
@@ -10,7 +11,7 @@ const path = require('path');
 const fs = require('fs/promises');
 const os = require('os');
 
-// CLI Tools Configuration
+// AI CLI Tools Configuration
 const CLI_TOOLS = {
     claude: {
         name: 'Claude CLI',
@@ -203,12 +204,6 @@ class StigmergyInstaller {
             console.log(`\n[INSTALLING] Installing ${tool.name}...`);
 
             try {
-                const installProcess = spawn('npm', ['install', '-g'], {
-                    stdio: 'inherit',
-                    shell: true
-                });
-
-                // Install specific package
                 const packageInstall = spawn('npm', ['install', '-g'].concat(tool.install.split(' ').slice(3)), {
                     stdio: 'inherit',
                     shell: true
@@ -343,15 +338,12 @@ const hook = new StigmergyHook();
             const tool = CLI_TOOLS[toolKey];
             const hooksDir = tool.hooksDir;
 
-            // Create hooks directory
             await this.ensureDirectory(hooksDir);
 
-            // Deploy hook file
             const hookFile = path.join(hooksDir, 'stigmergy-hook.cjs');
             try {
                 await fs.writeFile(hookFile, hookTemplate, 'utf8');
 
-                // Make file executable on Unix systems
                 if (process.platform !== 'win32') {
                     const { spawn } = require('child_process');
                     spawn('chmod', ['+x', hookFile], { stdio: 'ignore' });
@@ -371,11 +363,11 @@ const hook = new StigmergyHook();
         await this.ensureDirectory(this.stigmergyDir);
 
         const globalConfig = {
-            version: '1.0.71',
+            version: '1.0.77',
             installed: new Date().toISOString(),
             projectPath: this.projectDir,
-            availableTools: [],
-            deployedHooks: [],
+            availableTools: availableTools,
+            deployedHooks: availableTools,
             collaboration: {
                 enabled: true,
                 protocols: [
@@ -401,7 +393,6 @@ const hook = new StigmergyHook();
             console.log('[WARN] Warning: Could not save global configuration');
         }
 
-        // Create project documentation template
         const projectDocs = path.join(this.projectDir, 'STIGMERGY.md');
         const docsTemplate = `# Stigmergy Multi-AI CLI Collaboration
 
@@ -414,7 +405,7 @@ ${availableTools.map(tool => `- **${CLI_TOOLS[tool].name}**: \`stigmergy call ${
 ## Usage Examples
 
 ### Cross-CLI Collaboration
-\`\`\bash
+\`\`\`bash
 # Use Claude to analyze code
 stigmergy call claude "analyze this function"
 
@@ -426,7 +417,7 @@ stigmergy call qwen "translate to English"
 \`\`\`
 
 ### Project Initialization
-\`\`\bash
+\`\`\`bash
 # Initialize with Claude as primary AI
 stigmergy init --primary claude
 
@@ -492,7 +483,7 @@ async function main() {
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.76');
+        console.log('Version: 1.0.78');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -518,17 +509,16 @@ async function main() {
     }
 
     if (args.includes('--version') || args.includes('version')) {
-        console.log('1.0.76');
+        console.log('1.0.77');
         return;
     }
 
     // Auto-install mode for postinstall script
     if (args.includes('auto-install')) {
         console.log('[AUTO-INSTALL] Stigmergy CLI - Automated Installation and Deployment');
-        console.log('Multi-AI CLI Tools Collaboration System v1.0.76');
+        console.log('Multi-AI CLI Tools Collaboration System v1.0.77');
         console.log('='.repeat(60));
 
-        // Disable interactive prompts for auto-install mode
         const originalPrompt = installer.promptForInstallation;
         installer.promptForInstallation = async () => {
             console.log('[AUTO-INSTALL] Skipping interactive CLI installation in postinstall mode');
@@ -536,7 +526,6 @@ async function main() {
             return [];
         };
 
-        // Run automated installation and deployment
         console.log('\n[STEP 1] Scanning for AI CLI tools...');
         const scanResults = await installer.scanAvailableTools();
 
@@ -576,20 +565,17 @@ async function main() {
 
     // Start automated installation and deployment
     console.log('[START] Stigmergy CLI - Automated Installation and Deployment');
-    console.log('Multi-AI CLI Tools Collaboration System v1.0.76');
+    console.log('Multi-AI CLI Tools Collaboration System v1.0.77');
     console.log('='.repeat(60));
 
-    // Step 1: Scan available CLI tools
     console.log('\n[STEP 1] Scanning for AI CLI tools...');
     const scanResults = await installer.scanAvailableTools();
 
-    // Step 2: Prompt for CLI tool installation
     if (scanResults.unavailable.length > 0) {
         console.log('\n[STEP 2] CLI Tool Installation');
         const selectedTools = await installer.promptForInstallation(scanResults);
         await installer.installTools(selectedTools);
 
-        // Re-scan after installation
         if (selectedTools.length > 0) {
             console.log('\n[RESCAN] Re-scanning after installation...');
             scanResults.available = scanResults.available.concat(selectedTools.filter(tool => installer.checkCLI(tool)));
@@ -599,15 +585,12 @@ async function main() {
         console.log('\n[STEP 2] All CLI tools already available!');
     }
 
-    // Step 3: Deploy hooks
     console.log('\n[STEP 3] Deploying Stigmergy hooks...');
     await installer.deployHooks(scanResults.available);
 
-    // Step 4: Setup configuration
     console.log('\n[STEP 4] Setting up configuration...');
     await installer.setupGlobalConfiguration(scanResults.available);
 
-    // Final instructions
     await installer.showUsageInstructions();
 }
 

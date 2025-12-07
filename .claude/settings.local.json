@@ -76,7 +76,10 @@
       "Bash(npm version:*)",
       "Bash(git reset:*)",
       "Bash(npm uninstall:*)",
-      "Bash(stigmergy:*)"
+      "Bash(stigmergy:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(nul:*)",
+      "Bash(npx -y stigmergy@latest:*)"
     ],
     "deny": [],
     "ask": []

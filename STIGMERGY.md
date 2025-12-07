@@ -9,7 +9,7 @@ This project is configured for Stigmergy-based multi-AI CLI collaboration.
 ## Usage Examples
 
 ### Cross-CLI Collaboration
-``ash
+```bash
 # Use Claude to analyze code
 stigmergy call claude "analyze this function"
 
@@ -21,7 +21,7 @@ stigmergy call qwen "translate to English"
 ```
 
 ### Project Initialization
-``ash
+```bash
 # Initialize with Claude as primary AI
 stigmergy init --primary claude
 
