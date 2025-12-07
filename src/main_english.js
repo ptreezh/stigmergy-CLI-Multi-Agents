@@ -3,7 +3,7 @@
 /**
  * Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
  * International Version - Pure English & ANSI Only
- * Version: 1.0.81
+ * Version: 1.0.83
  */
 
 const { spawn, spawnSync } = require('child_process');
@@ -505,7 +505,7 @@ class StigmergyInstaller {
 
             const configFile = path.join(this.configDir, 'config.json');
             const config = {
-                version: '1.0.81',
+                version: '1.0.83',
                 initialized: true,
                 createdAt: new Date().toISOString(),
                 lastUpdated: new Date().toISOString(),
@@ -559,7 +559,7 @@ async function main() {
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.81');
+        console.log('Version: 1.0.83');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -590,7 +590,7 @@ async function main() {
     switch (command) {
         case 'version':
         case '--version':
-            console.log('Stigmergy CLI v1.0.81');
+            console.log('Stigmergy CLI v1.0.83');
             break;
 
         case 'status':
