@@ -492,7 +492,7 @@ async function main() {
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.75');
+        console.log('Version: 1.0.76');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -518,14 +518,14 @@ async function main() {
     }
 
     if (args.includes('--version') || args.includes('version')) {
-        console.log('1.0.75');
+        console.log('1.0.76');
         return;
     }
 
     // Auto-install mode for postinstall script
     if (args.includes('auto-install')) {
         console.log('[AUTO-INSTALL] Stigmergy CLI - Automated Installation and Deployment');
-        console.log('Multi-AI CLI Tools Collaboration System v1.0.75');
+        console.log('Multi-AI CLI Tools Collaboration System v1.0.76');
         console.log('='.repeat(60));
 
         // Disable interactive prompts for auto-install mode
@@ -551,9 +551,32 @@ async function main() {
         return;
     }
 
+    // Define valid commands
+    const validCommands = ['help', '--help', '-h', 'version', '--version', 'status', 'scan', 'install', 'deploy', 'setup', 'auto-install'];
+
+    // Check for invalid commands
+    const hasValidCommand = args.some(arg => validCommands.includes(arg));
+    if (!hasValidCommand && args.length > 0) {
+        console.log('[ERROR] Invalid command:', args[0]);
+        console.log('');
+        console.log('Usage: stigmergy [command] [options]');
+        console.log('');
+        console.log('Available commands:');
+        console.log('  help, --help     Show this help message');
+        console.log('  version, --version Show version information');
+        console.log('  status          Check CLI tools status');
+        console.log('  scan            Scan for available AI CLI tools');
+        console.log('  install         Auto-install missing CLI tools');
+        console.log('  deploy          Deploy hooks to installed tools');
+        console.log('  setup           Complete setup and configuration');
+        console.log('');
+        console.log('Run "stigmergy --help" for more information.');
+        process.exit(1);
+    }
+
     // Start automated installation and deployment
     console.log('[START] Stigmergy CLI - Automated Installation and Deployment');
-    console.log('Multi-AI CLI Tools Collaboration System v1.0.75');
+    console.log('Multi-AI CLI Tools Collaboration System v1.0.76');
     console.log('='.repeat(60));
 
     // Step 1: Scan available CLI tools
