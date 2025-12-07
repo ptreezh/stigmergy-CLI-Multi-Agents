@@ -20,13 +20,6 @@ const CLI_TOOLS = {
         hooksDir: path.join(os.homedir(), '.claude', 'hooks'),
         config: path.join(os.homedir(), '.claude', 'config.json')
     },
-    testai: {
-        name: 'TestAI CLI',
-        version: 'testai-wrapper --version',
-        install: 'echo "TestAI CLI is already installed"',
-        hooksDir: path.join(os.homedir(), '.testai', 'hooks'),
-        config: path.join(os.homedir(), '.testai', 'config.json')
-    },
     gemini: {
         name: 'Gemini CLI',
         version: 'gemini --version',
@@ -48,7 +41,7 @@ const CLI_TOOLS = {
         hooksDir: path.join(os.homedir(), '.iflow', 'hooks'),
         config: path.join(os.homedir(), '.iflow', 'config.json')
     },
-    qoder: {
+    qodercli: {
         name: 'Qoder CLI',
         version: 'qodercli --version',
         install: 'npm install -g @qoder-ai/qodercli',
@@ -119,7 +112,7 @@ class SmartRouter {
             gemini: ['gemini', 'google'],
             qwen: ['qwen', 'alibaba', 'tongyi'],
             iflow: ['iflow', 'workflow', 'intelligent'],
-            qoder: ['qoder', 'code'],
+            qodercli: ['qoder', 'code'],
             codebuddy: ['codebuddy', 'buddy', 'assistant'],
             copilot: ['copilot', 'github', 'gh'],
             codex: ['codex', 'openai', 'gpt']
