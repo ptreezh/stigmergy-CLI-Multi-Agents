@@ -89,7 +89,7 @@
     "unicode-free": true
   },
   "npx": {
-    "stigmergy": "src/main.js"
+    "stigmergy": "src/main_english.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {
