@@ -3,12 +3,12 @@
   "version": "1.0.78",
   "type": "commonjs",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
-  "main": "src/index.js",
+  "main": "src/main_english.js",
   "bin": {
-    "stigmergy": "src/main.js"
+    "stigmergy": "src/main_english.js"
   },
   "scripts": {
-    "start": "node src/main.js",
+    "start": "node src/main_english.js",
     "test": "node test/real-test.js",
     "test:all": "node test/test-all-clis.js",
     "test:cross-cli": "node test/cross-cli-real-test.js",
@@ -22,7 +22,7 @@
     "dev": "node --watch src/index.js",
     "lint": "eslint src/",
     "format": "prettier --write src/",
-    "postinstall": "node src/main.js auto-install"
+    "postinstall": "node src/main_english.js auto-install"
   },
   "keywords": [
     "ai",
