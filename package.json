@@ -45,7 +45,11 @@
     "templates/**/*.md",
     "bin/**/*.cmd",
     "test/**/*.js",
-    "scripts/**/*.js"
+    "scripts/**/*.js",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "STIGMERGY.md"
   ],
   "repository": {
     "type": "git",

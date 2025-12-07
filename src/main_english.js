@@ -3,7 +3,7 @@
 /**
  * Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
  * International Version - Pure English & ANSI Only
- * Version: 1.0.78
+ * Version: 1.0.81
  */
 
 const { spawn, spawnSync } = require('child_process');
@@ -479,11 +479,14 @@ class StigmergyInstaller {
 
             try {
                 await fs.mkdir(toolInfo.hooksDir, { recursive: true });
-                await fs.mkdir(toolInfo.config, { recursive: true });
+
+                // Create config directory (not the config file itself)
+                const configDir = path.dirname(toolInfo.config);
+                await fs.mkdir(configDir, { recursive: true });
 
                 console.log(`[OK] Created directories for ${toolInfo.name}`);
                 console.log(`[INFO] Hooks directory: ${toolInfo.hooksDir}`);
-                console.log(`[INFO] Config directory: ${toolInfo.config}`);
+                console.log(`[INFO] Config directory: ${configDir}`);
             } catch (error) {
                 console.log(`[ERROR] Failed to create directories for ${toolInfo.name}: ${error.message}`);
             }
@@ -501,7 +504,7 @@ class StigmergyInstaller {
 
             const configFile = path.join(this.configDir, 'config.json');
             const config = {
-                version: '1.0.78',
+                version: '1.0.81',
                 initialized: true,
                 createdAt: new Date().toISOString(),
                 lastUpdated: new Date().toISOString(),
@@ -555,7 +558,7 @@ async function main() {
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.78');
+        console.log('Version: 1.0.81');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -586,7 +589,7 @@ async function main() {
     switch (command) {
         case 'version':
         case '--version':
-            console.log('Stigmergy CLI v1.0.78');
+            console.log('Stigmergy CLI v1.0.81');
             break;
 
         case 'status':
@@ -605,9 +608,48 @@ async function main() {
             const options = await installer.showInstallOptions(missingTools);
 
             if (options.length > 0) {
-                // For automation, assume user wants to install all tools
-                console.log('\n[INFO] Installing all missing tools...');
-                await installer.installTools(options, missingTools);
+                // Use inquirer for interactive selection
+                const inquirer = require('inquirer');
+
+                const choices = options.map(opt => ({
+                    name: `${opt.toolInfo.name} - ${opt.toolInfo.install}`,
+                    value: opt.toolName
+                }));
+
+                choices.push(new inquirer.Separator(' = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='),
+                             { name: 'All missing tools', value: 'all' },
+                             { name: 'Skip installation', value: 'skip' });
+
+                const answers = await inquirer.prompt([
+                    {
+                        type: 'checkbox',
+                        name: 'selectedTools',
+                        message: 'Select tools to install (Space to select, Enter to confirm):',
+                        choices: choices,
+                        validate: function (answer) {
+                            if (answer.length < 1) {
+                                return 'You must choose at least one option.';
+                            }
+                            return true;
+                        }
+                    }
+                ]);
+
+                if (answers.selectedTools.includes('skip')) {
+                    console.log('[INFO] Skipping CLI tool installation');
+                } else {
+                    let toolsToInstall;
+                    if (answers.selectedTools.includes('all')) {
+                        toolsToInstall = options;
+                    } else {
+                        toolsToInstall = options.filter(opt => answers.selectedTools.includes(opt.toolName));
+                    }
+
+                    console.log('\n[INFO] Installing selected tools...');
+                    await installer.installTools(toolsToInstall, missingTools);
+                }
+            } else {
+                console.log('\n[INFO] All required tools are already installed!');
             }
             break;
 
@@ -653,14 +695,25 @@ async function main() {
 
             const { available: autoAvailable, missing: autoMissing } = await installer.scanCLI();
 
+            // Show summary to user after installation
             if (Object.keys(autoMissing).length > 0) {
-                const autoOptions = await installer.showInstallOptions(autoMissing);
-                console.log('\n[INFO] Auto-install mode detected. Skipping manual installation.');
-                console.log('[INFO] Please run "stigmergy install" to install missing tools.');
+                console.log('\n[INFO] Found ' + Object.keys(autoMissing).length + ' missing AI CLI tools:');
+                for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
+                    console.log(`  - ${toolInfo.name} (${toolName})`);
+                }
+                console.log('\n[INFO] Auto-install mode detected. Skipping automatic installation of missing tools.');
+                console.log('[INFO] For full functionality, please run "stigmergy install" after installation completes.');
+            } else {
+                console.log('\n[INFO] All AI CLI tools are already installed! No additional tools required.');
             }
 
             await installer.deployHooks(autoAvailable);
             await installer.initializeConfig();
+
+            // Show final message to guide users
+            console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
+            console.log('[USAGE] Run "stigmergy install" to install missing AI CLI tools.');
+            console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
             break;
 
         default:
