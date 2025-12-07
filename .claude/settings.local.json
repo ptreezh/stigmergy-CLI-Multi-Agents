@@ -83,7 +83,9 @@
       "Bash(git ls-tree:*)",
       "Bash(~/.stigmergy-test/claude.js)",
       "Bash(~/.stigmergy-test/claude.cmd)",
-      "Bash(\"C:\\Users\\WIN10\\.stigmergy-test\\testai-wrapper.cmd\":*)"
+      "Bash(\"C:\\Users\\WIN10\\.stigmergy-test\\testai-wrapper.cmd\":*)",
+      "Bash(npx stigmergy@latest:*)",
+      "Bash(cmd:*)"
     ],
     "deny": [],
     "ask": []
