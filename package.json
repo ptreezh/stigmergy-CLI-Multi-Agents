@@ -1,14 +1,14 @@
 {
   "name": "stigmergy",
-  "version": "1.0.68",
+  "version": "1.0.69",
   "type": "commonjs",
   "description": "Stigmergy CLI - Multi-Agents 跨AI CLI工具协作系统",
-  "main": "src/index.js",
+  "main": "src/main.js",
   "bin": {
-    "stigmergy": "src/index.js"
+    "stigmergy": "src/main.js"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/main.js",
     "test": "node test/real-test.js",
     "test:all": "node test/test-all-clis.js",
     "test:cross-cli": "node test/cross-cli-real-test.js",
@@ -88,7 +88,7 @@
     "unicode-free": true
   },
   "npx": {
-    "stigmergy": "src/index.js"
+    "stigmergy": "src/main.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {
