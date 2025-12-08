@@ -820,7 +820,7 @@ class StigmergyInstaller {
 
             const configFile = path.join(this.configDir, 'config.json');
             const config = {
-                version: '1.0.92',
+                version: '1.0.93',
                 initialized: true,
                 createdAt: new Date().toISOString(),
                 lastUpdated: new Date().toISOString(),
