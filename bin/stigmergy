@@ -1,12 +1,26 @@
-#!/bin/sh
-basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+#!/usr/bin/env node
 
-case `uname` in
-    *CYGWIN*|*MINGW*|*MSYS*)
-        if command -v cygpath > /dev/null 2>&1; then
-            basedir=`cygpath -w "$basedir"`
-        fi
-    ;;
-esac
+// Cross-platform launcher for Stigmergy CLI
+// This replaces the problematic shell script to ensure Windows compatibility
 
-exec node "$basedir/../src/main_english.js" "$@"
+const path = require('path');
+const { spawn } = require('child_process');
+
+// Get the path to the main script
+const mainScript = path.join(__dirname, '..', 'src', 'main_english.js');
+
+// Spawn the Node.js process with the main script and all arguments
+const child = spawn(process.execPath, [mainScript, ...process.argv.slice(2)], {
+  stdio: 'inherit'
+});
+
+// Forward exit code
+child.on('close', (code) => {
+  process.exit(code);
+});
+
+// Handle errors
+child.on('error', (error) => {
+  console.error('[ERROR] Failed to start Stigmergy CLI:', error.message);
+  process.exit(1);
+});

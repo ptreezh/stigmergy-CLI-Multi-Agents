@@ -7,13 +7,14 @@ const { spawnSync } = require('child_process');
 const fs = require('fs/promises');
 const path = require('path');
 const os = require('os');
+const { CLI_TOOLS } = require('./cli_tools');
 
 class CLIHelpAnalyzer {
     constructor() {
         this.configDir = path.join(os.homedir(), '.stigmergy', 'cli-patterns');
         this.persistentConfig = path.join(this.configDir, 'cli-patterns.json');
         this.lastAnalysisFile = path.join(this.configDir, 'last-analysis.json');
-        this.cliTools = require('../main').CLI_TOOLS || {};
+        this.cliTools = CLI_TOOLS;
 
         // Pattern recognition rules for different CLI types
         this.patternRules = {
@@ -46,6 +47,14 @@ class CLIHelpAnalyzer {
                 subcommandPattern: /^\s{2,6}([a-z][a-z0-9_-]+)\s+.+$/gm
             }
         };
+    }
+
+    /**
+     * Set CLI tools configuration
+     * @param {Object} cliTools - CLI tools configuration
+     */
+    setCLITools(cliTools) {
+        this.cliTools = cliTools;
     }
 
     /**
@@ -551,6 +560,9 @@ class CLIHelpAnalyzer {
                 attemptedCommand,
                 timestamp: new Date().toISOString()
             };
+
+            // Update the cached analysis
+            await this.cacheAnalysis(cliName, newAnalysis);
 
             return newAnalysis;
         } catch (analysisError) {

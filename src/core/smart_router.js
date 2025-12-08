@@ -1,9 +1,11 @@
 const CLIHelpAnalyzer = require('./cli_help_analyzer');
+const { CLI_TOOLS } = require('./cli_tools');
 
 class SmartRouter {
     constructor() {
-        this.tools = require('../main_english').CLI_TOOLS || {};
+        this.tools = CLI_TOOLS;
         this.analyzer = new CLIHelpAnalyzer();
+        this.analyzer.setCLITools(this.tools);
         this.routeKeywords = ['use', 'help', 'please', 'write', 'generate', 'explain', 'analyze', 'translate', 'code', 'article'];
         this.defaultTool = 'claude';
     }
@@ -29,7 +31,7 @@ class SmartRouter {
      */
     async smartRoute(userInput) {
         const input = userInput.trim();
-        
+
         // First try to detect tool-specific keywords
         for (const [toolName, toolInfo] of Object.entries(this.tools)) {
             // Get CLI pattern for this tool
@@ -59,7 +61,7 @@ class SmartRouter {
                 }
             }
         }
-        
+
         // Default routing
         const cleanInput = input.replace(/^(use|please|help|using|with)\s*/i, '').trim();
         return { tool: this.defaultTool, prompt: cleanInput };
@@ -78,9 +80,9 @@ class SmartRouter {
             qwen: ['qwen', 'alibaba', 'tongyi'],
             iflow: ['iflow', 'workflow', 'intelligent'],
             qodercli: ['qoder', 'code'],
-            codebuddy: ['codebuddy', 'buddy'],
-            copilot: ['copilot', 'github'],
-            codex: ['codex', 'openai']
+            codebuddy: ['codebuddy', 'buddy', 'assistant'],
+            copilot: ['copilot', 'github', 'gh'],
+            codex: ['codex', 'openai', 'gpt']
         };
         
         if (toolSpecificKeywords[toolName]) {
@@ -106,14 +108,6 @@ class SmartRouter {
         }
         
         return [...new Set(keywords)]; // Remove duplicates
-    }
-
-    /**
-     * Route input to appropriate CLI tool
-     */
-    async routeToCLI(userInput) {
-        const route = await this.smartRoute(userInput);
-        return route.tool;
     }
 }
 
