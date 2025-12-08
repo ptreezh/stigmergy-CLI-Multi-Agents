@@ -1,13 +1,10 @@
-/**
- * Advanced CLI Help Analyzer - International Version
- * Analyzes CLI help information to extract command patterns and calling methods
- */
-
+// Enhanced CLI Help Analyzer with better pattern extraction
 const { spawnSync } = require('child_process');
 const fs = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const { CLI_TOOLS } = require('./cli_tools');
+const { errorHandler, ERROR_TYPES } = require('./error_handler');
 
 class CLIHelpAnalyzer {
     constructor() {
@@ -77,7 +74,11 @@ class CLIHelpAnalyzer {
 
             return true;
         } catch (error) {
-            console.error('Failed to initialize CLI Help Analyzer:', error.message);
+            await errorHandler.logError(
+                error, 
+                'ERROR', 
+                'CLIHelpAnalyzer.initialize'
+            );
             return false;
         }
     }
@@ -93,12 +94,12 @@ class CLIHelpAnalyzer {
                 console.log(`Analyzing ${cliName}...`);
                 results[cliName] = await this.analyzeCLI(cliName);
             } catch (error) {
-                console.error(`Failed to analyze ${cliName}:`, error.message);
-                results[cliName] = {
-                    success: false,
-                    error: error.message,
-                    timestamp: new Date().toISOString()
-                };
+                await errorHandler.logError(
+                    error, 
+                    'WARN', 
+                    `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`
+                );
+                results[cliName] = { success: false, error: error.message };
             }
         }
 
@@ -106,39 +107,33 @@ class CLIHelpAnalyzer {
     }
 
     /**
-     * Analyze a specific CLI tool's help information
+     * Analyze specific CLI tool
      */
     async analyzeCLI(cliName) {
         const cliConfig = this.cliTools[cliName];
         if (!cliConfig) {
-            throw new Error(`CLI configuration not found for ${cliName}`);
-        }
-
-        // Check if we have recent cached analysis
-        const cached = await this.getCachedAnalysis(cliName);
-        if (cached && !this.isCacheExpired(cached.timestamp)) {
-            return cached;
+            throw new Error(`CLI tool ${cliName} not found in configuration`);
         }
 
         try {
-            // Get help information using multiple methods
+            // Get help information
             const helpInfo = await this.getHelpInfo(cliName, cliConfig);
-
-            // Detect CLI type for pattern recognition
+            
+            // Detect CLI type
             const cliType = this.detectCLIType(helpInfo.rawHelp, cliName);
-
-            // Extract patterns based on CLI type
+            
+            // Extract patterns
             const patterns = this.extractPatterns(helpInfo.rawHelp, cliType);
-
+            
             // Analyze command structure
             const commandStructure = this.analyzeCommandStructure(patterns);
-
+            
             // Extract usage examples
             const examples = this.extractUsageExamples(helpInfo.rawHelp, cliType);
-
-            // Determine CLI interaction mode
+            
+            // Determine interaction mode
             const interactionMode = this.determineInteractionMode(helpInfo, patterns);
-
+            
             const analysis = {
                 success: true,
                 cliName,
@@ -275,7 +270,12 @@ class CLIHelpAnalyzer {
             options: [],
             subcommands: [],
             arguments: [],
-            flags: []
+            flags: [],
+            // New fields for better parameter handling
+            nonInteractiveFlag: null,
+            promptFlag: null,
+            requiredFlags: [],
+            commonPatterns: []
         };
 
         // Extract subcommands
@@ -319,7 +319,40 @@ class CLIHelpAnalyzer {
             }
         }
 
+        // Enhanced pattern extraction for non-interactive mode and prompt handling
+        this.extractEnhancedPatterns(helpText, patterns);
+
         return patterns;
+    }
+
+    /**
+     * Extract enhanced patterns for better parameter handling
+     */
+    extractEnhancedPatterns(helpText, patterns) {
+        const text = helpText.toLowerCase();
+
+        // Look for non-interactive mode flags
+        if (text.includes('print') || text.includes('non-interactive') || text.includes('output')) {
+            patterns.nonInteractiveFlag = '--print';
+        }
+
+        // Look for prompt-related flags
+        if (text.includes('prompt') || text.includes('-p ')) {
+            patterns.promptFlag = '-p';
+        }
+
+        // Look for required flags for non-interactive mode
+        if (text.includes('non-interactive') && text.includes('prompt')) {
+            patterns.requiredFlags.push('-p');
+        }
+
+        // Extract common usage patterns from examples
+        const exampleLines = helpText.split('\n');
+        for (const line of exampleLines) {
+            if (line.includes('-p "') || line.includes('--prompt') || line.includes(' -p ')) {
+                patterns.commonPatterns.push(line.trim());
+            }
+        }
     }
 
     /**
@@ -333,7 +366,16 @@ class CLIHelpAnalyzer {
             optionStyle: '',
             interactiveMode: false,
             hasSubcommands: patterns.subcommands.length > 0,
-            complexity: 'simple'
+            complexity: 'simple',
+            // Fields for better execution
+            nonInteractiveSupport: !!patterns.nonInteractiveFlag,
+            promptStyle: patterns.promptFlag ? 'flag' : 'argument',
+            executionPattern: '',
+            // Additional fields for CLI parameter handling
+            nonInteractiveFlag: patterns.nonInteractiveFlag,
+            promptFlag: patterns.promptFlag,
+            requiredFlags: patterns.requiredFlags,
+            commonPatterns: patterns.commonPatterns
         };
 
         // Determine complexity based on available commands
@@ -357,10 +399,19 @@ class CLIHelpAnalyzer {
             cmd.name.includes('chat') ||
             cmd.name.includes('interactive') ||
             cmd.name.includes('shell') ||
-            cmd.description.toLowerCase().includes('interactive')
+            (cmd.description && cmd.description.toLowerCase().includes('interactive'))
         );
 
         structure.interactiveMode = hasInteractiveIndicators;
+
+        // Determine execution pattern
+        if (patterns.nonInteractiveFlag && patterns.promptFlag) {
+            structure.executionPattern = 'flag-based';
+        } else if (patterns.nonInteractiveFlag) {
+            structure.executionPattern = 'argument-based';
+        } else {
+            structure.executionPattern = 'interactive-default';
+        }
 
         return structure;
     }

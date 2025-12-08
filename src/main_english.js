@@ -21,6 +21,7 @@ const yaml = require('js-yaml');
 const SmartRouter = require('./core/smart_router');
 const CLIHelpAnalyzer = require('./core/cli_help_analyzer');
 const { CLI_TOOLS } = require('./core/cli_tools');
+const { errorHandler } = require('./core/error_handler');
 
 class MemoryManager {
     constructor() {
@@ -37,11 +38,15 @@ class MemoryManager {
             duration: Date.now() - new Date().getTime()
         };
 
-        // Add to global memory
-        await this.saveGlobalMemory(interaction);
+        try {
+            // Add to global memory
+            await this.saveGlobalMemory(interaction);
 
-        // Add to project memory
-        await this.saveProjectMemory(interaction);
+            // Add to project memory
+            await this.saveProjectMemory(interaction);
+        } catch (error) {
+            await errorHandler.logError(error, 'ERROR', 'MemoryManager.addInteraction');
+        }
     }
 
     async saveGlobalMemory(interaction) {
@@ -53,6 +58,7 @@ class MemoryManager {
             await fs.mkdir(path.dirname(this.globalMemoryFile), { recursive: true });
             await fs.writeFile(this.globalMemoryFile, JSON.stringify(memory, null, 2));
         } catch (error) {
+            await errorHandler.logError(error, 'ERROR', 'MemoryManager.saveGlobalMemory');
             console.error(`[MEMORY] Failed to save global memory: ${error.message}`);
         }
     }
@@ -65,6 +71,7 @@ class MemoryManager {
 
             await fs.writeFile(this.projectMemoryFile, this.formatProjectMemory(memory));
         } catch (error) {
+            await errorHandler.logError(error, 'ERROR', 'MemoryManager.saveProjectMemory');
             console.error(`[MEMORY] Failed to save project memory: ${error.message}`);
         }
     }
@@ -192,6 +199,7 @@ class StigmergyInstaller {
                     missing[toolName] = toolInfo;
                 }
             } catch (error) {
+                await errorHandler.logError(error, 'WARN', `StigmergyInstaller.scanCLI.${toolName}`);
                 console.log(`[ERROR] Failed to check ${toolInfo.name}: ${error.message}`);
                 missing[toolName] = toolInfo;
             }
@@ -229,6 +237,7 @@ class StigmergyInstaller {
                     console.log(`[INFO] Please run manually: ${toolInfo.install}`);
                 }
             } catch (error) {
+                await errorHandler.logError(error, 'ERROR', `StigmergyInstaller.installTools.${toolName}`);
                 console.log(`[ERROR] Failed to install ${toolInfo.name}: ${error.message}`);
                 console.log(`[INFO] Please run manually: ${toolInfo.install}`);
             }
@@ -293,6 +302,7 @@ class StigmergyInstaller {
             return true;
             
         } catch (error) {
+            await errorHandler.logError(error, 'ERROR', 'StigmergyInstaller.downloadRequiredAssets');
             console.log(`[ERROR] Failed to download required assets: ${error.message}`);
             return false;
         }
@@ -359,6 +369,7 @@ class StigmergyInstaller {
                 }
             }
         } catch (error) {
+            await errorHandler.logError(error, 'WARN', 'StigmergyInstaller.copyDirectory');
             console.log(`[WARN] Failed to copy directory ${src} to ${dest}: ${error.message}`);
         }
     }
@@ -475,15 +486,17 @@ class StigmergyInstaller {
 
                 // Execute post-deployment configuration
                 try {
-                    await configurer.configure(toolName, toolInfo);
+                    await configurer.configureTool(toolName);
                     console.log(`[OK] Post-deployment configuration completed for ${toolInfo.name}`);
                     successCount++;
                 } catch (configError) {
+                    await errorHandler.logError(configError, 'WARN', `StigmergyInstaller.deployHooks.${toolName}.config`);
                     console.log(`[WARN] Post-deployment configuration failed for ${toolInfo.name}: ${configError.message}`);
                     // Continue with other tools even if one fails
                 }
 
             } catch (error) {
+                await errorHandler.logError(error, 'ERROR', `StigmergyInstaller.deployHooks.${toolName}`);
                 console.log(`[ERROR] Failed to deploy hooks for ${toolInfo.name}: ${error.message}`);
                 console.log('[INFO] Continuing with other tools...');
             }
@@ -619,307 +632,390 @@ async function main() {
     const args = process.argv.slice(2);
     const installer = new StigmergyInstaller();
     
-    // Handle case when no arguments are provided
-    if (args.length === 0) {
-        console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.94');
-        console.log('');
-        console.log('[SYSTEM] Automated Installation and Deployment System');
-        console.log('');
-        console.log('Usage: stigmergy [command] [options]');
-        console.log('');
-        console.log('Commands:');
-        console.log('  help, --help     Show this help message');
-        console.log('  version, --version Show version information');
-        console.log('  status          Check CLI tools status');
-        console.log('  scan            Scan for available AI CLI tools');
-        console.log('  install         Auto-install missing CLI tools');
-        console.log('  deploy          Deploy hooks and integration to installed tools');
-        console.log('  setup           Complete setup and configuration');
-        console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
-        console.log('');
-        console.log('[WORKFLOW] Automated Workflow:');
-        console.log('  1. npm install -g stigmergy        # Install Stigmergy');
-        console.log('  2. stigmergy install             # Auto-scan & install CLI tools');
-        console.log('  3. stigmergy setup               # Deploy hooks & config');
-        console.log('  4. stigmergy call "<prompt>"   # Start collaborating');
-        console.log('');
-        console.log('[INFO] For first-time setup, run: stigmergy setup');
-        console.log('[INFO] To scan and install AI tools, run: stigmergy install');
-        console.log('');
-        console.log('For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
-        return;
-    }
-    
-    // Handle help commands
-    if (args.includes('--help') || args.includes('-h')) {
-        console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.94');
-        console.log('');
-        console.log('[SYSTEM] Automated Installation and Deployment System');
-        console.log('');
-        console.log('Usage: stigmergy [command] [options]');
-        console.log('');
-        console.log('Commands:');
-        console.log('  help, --help     Show this help message');
-        console.log('  version, --version Show version information');
-        console.log('  status          Check CLI tools status');
-        console.log('  scan            Scan for available AI CLI tools');
-        console.log('  install         Auto-install missing CLI tools');
-        console.log('  deploy          Deploy hooks and integration to installed tools');
-        console.log('  setup           Complete setup and configuration');
-        console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
-        console.log('');
-        console.log('[WORKFLOW] Automated Workflow:');
-        console.log('  1. npm install -g stigmergy        # Install Stigmergy');
-        console.log('  2. stigmergy install             # Auto-scan & install CLI tools');
-        console.log('  3. stigmergy setup               # Deploy hooks & config');
-        console.log('  4. stigmergy call "<prompt>"   # Start collaborating');
-        console.log('');
-        console.log('For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
-        return;
-    }
-    
-    const command = args[0];
-    switch (command) {
-        case 'version':
-        case '--version':
-            // Use the version from configuration instead of hardcoding
-            const config = {
-                version: '1.0.94',
-                initialized: true,
-                createdAt: new Date().toISOString(),
-                lastUpdated: new Date().toISOString(),
-                defaultCLI: 'claude',
-                enableCrossCLI: true,
-                enableMemory: true
-            };
-            console.log(`Stigmergy CLI v${config.version}`);
-            break;
+    try {
+        // Handle case when no arguments are provided
+        if (args.length === 0) {
+            console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
+            console.log('Version: 1.0.94');
+            console.log('');
+            console.log('[SYSTEM] Automated Installation and Deployment System');
+            console.log('');
+            console.log('Usage: stigmergy [command] [options]');
+            console.log('');
+            console.log('Commands:');
+            console.log('  help, --help     Show this help message');
+            console.log('  version, --version Show version information');
+            console.log('  status          Check CLI tools status');
+            console.log('  scan            Scan for available AI CLI tools');
+            console.log('  install         Auto-install missing CLI tools');
+            console.log('  deploy          Deploy hooks and integration to installed tools');
+            console.log('  setup           Complete setup and configuration');
+            console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
+            console.log('');
+            console.log('[WORKFLOW] Automated Workflow:');
+            console.log('  1. npm install -g stigmergy        # Install Stigmergy');
+            console.log('  2. stigmergy install             # Auto-scan & install CLI tools');
+            console.log('  3. stigmergy setup               # Deploy hooks & config');
+            console.log('  4. stigmergy call "<prompt>"   # Start collaborating');
+            console.log('');
+            console.log('[INFO] For first-time setup, run: stigmergy setup');
+            console.log('[INFO] To scan and install AI tools, run: stigmergy install');
+            console.log('');
+            console.log('For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
+            return;
+        }
+        
+        // Handle help commands
+        if (args.includes('--help') || args.includes('-h')) {
+            console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
+            console.log('Version: 1.0.94');
+            console.log('');
+            console.log('[SYSTEM] Automated Installation and Deployment System');
+            console.log('');
+            console.log('Usage: stigmergy [command] [options]');
+            console.log('');
+            console.log('Commands:');
+            console.log('  help, --help     Show this help message');
+            console.log('  version, --version Show version information');
+            console.log('  status          Check CLI tools status');
+            console.log('  scan            Scan for available AI CLI tools');
+            console.log('  install         Auto-install missing CLI tools');
+            console.log('  deploy          Deploy hooks and integration to installed tools');
+            console.log('  setup           Complete setup and configuration');
+            console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
+            console.log('');
+            console.log('[WORKFLOW] Automated Workflow:');
+            console.log('  1. npm install -g stigmergy        # Install Stigmergy');
+            console.log('  2. stigmergy install             # Auto-scan & install CLI tools');
+            console.log('  3. stigmergy setup               # Deploy hooks & config');
+            console.log('  4. stigmergy call "<prompt>"   # Start collaborating');
+            console.log('');
+            console.log('For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents');
+            return;
+        }
+        
+        const command = args[0];
+        switch (command) {
+            case 'version':
+            case '--version':
+                // Use the version from configuration instead of hardcoding
+                const config = {
+                    version: '1.0.94',
+                    initialized: true,
+                    createdAt: new Date().toISOString(),
+                    lastUpdated: new Date().toISOString(),
+                    defaultCLI: 'claude',
+                    enableCrossCLI: true,
+                    enableMemory: true
+                };
+                console.log(`Stigmergy CLI v${config.version}`);
+                break;
 
-        case 'status':
-            const { available, missing } = await installer.scanCLI();
-            console.log('\n[STATUS] AI CLI Tools Status Report');
-            console.log('=====================================');
-            
-            if (Object.keys(available).length > 0) {
-                console.log('\n✅ Available Tools:');
-                for (const [toolName, toolInfo] of Object.entries(available)) {
-                    console.log(`  - ${toolInfo.name} (${toolName})`);
-                }
-            }
-            
-            if (Object.keys(missing).length > 0) {
-                console.log('\n❌ Missing Tools:');
-                for (const [toolName, toolInfo] of Object.entries(missing)) {
-                    console.log(`  - ${toolInfo.name} (${toolName})`);
-                    console.log(`    Install command: ${toolInfo.install}`);
-                }
-            }
-            
-            console.log(`\n[SUMMARY] ${Object.keys(available).length} available, ${Object.keys(missing).length} missing`);
-            break;
-
-        case 'scan':
-            await installer.scanCLI();
-            break;
-
-        case 'install':
-            console.log('[INSTALL] Starting AI CLI tools installation...');
-            const { missing: missingTools } = await installer.scanCLI();
-            const options = await installer.showInstallOptions(missingTools);
-            
-            if (options.length > 0) {
-                const selectedTools = await installer.getUserSelection(options, missingTools);
-                if (selectedTools.length > 0) {
-                    console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
-                    await installer.installTools(selectedTools, missingTools);
-                }
-            } else {
-                console.log('\n[INFO] All required tools are already installed!');
-            }
-            break;
-
-        case 'deploy':
-            const { available: deployedTools } = await installer.scanCLI();
-            await installer.deployHooks(deployedTools);
-            break;
-
-        case 'setup':
-            console.log('[SETUP] Starting complete Stigmergy setup...\n');
-
-            // Step 1: Download required assets
-            await installer.downloadRequiredAssets();
-
-            // Step 2: Scan for CLI tools
-            const { available: setupAvailable, missing: setupMissing } = await installer.scanCLI();
-            const setupOptions = await installer.showInstallOptions(setupMissing);
-
-            // Step 3: Install missing CLI tools if user chooses
-            if (setupOptions.length > 0) {
-                const selectedTools = await installer.getUserSelection(setupOptions, setupMissing);
-                if (selectedTools.length > 0) {
-                    console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
-                    await installer.installTools(selectedTools, setupMissing);
-                }
-            } else {
-                console.log('\n[INFO] All required tools are already installed!');
-            }
-
-            // Step 4: Deploy hooks to available CLI tools
-            await installer.deployHooks(setupAvailable);
-
-            // Step 5: Deploy project documentation
-            await installer.deployProjectDocumentation();
-
-            // Step 6: Initialize configuration
-            await installer.initializeConfig();
-
-            // Step 7: Show usage instructions
-            installer.showUsageInstructions();
-            break;
-
-        case 'call':
-            if (args.length < 2) {
-                console.log('[ERROR] Usage: stigmergy call "<prompt>"');
-                process.exit(1);
-            }
-            
-            // Get the prompt (everything after the command)
-            const prompt = args.slice(1).join(' ');
-            
-            // Use smart router to determine which tool to use
-            const router = new SmartRouter();
-            const route = router.smartRoute(prompt);
-            
-            console.log(`[CALL] Routing to ${route.tool}: ${route.prompt}`);
-            
-            // Execute the routed command
-            try {
-                const toolPath = route.tool;
-                const child = spawn(toolPath, [route.prompt], { stdio: 'inherit', shell: true });
-                
-                child.on('close', (code) => {
-                    if (code !== 0) {
-                        console.log(`[WARN] ${route.tool} exited with code ${code}`);
-                    }
-                    process.exit(code);
-                });
-                
-                child.on('error', (error) => {
-                    console.log(`[ERROR] Failed to execute ${route.tool}:`, error.message);
-                    process.exit(1);
-                });
-            } catch (error) {
-                console.log(`[ERROR] Failed to execute ${route.tool}:`, error.message);
-                process.exit(1);
-            }
-            break;
-
-        case 'auto-install':
-            // Auto-install mode for npm postinstall - NON-INTERACTIVE
-            console.log('[AUTO-INSTALL] Stigmergy CLI automated setup');
-            console.log('='.repeat(60));
-
-            try {
-                // Step 1: Download required assets
+            case 'status':
                 try {
-                    console.log('[STEP] Downloading required assets...');
-                    await installer.downloadRequiredAssets();
-                    console.log('[OK] Assets downloaded successfully');
-                } catch (error) {
-                    console.log(`[WARN] Failed to download assets: ${error.message}`);
-                    console.log('[INFO] Continuing with installation...');
-                }
-
-                // Step 2: Scan for CLI tools
-                let autoAvailable = {}, autoMissing = {};
-                try {
-                    console.log('[STEP] Scanning for CLI tools...');
-                    const scanResult = await installer.scanCLI();
-                    autoAvailable = scanResult.available;
-                    autoMissing = scanResult.missing;
-                    console.log('[OK] CLI tools scanned successfully');
-                } catch (error) {
-                    console.log(`[WARN] Failed to scan CLI tools: ${error.message}`);
-                    console.log('[INFO] Continuing with installation...');
-                }
-
-                // Step 3: Show summary to user after installation
-                try {
-                    if (Object.keys(autoMissing).length > 0) {
-                        console.log('\n[INFO] Found ' + Object.keys(autoMissing).length + ' missing AI CLI tools:');
-                        for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
+                    const { available, missing } = await installer.scanCLI();
+                    console.log('\n[STATUS] AI CLI Tools Status Report');
+                    console.log('=====================================');
+                    
+                    if (Object.keys(available).length > 0) {
+                        console.log('\n✅ Available Tools:');
+                        for (const [toolName, toolInfo] of Object.entries(available)) {
                             console.log(`  - ${toolInfo.name} (${toolName})`);
                         }
-                        console.log('\n[INFO] Auto-install mode detected. Skipping automatic installation of missing tools.');
-                        console.log('[INFO] For full functionality, please run "stigmergy install" after installation completes.');
+                    }
+                    
+                    if (Object.keys(missing).length > 0) {
+                        console.log('\n❌ Missing Tools:');
+                        for (const [toolName, toolInfo] of Object.entries(missing)) {
+                            console.log(`  - ${toolInfo.name} (${toolName})`);
+                            console.log(`    Install command: ${toolInfo.install}`);
+                        }
+                    }
+                    
+                    console.log(`\n[SUMMARY] ${Object.keys(available).length} available, ${Object.keys(missing).length} missing`);
+                } catch (error) {
+                    await errorHandler.logError(error, 'ERROR', 'main.status');
+                    console.log(`[ERROR] Failed to get status: ${error.message}`);
+                    process.exit(1);
+                }
+                break;
+
+            case 'scan':
+                try {
+                    await installer.scanCLI();
+                } catch (error) {
+                    await errorHandler.logError(error, 'ERROR', 'main.scan');
+                    console.log(`[ERROR] Failed to scan CLI tools: ${error.message}`);
+                    process.exit(1);
+                }
+                break;
+
+            case 'install':
+                try {
+                    console.log('[INSTALL] Starting AI CLI tools installation...');
+                    const { missing: missingTools } = await installer.scanCLI();
+                    const options = await installer.showInstallOptions(missingTools);
+                    
+                    if (options.length > 0) {
+                        const selectedTools = await installer.getUserSelection(options, missingTools);
+                        if (selectedTools.length > 0) {
+                            console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
+                            await installer.installTools(selectedTools, missingTools);
+                        }
                     } else {
-                        console.log('\n[INFO] All AI CLI tools are already installed! No additional tools required.');
+                        console.log('\n[INFO] All required tools are already installed!');
                     }
                 } catch (error) {
-                    console.log(`[WARN] Failed to show tool summary: ${error.message}`);
+                    await errorHandler.logError(error, 'ERROR', 'main.install');
+                    console.log(`[ERROR] Installation failed: ${error.message}`);
+                    process.exit(1);
                 }
+                break;
 
-                // Step 4: Deploy hooks to available CLI tools
+            case 'deploy':
                 try {
-                    console.log('[STEP] Deploying hooks to available CLI tools...');
-                    await installer.deployHooks(autoAvailable);
-                    console.log('[OK] Hooks deployed successfully');
+                    const { available: deployedTools } = await installer.scanCLI();
+                    await installer.deployHooks(deployedTools);
                 } catch (error) {
-                    console.log(`[ERROR] Failed to deploy hooks: ${error.message}`);
-                    console.log('[INFO] You can manually deploy hooks later by running: stigmergy deploy');
+                    await errorHandler.logError(error, 'ERROR', 'main.deploy');
+                    console.log(`[ERROR] Deployment failed: ${error.message}`);
+                    process.exit(1);
                 }
+                break;
 
-                // Step 5: Deploy project documentation
+            case 'setup':
                 try {
-                    console.log('[STEP] Deploying project documentation...');
+                    console.log('[SETUP] Starting complete Stigmergy setup...\n');
+
+                    // Step 1: Download required assets
+                    await installer.downloadRequiredAssets();
+
+                    // Step 2: Scan for CLI tools
+                    const { available: setupAvailable, missing: setupMissing } = await installer.scanCLI();
+                    const setupOptions = await installer.showInstallOptions(setupMissing);
+
+                    // Step 3: Install missing CLI tools if user chooses
+                    if (setupOptions.length > 0) {
+                        const selectedTools = await installer.getUserSelection(setupOptions, setupMissing);
+                        if (selectedTools.length > 0) {
+                            console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
+                            await installer.installTools(selectedTools, setupMissing);
+                        }
+                    } else {
+                        console.log('\n[INFO] All required tools are already installed!');
+                    }
+
+                    // Step 4: Deploy hooks to available CLI tools
+                    await installer.deployHooks(setupAvailable);
+
+                    // Step 5: Deploy project documentation
                     await installer.deployProjectDocumentation();
-                    console.log('[OK] Documentation deployed successfully');
-                } catch (error) {
-                    console.log(`[WARN] Failed to deploy documentation: ${error.message}`);
-                    console.log('[INFO] Continuing with installation...');
-                }
 
-                // Step 6: Initialize configuration
-                try {
-                    console.log('[STEP] Initializing configuration...');
+                    // Step 6: Initialize configuration
                     await installer.initializeConfig();
-                    console.log('[OK] Configuration initialized successfully');
+
+                    // Step 7: Show usage instructions
+                    installer.showUsageInstructions();
                 } catch (error) {
-                    console.log(`[ERROR] Failed to initialize configuration: ${error.message}`);
-                    console.log('[INFO] You can manually initialize configuration later by running: stigmergy setup');
+                    await errorHandler.logError(error, 'ERROR', 'main.setup');
+                    console.log(`[ERROR] Setup failed: ${error.message}`);
+                    console.log('\n[TROUBLESHOOTING] To manually complete setup:');
+                    console.log('1. Run: stigmergy deploy   # Deploy hooks manually');
+                    console.log('2. Run: stigmergy setup    # Try setup again');
+                    process.exit(1);
                 }
+                break;
 
-                // Step 7: Show final message to guide users
-                console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
-                console.log('[USAGE] Run "stigmergy setup" to complete full configuration and install missing AI CLI tools.');
-                console.log('[USAGE] Run "stigmergy install" to install only missing AI CLI tools.');
-                console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
-            } catch (fatalError) {
-                console.error('[FATAL] Auto-install process failed:', fatalError.message);
-                console.log('\n[TROUBLESHOOTING] To manually complete installation:');
-                console.log('1. Run: stigmergy setup    # Complete setup');
-                console.log('2. Run: stigmergy install  # Install missing tools');
-                console.log('3. Run: stigmergy deploy   # Deploy hooks manually');
+            case 'call':
+                if (args.length < 2) {
+                    console.log('[ERROR] Usage: stigmergy call "<prompt>"');
+                    process.exit(1);
+                }
+                
+                // Get the prompt (everything after the command)
+                const prompt = args.slice(1).join(' ');
+                
+                // Use smart router to determine which tool to use
+                const router = new SmartRouter();
+                await router.initialize(); // Initialize the router first
+                const route = await router.smartRoute(prompt);
+                
+                console.log(`[CALL] Routing to ${route.tool}: ${route.prompt}`);
+                
+                // Execute the routed command
+                try {
+                    // Get the actual executable path for the tool
+                    const toolPath = route.tool;
+                    console.log(`[DEBUG] Tool path: ${toolPath}, Prompt: ${route.prompt}`);
+                    
+                    // For different tools, we need to pass the prompt differently
+                    // Use unified parameter handler for better parameter handling
+                    let toolArgs = [];
+                    
+                    try {
+                        // Get CLI pattern for this tool
+                        const cliPattern = await router.analyzer.getCLIPattern(route.tool);
+                        
+                        // Use the unified CLI parameter handler
+                        const CLIParameterHandler = require('./core/cli_parameter_handler');
+                        toolArgs = CLIParameterHandler.generateArguments(route.tool, route.prompt, cliPattern);
+                    } catch (patternError) {
+                        // Fallback to original logic if pattern analysis fails
+                        if (route.tool === 'claude') {
+                            // Claude CLI expects the prompt with -p flag for non-interactive mode
+                            toolArgs = ['-p', `"${route.prompt}"`];
+                        } else if (route.tool === 'qodercli' || route.tool === 'iflow') {
+                            // Qoder CLI and iFlow expect the prompt with -p flag
+                            toolArgs = ['-p', `"${route.prompt}"`];
+                        } else if (route.tool === 'codex') {
+                            // Codex CLI needs 'exec' subcommand for non-interactive mode
+                            toolArgs = ['exec', '-p', `"${route.prompt}"`];
+                        } else {
+                            // For other tools, pass the prompt with -p flag
+                            toolArgs = ['-p', `"${route.prompt}"`];
+                        }
+                    }
+                    
+                    // Use the correct way to spawn the process
+                    const child = spawn(toolPath, toolArgs, { 
+                        stdio: 'inherit', 
+                        shell: true 
+                    });
+                    
+                    child.on('close', (code) => {
+                        if (code !== 0) {
+                            console.log(`[WARN] ${route.tool} exited with code ${code}`);
+                        }
+                        process.exit(code);
+                    });
+                    
+                    child.on('error', async (error) => {
+                        const cliError = await errorHandler.handleCLIError(route.tool, error, toolArgs.join(' '));
+                        console.log(`[ERROR] Failed to execute ${route.tool}:`, cliError.message);
+                        process.exit(1);
+                    });
+                } catch (error) {
+                    const cliError = await errorHandler.handleCLIError(route.tool, error, prompt);
+                    console.log(`[ERROR] Failed to execute ${route.tool}:`, cliError.message);
+                    process.exit(1);
+                }
+                break;
+
+            case 'auto-install':
+                // Auto-install mode for npm postinstall - NON-INTERACTIVE
+                console.log('[AUTO-INSTALL] Stigmergy CLI automated setup');
+                console.log('='.repeat(60));
+
+                try {
+                    // Step 1: Download required assets
+                    try {
+                        console.log('[STEP] Downloading required assets...');
+                        await installer.downloadRequiredAssets();
+                        console.log('[OK] Assets downloaded successfully');
+                    } catch (error) {
+                        console.log(`[WARN] Failed to download assets: ${error.message}`);
+                        console.log('[INFO] Continuing with installation...');
+                    }
+
+                    // Step 2: Scan for CLI tools
+                    let autoAvailable = {}, autoMissing = {};
+                    try {
+                        console.log('[STEP] Scanning for CLI tools...');
+                        const scanResult = await installer.scanCLI();
+                        autoAvailable = scanResult.available;
+                        autoMissing = scanResult.missing;
+                        console.log('[OK] CLI tools scanned successfully');
+                    } catch (error) {
+                        console.log(`[WARN] Failed to scan CLI tools: ${error.message}`);
+                        console.log('[INFO] Continuing with installation...');
+                    }
+
+                    // Step 3: Show summary to user after installation
+                    try {
+                        if (Object.keys(autoMissing).length > 0) {
+                            console.log('\n[INFO] Found ' + Object.keys(autoMissing).length + ' missing AI CLI tools:');
+                            for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
+                                console.log(`  - ${toolInfo.name} (${toolName})`);
+                            }
+                            console.log('\n[INFO] Auto-install mode detected. Skipping automatic installation of missing tools.');
+                            console.log('[INFO] For full functionality, please run "stigmergy install" after installation completes.');
+                        } else {
+                            console.log('\n[INFO] All AI CLI tools are already installed! No additional tools required.');
+                        }
+                    } catch (error) {
+                        console.log(`[WARN] Failed to show tool summary: ${error.message}`);
+                    }
+
+                    // Step 4: Deploy hooks to available CLI tools
+                    try {
+                        console.log('[STEP] Deploying hooks to available CLI tools...');
+                        await installer.deployHooks(autoAvailable);
+                        console.log('[OK] Hooks deployed successfully');
+                    } catch (error) {
+                        console.log(`[ERROR] Failed to deploy hooks: ${error.message}`);
+                        console.log('[INFO] You can manually deploy hooks later by running: stigmergy deploy');
+                    }
+
+                    // Step 5: Deploy project documentation
+                    try {
+                        console.log('[STEP] Deploying project documentation...');
+                        await installer.deployProjectDocumentation();
+                        console.log('[OK] Documentation deployed successfully');
+                    } catch (error) {
+                        console.log(`[WARN] Failed to deploy documentation: ${error.message}`);
+                        console.log('[INFO] Continuing with installation...');
+                    }
+
+                    // Step 6: Initialize configuration
+                    try {
+                        console.log('[STEP] Initializing configuration...');
+                        await installer.initializeConfig();
+                        console.log('[OK] Configuration initialized successfully');
+                    } catch (error) {
+                        console.log(`[ERROR] Failed to initialize configuration: ${error.message}`);
+                        console.log('[INFO] You can manually initialize configuration later by running: stigmergy setup');
+                    }
+
+                    // Step 7: Show final message to guide users
+                    console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
+                    console.log('[USAGE] Run "stigmergy setup" to complete full configuration and install missing AI CLI tools.');
+                    console.log('[USAGE] Run "stigmergy install" to install only missing AI CLI tools.');
+                    console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
+                } catch (fatalError) {
+                    await errorHandler.logError(fatalError, 'ERROR', 'main.auto-install');
+                    console.error('[FATAL] Auto-install process failed:', fatalError.message);
+                    console.log('\n[TROUBLESHOOTING] To manually complete installation:');
+                    console.log('1. Run: stigmergy setup    # Complete setup');
+                    console.log('2. Run: stigmergy install  # Install missing tools');
+                    console.log('3. Run: stigmergy deploy   # Deploy hooks manually');
+                    process.exit(1);
+                }
+                break;
+
+            default:
+                console.log(`[ERROR] Unknown command: ${command}`);
+                console.log('[INFO] Run "stigmergy --help" for usage information');
                 process.exit(1);
-            }
-            break;
-
-        default:
-            console.log(`[ERROR] Unknown command: ${command}`);
-            console.log('[INFO] Run "stigmergy --help" for usage information');
-            process.exit(1);
+        }
+    } catch (error) {
+        await errorHandler.logError(error, 'ERROR', 'main');
+        console.error('[FATAL] Stigmergy CLI encountered an error:', error.message);
+        process.exit(1);
     }
 }
 
+// Function to find maximum of two numbers
+function maxOfTwo(a, b) {
+    return a > b ? a : b;
+}
+
 // Export for testing
-module.exports = { StigmergyInstaller, SmartRouter, MemoryManager, CLI_TOOLS };
+module.exports = { StigmergyInstaller, SmartRouter, MemoryManager, CLI_TOOLS, maxOfTwo };
 
 // Run main function
 if (require.main === module) {
     main().catch(error => {
-        console.error('[FATAL] Stigmergy CLI encountered an error:', error);
+        console.error('[FATAL] Stigmergy CLI encountered an unhandled error:', error);
         process.exit(1);
     });
 }
