@@ -61,7 +61,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
+    "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
   },
   "author": "Stigmergy CLI Team",
   "license": "MIT",
