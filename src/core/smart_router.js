@@ -1,6 +1,6 @@
 const CLIHelpAnalyzer = require('./cli_help_analyzer');
 const { CLI_TOOLS, validateCLITool } = require('./cli_tools');
-const { errorHandler, ERROR_TYPES } = require('./error_handler');
+const { errorHandler } = require('./error_handler');
 
 class SmartRouter {
   constructor() {
@@ -50,7 +50,7 @@ class SmartRouter {
     const input = userInput.trim();
 
     // First try to detect tool-specific keywords
-    for (const [toolName, toolInfo] of Object.entries(this.tools)) {
+    for (const [toolName, _] of Object.entries(this.tools)) {
       try {
         // Validate tool configuration
         validateCLITool(toolName);

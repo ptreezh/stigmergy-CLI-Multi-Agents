@@ -626,7 +626,6 @@ function processCSV(csvData, options = {}) {
  */
 async function executeCommand(command, args = [], options = {}) {
   const { spawn } = require('child_process');
-  const path = require('path');
 
   // Default options
   const opts = {

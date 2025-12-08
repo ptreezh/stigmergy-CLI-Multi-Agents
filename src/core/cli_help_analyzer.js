@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const { CLI_TOOLS } = require('./cli_tools');
-const { errorHandler, ERROR_TYPES } = require('./error_handler');
+const { errorHandler } = require('./error_handler');
 
 class CLIHelpAnalyzer {
   constructor() {
@@ -89,7 +89,7 @@ class CLIHelpAnalyzer {
   async analyzeAllCLI() {
     const results = {};
 
-    for (const [cliName, cliConfig] of Object.entries(this.cliTools)) {
+    for (const [cliName, _] of Object.entries(this.cliTools)) {
       try {
         if (process.env.DEBUG === 'true') {
           console.log(`Analyzing ${cliName}...`);

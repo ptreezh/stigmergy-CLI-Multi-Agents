@@ -7,7 +7,6 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const os = require('os');
 
 // Import the main Stigmergy installer
 const { StigmergyInstaller } = require('./main_english.js');

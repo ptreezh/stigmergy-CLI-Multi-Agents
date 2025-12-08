@@ -106,7 +106,7 @@ class SmartRouter {
     const input = userInput.trim();
 
     // Detect tool-specific keywords
-    for (const [toolName, toolInfo] of Object.entries(this.tools)) {
+    for (const [toolName, _] of Object.entries(this.tools)) {
       for (const keyword of this.extractKeywords(toolName)) {
         if (input.toLowerCase().includes(keyword.toLowerCase())) {
           // Extract clean parameters
@@ -803,7 +803,7 @@ async function main() {
     console.log('Multi-AI CLI Tools Collaboration System v1.0.77');
     console.log('='.repeat(60));
 
-    const originalPrompt = installer.promptForInstallation;
+    const _ = installer.promptForInstallation;
     installer.promptForInstallation = async () => {
       console.log(
         '[AUTO-INSTALL] Skipping interactive CLI installation in postinstall mode',

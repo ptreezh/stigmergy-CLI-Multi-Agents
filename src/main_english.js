@@ -25,12 +25,7 @@ const CLIHelpAnalyzer = require('./core/cli_help_analyzer');
 const { CLI_TOOLS } = require('./core/cli_tools');
 const { errorHandler } = require('./core/error_handler');
 const { executeCommand, executeJSFile } = require('./utils');
-const {
-  handleRegister,
-  handleLogin,
-  handleLogout,
-  handleStatus,
-} = require('./auth_command');
+
 const { UserAuthenticator } = require('./auth');
 const fsSync = require('fs');
 
@@ -163,7 +158,7 @@ class MemoryManager {
     return content;
   }
 
-  parseProjectMemory(markdown) {
+  parseProjectMemory(_) {
     // Simple parser for project memory
     return {
       projectName: 'Project',
@@ -772,24 +767,6 @@ async function main() {
     );
     console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
     console.log('  errors          Display error report and statistics');
-    console.log(
-      '  register <username> <password>  Register a new user account',
-    );
-    console.log('  login <username> <password>     Log in to your account');
-    console.log('  logout                          Log out of your account');
-    console.log(
-      '  auth-status                     Check authentication status',
-    );
-    console.log('');
-    console.log('Authentication Commands:');
-    console.log(
-      '  Register a new account:    stigmergy register <username> <password>',
-    );
-    console.log(
-      '  Log in to your account:    stigmergy login <username> <password>',
-    );
-    console.log('  Check auth status:         stigmergy auth-status');
-    console.log('  Log out of your account:   stigmergy logout');
     console.log('');
     console.log('[WORKFLOW] Automated Workflow:');
     console.log('  1. npm install -g stigmergy        # Install Stigmergy');
@@ -836,24 +813,6 @@ async function main() {
     );
     console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
     console.log('  errors          Display error report and statistics');
-    console.log(
-      '  register <username> <password>  Register a new user account',
-    );
-    console.log('  login <username> <password>     Log in to your account');
-    console.log('  logout                          Log out of your account');
-    console.log(
-      '  auth-status                     Check authentication status',
-    );
-    console.log('');
-    console.log('Authentication Commands:');
-    console.log(
-      '  Register a new account:    stigmergy register <username> <password>',
-    );
-    console.log(
-      '  Log in to your account:    stigmergy login <username> <password>',
-    );
-    console.log('  Check auth status:         stigmergy auth-status');
-    console.log('  Log out of your account:   stigmergy logout');
     console.log('');
     console.log('[WORKFLOW] Automated Workflow:');
     console.log('  1. npm install -g stigmergy        # Install Stigmergy');
@@ -870,24 +829,6 @@ async function main() {
   }
 
   const command = args[0];
-
-  // Define protected commands that require authentication
-  const protectedCommands = ['call', 'setup', 'deploy', 'install'];
-
-  // Check if command requires authentication
-  if (
-    protectedCommands.includes(command) &&
-      command !== 'version' &&
-      command !== '--version'
-  ) {
-    if (!isAuthenticated()) {
-      console.log('[ERROR] Authentication required. Please log in first.');
-      console.log(
-        '[INFO] Run "stigmergy login <username> <password>" to log in.',
-      );
-      process.exit(1);
-    }
-  }
 
   switch (command) {
   case 'version':
@@ -1052,31 +993,7 @@ async function main() {
     }
     break;
 
-  case 'register':
-    if (args.length < 3) {
-      console.log(
-        '[ERROR] Usage: stigmergy register <username> <password>',
-      );
-      process.exit(1);
-    }
-    handleRegister(args[1], args[2]);
-    break;
-
-  case 'login':
-    if (args.length < 3) {
-      console.log('[ERROR] Usage: stigmergy login <username> <password>');
-      process.exit(1);
-    }
-    handleLogin(args[1], args[2]);
-    break;
-
-  case 'logout':
-    handleLogout();
-    break;
-
-  case 'auth-status':
-    handleStatus();
-    break;
+  
 
   case 'call': {
     if (args.length < 2) {

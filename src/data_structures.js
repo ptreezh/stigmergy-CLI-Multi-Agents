@@ -326,7 +326,7 @@ class HashTable {
       for (let i = 0; i < this.size; i++) {
         const bucket = this.buckets[i];
         if (bucket) {
-          for (const [key, _] of bucket) {
+          for (const [key, __] of bucket) {
             keysArr.push(key);
           }
         }
@@ -353,7 +353,7 @@ class HashTable {
       for (let i = 0; i < this.size; i++) {
         const bucket = this.buckets[i];
         if (bucket) {
-          for (const [_, value] of bucket) {
+          for (const [__, value] of bucket) {
             valuesArr.push(value);
           }
         }
