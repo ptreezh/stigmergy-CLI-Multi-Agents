@@ -14,10 +14,6 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-# 获取当前文件目录
-current_dir = Path(__file__).parent
-project_root = current_dir.parent.parent.parent
-
 # Gemini CLI配置路径
 GEMINI_CONFIG_DIR = os.path.expanduser("~/.config/gemini")
 GEMINI_EXTENSIONS_FILE = os.path.join(GEMINI_CONFIG_DIR, "extensions.json")
@@ -25,7 +21,7 @@ GEMINI_EXTENSIONS_FILE = os.path.join(GEMINI_CONFIG_DIR, "extensions.json")
 def create_gemini_config_directory():
     """创建Gemini配置目录"""
     os.makedirs(GEMINI_CONFIG_DIR, exist_ok=True)
-    print(f"[OK] 创建Gemini配置目录: {GEMINI_CONFIG_DIR}")
+    print("[OK] 创建Gemini配置目录: {}".format(GEMINI_CONFIG_DIR))
 
 def install_gemini_extensions():
     """安装Gemini Extension配置"""
@@ -36,7 +32,7 @@ def install_gemini_extensions():
             with open(GEMINI_EXTENSIONS_FILE, 'r', encoding='utf-8') as f:
                 existing_extensions = json.load(f)
         except Exception as e:
-            print(f"⚠️ 读取现有extensions配置失败: {e}")
+            print("警告: 读取现有extensions配置失败: {}".format(e))
             existing_extensions = {}
 
     # 定义跨CLI协作的Extension配置
@@ -79,14 +75,14 @@ def install_gemini_extensions():
         with open(GEMINI_EXTENSIONS_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_extensions, f, indent=2, ensure_ascii=False)
 
-        print(f"[OK] Gemini Extension配置已安装: {GEMINI_EXTENSIONS_FILE}")
-        print("🔗 已安装的Extension:")
+        print("[OK] Gemini Extension配置已安装: {}".format(GEMINI_EXTENSIONS_FILE))
+        print("已安装的Extension:")
         for ext_name in cross_cli_extensions.keys():
-            print(f"   - {ext_name}: [OK] 跨CLI协作感知")
+            print("   - {}: [OK] 跨CLI协作感知".format(ext_name))
 
         return True
     except Exception as e:
-        print(f"❌ 安装Gemini Extension配置失败: {e}")
+        print("错误: 安装Gemini Extension配置失败: {}".format(e))
         return False
 
 def copy_adapter_file():
@@ -96,162 +92,110 @@ def copy_adapter_file():
         adapter_dir = os.path.join(GEMINI_CONFIG_DIR, "adapters")
         os.makedirs(adapter_dir, exist_ok=True)
 
+        # 获取当前脚本目录
+        current_dir = Path(__file__).parent
+        adapter_source = current_dir / "extension_adapter.py"
+        adapter_dest = Path(adapter_dir) / "extension_adapter.py"
+
         # 复制适配器文件
-        adapter_files = [
-            "extension_adapter.py",
-            "standalone_gemini_adapter.py"
-        ]
-
-        for file_name in adapter_files:
-            src_file = current_dir / file_name
-            dst_file = os.path.join(adapter_dir, file_name)
-
-            if src_file.exists():
-                shutil.copy2(src_file, dst_file)
-                print(f"[OK] 复制适配器文件: {file_name}")
-            else:
-                print(f"⚠️ 适配器文件不存在: {file_name}")
-
-        return True
+        if adapter_source.exists():
+            shutil.copy2(adapter_source, adapter_dest)
+            print("[OK] 复制适配器文件: {}".format(adapter_dest))
+            return True
+        else:
+            print("警告: 适配器源文件不存在: {}".format(adapter_source))
+            return True  # 不强制要求适配器文件
     except Exception as e:
-        print(f"❌ 复制适配器文件失败: {e}")
-        return False
+        print("警告: 复制适配器文件失败: {}".format(e))
+        return True  # 不强制要求适配器文件
 
 def verify_installation():
-    """验证安装是否成功"""
-    print("\n🔍 验证Gemini CLI集成安装...")
+    """验证安装"""
+    checks = [
+        ("Gemini配置目录", os.path.exists(GEMINI_CONFIG_DIR)),
+        ("Gemini Extensions文件", os.path.exists(GEMINI_EXTENSIONS_FILE)),
+    ]
 
-    # 检查配置目录
-    if not os.path.exists(GEMINI_CONFIG_DIR):
-        print(f"❌ 配置目录不存在: {GEMINI_CONFIG_DIR}")
-        return False
+    all_passed = True
+    for check_name, check_result in checks:
+        status = "[OK]" if check_result else "[FAIL]"
+        print("{} {}".format(status, check_name))
+        if not check_result:
+            all_passed = False
 
-    # 检查extensions文件
-    if not os.path.exists(GEMINI_EXTENSIONS_FILE):
-        print(f"❌ Extensions配置文件不存在: {GEMINI_EXTENSIONS_FILE}")
-        return False
+    return all_passed
 
-    # 检查适配器目录
-    adapter_dir = os.path.join(GEMINI_CONFIG_DIR, "adapters")
-    if not os.path.exists(adapter_dir):
-        print(f"❌ 适配器目录不存在: {adapter_dir}")
-        return False
-
-    # 读取并验证extensions配置
+def uninstall_integration():
+    """卸载集成"""
     try:
-        with open(GEMINI_EXTENSIONS_FILE, 'r', encoding='utf-8') as f:
-            extensions_config = json.load(f)
-
-        required_extensions = ["cross_cli_preprocessor", "cross_cli_response_processor"]
-        for ext_name in required_extensions:
-            if ext_name in extensions_config:
-                ext_config = extensions_config[ext_name]
-                if ext_config.get("enabled", False):
-                    print(f"[OK] Extension {ext_name}: 已启用")
-                    if "cross_cli_enabled" in ext_config.get("config", {}):
-                        print(f"[OK]   跨CLI协作: 已启用")
-                else:
-                    print(f"⚠️ Extension {ext_name}: 未启用")
-            else:
-                print(f"❌ 缺少Extension: {ext_name}")
-
-        return True
-    except Exception as e:
-        print(f"❌ 验证配置失败: {e}")
-        return False
-
-def uninstall_gemini_integration():
-    """卸载Gemini CLI集成"""
-    try:
-        # 备份现有配置
+        # 删除extensions配置中的跨CLI适配器
         if os.path.exists(GEMINI_EXTENSIONS_FILE):
-            backup_file = f"{GEMINI_EXTENSIONS_FILE}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            shutil.copy2(GEMINI_EXTENSIONS_FILE, backup_file)
-            print(f"📦 已备份现有配置: {backup_file}")
+            with open(GEMINI_EXTENSIONS_FILE, 'r', encoding='utf-8') as f:
+                extensions_config = json.load(f)
 
-        # 移除适配器目录
-        adapter_dir = os.path.join(GEMINI_CONFIG_DIR, "adapters")
-        if os.path.exists(adapter_dir):
-            shutil.rmtree(adapter_dir)
-            print(f"🗑️ 已删除适配器目录: {adapter_dir}")
+            # 移除跨CLI适配器
+            extensions_to_remove = ["cross_cli_preprocessor", "cross_cli_response_processor"]
+            removed_count = 0
+            for ext_name in extensions_to_remove:
+                if ext_name in extensions_config:
+                    del extensions_config[ext_name]
+                    removed_count += 1
+                
+            # 保存更新后的配置
+            if removed_count > 0:
+                with open(GEMINI_EXTENSIONS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(extensions_config, f, indent=2, ensure_ascii=False)
+                
+                print("[OK] 已从Gemini Extensions配置中移除{}个跨CLI适配器".format(removed_count))
 
-        print("[OK] Gemini CLI集成已卸载")
+        # 删除适配器文件
+        adapter_file = Path(GEMINI_CONFIG_DIR) / "adapters" / "extension_adapter.py"
+        if adapter_file.exists():
+            adapter_file.unlink()
+            print("[OK] 已删除Gemini适配器文件")
+
+        print("[OK] Gemini CLI跨CLI集成已卸载")
         return True
     except Exception as e:
-        print(f"❌ 卸载失败: {e}")
+        print("错误: 卸载失败: {}".format(e))
         return False
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Gemini CLI跨CLI协作集成安装脚本",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="安装Gemini CLI跨CLI协作集成"
-    )
-
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="验证Gemini CLI集成安装"
-    )
-
-    parser.add_argument(
-        "--uninstall",
-        action="store_true",
-        help="卸载Gemini CLI跨CLI协作集成"
-    )
-
+    """主函数"""
+    parser = argparse.ArgumentParser(description="Gemini CLI跨CLI集成安装脚本")
+    parser.add_argument("--verify", action="store_true", help="验证安装")
+    parser.add_argument("--uninstall", action="store_true", help="卸载集成")
     args = parser.parse_args()
 
-    print("[INSTALL] Gemini CLI跨CLI协作集成安装器")
+    print("Gemini CLI跨CLI集成安装程序")
     print("=" * 50)
 
     if args.uninstall:
-        print("[UNINSTALL] 卸载模式...")
-        success = uninstall_gemini_integration()
+        return uninstall_integration()
     elif args.verify:
-        print("[VERIFY] 验证模式...")
-        success = verify_installation()
-    elif args.install or len(sys.argv) == 1:
-        print("[INSTALL] 安装模式...")
-
-        # 1. 创建配置目录
-        print("\nStep 1. 创建配置目录...")
+        return verify_installation()
+    else:
+        # 执行安装
+        print("步骤1. 创建配置目录...")
         create_gemini_config_directory()
 
-        # 2. 安装Extension配置
-        print("\nStep 2. 安装Extension配置...")
+        print("\n步骤2. 安装Extension配置...")
         extensions_success = install_gemini_extensions()
 
-        # 3. 复制适配器文件
-        print("\nStep 3. 复制适配器文件...")
+        print("\n步骤3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
-        # 4. 验证安装
-        print("\nStep 4. 验证安装...")
-        verify_success = verify_installation()
+        print("\n步骤4. 验证安装...")
+        verification_success = verify_installation()
 
-        success = extensions_success and adapter_success and verify_success
-
-        if success:
-            print("\n🎉 Gemini CLI集成安装成功！")
-            print("\n[INFO] 安装摘要:")
-            print(f"   [OK] 配置目录: {GEMINI_CONFIG_DIR}")
-            print(f"   [OK] Extensions配置: {GEMINI_EXTENSIONS_FILE}")
-            print(f"   [OK] 适配器目录: {os.path.join(GEMINI_CONFIG_DIR, 'adapters')}")
-
-            print("\n[INSTALL] 下一步:")
-            print("   1. 安装其他CLI工具的集成: ai-cli-router deploy --all")
-            print("   2. 初始化项目: ai-cli-router init")
-            print("   3. 开始使用协作功能: gemini-cli '请用claude帮我审查代码'")
+        overall_success = extensions_success and adapter_success and verification_success
+        if overall_success:
+            print("\n[SUCCESS] Gemini CLI跨CLI集成安装成功!")
         else:
-            print("\n❌ Gemini CLI集成安装失败，请检查错误信息")
-    else:
-        parser.print_help()
+            print("\n[WARNING] 安装过程中出现警告，请检查上述输出")
+
+        return overall_success
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

@@ -95,6 +95,26 @@ stigmergy call qwen "translate to English"
 stigmergy call copilot "suggest improvements"
 ```
 
+### User Authentication
+
+Stigmergy CLI now supports user authentication to protect your AI tools and configurations:
+
+```bash
+# Register a new account
+stigmergy register <username> <password>
+
+# Log in to your account
+stigmergy login <username> <password>
+
+# Check authentication status
+stigmergy auth-status
+
+# Log out of your account
+stigmergy logout
+```
+
+Protected commands (like `call`, `setup`, `deploy`, `install`) require authentication before use.
+
 ### Installation Workflow
 
 1. **Scan**: `stigmergy scan` - Detects installed AI CLI tools

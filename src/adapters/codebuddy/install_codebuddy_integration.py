@@ -14,10 +14,6 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-# 获取当前文件目录
-current_dir = Path(__file__).parent
-project_root = current_dir.parent.parent.parent
-
 # CodeBuddy CLI配置路径
 CODEBUDDY_CONFIG_DIR = os.path.expanduser("~/.codebuddy")
 CODEBUDDY_CONFIG_FILE = os.path.join(CODEBUDDY_CONFIG_DIR, "buddy_config.json")
@@ -25,7 +21,7 @@ CODEBUDDY_CONFIG_FILE = os.path.join(CODEBUDDY_CONFIG_DIR, "buddy_config.json")
 def create_codebuddy_config_directory():
     """创建CodeBuddy配置目录"""
     os.makedirs(CODEBUDDY_CONFIG_DIR, exist_ok=True)
-    print(f"[OK] 创建CodeBuddy配置目录: {CODEBUDDY_CONFIG_DIR}")
+    print("[OK] 创建CodeBuddy配置目录: {}".format(CODEBUDDY_CONFIG_DIR))
 
 def install_codebuddy_skills():
     """安装CodeBuddy Skills配置"""
@@ -36,7 +32,7 @@ def install_codebuddy_skills():
             with open(CODEBUDDY_CONFIG_FILE, 'r', encoding='utf-8') as f:
                 existing_config = json.load(f)
         except Exception as e:
-            print(f"⚠️ 读取现有buddy_config配置失败: {e}")
+            print("警告: 读取现有buddy_config配置失败: {}".format(e))
             existing_config = {}
 
     # 定义跨CLI协作的Skills配置
@@ -79,15 +75,15 @@ def install_codebuddy_skills():
         with open(CODEBUDDY_CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_config, f, indent=2, ensure_ascii=False)
 
-        print(f"[OK] CodeBuddy配置已安装: {CODEBUDDY_CONFIG_FILE}")
-        print("🔗 已安装的Skills:")
+        print("[OK] CodeBuddy配置已安装: {}".format(CODEBUDDY_CONFIG_FILE))
+        print("已安装的Skills:")
         for skill in merged_config.get('skills', []):
-            status = "[OK]" if skill.get('enabled') else "❌"
-            print(f"   - {skill.get('name')}: {status}")
+            status = "[OK]" if skill.get('enabled') else "[DISABLED]"
+            print("   - {}: {}".format(skill.get('name'), status))
 
         return True
     except Exception as e:
-        print(f"❌ 安装CodeBuddy配置失败: {e}")
+        print("错误: 安装CodeBuddy配置失败: {}".format(e))
         return False
 
 def copy_adapter_file():
@@ -97,183 +93,132 @@ def copy_adapter_file():
         adapter_dir = CODEBUDDY_CONFIG_DIR
         os.makedirs(adapter_dir, exist_ok=True)
 
+        # 获取当前脚本目录
+        current_dir = Path(__file__).parent
+        
         # 复制适配器文件
         adapter_files = [
             "skills_hook_adapter.py",
             "standalone_codebuddy_adapter.py"
         ]
-
+        
         for file_name in adapter_files:
             src_file = current_dir / file_name
             dst_file = os.path.join(adapter_dir, file_name)
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"[OK] 复制适配器文件: {file_name}")
+                print("[OK] 复制适配器文件: {}".format(file_name))
             else:
-                print(f"⚠️ 适配器文件不存在: {file_name}")
+                print("警告: 适配器文件不存在: {}".format(file_name))
 
         return True
     except Exception as e:
-        print(f"❌ 复制适配器文件失败: {e}")
+        print("错误: 复制适配器文件失败: {}".format(e))
         return False
 
 def verify_installation():
     """验证安装是否成功"""
-    print("\n🔍 验证CodeBuddy CLI集成安装...")
+    print("\n验证CodeBuddy CLI集成安装...")
 
     # 检查配置文件
     if not os.path.exists(CODEBUDDY_CONFIG_FILE):
-        print(f"❌ 配置文件不存在: {CODEBUDDY_CONFIG_FILE}")
+        print("错误: 配置文件不存在: {}".format(CODEBUDDY_CONFIG_FILE))
         return False
 
+    # 检查配置文件内容
     try:
         with open(CODEBUDDY_CONFIG_FILE, 'r', encoding='utf-8') as f:
             config = json.load(f)
-
+        
+        # 检查是否存在跨CLI技能
         skills = config.get('skills', [])
-        cross_cli_skill = None
-        for skill in skills:
-            if skill.get('name') == 'CrossCLICoordinationSkill':
-                cross_cli_skill = skill
-                break
-
-        if cross_cli_skill:
-            print("[OK] 跨CLI协作Skill已安装")
-            print(f"   - 技能名称: {cross_cli_skill.get('name')}")
-            print(f"   - 描述: {cross_cli_skill.get('description')}")
-            print(f"   - 启用状态: {'[OK]' if cross_cli_skill.get('enabled') else '❌'}")
-            print(f"   - 支持的CLI工具: {cross_cli_skill.get('config', {}).get('supported_clis', [])}")
-            print(f"   - 自动路由: {'[OK]' if cross_cli_skill.get('config', {}).get('auto_route') else '❌'}")
+        cross_cli_skill_found = any(skill.get('name') == 'CrossCLICoordinationSkill' for skill in skills)
+        
+        if cross_cli_skill_found:
+            print("[OK] 跨CLI协调技能已安装")
         else:
-            print("❌ 跨CLI协作Skill未找到")
-            return False
-
-        # 检查适配器文件
-        required_files = ["skills_hook_adapter.py"]
-        missing_files = []
-
-        for file_name in required_files:
-            file_path = os.path.join(CODEBUDDY_CONFIG_DIR, file_name)
-            if not os.path.exists(file_path):
-                missing_files.append(file_name)
-
-        if missing_files:
-            print(f"❌ 缺失适配器文件: {missing_files}")
-            return False
-        else:
-            print("[OK] 适配器文件已复制")
-
+            print("警告: 未找到跨CLI协调技能")
+            
+        print("[OK] CodeBuddy配置文件验证通过")
         return True
     except Exception as e:
-        print(f"❌ 验证失败: {e}")
+        print("错误: 配置文件验证失败: {}".format(e))
         return False
 
-def uninstall_codebuddy_integration():
+def uninstall_integration():
     """卸载CodeBuddy集成"""
     try:
-        # 备份现有配置
+        # 从配置文件中移除跨CLI技能
         if os.path.exists(CODEBUDDY_CONFIG_FILE):
-            backup_file = f"{CODEBUDDY_CONFIG_FILE}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            shutil.copy2(CODEBUDDY_CONFIG_FILE, backup_file)
-            print(f"📦 已备份现有配置: {backup_file}")
-
-        # 移除跨CLI协作Skill
-        config_updated = False
-        if os.path.exists(CODEBUDDY_CONFIG_FILE):
-            with open(CODEBUDDY_CONFIG_FILE, 'r+', encoding='utf-8') as f:
+            with open(CODEBUDDY_CONFIG_FILE, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-                skills = config.get('skills', [])
 
-                # 移除跨CLI协作Skill
-                skills = [skill for skill in skills if skill.get('name') != 'CrossCLICoordinationSkill']
+            # 移除跨CLI技能
+            skills = config.get('skills', [])
+            skills = [skill for skill in skills if skill.get('name') != 'CrossCLICoordinationSkill']
+            config['skills'] = skills
 
-                f.seek(0)
-                f.truncate()
-                json.dump({
-                    'skills': skills,
-                    'version': config.get('version', '1.0.0')
-                }, f, indent=2, ensure_ascii=False)
-                config_updated = True
+            # 保存更新后的配置
+            with open(CODEBUDDY_CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
 
-            print(f"🗑️ CodeBuddy跨CLI协作集成已卸载")
+            print("[OK] 已从CodeBuddy配置中移除跨CLI协调技能")
+
+        # 删除适配器文件
+        adapter_files = [
+            "skills_hook_adapter.py",
+            "standalone_codebuddy_adapter.py"
+        ]
+        
+        for file_name in adapter_files:
+            adapter_file = os.path.join(CODEBUDDY_CONFIG_DIR, file_name)
+            if os.path.exists(adapter_file):
+                os.remove(adapter_file)
+                print("[OK] 已删除适配器文件: {}".format(file_name))
+
+        print("[OK] CodeBuddy CLI跨CLI集成已卸载")
         return True
     except Exception as e:
-        print(f"❌ 卸载失败: {e}")
+        print("错误: 卸载失败: {}".format(e))
         return False
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="CodeBuddy CLI跨CLI协作集成安装脚本",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="安装CodeBuddy CLI跨CLI协作集成"
-    )
-
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="验证CodeBuddy CLI集成安装"
-    )
-
-    parser.add_argument(
-        "--uninstall",
-        action="store_true",
-        help="卸载CodeBuddy CLI跨CLI协作集成"
-    )
-
+    """主函数"""
+    parser = argparse.ArgumentParser(description="CodeBuddy CLI跨CLI集成安装脚本")
+    parser.add_argument("--verify", action="store_true", help="验证安装")
+    parser.add_argument("--uninstall", action="store_true", help="卸载集成")
     args = parser.parse_args()
 
-    print("[INSTALL] CodeBuddy CLI跨CLI协作集成安装器")
+    print("CodeBuddy CLI跨CLI集成安装程序")
     print("=" * 50)
 
     if args.uninstall:
-        print("[UNINSTALL] 卸载模式...")
-        success = uninstall_codebuddy_integration()
+        return uninstall_integration()
     elif args.verify:
-        print("[VERIFY] 验证模式...")
-        success = verify_installation()
-    elif args.install or len(sys.argv) == 1:
-        print("[INSTALL] 安装模式...")
-
-        # 1. 创建配置目录
-        print("Step 1. 创建配置目录...")
+        return verify_installation()
+    else:
+        # 执行安装
+        print("步骤1. 创建配置目录...")
         create_codebuddy_config_directory()
 
-        # 2. 安装Skills配置
-        print("Step 2. 安装Skills配置...")
-        config_success = install_codebuddy_skills()
+        print("\n步骤2. 安装Skills配置...")
+        skills_success = install_codebuddy_skills()
 
-        # 3. 复制适配器文件
-        print("Step 3. 复制适配器文件...")
+        print("\n步骤3. 复制适配器文件...")
         adapter_success = copy_adapter_file()
 
-        # 4. 验证安装
-        print("Step 4. 验证安装...")
-        verify_success = verify_installation()
+        print("\n步骤4. 验证安装...")
+        verification_success = verify_installation()
 
-        success = config_success and adapter_success and verify_success
-
-        if success:
-            print("\n🎉 CodeBuddy CLI跨CLI协作集成安装成功！")
-            print("\n[INFO] 安装摘要:")
-            print(f"   [OK] 配置目录: {CODEBUDDY_CONFIG_DIR}")
-            print(f"   [OK] 配置文件: {CODEBUDDY_CONFIG_FILE}")
-            print(f"   [OK] 适配器目录: {CODEBUDDY_CONFIG_DIR}")
-            print(f"   [OK] 跨CLI协作Skill: 已启用")
-
-            print("\n[INSTALL] 下一步:")
-            print("   1. 安装其他CLI工具的集成")
-            print("   2. 使用 ai-cli-router deploy --all")
-            print("   3. 使用 ai-cli-router init 初始化项目")
+        overall_success = skills_success and adapter_success and verification_success
+        if overall_success:
+            print("\n[SUCCESS] CodeBuddy CLI跨CLI集成安装成功!")
         else:
-            print("\n❌ CodeBuddy CLI跨CLI协作集成安装失败")
-    else:
-        parser.print_help()
+            print("\n[WARNING] 安装过程中出现警告，请检查上述输出")
+
+        return overall_success
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

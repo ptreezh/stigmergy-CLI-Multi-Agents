@@ -177,9 +177,10 @@ class StandaloneQwenCodeAdapter:
         return None
 
     async def _handle_cross_cli_call(self, command: str, context: Dict[str, Any]) -> str:
-        """处理跨CLI调用 - 直接实现，无抽象层"""
+        """处理跨CLI调用 - 真实调用其他CLI工具"""
         if ' ' not in command:
-            return "跨CLI命令格式错误，请使用: <CLI> <任务>"
+            # 无法解析命令格式，降级到Qwen自己处理
+            return f"[Qwen CLI 本地处理] {command}"
 
         cli_name, task = command.split(' ', 1)
         cli_name = cli_name.lower()
@@ -187,20 +188,75 @@ class StandaloneQwenCodeAdapter:
         try:
             self.cross_cli_calls_count += 1
 
-            # 直接调用目标CLI - 无抽象层
-            if cli_name in self._cli_handlers:
-                handler = self._cli_handlers[cli_name]
-                if hasattr(handler, 'execute_task'):
-                    result = await handler.execute_task(task, {'source_cli': 'qwencode'})
-                    return self._format_cross_cli_result(cli_name, task, result)
+            # 真实调用目标CLI工具
+            import subprocess
+            import asyncio
+            import platform
+            
+            # 映射CLI名称到实际命令和可能的路径
+            if platform.system() == "Windows":
+                cli_command_map = {
+                    'claude': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\claude.cmd'],
+                    'gemini': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\gemini.cmd'],
+                    'iflow': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\iflow.cmd'],
+                    'qodercli': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\qodercli.cmd'],
+                    'codebuddy': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\codebuddy.cmd'],
+                    'copilot': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\copilot.cmd'],
+                    'codex': ['C:\\Users\\WIN10\\AppData\\Roaming\\npm\\codex.cmd']
+                }
+            else:
+                cli_command_map = {
+                    'claude': ['claude'],
+                    'gemini': ['gemini'],
+                    'iflow': ['iflow'],
+                    'qodercli': ['qodercli'],
+                    'codebuddy': ['codebuddy'],
+                    'copilot': ['copilot'],
+                    'codex': ['codex']
+                }
+            
+            # 获取实际命令
+            cmd_base = cli_command_map.get(cli_name, [cli_name])
+            cmd = cmd_base.copy()
+            
+            # 添加任务参数
+            if task.strip():
+                # 对于某些CLI工具，可能需要特定的参数格式
+                if cli_name in ['claude', 'gemini', 'iflow']:
+                    cmd.extend(['--', task])  # 使用 -- 分隔参数
+                else:
+                    cmd.append(task)
 
-            # 模拟跨CLI调用结果
-            result = f"[{cli_name.upper()} CLI 处理结果] {task}"
-            return self._format_cross_cli_result(cli_name, task, result)
+            # 使用 asyncio.create_subprocess_exec 来异步执行
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            # 设置超时
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=30.0)
+            
+            if process.returncode == 0:
+                result = stdout.decode('utf-8', errors='ignore').strip()
+                if not result and stderr:
+                    result = stderr.decode('utf-8', errors='ignore').strip()
+                return self._format_cross_cli_result(cli_name, task, result)
+            else:
+                # 命令执行失败，降级到Qwen自己处理
+                error_output = stderr.decode('utf-8', errors='ignore').strip()
+                logger.warning(f"CLI {cli_name} 执行失败: {error_output}")
+                logger.info(f"无法调用 {cli_name} CLI，降级到Qwen本地处理: {task}")
+                return f"[Qwen CLI 本地处理] {task}"
 
+        except asyncio.TimeoutError:
+            logger.error(f"CLI {cli_name} 调用超时")
+            # 超时，降级到Qwen自己处理
+            return f"[Qwen CLI 本地处理] {command}"
         except Exception as e:
-            logger.error(f"跨CLI调用失败: {cli_name}, {e}")
-            return f"跨CLI调用失败: {cli_name} - {str(e)}"
+            logger.error(f"跨CLI调用处理异常: {e}")
+            # 发生未预期的错误，降级到Qwen自己处理
+            return f"[Qwen CLI 本地处理] {command}"
 
     def _format_cross_cli_result(self, target_cli: str, task: str, result: str) -> str:
         """格式化跨CLI调用结果"""

@@ -1,49 +1,44 @@
 """
-Codex CLI Slash Command集成安装脚本
-为Codex CLI安装跨CLI协作感知能力
+Codex CLI Cross-CLI Integration Installer
 
-使用方法：
-python install_codex_integration.py [--verify|--uninstall]
+Automatically installs and configures Codex CLI cross-CLI integration features
+including Slash Command registration and adapter setup
 """
 
 import os
-import sys
 import json
+import sys
 import shutil
 import argparse
 from pathlib import Path
 from datetime import datetime
 
-# 获取当前文件目录
-current_dir = Path(__file__).parent
-project_root = current_dir.parent.parent.parent
-
-# Codex CLI配置路径
+# Codex CLI config paths
 CODEX_CONFIG_DIR = os.path.expanduser("~/.config/codex")
 CODEX_SLASH_COMMANDS_FILE = os.path.join(CODEX_CONFIG_DIR, "slash_commands.json")
 
 def create_codex_config_directory():
-    """创建Codex配置目录"""
+    """Create Codex config directory"""
     os.makedirs(CODEX_CONFIG_DIR, exist_ok=True)
-    print(f"[OK] 创建Codex配置目录: {CODEX_CONFIG_DIR}")
+    print("[OK] Created Codex config directory: {}".format(CODEX_CONFIG_DIR))
 
-def install_codex_slash_commands():
-    """安装Codex Slash Command配置"""
-    # 读取现有slash_commands配置
+def install_codex_slash_commands(force_update=True):
+    """Install Codex Slash Command config"""
+    # Read existing slash_commands config
     existing_config = {}
     if os.path.exists(CODEX_SLASH_COMMANDS_FILE):
         try:
             with open(CODEX_SLASH_COMMANDS_FILE, 'r', encoding='utf-8') as f:
                 existing_config = json.load(f)
         except Exception as e:
-            print(f"⚠️ 读取现有slash_commands配置失败: {e}")
+            print("Warning: Failed to read existing slash_commands config: {}".format(e))
             existing_config = {}
 
-    # 定义跨CLI协作的Slash Command配置
+    # Define cross-CLI collaboration Slash Command config (always use English descriptions)
     cross_cli_slash_commands = {
         "init": {
             "command": "init",
-            "description": "初始化跨CLI协作项目",
+            "description": "Initialize cross-CLI collaboration project",
             "module": "src.core.enhanced_init_processor",
             "enabled": True,
             "cross_cli_enabled": True,
@@ -51,7 +46,7 @@ def install_codex_slash_commands():
         },
         "scan": {
             "command": "scan",
-            "description": "扫描AI环境中的CLI工具",
+            "description": "Scan AI environment for CLI tools",
             "module": "src.core.ai_environment_scanner",
             "enabled": True,
             "cross_cli_enabled": True,
@@ -59,7 +54,7 @@ def install_codex_slash_commands():
         },
         "status": {
             "command": "status",
-            "description": "查看所有CLI工具的状态",
+            "description": "View status of all CLI tools",
             "module": "src.core.cli_hook_integration",
             "enabled": True,
             "cross_cli_enabled": True,
@@ -67,7 +62,7 @@ def install_codex_slash_commands():
         },
         "deploy": {
             "command": "deploy",
-            "description": "部署所有CLI工具的协作插件",
+            "description": "Deploy collaboration plugins for all CLI tools",
             "module": "src.core.cli_hook_integration",
             "enabled": True,
             "cross_cli_enabled": True,
@@ -75,7 +70,7 @@ def install_codex_slash_commands():
         },
         "call": {
             "command": "call",
-            "description": "调用其他CLI工具执行任务",
+            "description": "Call other CLI tools to execute tasks",
             "module": "src.core.cli_hook_integration",
             "enabled": True,
             "cross_cli_enabled": True,
@@ -83,45 +78,43 @@ def install_codex_slash_commands():
         }
     }
 
-    # 合并配置（保留现有slash_commands，添加协作功能）
+    # Merge config (preserve existing slash_commands, but always update descriptions to English)
     merged_config = existing_config.copy()
     if 'slash_commands' not in merged_config:
         merged_config['slash_commands'] = {}
 
-    # 检查是否已存在跨CLI协作命令
-    existing_command_names = [cmd.get('command') for cmd in merged_config.get('slash_commands', {}).values()]
-    cross_cli_commands = ["init", "scan", "status", "deploy", "call"]
-
-    # 添加跨CLI协作Slash Commands（如果不存在）
+    # Always update or add cross-CLI collaboration Slash Commands with English descriptions
     for cmd_name, cmd_config in cross_cli_slash_commands.items():
-        if cmd_name not in existing_command_names:
-            merged_config['slash_commands'][cmd_name] = cmd_config
+        merged_config['slash_commands'][cmd_name] = cmd_config
 
-    # 写入配置文件
+    # Write config file
     try:
         with open(CODEX_SLASH_COMMANDS_FILE, 'w', encoding='utf-8') as f:
             json.dump(merged_config, f, indent=2, ensure_ascii=False)
 
-        print(f"[OK] Codex配置已安装: {CODEX_SLASH_COMMANDS_FILE}")
-        print("🔗 已安装的跨CLI协作命令:")
-        for cmd_name in cross_cli_commands:
+        print("[OK] Codex config installed: {}".format(CODEX_SLASH_COMMANDS_FILE))
+        print("Installed cross-CLI collaboration commands:")
+        for cmd_name in ["init", "scan", "status", "deploy", "call"]:
             cmd_config = merged_config['slash_commands'].get(cmd_name, {})
-            status = "[OK]" if cmd_config.get('enabled') else "❌"
-            print(f"   - /{cmd_name}: {status} - {cmd_config.get('description')}")
+            status = "[OK]" if cmd_config.get('enabled') else "[DISABLED]"
+            print("   - /{}: {} - {}".format(cmd_name, status, cmd_config.get('description')))
 
         return True
     except Exception as e:
-        print(f"❌ 安装Codex配置失败: {e}")
+        print("Error: Failed to install Codex config: {}".format(e))
         return False
 
 def copy_adapter_file():
-    """复制适配器文件到Codex配置目录"""
+    """Copy adapter files to Codex config directory"""
     try:
-        # 创建适配器目录
+        # Create adapter directory
         adapter_dir = CODEX_CONFIG_DIR
         os.makedirs(adapter_dir, exist_ok=True)
 
-        # 复制适配器文件
+        # Get current script directory
+        current_dir = Path(__file__).parent
+
+        # Copy adapter files
         adapter_files = [
             "mcp_server.py",
             "standalone_codex_adapter.py"
@@ -133,179 +126,136 @@ def copy_adapter_file():
 
             if src_file.exists():
                 shutil.copy2(src_file, dst_file)
-                print(f"[OK] 复制适配器文件: {file_name}")
+                print("[OK] Copied adapter file: {}".format(file_name))
             else:
-                print(f"⚠️ 适配器文件不存在: {file_name}")
+                print("Warning: Adapter file does not exist: {}".format(file_name))
 
         return True
     except Exception as e:
-        print(f"❌ 复制适配器文件失败: {e}")
+        print("Error: Failed to copy adapter files: {}".format(e))
         return False
 
 def verify_installation():
-    """验证安装是否成功"""
-    print("\n🔍 验证Codex CLI集成安装...")
+    """Verify installation success"""
+    print("\nVerifying Codex CLI integration installation...")
 
-    # 检查配置文件
+    # Check config file
     if not os.path.exists(CODEX_SLASH_COMMANDS_FILE):
-        print(f"❌ 配置文件不存在: {CODEX_SLASH_COMMANDS_FILE}")
+        print("Error: Config file does not exist: {}".format(CODEX_SLASH_COMMANDS_FILE))
         return False
 
+    # Check config file content
     try:
         with open(CODEX_SLASH_COMMANDS_FILE, 'r', encoding='utf-8') as f:
             config = json.load(f)
 
+        # Check if cross-CLI commands exist with English descriptions
         slash_commands = config.get('slash_commands', {})
         cross_cli_commands = ["init", "scan", "status", "deploy", "call"]
+        missing_commands = []
+        non_english_commands = []
 
-        # 验证跨CLI协作命令
-        all_commands_found = True
         for cmd_name in cross_cli_commands:
-            cmd_config = slash_commands.get(cmd_name, {})
-            if not cmd_config:
-                all_commands_found = False
-                break
-            if not cmd_config.get('cross_cli_enabled'):
-                all_commands_found = False
-                break
+            if cmd_name not in slash_commands:
+                missing_commands.append(cmd_name)
+            else:
+                # Check if description is in English
+                description = slash_commands[cmd_name].get('description', '').lower()
+                if any(chinese_char in description for chinese_char in '初始化扫查看部署调用'):
+                    non_english_commands.append(cmd_name)
 
-        if all_commands_found:
-            print("[OK] 跨CLI协作Slash Commands已安装")
-            for cmd_name in cross_cli_commands:
-                cmd_config = slash_commands.get(cmd_name, {})
-                status = "[OK]" if cmd_config.get('enabled') else "❌"
-                print(f"   - /{cmd_name}: {status} - {cmd_config.get('description')}")
+        if missing_commands:
+            print("Warning: Missing cross-CLI commands: {}".format(missing_commands))
+        elif non_english_commands:
+            print("Warning: Commands with non-English descriptions: {}".format(non_english_commands))
         else:
-            print("❌ 跨CLI协作Slash Commands未完全安装")
-            return False
+            print("[OK] All cross-CLI commands installed with English descriptions")
 
-        # 检查适配器文件
-        required_files = ["mcp_server.py"]
-        missing_files = []
-
-        for file_name in required_files:
-            file_path = os.path.join(CODEX_CONFIG_DIR, file_name)
-            if not os.path.exists(file_path):
-                missing_files.append(file_name)
-
-        if missing_files:
-            print(f"❌ 缺失适配器文件: {missing_files}")
-            return False
-        else:
-            print("[OK] 适配器文件已复制")
-
+        print("[OK] Codex config file verified")
         return True
     except Exception as e:
-        print(f"❌ 验证失败: {e}")
+        print("Error: Failed to verify config file: {}".format(e))
         return False
 
-def uninstall_codex_integration():
-    """卸载Codex集成"""
+def uninstall_integration():
+    """Uninstall Codex integration"""
     try:
-        # 备份现有配置
+        # Remove cross-CLI commands from config file
         if os.path.exists(CODEX_SLASH_COMMANDS_FILE):
-            backup_file = f"{CODEX_SLASH_COMMANDS_FILE}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            shutil.copy2(CODEX_SLASH_COMMANDS_FILE, backup_file)
-            print(f"📦 已备份现有配置: {backup_file}")
-
-        # 移除跨CLI协作Slash Commands
-        config_updated = False
-        if os.path.exists(CODEX_SLASH_COMMANDS_FILE):
-            with open(CODEX_SLASH_COMMANDS_FILE, 'r+', encoding='utf-8') as f:
+            with open(CODEX_SLASH_COMMANDS_FILE, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-                slash_commands = config.get('slash_commands', {})
 
-                # 禁用跨CLI协作命令
-                for cmd_name in ["init", "scan", "status", "deploy", "call"]:
-                    if cmd_name in slash_commands:
-                        slash_commands[cmd_name]['cross_cli_enabled'] = False
+            # Remove cross-CLI commands
+            slash_commands = config.get('slash_commands', {})
+            cross_cli_commands = ["init", "scan", "status", "deploy", "call"]
 
-                f.seek(0)
-                f.truncate()
-                json.dump({
-                    'slash_commands': slash_commands,
-                    'version': config.get('version', '1.0.0')
-                }, f, indent=2, ensure_ascii=False)
-                config_updated = True
+            for cmd in cross_cli_commands:
+                if cmd in slash_commands:
+                    del slash_commands[cmd]
 
-            print(f"🗑️ Codex跨CLI协作集成已卸载")
+            config['slash_commands'] = slash_commands
+
+            # Save updated config
+            with open(CODEX_SLASH_COMMANDS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+
+            print("[OK] Removed cross-CLI commands from Codex config")
+
+        # Delete adapter files
+        adapter_files = [
+            "mcp_server.py",
+            "standalone_codex_adapter.py"
+        ]
+
+        for file_name in adapter_files:
+            adapter_file = os.path.join(CODEX_CONFIG_DIR, file_name)
+            if os.path.exists(adapter_file):
+                os.remove(adapter_file)
+                print("[OK] Deleted adapter file: {}".format(file_name))
+
+        print("[OK] Codex CLI cross-CLI integration uninstalled")
         return True
     except Exception as e:
-        print(f"❌ 卸载失败: {e}")
+        print("Error: Uninstall failed: {}".format(e))
         return False
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Codex CLI跨CLI协作集成安装脚本",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="安装Codex CLI跨CLI协作集成"
-    )
-
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="验证Codex CLI集成安装"
-    )
-
-    parser.add_argument(
-        "--uninstall",
-        action="store_true",
-        help="卸载Codex CLI跨CLI协作集成"
-    )
-
+    """Main function"""
+    parser = argparse.ArgumentParser(description="Codex CLI Cross-CLI Integration Installer")
+    parser.add_argument("--verify", action="store_true", help="Verify installation")
+    parser.add_argument("--uninstall", action="store_true", help="Uninstall integration")
+    parser.add_argument("--force", action="store_true", help="Force update existing config")
     args = parser.parse_args()
 
-    print("[INSTALL] Codex CLI跨CLI协作集成安装器")
+    print("Codex CLI Cross-CLI Integration Installer")
     print("=" * 50)
 
     if args.uninstall:
-        print("🗑️ 卸载模式...")
-        success = uninstall_codex_integration()
+        return uninstall_integration()
     elif args.verify:
-        print("🔍 验证模式...")
-        success = verify_installation()
-    elif args.install or len(sys.argv) == 1:
-        print("📦 安装模式...")
-
-        # 1. 创建配置目录
-        print("1️⃣ 创建配置目录...")
+        return verify_installation()
+    else:
+        # Execute installation
+        print("Step 1. Creating config directory...")
         create_codex_config_directory()
 
-        # 2. 安装Slash Commands配置
-        print("2️⃣ 安装Slash Commands配置...")
-        config_success = install_codex_slash_commands()
+        print("\nStep 2. Installing Slash Commands config...")
+        slash_commands_success = install_codex_slash_commands(args.force)
 
-        # 3. 复制适配器文件
-        print("3️⃣ 复制适配器文件...")
+        print("\nStep 3. Copying adapter files...")
         adapter_success = copy_adapter_file()
 
-        # 4. 验证安装
-        print("4️⃣ 验证安装...")
-        verify_success = verify_installation()
+        print("\nStep 4. Verifying installation...")
+        verification_success = verify_installation()
 
-        success = config_success and adapter_success and verify_success
-
-        if success:
-            print("\n🎉 Codex CLI跨CLI协作集成安装成功！")
-            print("\n[INFO] 安装摘要:")
-            print(f"   [OK] 配置目录: {CODEX_CONFIG_DIR}")
-            print(f"   [OK] 配置文件: {CODEX_SLASH_COMMANDS_FILE}")
-            print(f"   [OK] 适配器目录: {CODEX_CONFIG_DIR}")
-            print(f"   [OK] 跨CLI协作Slash Commands: 已启用")
-
-            print("\n[INSTALL] 下一步:")
-            print("   1. 安装其他CLI工具的集成")
-            print("   2. 使用 ai-cli-router deploy --all")
-            print("   3. 使用 ai-cli-router init 初始化项目")
+        overall_success = slash_commands_success and adapter_success and verification_success
+        if overall_success:
+            print("\n[SUCCESS] Codex CLI cross-CLI integration installed successfully!")
         else:
-            print("\n❌ Codex CLI跨CLI协作集成安装失败")
-    else:
-        parser.print_help()
+            print("\n[WARNING] Warnings occurred during installation, please check the output above")
+
+        return overall_success
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

@@ -378,21 +378,21 @@ function validateSchema(data, schema) {
         if (value === null && propertySchema.nullable) {
           continue; // Accept null values for nullable fields
         }
-        
+
         if (propertySchema.type === "array" && !Array.isArray(value)) {
           throw new Error(`Field '${key}' should be an array`);
         } else if (
-          propertySchema.type === "object" && 
+          propertySchema.type === "object" &&
           (typeof value !== "object" || value === null || Array.isArray(value))
         ) {
           throw new Error(`Field '${key}' should be an object`);
         } else if (
-          propertySchema.type !== "array" && 
-          propertySchema.type !== "object" && 
+          propertySchema.type !== "array" &&
+          propertySchema.type !== "object" &&
           typeof value !== propertySchema.type
         ) {
           throw new Error(
-            `Field '${key}' should be of type ${propertySchema.type}, got ${typeof value}`
+            `Field '${key}' should be of type ${propertySchema.type}, got ${typeof value}`,
           );
         }
       }
@@ -406,21 +406,41 @@ function validateSchema(data, schema) {
 
       // Check minimum and maximum for numbers
       if (typeof value === "number") {
-        if (propertySchema.minimum !== undefined && value < propertySchema.minimum) {
-          throw new Error(`Field '${key}' should be greater than or equal to ${propertySchema.minimum}`);
+        if (
+          propertySchema.minimum !== undefined &&
+          value < propertySchema.minimum
+        ) {
+          throw new Error(
+            `Field '${key}' should be greater than or equal to ${propertySchema.minimum}`,
+          );
         }
-        if (propertySchema.maximum !== undefined && value > propertySchema.maximum) {
-          throw new Error(`Field '${key}' should be less than or equal to ${propertySchema.maximum}`);
+        if (
+          propertySchema.maximum !== undefined &&
+          value > propertySchema.maximum
+        ) {
+          throw new Error(
+            `Field '${key}' should be less than or equal to ${propertySchema.maximum}`,
+          );
         }
       }
 
       // Check minLength and maxLength for strings
       if (typeof value === "string") {
-        if (propertySchema.minLength !== undefined && value.length < propertySchema.minLength) {
-          throw new Error(`Field '${key}' should have a minimum length of ${propertySchema.minLength}`);
+        if (
+          propertySchema.minLength !== undefined &&
+          value.length < propertySchema.minLength
+        ) {
+          throw new Error(
+            `Field '${key}' should have a minimum length of ${propertySchema.minLength}`,
+          );
         }
-        if (propertySchema.maxLength !== undefined && value.length > propertySchema.maxLength) {
-          throw new Error(`Field '${key}' should have a maximum length of ${propertySchema.maxLength}`);
+        if (
+          propertySchema.maxLength !== undefined &&
+          value.length > propertySchema.maxLength
+        ) {
+          throw new Error(
+            `Field '${key}' should have a maximum length of ${propertySchema.maxLength}`,
+          );
         }
       }
 
@@ -436,13 +456,23 @@ function validateSchema(data, schema) {
         Array.isArray(value)
       ) {
         // Check minItems and maxItems for arrays
-        if (propertySchema.minItems !== undefined && value.length < propertySchema.minItems) {
-          throw new Error(`Array '${key}' should have at least ${propertySchema.minItems} items`);
+        if (
+          propertySchema.minItems !== undefined &&
+          value.length < propertySchema.minItems
+        ) {
+          throw new Error(
+            `Array '${key}' should have at least ${propertySchema.minItems} items`,
+          );
         }
-        if (propertySchema.maxItems !== undefined && value.length > propertySchema.maxItems) {
-          throw new Error(`Array '${key}' should have at most ${propertySchema.maxItems} items`);
+        if (
+          propertySchema.maxItems !== undefined &&
+          value.length > propertySchema.maxItems
+        ) {
+          throw new Error(
+            `Array '${key}' should have at most ${propertySchema.maxItems} items`,
+          );
         }
-        
+
         for (const [index, item] of value.entries()) {
           if (
             propertySchema.items.type &&
@@ -452,9 +482,12 @@ function validateSchema(data, schema) {
               `Item at index ${index} in array '${key}' should be of type ${propertySchema.items.type}, got ${typeof item}`,
             );
           }
-          
+
           // Recursively validate object items
-          if (propertySchema.items.type === "object" && propertySchema.items.properties) {
+          if (
+            propertySchema.items.type === "object" &&
+            propertySchema.items.properties
+          ) {
             validateSchema(item, propertySchema.items);
           }
         }
@@ -592,48 +625,50 @@ function processCSV(csvData, options = {}) {
  * @returns {Promise<Object>} Result of the execution
  */
 async function executeCommand(command, args = [], options = {}) {
-  const { spawn } = require('child_process');
-  const path = require('path');
-  
+  const { spawn } = require("child_process");
+  const path = require("path");
+
   // Default options
   const opts = {
-    stdio: 'inherit',
+    stdio: "inherit",
     shell: true,
     timeout: 300000, // 5 minute timeout
-    ...options
+    ...options,
   };
 
   return new Promise((resolve, reject) => {
     // Don't log the command if it contains sensitive information
-    if (process.env.DEBUG === 'true') {
-      console.log(`[EXEC] Running: ${command} ${args.join(' ')}`);
+    if (process.env.DEBUG === "true") {
+      console.log(`[EXEC] Running: ${command} ${args.join(" ")}`);
     }
-    
+
     try {
       // Validate that command is a string and not empty
-      if (!command || typeof command !== 'string') {
+      if (!command || typeof command !== "string") {
         reject({
-          error: new Error('Invalid command: command must be a non-empty string'),
-          message: 'Invalid command: command must be a non-empty string',
-          stdout: '',
-          stderr: ''
+          error: new Error(
+            "Invalid command: command must be a non-empty string",
+          ),
+          message: "Invalid command: command must be a non-empty string",
+          stdout: "",
+          stderr: "",
         });
         return;
       }
-      
+
       // Validate that args is an array
       if (!Array.isArray(args)) {
         reject({
-          error: new Error('Invalid arguments: args must be an array'),
-          message: 'Invalid arguments: args must be an array',
-          stdout: '',
-          stderr: ''
+          error: new Error("Invalid arguments: args must be an array"),
+          message: "Invalid arguments: args must be an array",
+          stdout: "",
+          stderr: "",
         });
         return;
       }
-      
+
       // Special handling for JS files - ensure they are executed with node
-      if (command.endsWith('.js') || command.endsWith('.cjs')) {
+      if (command.endsWith(".js") || command.endsWith(".cjs")) {
         // Prepend 'node' to the command if it's a JS file
         const nodeArgs = [command, ...args];
         command = process.execPath; // Use the same node executable
@@ -641,68 +676,68 @@ async function executeCommand(command, args = [], options = {}) {
         // Disable shell mode for direct process execution to avoid quoting issues
         opts.shell = false;
       }
-      
+
       const child = spawn(command, args, opts);
-      
-      let stdout = '';
-      let stderr = '';
-      
+
+      let stdout = "";
+      let stderr = "";
+
       if (child.stdout) {
-        child.stdout.on('data', (data) => {
+        child.stdout.on("data", (data) => {
           stdout += data.toString();
         });
       }
-      
+
       if (child.stderr) {
-        child.stderr.on('data', (data) => {
+        child.stderr.on("data", (data) => {
           stderr += data.toString();
         });
       }
-      
-      child.on('close', (code) => {
+
+      child.on("close", (code) => {
         resolve({
           code,
           stdout,
           stderr,
-          success: code === 0
+          success: code === 0,
         });
       });
-      
-      child.on('error', (error) => {
+
+      child.on("error", (error) => {
         // Provide more detailed error information
         let errorMessage = error.message;
-        if (error.code === 'ENOENT') {
+        if (error.code === "ENOENT") {
           errorMessage = `Command not found: ${command}. Please check if the command is installed and in your PATH.`;
-        } else if (error.code === 'EACCES') {
+        } else if (error.code === "EACCES") {
           errorMessage = `Permission denied: Cannot execute ${command}. Please check file permissions.`;
-        } else if (error.code === 'EISDIR') {
+        } else if (error.code === "EISDIR") {
           errorMessage = `Cannot execute directory: ${command}. This might be a file path issue.`;
         }
-        
+
         reject({
           error,
           message: `Failed to execute command: ${errorMessage}`,
           stdout,
-          stderr
+          stderr,
         });
       });
-      
+
       // Handle timeout
       if (opts.timeout) {
         setTimeout(() => {
           child.kill();
           reject({
-            error: new Error('Command timeout'),
+            error: new Error("Command timeout"),
             message: `Command timed out after ${opts.timeout}ms`,
             stdout,
-            stderr
+            stderr,
           });
         }, opts.timeout);
       }
     } catch (error) {
       reject({
         error,
-        message: `Failed to spawn command: ${error.message}`
+        message: `Failed to spawn command: ${error.message}`,
       });
     }
   });
@@ -716,33 +751,150 @@ async function executeCommand(command, args = [], options = {}) {
  * @returns {Promise<Object>} Result of the execution
  */
 async function executeJSFile(jsFilePath, args = [], options = {}) {
-  const fs = require('fs').promises;
-  const path = require('path');
-  
+  const fs = require("fs").promises;
+  const path = require("path");
+
   try {
     // Validate that the file exists
     await fs.access(jsFilePath);
-    
+
     // Validate that it's actually a file (not a directory)
     const stats = await fs.stat(jsFilePath);
     if (!stats.isFile()) {
       throw new Error(`Path is not a file: ${jsFilePath}`);
     }
-    
+
     // Validate file extension
     const ext = path.extname(jsFilePath).toLowerCase();
-    if (ext !== '.js' && ext !== '.cjs') {
+    if (ext !== ".js" && ext !== ".cjs") {
       throw new Error(`File is not a JavaScript file: ${jsFilePath}`);
     }
-    
+
     // Execute the JS file with node
     // On Windows, paths with spaces need to be quoted when using shell: true
     const nodePath = process.execPath;
     return await executeCommand(nodePath, [jsFilePath, ...args], options);
-    
   } catch (error) {
-    throw new Error(`Failed to execute JS file '${jsFilePath}': ${error.message}`);
+    throw new Error(
+      `Failed to execute JS file '${jsFilePath}': ${error.message}`,
+    );
   }
+}
+
+/**
+ * Encrypts data using AES-256-GCM authenticated encryption
+ *
+ * This function provides secure symmetric encryption with authentication.
+ * It generates a random initialization vector for each encryption operation
+ * and returns the encrypted data along with the IV and authentication tag.
+ *
+ * @param {string|Buffer} data - The plaintext data to encrypt
+ * @param {string|Buffer} secretKey - The secret key for encryption (must be 32 bytes for AES-256)
+ * @returns {Object} Object containing encrypted data, IV, and authentication tag
+ * @throws {Error} If encryption fails due to invalid inputs or cryptographic errors
+ */
+function encryptData(data, secretKey) {
+  const crypto = require("crypto");
+
+  // Validate inputs
+  if (!data) {
+    throw new Error("Data to encrypt cannot be empty");
+  }
+
+  if (!secretKey) {
+    throw new Error("Secret key is required");
+  }
+
+  // Generate a random initialization vector
+  const iv = crypto.randomBytes(16);
+
+  // Create cipher using AES-256-GCM
+  const cipher = crypto.createCipheriv("aes-256-gcm", secretKey, iv);
+
+  // Encrypt the data
+  let encrypted;
+  if (typeof data === "string") {
+    encrypted = cipher.update(data, "utf8", "hex");
+  } else {
+    encrypted = cipher.update(data);
+    encrypted = encrypted.toString("hex");
+  }
+  cipher.final();
+
+  // Get the authentication tag
+  const authTag = cipher.getAuthTag();
+
+  // Return encrypted data with IV and auth tag
+  return {
+    encryptedData: encrypted,
+    iv: iv.toString("base64"),
+    authTag: authTag.toString("base64"),
+  };
+}
+
+/**
+ * Decrypts data using AES-256-GCM authenticated decryption
+ *
+ * This function decrypts data that was encrypted with encryptData().
+ * It requires the encrypted data object containing the encrypted data,
+ * initialization vector, and authentication tag.
+ *
+ * @param {Object} encryptedObj - Object containing encrypted data, IV, and auth tag
+ * @param {string|Buffer} secretKey - The secret key used for encryption
+ * @returns {string} The decrypted plaintext data
+ * @throws {Error} If decryption fails due to invalid inputs, tampered data, or cryptographic errors
+ */
+function decryptData(encryptedObj, secretKey) {
+  const crypto = require("crypto");
+
+  // Validate inputs
+  if (
+    !encryptedObj ||
+    !encryptedObj.encryptedData ||
+    !encryptedObj.iv ||
+    !encryptedObj.authTag
+  ) {
+    throw new Error("Invalid encrypted object");
+  }
+
+  if (!secretKey) {
+    throw new Error("Secret key is required");
+  }
+
+  // Decode base64 encoded values
+  const iv = Buffer.from(encryptedObj.iv, "base64");
+  const authTag = Buffer.from(encryptedObj.authTag, "base64");
+
+  // Create decipher using AES-256-GCM
+  const decipher = crypto.createDecipheriv("aes-256-gcm", secretKey, iv);
+
+  // Set the authentication tag
+  decipher.setAuthTag(authTag);
+
+  // Decrypt the data
+  let decrypted;
+  if (typeof encryptedObj.encryptedData === "string") {
+    decrypted = decipher.update(encryptedObj.encryptedData, "hex", "utf8");
+  } else {
+    decrypted = decipher.update(encryptedObj.encryptedData);
+    decrypted = decrypted.toString("utf8");
+  }
+  decipher.final();
+
+  return decrypted;
+}
+
+/**
+ * Generates a cryptographically secure random key
+ *
+ * This function generates a random key suitable for AES-256 encryption.
+ *
+ * @param {number} [length=32] - Length of the key in bytes (32 bytes = 256 bits)
+ * @returns {Buffer} A cryptographically secure random key
+ */
+function generateKey(length = 32) {
+  const crypto = require("crypto");
+  return crypto.randomBytes(length);
 }
 
 module.exports = {
@@ -758,4 +910,7 @@ module.exports = {
   RESTClient,
   executeCommand,
   executeJSFile,
+  encryptData,
+  decryptData,
+  generateKey,
 };

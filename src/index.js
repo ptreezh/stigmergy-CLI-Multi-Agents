@@ -6,4 +6,4 @@
  */
 
 // Import and export the main functionality from main.js
-require('./main.js');
+require("./main.js");

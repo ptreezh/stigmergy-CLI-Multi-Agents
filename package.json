@@ -12,6 +12,8 @@
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
     "test:e2e": "jest tests/e2e",
+    "test:rest-client": "node test/rest_client.test.js",
+    "example:rest-client": "node examples/rest_client_example.js",
     "coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "build": "node scripts/build.js",
