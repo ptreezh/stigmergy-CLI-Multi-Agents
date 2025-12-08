@@ -70,6 +70,9 @@ stigmergy install
 # Deploy hooks to all tools
 stigmergy deploy
 
+# Remove all Stigmergy hooks from tools
+stigmergy remove
+
 # Complete setup (scan + install + deploy)
 stigmergy setup
 ```
@@ -99,11 +102,21 @@ stigmergy call copilot "suggest improvements"
 3. **Deploy**: `stigmergy deploy` - Sets up cross-tool communication
 4. **Use**: `stigmergy call <tool> <prompt>` - Start collaborating
 
-## Configuration
+## Safety and Conflict Prevention
 
-### Global Configuration
+Stigmergy includes a comprehensive conflict prevention system to ensure it doesn't interfere with other CLI tools:
 
-Configuration is stored in `~/.stigmergy/config.json`:
+- **Pre-installation checks** to prevent conflicts
+- **Runtime monitoring** for system integrity
+- **Automatic conflict resolution** tools
+- **Emergency recovery** procedures
+
+If you experience issues with other CLI tools:
+```bash
+npm run fix-node-conflict
+```
+
+For more information, see [Conflict Prevention System](docs/CONFLICT_PREVENTION.md).
 
 ```json
 {

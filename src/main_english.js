@@ -3,8 +3,10 @@
 /**
  * Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
  * International Version - Pure English & ANSI Only
- * Version: 1.0.84
+ * Version: 1.0.90
  */
+
+console.log('[DEBUG] Stigmergy CLI script started...');
 
 const { spawn, spawnSync } = require('child_process');
 const path = require('path');
@@ -410,7 +412,7 @@ class StigmergyInstaller {
         return { available, missing };
     }
 
-    async showInstallOptions(missing) {
+    async showInstallOptions(missing, isNonInteractive = false) {
         if (Object.keys(missing).length === 0) {
             console.log('[INFO] All AI CLI tools are already installed!');
             return [];
@@ -428,12 +430,70 @@ class StigmergyInstaller {
             index++;
         }
 
+        if (isNonInteractive) {
+            console.log('\n[INFO] Non-interactive mode detected. Skipping automatic installation.');
+            console.log('[INFO] To install these tools manually, run: stigmergy install');
+            return [];
+        }
+
         console.log('\n[OPTIONS] Installation Options:');
         console.log('- Enter numbers separated by spaces (e.g: 1 3 5)');
         console.log('- Enter "all" to install all missing tools');
         console.log('- Enter "skip" to skip CLI installation');
 
         return options;
+    }
+
+    async getUserSelection(options, missing) {
+        if (options.length === 0) {
+            return [];
+        }
+
+        try {
+            const inquirer = require('inquirer');
+
+            const choices = options.map(opt => ({
+                name: `${opt.toolInfo.name} - ${opt.toolInfo.install}`,
+                value: opt.toolName
+            }));
+
+            choices.push(new inquirer.Separator(' = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='),
+                         { name: 'All missing tools', value: 'all' },
+                         { name: 'Skip installation', value: 'skip' });
+
+            const answers = await inquirer.prompt([
+                {
+                    type: 'checkbox',
+                    name: 'selectedTools',
+                    message: 'Select tools to install (Space to select, Enter to confirm):',
+                    choices: choices,
+                    validate: function (answer) {
+                        if (answer.length < 1) {
+                            return 'You must choose at least one option.';
+                        }
+                        return true;
+                    }
+                }
+            ]);
+
+            if (answers.selectedTools.includes('skip')) {
+                console.log('[INFO] Skipping CLI tool installation');
+                return [];
+            } else {
+                let toolsToInstall;
+                if (answers.selectedTools.includes('all')) {
+                    toolsToInstall = options;
+                } else {
+                    toolsToInstall = options.filter(opt => answers.selectedTools.includes(opt.toolName));
+                }
+                return toolsToInstall;
+            }
+        } catch (error) {
+            console.log('[ERROR] Interactive selection failed:', error.message);
+            console.log('[INFO] Skipping CLI tool installation due to input error');
+            console.log('[INFO] To install tools manually, run: stigmergy install');
+            return [];
+        }
     }
 
     async installTools(selectedTools, missing) {
@@ -450,17 +510,35 @@ class StigmergyInstaller {
 
             try {
                 const installCmd = toolInfo.install.split(' ');
-                const result = spawnSync(installCmd[0], installCmd.slice(1), {
+                console.log(`[DEBUG] Installing ${toolInfo.name} with command: ${toolInfo.install}`);
+                
+                // Try with shell=true first (works better on Windows)
+                let result = spawnSync(installCmd[0], installCmd.slice(1), {
                     encoding: 'utf8',
                     timeout: 300000, // Increased to 5 minutes for CLI tools that download binaries
                     stdio: 'inherit',
-                    env: process.env
+                    env: process.env,
+                    shell: true
                 });
+
+                // If shell=true fails, try without shell
+                if (result.status !== 0 && result.status !== null) {
+                    console.log(`[DEBUG] Shell execution failed, trying without shell...`);
+                    result = spawnSync(installCmd[0], installCmd.slice(1), {
+                        encoding: 'utf8',
+                        timeout: 300000,
+                        stdio: 'inherit',
+                        env: process.env
+                    });
+                }
 
                 if (result.status === 0) {
                     console.log(`[OK] ${toolInfo.name} installed successfully`);
                 } else {
-                    console.log(`[ERROR] Failed to install ${toolInfo.name}`);
+                    console.log(`[ERROR] Failed to install ${toolInfo.name} (exit code: ${result.status})`);
+                    if (result.error) {
+                        console.log(`[ERROR] Installation error: ${result.error.message}`);
+                    }
                     console.log(`[INFO] Please run manually: ${toolInfo.install}`);
                 }
             } catch (error) {
@@ -472,8 +550,214 @@ class StigmergyInstaller {
         return true;
     }
 
+    async downloadRequiredAssets() {
+        console.log('\n[DOWNLOAD] Downloading required assets and plugins...');
+        
+        // SAFETY CHECK: Verify no conflicting packages exist
+        await this.safetyCheck();
+        
+        try {
+            // Create local assets directory
+            const assetsDir = path.join(os.homedir(), '.stigmergy', 'assets');
+            await fs.mkdir(assetsDir, { recursive: true });
+            
+            // Copy template files from package
+            const packageTemplatesDir = path.join(__dirname, '..', 'templates', 'project-docs');
+            const localTemplatesDir = path.join(assetsDir, 'templates');
+            
+            if (await this.fileExists(packageTemplatesDir)) {
+                await fs.mkdir(localTemplatesDir, { recursive: true });
+                
+                // Copy all template files
+                const templateFiles = await fs.readdir(packageTemplatesDir);
+                for (const file of templateFiles) {
+                    const srcPath = path.join(packageTemplatesDir, file);
+                    const dstPath = path.join(localTemplatesDir, file);
+                    await fs.copyFile(srcPath, dstPath);
+                    console.log(`[OK] Copied template: ${file}`);
+                }
+            }
+            
+            // Download/copy CLI adapters
+            const adaptersDir = path.join(__dirname, '..', 'src', 'adapters');
+            const localAdaptersDir = path.join(assetsDir, 'adapters');
+            
+            if (await this.fileExists(adaptersDir)) {
+                await fs.mkdir(localAdaptersDir, { recursive: true });
+                
+                // Copy adapter files recursively
+                await this.copyDirectory(adaptersDir, localAdaptersDir);
+                console.log(`[OK] Copied CLI adapters to ${localAdaptersDir}`);
+            }
+            
+            console.log('[OK] Required assets downloaded successfully');
+            return true;
+        } catch (error) {
+            console.log(`[ERROR] Failed to download assets: ${error.message}`);
+            return false;
+        }
+    }
+    
+    // Safety check to prevent conflicts with other CLI tools
+    async safetyCheck() {
+        console.log('[SAFETY] Running conflict prevention check...');
+        
+        try {
+            // Check for problematic node package
+            const npmNodeModules = path.join(os.homedir(), 'AppData', 'Roaming', 'npm', 'node_modules');
+            const nodePackageDir = path.join(npmNodeModules, 'node');
+            
+            try {
+                await fs.access(nodePackageDir);
+                console.warn('[WARNING] Conflicting "node" package detected!');
+                console.warn('[WARNING] This may interfere with other CLI tools.');
+                console.warn('[WARNING] Consider running: npm uninstall -g node');
+            } catch (error) {
+                // Package doesn't exist, that's good
+            }
+            
+            // Check for broken node executable
+            const npmDir = path.join(os.homedir(), 'AppData', 'Roaming', 'npm');
+            const nodeExecutable = path.join(npmDir, 'node');
+            
+            try {
+                await fs.access(nodeExecutable);
+                const content = await fs.readFile(nodeExecutable, 'utf8');
+                if (content.includes('intentionally left blank') || 
+                    content.includes('node_modules/node/bin/node')) {
+                    console.warn('[WARNING] Broken node executable detected!');
+                    console.warn('[WARNING] This will break other CLI tools.');
+                    console.warn('[WARNING] Consider running: npm run fix-node-conflict');
+                }
+            } catch (error) {
+                // File doesn't exist, that's fine
+            }
+            
+            console.log('[SAFETY] Check completed.');
+        } catch (error) {
+            console.log('[SAFETY] Could not complete safety check:', error.message);
+        }
+    }
+
+    async copyDirectory(src, dst) {
+        await fs.mkdir(dst, { recursive: true });
+        const entries = await fs.readdir(src, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const srcPath = path.join(src, entry.name);
+            const dstPath = path.join(dst, entry.name);
+
+            if (entry.isDirectory()) {
+                await this.copyDirectory(srcPath, dstPath);
+            } else {
+                await fs.copyFile(srcPath, dstPath);
+            }
+        }
+    }
+
+    async deployProjectDocumentation() {
+        console.log('\n[DEPLOY] Deploying project documentation...');
+        
+        try {
+            const projectDir = process.cwd();
+            const assetsTemplatesDir = path.join(os.homedir(), '.stigmergy', 'assets', 'templates');
+            
+            if (!(await this.fileExists(assetsTemplatesDir))) {
+                console.log('[SKIP] No template files found');
+                return true;
+            }
+            
+            const templateFiles = await fs.readdir(assetsTemplatesDir);
+            let deployedCount = 0;
+            
+            for (const templateFile of templateFiles) {
+                if (templateFile.endsWith('.j2')) {
+                    const dstFileName = templateFile.replace('.j2', '');
+                    const dstPath = path.join(projectDir, dstFileName);
+                    
+                    // Read template and substitute variables
+                    const templateContent = await fs.readFile(path.join(assetsTemplatesDir, templateFile), 'utf8');
+                    const processedContent = this.substituteTemplateVariables(templateContent);
+                    
+                    await fs.writeFile(dstPath, processedContent);
+                    console.log(`[OK] Deployed project doc: ${dstFileName}`);
+                    deployedCount++;
+                }
+            }
+            
+            console.log(`[RESULT] ${deployedCount} project documentation files deployed`);
+            return true;
+        } catch (error) {
+            console.log(`[ERROR] Failed to deploy project documentation: ${error.message}`);
+            return false;
+        }
+    }
+
+    substituteTemplateVariables(content) {
+        const now = new Date();
+        const projectName = path.basename(process.cwd());
+        
+        const variables = {
+            '{{PROJECT_NAME}}': projectName,
+            '{{PROJECT_TYPE}}': 'Node.js Project',
+            '{{TECH_STACK}}': 'Node.js, JavaScript, TypeScript',
+            '{{CREATED_DATE}}': now.toISOString(),
+            '{{LAST_UPDATED}}': now.toISOString(),
+            '{{GENERATION_TIME}}': now.toLocaleString(),
+            '{{CODE_STYLE}}': 'ESLint + Prettier',
+            '{{TEST_FRAMEWORK}}': 'Jest',
+            '{{BUILD_TOOL}}': 'npm',
+            '{{DEPLOY_METHOD}}': 'npm publish',
+            '{{PRIMARY_LANGUAGE}}': 'English',
+            '{{TARGET_LANGUAGES}}': 'Chinese, Japanese, Spanish',
+            '{{DOC_STYLE}}': 'Markdown',
+            '{{OUTPUT_FORMAT}}': 'Markdown',
+            '{{RECENT_CHANGES}}': 'No recent changes recorded',
+            '{{KNOWN_ISSUES}}': 'No known issues',
+            '{{TODO_ITEMS}}': 'No todo items',
+            '{{TEAM_PREFERENCES}}': 'Standard development practices',
+            '{{TRANSLATION_PREFERENCES}}': 'Technical accuracy first',
+            '{{DOC_STANDARDS}}': 'Markdown with code examples',
+            '{{ANALYSIS_TEMPLATES}}': 'Standard analysis templates',
+            '{{COMMON_LANGUAGES}}': 'English, Chinese, Japanese',
+            '{{CHINESE_TERMINOLOGY}}': 'Standard Chinese technical terms',
+            '{{LOCALIZATION_STANDARDS}}': 'Chinese localization standards',
+            '{{USER_HABITS}}': 'Chinese user preferences',
+            '{{COMPLIANCE_REQUIREMENTS}}': 'Local regulations compliance',
+            '{{CHINESE_DOC_STYLE}}': '简体中文技术文档',
+            '{{ENCODING_STANDARD}}': 'UTF-8',
+            '{{TECHNICAL_DOMAIN}}': 'Software Development',
+            '{{WORKFLOW_ENGINE}}': 'iFlow CLI',
+            '{{EXECUTION_ENVIRONMENT}}': 'Node.js',
+            '{{DATA_SOURCES}}': 'Local files, APIs',
+            '{{OUTPUT_TARGETS}}': 'Files, databases, APIs',
+            '{{AGENT_COMMUNICATION_PROTOCOL}}': 'JSON-based messaging',
+            '{{COLLABORATION_MODE}}': 'Sequential and Parallel',
+            '{{DECISION_MECHANISM}}': 'Consensus-based',
+            '{{CONFLICT_RESOLUTION}}': 'Expert arbitration',
+            '{{AGENT_PROFILES}}': 'Default agent configurations',
+            '{{COLLABORATION_HISTORY}}': 'No history yet',
+            '{{DECISION_RECORDS}}': 'No decisions recorded yet',
+            '{{PERFORMANCE_METRICS}}': 'To be collected'
+        };
+        
+        let processedContent = content;
+        for (const [placeholder, value] of Object.entries(variables)) {
+            processedContent = processedContent.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
+        }
+        
+        return processedContent;
+    }
+
     async deployHooks(available) {
         console.log('\n[DEPLOY] Deploying cross-CLI integration hooks...');
+
+        // Import the post-deployment configurer for executing installation scripts
+        const { PostDeploymentConfigurer } = require('./../scripts/post-deployment-config.js');
+        const configurer = new PostDeploymentConfigurer();
+
+        let successCount = 0;
+        let totalCount = Object.keys(available).length;
 
         for (const [toolName, toolInfo] of Object.entries(available)) {
             console.log(`\n[DEPLOY] Deploying hooks for ${toolInfo.name}...`);
@@ -485,16 +769,47 @@ class StigmergyInstaller {
                 const configDir = path.dirname(toolInfo.config);
                 await fs.mkdir(configDir, { recursive: true });
 
+                // Copy adapter files from local assets
+                // Mapping for tool names that don't match their adapter directory names
+                const toolNameToAdapterDir = {
+                    'qodercli': 'qoder',
+                    'qwencode': 'qwen'
+                };
+                const adapterDirName = toolNameToAdapterDir[toolName] || toolName;
+                const assetsAdaptersDir = path.join(os.homedir(), '.stigmergy', 'assets', 'adapters', adapterDirName);
+                if (await this.fileExists(assetsAdaptersDir)) {
+                    await this.copyDirectory(assetsAdaptersDir, toolInfo.hooksDir);
+                    console.log(`[OK] Copied adapter files for ${toolInfo.name}`);
+                }
+
+                // NEW: Execute the installation script to complete configuration
+                console.log(`[CONFIG] Running installation script for ${toolInfo.name}...`);
+                const installResult = await configurer.configureTool(toolName);
+                if (installResult.runSuccess) {
+                    console.log(`[OK] ${toolInfo.name} configured successfully`);
+                    successCount++;
+                } else {
+                    console.log(`[WARN] ${toolInfo.name} configuration failed: ${installResult.error || 'Unknown error'}`);
+                    console.log(`[INFO] You can manually configure ${toolInfo.name} later by running the installation script`);
+                }
+
                 console.log(`[OK] Created directories for ${toolInfo.name}`);
                 console.log(`[INFO] Hooks directory: ${toolInfo.hooksDir}`);
                 console.log(`[INFO] Config directory: ${configDir}`);
             } catch (error) {
-                console.log(`[ERROR] Failed to create directories for ${toolInfo.name}: ${error.message}`);
+                console.log(`[ERROR] Failed to deploy hooks for ${toolInfo.name}: ${error.message}`);
+                console.log(`[INFO] You can manually deploy hooks for ${toolInfo.name} later by running: stigmergy deploy`);
             }
         }
 
-        console.log('\n[OK] Hook deployment completed');
-        return true;
+        console.log(`\n[SUMMARY] Hook deployment completed: ${successCount}/${totalCount} tools configured successfully`);
+        
+        if (successCount < totalCount) {
+            console.log(`[INFO] ${totalCount - successCount} tools failed to configure. See warnings above for details.`);
+            console.log(`[INFO] Run 'stigmergy deploy' to retry configuration for failed tools.`);
+        }
+        
+        return successCount > 0; // Return true if at least one tool was configured successfully
     }
 
     async initializeConfig() {
@@ -505,7 +820,7 @@ class StigmergyInstaller {
 
             const configFile = path.join(this.configDir, 'config.json');
             const config = {
-                version: '1.0.84',
+                version: '1.0.92',
                 initialized: true,
                 createdAt: new Date().toISOString(),
                 lastUpdated: new Date().toISOString(),
@@ -554,12 +869,14 @@ class StigmergyInstaller {
 
 // Main CLI functionality
 async function main() {
+    console.log('[DEBUG] Main function called with args:', process.argv);
+    
     const args = process.argv.slice(2);
     const installer = new StigmergyInstaller();
 
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
         console.log('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System');
-        console.log('Version: 1.0.84');
+        console.log('Version: 1.0.90');
         console.log('');
         console.log('[SYSTEM] Automated Installation and Deployment System');
         console.log('');
@@ -571,7 +888,7 @@ async function main() {
         console.log('  status          Check CLI tools status');
         console.log('  scan            Scan for available AI CLI tools');
         console.log('  install         Auto-install missing CLI tools');
-        console.log('  deploy          Deploy hooks to installed tools');
+        console.log('  deploy          Deploy hooks and integration to installed tools');
         console.log('  setup           Complete setup and configuration');
         console.log('  call <tool>     Execute prompt with specified or auto-routed AI CLI');
         console.log('');
@@ -590,7 +907,7 @@ async function main() {
     switch (command) {
         case 'version':
         case '--version':
-            console.log('Stigmergy CLI v1.0.84');
+            console.log('Stigmergy CLI v1.0.89');
             break;
 
         case 'status':
@@ -609,45 +926,10 @@ async function main() {
             const options = await installer.showInstallOptions(missingTools);
 
             if (options.length > 0) {
-                // Use inquirer for interactive selection
-                const inquirer = require('inquirer');
-
-                const choices = options.map(opt => ({
-                    name: `${opt.toolInfo.name} - ${opt.toolInfo.install}`,
-                    value: opt.toolName
-                }));
-
-                choices.push(new inquirer.Separator(' = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='),
-                             { name: 'All missing tools', value: 'all' },
-                             { name: 'Skip installation', value: 'skip' });
-
-                const answers = await inquirer.prompt([
-                    {
-                        type: 'checkbox',
-                        name: 'selectedTools',
-                        message: 'Select tools to install (Space to select, Enter to confirm):',
-                        choices: choices,
-                        validate: function (answer) {
-                            if (answer.length < 1) {
-                                return 'You must choose at least one option.';
-                            }
-                            return true;
-                        }
-                    }
-                ]);
-
-                if (answers.selectedTools.includes('skip')) {
-                    console.log('[INFO] Skipping CLI tool installation');
-                } else {
-                    let toolsToInstall;
-                    if (answers.selectedTools.includes('all')) {
-                        toolsToInstall = options;
-                    } else {
-                        toolsToInstall = options.filter(opt => answers.selectedTools.includes(opt.toolName));
-                    }
-
+                const selectedTools = await installer.getUserSelection(options, missingTools);
+                if (selectedTools.length > 0) {
                     console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
-                    await installer.installTools(toolsToInstall, missingTools);
+                    await installer.installTools(selectedTools, missingTools);
                 }
             } else {
                 console.log('\n[INFO] All required tools are already installed!');
@@ -662,56 +944,34 @@ async function main() {
         case 'setup':
             console.log('[SETUP] Starting complete Stigmergy setup...\n');
 
+            // Step 1: Download required assets
+            await installer.downloadRequiredAssets();
+
+            // Step 2: Scan for CLI tools
             const { available: setupAvailable, missing: setupMissing } = await installer.scanCLI();
             const setupOptions = await installer.showInstallOptions(setupMissing);
 
+            // Step 3: Install missing CLI tools if user chooses
             if (setupOptions.length > 0) {
-                // Use inquirer for interactive selection during setup as well
-                const inquirer = require('inquirer');
-
-                const choices = setupOptions.map(opt => ({
-                    name: `${opt.toolInfo.name} - ${opt.toolInfo.install}`,
-                    value: opt.toolName
-                }));
-
-                choices.push(new inquirer.Separator(' = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='),
-                             { name: 'All missing tools', value: 'all' },
-                             { name: 'Skip installation', value: 'skip' });
-
-                const answers = await inquirer.prompt([
-                    {
-                        type: 'checkbox',
-                        name: 'selectedTools',
-                        message: 'Select tools to install during setup (Space to select, Enter to confirm):',
-                        choices: choices,
-                        validate: function (answer) {
-                            if (answer.length < 1) {
-                                return 'You must choose at least one option.';
-                            }
-                            return true;
-                        }
-                    }
-                ]);
-
-                if (answers.selectedTools.includes('skip')) {
-                    console.log('[INFO] Skipping CLI tool installation during setup');
-                } else {
-                    let toolsToInstall;
-                    if (answers.selectedTools.includes('all')) {
-                        toolsToInstall = setupOptions;
-                    } else {
-                        toolsToInstall = setupOptions.filter(opt => answers.selectedTools.includes(opt.toolName));
-                    }
-
+                const selectedTools = await installer.getUserSelection(setupOptions, setupMissing);
+                if (selectedTools.length > 0) {
                     console.log('\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...');
-                    await installer.installTools(toolsToInstall, setupMissing);
+                    await installer.installTools(selectedTools, setupMissing);
                 }
             } else {
                 console.log('\n[INFO] All required tools are already installed!');
             }
 
+            // Step 4: Deploy hooks to available CLI tools
             await installer.deployHooks(setupAvailable);
+
+            // Step 5: Deploy project documentation
+            await installer.deployProjectDocumentation();
+
+            // Step 6: Initialize configuration
             await installer.initializeConfig();
+
+            // Step 7: Show usage instructions
             installer.showUsageInstructions();
             break;
 
@@ -730,32 +990,93 @@ async function main() {
             break;
 
         case 'auto-install':
-            // Auto-install mode for npm postinstall
+            // Auto-install mode for npm postinstall - NON-INTERACTIVE
             console.log('[AUTO-INSTALL] Stigmergy CLI automated setup');
             console.log('='.repeat(60));
 
-            const { available: autoAvailable, missing: autoMissing } = await installer.scanCLI();
-
-            // Show summary to user after installation
-            if (Object.keys(autoMissing).length > 0) {
-                console.log('\n[INFO] Found ' + Object.keys(autoMissing).length + ' missing AI CLI tools:');
-                for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
-                    console.log(`  - ${toolInfo.name} (${toolName})`);
+            try {
+                // Step 1: Download required assets
+                try {
+                    console.log('[STEP] Downloading required assets...');
+                    await installer.downloadRequiredAssets();
+                    console.log('[OK] Assets downloaded successfully');
+                } catch (error) {
+                    console.log(`[WARN] Failed to download assets: ${error.message}`);
+                    console.log('[INFO] Continuing with installation...');
                 }
-                console.log('\n[INFO] Auto-install mode detected. Skipping automatic installation of missing tools.');
-                console.log('[INFO] For full functionality, please run "stigmergy install" after installation completes.');
-            } else {
-                console.log('\n[INFO] All AI CLI tools are already installed! No additional tools required.');
+
+                // Step 2: Scan for CLI tools
+                let autoAvailable = {}, autoMissing = {};
+                try {
+                    console.log('[STEP] Scanning for CLI tools...');
+                    const scanResult = await installer.scanCLI();
+                    autoAvailable = scanResult.available;
+                    autoMissing = scanResult.missing;
+                    console.log('[OK] CLI tools scanned successfully');
+                } catch (error) {
+                    console.log(`[WARN] Failed to scan CLI tools: ${error.message}`);
+                    console.log('[INFO] Continuing with installation...');
+                }
+
+                // Step 3: Show summary to user after installation
+                try {
+                    if (Object.keys(autoMissing).length > 0) {
+                        console.log('\n[INFO] Found ' + Object.keys(autoMissing).length + ' missing AI CLI tools:');
+                        for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
+                            console.log(`  - ${toolInfo.name} (${toolName})`);
+                        }
+                        console.log('\n[INFO] Auto-install mode detected. Skipping automatic installation of missing tools.');
+                        console.log('[INFO] For full functionality, please run "stigmergy install" after installation completes.');
+                    } else {
+                        console.log('\n[INFO] All AI CLI tools are already installed! No additional tools required.');
+                    }
+                } catch (error) {
+                    console.log(`[WARN] Failed to show tool summary: ${error.message}`);
+                }
+
+                // Step 4: Deploy hooks to available CLI tools
+                try {
+                    console.log('[STEP] Deploying hooks to available CLI tools...');
+                    await installer.deployHooks(autoAvailable);
+                    console.log('[OK] Hooks deployed successfully');
+                } catch (error) {
+                    console.log(`[ERROR] Failed to deploy hooks: ${error.message}`);
+                    console.log('[INFO] You can manually deploy hooks later by running: stigmergy deploy');
+                }
+
+                // Step 5: Deploy project documentation
+                try {
+                    console.log('[STEP] Deploying project documentation...');
+                    await installer.deployProjectDocumentation();
+                    console.log('[OK] Documentation deployed successfully');
+                } catch (error) {
+                    console.log(`[WARN] Failed to deploy documentation: ${error.message}`);
+                    console.log('[INFO] Continuing with installation...');
+                }
+
+                // Step 6: Initialize configuration
+                try {
+                    console.log('[STEP] Initializing configuration...');
+                    await installer.initializeConfig();
+                    console.log('[OK] Configuration initialized successfully');
+                } catch (error) {
+                    console.log(`[ERROR] Failed to initialize configuration: ${error.message}`);
+                    console.log('[INFO] You can manually initialize configuration later by running: stigmergy setup');
+                }
+
+                // Step 7: Show final message to guide users
+                console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
+                console.log('[USAGE] Run "stigmergy setup" to complete full configuration and install missing AI CLI tools.');
+                console.log('[USAGE] Run "stigmergy install" to install only missing AI CLI tools.');
+                console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
+            } catch (fatalError) {
+                console.error('[FATAL] Auto-install process failed:', fatalError.message);
+                console.log('\n[TROUBLESHOOTING] To manually complete installation:');
+                console.log('1. Run: stigmergy setup    # Complete setup');
+                console.log('2. Run: stigmergy install  # Install missing tools');
+                console.log('3. Run: stigmergy deploy   # Deploy hooks manually');
+                process.exit(1);
             }
-
-            await installer.deployHooks(autoAvailable);
-            await installer.initializeConfig();
-
-            // Show final message to guide users
-            console.log('\n[SUCCESS] Stigmergy CLI installed successfully!');
-            console.log('[USAGE] Run "stigmergy setup" to complete full configuration and install missing AI CLI tools.');
-            console.log('[USAGE] Run "stigmergy install" to install only missing AI CLI tools.');
-            console.log('[USAGE] Run "stigmergy --help" to see all available commands.');
             break;
 
         default:

@@ -1,11 +1,10 @@
 {
   "name": "stigmergy",
-  "version": "1.0.84",
-  "type": "commonjs",
+  "version": "1.0.92",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
   "main": "src/main_english.js",
   "bin": {
-    "stigmergy": "src/main_english.js"
+    "stigmergy": "bin/stigmergy.cmd"
   },
   "scripts": {
     "start": "node src/main_english.js",
@@ -17,12 +16,19 @@
     "status": "node src/index.js status",
     "scan": "node src/index.js scan",
     "init": "node src/index.js init",
+    "clean": "node cleanup.js",
     "validate": "node src/index.js validate",
-    "clean": "node src/index.js clean",
     "dev": "node --watch src/index.js",
     "lint": "eslint src/",
     "format": "prettier --write src/",
-    "postinstall": "node src/main_english.js setup"
+    "fix-node-conflict": "node fix-node-conflict.js",
+    "diagnostic": "node diagnostic.js",
+    "path-fixer": "node path-fixer.js",
+    "emergency-clean": "node emergency-cleanup.js",
+    "test:conflict-prevention": "node test/conflict-prevention-test.js",
+    "post-deployment-config": "node scripts/post-deployment-config.js",
+    "preinstall": "node scripts/preinstall-check.js",
+    "postinstall": "echo \"[INFO] Stigmergy CLI is setting up...\" && node src/main_english.js auto-install && echo \"[INFO] Setup completed. Run 'stigmergy --help' to see available commands.\""
   },
   "keywords": [
     "ai",
@@ -46,6 +52,8 @@
     "bin/**/*.cmd",
     "test/**/*.js",
     "scripts/**/*.js",
+    "examples/**/*",
+    "docs/**/*",
     "package.json",
     "README.md",
     "LICENSE",
