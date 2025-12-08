@@ -1,0 +1,957 @@
+{
+  "timestamp": "2025-12-08T10:30:17.106Z",
+  "summary": {
+    "passed": 8,
+    "failed": 33,
+    "total": 41,
+    "details": [
+      {
+        "name": "claude - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"claude write a simple Python function to add two numbers\"",
+          "executionTime": 45026,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "gemini - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"gemini create a basic JavaScript function for string reversal\"",
+          "executionTime": 45019,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qwen - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"qwen generate a simple Java method to calculate area of rectangle\"",
+          "executionTime": 17632,
+          "outputLength": 1978,
+          "hasError": false
+        }
+      },
+      {
+        "name": "iflow - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"iflow write a basic function to check if a number is even\"",
+          "executionTime": 2973,
+          "outputLength": 484,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qodercli - Simple Code Generation",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"qodercli write a simple function to find maximum of two numbers\"",
+          "executionTime": 26045,
+          "outputLength": 987,
+          "hasError": false
+        }
+      },
+      {
+        "name": "codebuddy - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codebuddy create a basic function to calculate circle circumference\"",
+          "executionTime": 668,
+          "outputLength": 527,
+          "hasError": true
+        }
+      },
+      {
+        "name": "copilot - Simple Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"copilot generate a simple function to convert Celsius to Fahrenheit\"",
+          "executionTime": 666,
+          "outputLength": 421,
+          "hasError": true
+        }
+      },
+      {
+        "name": "codex - Simple Code Generation",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"codex write a basic function to calculate factorial of a number\"",
+          "executionTime": 31843,
+          "outputLength": 889,
+          "hasError": false
+        }
+      },
+      {
+        "name": "claude - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"claude implement a binary search algorithm in Python with proper error handling\"",
+          "executionTime": 60016,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "gemini - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"gemini create a JavaScript class for a simple banking system with deposit and withdraw methods\"",
+          "executionTime": 60046,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qwen - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"qwen generate a Java implementation of a linked list with insert and delete operations\"",
+          "executionTime": 60046,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "iflow - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"iflow write a function to sort an array using quicksort algorithm\"",
+          "executionTime": 3158,
+          "outputLength": 508,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qodercli - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"qodercli implement a hash table data structure with collision handling\"",
+          "executionTime": 60013,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "codebuddy - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codebuddy create a function to parse JSON data and validate its structure\"",
+          "executionTime": 60015,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "copilot - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"copilot generate a function to implement a simple REST API client\"",
+          "executionTime": 60022,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "codex - Complex Code Generation",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codex write a function to process CSV data and generate statistics\"",
+          "executionTime": 60032,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "claude - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"claude analyze this Python code for potential security vulnerabilities\"",
+          "executionTime": 45011,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "gemini - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"gemini review this JavaScript code for performance optimization opportunities\"",
+          "executionTime": 45034,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qwen - Analysis Task",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"qwen check this Java code for adherence to best practices\"",
+          "executionTime": 8655,
+          "outputLength": 710,
+          "hasError": false
+        }
+      },
+      {
+        "name": "iflow - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"iflow evaluate this code for potential bugs and logical errors\"",
+          "executionTime": 3620,
+          "outputLength": 499,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qodercli - Analysis Task",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"qodercli assess this function for code quality and maintainability\"",
+          "executionTime": 7009,
+          "outputLength": 669,
+          "hasError": false
+        }
+      },
+      {
+        "name": "codebuddy - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codebuddy analyze this code for potential memory leaks\"",
+          "executionTime": 45015,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "copilot - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"copilot review this code for proper error handling\"",
+          "executionTime": 45034,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "codex - Analysis Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codex examine this code for potential scalability issues\"",
+          "executionTime": 45026,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "claude - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"claude generate documentation for a Python function that sorts arrays\"",
+          "executionTime": 45009,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "gemini - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"gemini create JSDoc for a JavaScript function that validates email addresses\"",
+          "executionTime": 45021,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qwen - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"qwen write JavaDoc for a Java method that connects to database\"",
+          "executionTime": 36842,
+          "outputLength": 3993,
+          "hasError": false
+        }
+      },
+      {
+        "name": "iflow - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"iflow generate comments for a C++ function that processes image data\"",
+          "executionTime": 3483,
+          "outputLength": 517,
+          "hasError": true
+        }
+      },
+      {
+        "name": "qodercli - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"qodercli create documentation for a function that handles HTTP requests\"",
+          "executionTime": 33694,
+          "outputLength": 996,
+          "hasError": false
+        }
+      },
+      {
+        "name": "codebuddy - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codebuddy write documentation for a function that encrypts data\"",
+          "executionTime": 45021,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "copilot - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"copilot generate README section for a machine learning model API\"",
+          "executionTime": 45015,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "codex - Documentation Task",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"codex create API documentation for a weather data processing function\"",
+          "executionTime": 45048,
+          "outputLength": 0,
+          "hasError": true
+        }
+      },
+      {
+        "name": "Collaboration - Code Review Workflow",
+        "passed": false,
+        "details": {
+          "steps": [
+            {
+              "step": 1,
+              "command": "qodercli write a Python function to handle user authentication",
+              "passed": false,
+              "executionTime": 60027,
+              "outputLength": 0
+            },
+            {
+              "step": 2,
+              "command": "claude analyze the security of the authentication function",
+              "passed": false,
+              "executionTime": 60018,
+              "outputLength": 0
+            },
+            {
+              "step": 3,
+              "command": "gemini suggest performance improvements for the function",
+              "passed": false,
+              "executionTime": 60017,
+              "outputLength": 0
+            }
+          ],
+          "totalSteps": 3,
+          "passedSteps": 0
+        }
+      },
+      {
+        "name": "Collaboration - Multi-language Implementation",
+        "passed": false,
+        "details": {
+          "steps": [
+            {
+              "step": 1,
+              "command": "qwen generate a Java implementation of a calculator class",
+              "passed": false,
+              "executionTime": 60013,
+              "outputLength": 0
+            },
+            {
+              "step": 2,
+              "command": "copilot create a C# version of the same calculator",
+              "passed": true,
+              "executionTime": 5816,
+              "outputLength": 627
+            },
+            {
+              "step": 3,
+              "command": "codex write a JavaScript equivalent of the calculator",
+              "passed": false,
+              "executionTime": 60027,
+              "outputLength": 0
+            }
+          ],
+          "totalSteps": 3,
+          "passedSteps": 1
+        }
+      },
+      {
+        "name": "Collaboration - Documentation and Testing",
+        "passed": false,
+        "details": {
+          "steps": [
+            {
+              "step": 1,
+              "command": "iflow write a complex algorithm in Python",
+              "passed": false,
+              "executionTime": 2962,
+              "outputLength": 436
+            },
+            {
+              "step": 2,
+              "command": "codebuddy generate unit tests for the algorithm",
+              "passed": false,
+              "executionTime": 60044,
+              "outputLength": 0
+            },
+            {
+              "step": 3,
+              "command": "qodercli create comprehensive documentation for the algorithm",
+              "passed": false,
+              "executionTime": 60015,
+              "outputLength": 0
+            }
+          ],
+          "totalSteps": 3,
+          "passedSteps": 0
+        }
+      },
+      {
+        "name": "Error Handling - Invalid Tool",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"xyz generate a function to add two numbers\"",
+          "executionTime": 9099,
+          "stdoutLength": 381,
+          "stderrLength": 0,
+          "hasErrorOutput": false
+        }
+      },
+      {
+        "name": "Error Handling - Malformed Input",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"claude \"",
+          "executionTime": 30023,
+          "stdoutLength": 0,
+          "stderrLength": 7
+        }
+      },
+      {
+        "name": "Error Handling - Special Characters",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"gemini analyze code with special chars: \n\t\r\\\"'\"",
+          "executionTime": 30026,
+          "stdoutLength": 0,
+          "stderrLength": 7
+        }
+      },
+      {
+        "name": "Error Handling - Extremely Long Input",
+        "passed": true,
+        "details": {
+          "command": "stigmergy call \"claude very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt \"",
+          "executionTime": 45,
+          "stdoutLength": 0,
+          "stderrLength": 13
+        }
+      },
+      {
+        "name": "Advanced Features - Memory Management",
+        "passed": true,
+        "details": {
+          "command": "node -e \"const fs = require('fs'); const path = require('path'); const memPath = path.join(process.cwd(), 'STIGMERGY.md'); console.log(fs.existsSync(memPath) ? 'Memory file exists' : 'Memory file missing')\"",
+          "executionTime": 76,
+          "hasMemoryFile": true
+        }
+      },
+      {
+        "name": "Advanced Features - Smart Routing",
+        "passed": false,
+        "details": {
+          "command": "stigmergy call \"write a Python function to authenticate users\"",
+          "executionTime": 30017,
+          "outputLength": 0
+        }
+      }
+    ],
+    "passRate": "19.51"
+  },
+  "details": [
+    {
+      "name": "claude - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"claude write a simple Python function to add two numbers\"",
+        "executionTime": 45026,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "gemini - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"gemini create a basic JavaScript function for string reversal\"",
+        "executionTime": 45019,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qwen - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"qwen generate a simple Java method to calculate area of rectangle\"",
+        "executionTime": 17632,
+        "outputLength": 1978,
+        "hasError": false
+      }
+    },
+    {
+      "name": "iflow - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"iflow write a basic function to check if a number is even\"",
+        "executionTime": 2973,
+        "outputLength": 484,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qodercli - Simple Code Generation",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"qodercli write a simple function to find maximum of two numbers\"",
+        "executionTime": 26045,
+        "outputLength": 987,
+        "hasError": false
+      }
+    },
+    {
+      "name": "codebuddy - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codebuddy create a basic function to calculate circle circumference\"",
+        "executionTime": 668,
+        "outputLength": 527,
+        "hasError": true
+      }
+    },
+    {
+      "name": "copilot - Simple Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"copilot generate a simple function to convert Celsius to Fahrenheit\"",
+        "executionTime": 666,
+        "outputLength": 421,
+        "hasError": true
+      }
+    },
+    {
+      "name": "codex - Simple Code Generation",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"codex write a basic function to calculate factorial of a number\"",
+        "executionTime": 31843,
+        "outputLength": 889,
+        "hasError": false
+      }
+    },
+    {
+      "name": "claude - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"claude implement a binary search algorithm in Python with proper error handling\"",
+        "executionTime": 60016,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "gemini - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"gemini create a JavaScript class for a simple banking system with deposit and withdraw methods\"",
+        "executionTime": 60046,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qwen - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"qwen generate a Java implementation of a linked list with insert and delete operations\"",
+        "executionTime": 60046,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "iflow - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"iflow write a function to sort an array using quicksort algorithm\"",
+        "executionTime": 3158,
+        "outputLength": 508,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qodercli - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"qodercli implement a hash table data structure with collision handling\"",
+        "executionTime": 60013,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "codebuddy - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codebuddy create a function to parse JSON data and validate its structure\"",
+        "executionTime": 60015,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "copilot - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"copilot generate a function to implement a simple REST API client\"",
+        "executionTime": 60022,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "codex - Complex Code Generation",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codex write a function to process CSV data and generate statistics\"",
+        "executionTime": 60032,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "claude - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"claude analyze this Python code for potential security vulnerabilities\"",
+        "executionTime": 45011,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "gemini - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"gemini review this JavaScript code for performance optimization opportunities\"",
+        "executionTime": 45034,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qwen - Analysis Task",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"qwen check this Java code for adherence to best practices\"",
+        "executionTime": 8655,
+        "outputLength": 710,
+        "hasError": false
+      }
+    },
+    {
+      "name": "iflow - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"iflow evaluate this code for potential bugs and logical errors\"",
+        "executionTime": 3620,
+        "outputLength": 499,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qodercli - Analysis Task",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"qodercli assess this function for code quality and maintainability\"",
+        "executionTime": 7009,
+        "outputLength": 669,
+        "hasError": false
+      }
+    },
+    {
+      "name": "codebuddy - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codebuddy analyze this code for potential memory leaks\"",
+        "executionTime": 45015,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "copilot - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"copilot review this code for proper error handling\"",
+        "executionTime": 45034,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "codex - Analysis Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codex examine this code for potential scalability issues\"",
+        "executionTime": 45026,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "claude - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"claude generate documentation for a Python function that sorts arrays\"",
+        "executionTime": 45009,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "gemini - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"gemini create JSDoc for a JavaScript function that validates email addresses\"",
+        "executionTime": 45021,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qwen - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"qwen write JavaDoc for a Java method that connects to database\"",
+        "executionTime": 36842,
+        "outputLength": 3993,
+        "hasError": false
+      }
+    },
+    {
+      "name": "iflow - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"iflow generate comments for a C++ function that processes image data\"",
+        "executionTime": 3483,
+        "outputLength": 517,
+        "hasError": true
+      }
+    },
+    {
+      "name": "qodercli - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"qodercli create documentation for a function that handles HTTP requests\"",
+        "executionTime": 33694,
+        "outputLength": 996,
+        "hasError": false
+      }
+    },
+    {
+      "name": "codebuddy - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codebuddy write documentation for a function that encrypts data\"",
+        "executionTime": 45021,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "copilot - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"copilot generate README section for a machine learning model API\"",
+        "executionTime": 45015,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "codex - Documentation Task",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"codex create API documentation for a weather data processing function\"",
+        "executionTime": 45048,
+        "outputLength": 0,
+        "hasError": true
+      }
+    },
+    {
+      "name": "Collaboration - Code Review Workflow",
+      "passed": false,
+      "details": {
+        "steps": [
+          {
+            "step": 1,
+            "command": "qodercli write a Python function to handle user authentication",
+            "passed": false,
+            "executionTime": 60027,
+            "outputLength": 0
+          },
+          {
+            "step": 2,
+            "command": "claude analyze the security of the authentication function",
+            "passed": false,
+            "executionTime": 60018,
+            "outputLength": 0
+          },
+          {
+            "step": 3,
+            "command": "gemini suggest performance improvements for the function",
+            "passed": false,
+            "executionTime": 60017,
+            "outputLength": 0
+          }
+        ],
+        "totalSteps": 3,
+        "passedSteps": 0
+      }
+    },
+    {
+      "name": "Collaboration - Multi-language Implementation",
+      "passed": false,
+      "details": {
+        "steps": [
+          {
+            "step": 1,
+            "command": "qwen generate a Java implementation of a calculator class",
+            "passed": false,
+            "executionTime": 60013,
+            "outputLength": 0
+          },
+          {
+            "step": 2,
+            "command": "copilot create a C# version of the same calculator",
+            "passed": true,
+            "executionTime": 5816,
+            "outputLength": 627
+          },
+          {
+            "step": 3,
+            "command": "codex write a JavaScript equivalent of the calculator",
+            "passed": false,
+            "executionTime": 60027,
+            "outputLength": 0
+          }
+        ],
+        "totalSteps": 3,
+        "passedSteps": 1
+      }
+    },
+    {
+      "name": "Collaboration - Documentation and Testing",
+      "passed": false,
+      "details": {
+        "steps": [
+          {
+            "step": 1,
+            "command": "iflow write a complex algorithm in Python",
+            "passed": false,
+            "executionTime": 2962,
+            "outputLength": 436
+          },
+          {
+            "step": 2,
+            "command": "codebuddy generate unit tests for the algorithm",
+            "passed": false,
+            "executionTime": 60044,
+            "outputLength": 0
+          },
+          {
+            "step": 3,
+            "command": "qodercli create comprehensive documentation for the algorithm",
+            "passed": false,
+            "executionTime": 60015,
+            "outputLength": 0
+          }
+        ],
+        "totalSteps": 3,
+        "passedSteps": 0
+      }
+    },
+    {
+      "name": "Error Handling - Invalid Tool",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"xyz generate a function to add two numbers\"",
+        "executionTime": 9099,
+        "stdoutLength": 381,
+        "stderrLength": 0,
+        "hasErrorOutput": false
+      }
+    },
+    {
+      "name": "Error Handling - Malformed Input",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"claude \"",
+        "executionTime": 30023,
+        "stdoutLength": 0,
+        "stderrLength": 7
+      }
+    },
+    {
+      "name": "Error Handling - Special Characters",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"gemini analyze code with special chars: \n\t\r\\\"'\"",
+        "executionTime": 30026,
+        "stdoutLength": 0,
+        "stderrLength": 7
+      }
+    },
+    {
+      "name": "Error Handling - Extremely Long Input",
+      "passed": true,
+      "details": {
+        "command": "stigmergy call \"claude very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt \"",
+        "executionTime": 45,
+        "stdoutLength": 0,
+        "stderrLength": 13
+      }
+    },
+    {
+      "name": "Advanced Features - Memory Management",
+      "passed": true,
+      "details": {
+        "command": "node -e \"const fs = require('fs'); const path = require('path'); const memPath = path.join(process.cwd(), 'STIGMERGY.md'); console.log(fs.existsSync(memPath) ? 'Memory file exists' : 'Memory file missing')\"",
+        "executionTime": 76,
+        "hasMemoryFile": true
+      }
+    },
+    {
+      "name": "Advanced Features - Smart Routing",
+      "passed": false,
+      "details": {
+        "command": "stigmergy call \"write a Python function to authenticate users\"",
+        "executionTime": 30017,
+        "outputLength": 0
+      }
+    }
+  ]
+}

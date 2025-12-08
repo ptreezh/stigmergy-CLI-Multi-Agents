@@ -1,0 +1,190 @@
+Stigmergy CLI End-to-End Test Log
+Started at: 2025-12-08T05:41:14.994Z
+================================================================================
+
+[2025-12-08T05:41:15.002Z] Executing: stigmergy call "claude write a simple Python function to add two numbers"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] claude - Simple Code Generation
+[2025-12-08T05:42:00.019Z] Executing: stigmergy call "gemini create a basic JavaScript function for string reversal"
+  Status: null, Time: 86584ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude write a simple Python function to add two numbers'
+]
+[CALL] Routing to claude: write a simple Python function to add two numbers
+[DEBUG] Tool path: claude, Prompt: write a simple Python function to add two numbers
+Here's a simple Python function to add two numbers:
+
+```python
+def add_numbers(a, b):
+    """
+    Add two numbers together.
+
+    Args:
+        a: First number (int or float)
+        b: Second number (int or float)
+
+    Returns:
+        Sum of the two numbers
+    """
+    return a + b
+```
+
+The function works with integers, floats, and negative numbers as shown in the test examples above.
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] gemini - Simple Code Generation
+[2025-12-08T05:42:45.046Z] Executing: stigmergy call "qwen generate a simple Java method to calculate area of rectangle"
+  Status: 0, Time: 16162ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen generate a simple Java method to calculate area of rectangle'
+]
+[CALL] Routing to qwen: generate a simple Java method to calculate area of rectangle
+[DEBUG] Tool path: qwen, Prompt: generate a simple Java method to calculate area of rectangle
+I'll generate a simple Java method to calculate the area of a rectangle for you.
+
+I apologize for the error. It seems I don't have permission to write files directly. Let me instead provide you with the Java method to calculate the area of a rectangle as code that you can copy and use:
+
+```java
+public class RectangleArea {
+    
+    /**
+     * Calculates the area of a rectangle given its length and width
+     * 
+     * @param length The length of the rectangle
+     * @param width The width of the rectangle
+     * @return The area of the rectangle (length * width)
+     */
+    public static double calculateArea(double length, double width) {
+        if (length < 0 || width < 0) {
+            throw new IllegalArgumentException("Length and width must be non-negative values");
+        }
+        
+        return length * width;
+    }
+    
+    // Example usage
+    public static void main(String[] args) {
+        double length = 5.0;
+        double width = 3.0;
+        
+        double area = calculateArea(length, width);
+        
+        System.out.println("The area of a rectangle with length " + length + 
+                          " and width " + width + " is: " + area);
+    }
+}
+```
+
+This Java class contains a static method `calculateArea` that takes length and width as parameters and returns the area of the rectangle. It also includes basic validation to ensure that both length and width are non-negative values, and includes an example of how to use the method in the main function.
+
+  ---
+
+[FAIL] qwen - Simple Code Generation
+[2025-12-08T05:43:01.210Z] Executing: stigmergy call "iflow write a basic function to check if a number is even"
+  Status: 1, Time: 3001ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'iflow write a basic function to check if a number is even'
+]
+[CALL] Routing to iflow: write a basic function to check if a number is even
+[DEBUG] Tool path: iflow, Prompt: write a basic function to check if a number is even
+[WARN] iflow exited with code 1
+
+  STDERR:
+Usage: iflow [options] [command]
+
+iFlow CLI - Launch an interactive CLI, use -p/--prompt for non-interactive mode
+
+Commands:
+  iflow           Launch iFlow CLI  [default]
+  iflow mcp       管理 MCP 服务器
+  iflow commands  管理市场命令
+  iflow agent     管理代理
+  iflow workflow  workflowCommand.description
+
+Options:
+  -m, --model                           Model  [string]
+  -p, --prompt                          Prompt. Appended to input on stdin (if any).  [string]
+  -i, --prompt-interactive              Execute the provided prompt and continue in interactive mode  [string]
+  -c, --continue                        Start the application and load the most recent conversation from current directory  [boolean] [default: false]
+  -r, --resume                          Resume conversation from a specific session file. If no session ID is provided, shows interactive session selector.
+  -s, --sandbox                         Run in sandbox?  [boolean]
+      --sandbox-image                   Sandbox image URI.  [string]
+  -d, --debug                           Run in debug mode?  [boolean] [default: false]
+  -a, --all-files                       Include ALL files in context?  [boolean] [default: false]
+      --all_files                       Include ALL files in context?  [deprecated: Use --all-files instead. We will be removing --all_files in the coming weeks.] [boolean] [default: false]
+      --show-memory-usage               Show memory usage in status bar  [boolean] [default: false]
+      --show_memory_usage               Show memory usage in status bar  [deprecated: Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.] [boolean] [default: false]
+  -y, --yolo                            Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?  [boolean] [default: true]
+      --telemetry                       Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.  [boolean]
+      --telemetry-target                Set the telemetry target (local or gcp). Overrides settings files.  [string] [choices: "local", "gcp"]
+      --telemetry-otlp-endpoint         Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.  [string]
+      --telemetry-log-prompts           Enable or disable logging of user prompts for telemetry. Overrides settings files.  [boolean]
+      --telemetry-outfile               Redirect all telemetry output to the specified file.  [string]
+  -c, --checkpointing                   Enables checkpointing of file edits  [boolean] [default: false]
+      --experimental-acp                Starts the agent in ACP mode  [boolean]
+      --port                            Port number for ACP server (used with --experimental-acp)  [number]
+      --allowed-mcp-server-names        Allowed MCP server names  [array]
+      --include-directories, --add-dir  Additional directories to include in the workspace (comma-separated or multiple --include-directories)  [array]
+      --max-turns                       Maximum number of model calls (assistant rounds) before terminating  [number]
+      --max_turns                       Maximum number of model calls (assistant rounds) before terminating  [deprecated: Use --max-turns instead. We will be removing --max_turns in the coming weeks.] [number]
+      --max-tokens                      Maximum total token usage (input + output) before terminating  [number]
+      --max_tokens                      Maximum total token usage (input + output) before terminating  [deprecated: Use --max-tokens instead. We will be removing --max_tokens in the coming weeks.] [number]
+      --timeout                         Maximum execution time in seconds before terminating  [number]
+  -o, --output-file                     Output file path to save execution information (non-interactive mode only)  [string]
+      --output_file                     Output file path to save execution information (non-interactive mode only)  [deprecated: Use --output-file instead. We will be removing --output_file in the coming weeks.] [string]
+  -v, --version                         Show version number  [boolean]
+  -h, --help                            Show help  [boolean]
+
+Unknown arguments: write, a, basic, function, to, check, if, a, number, is, even
+
+  ---
+
+[FAIL] iflow - Simple Code Generation
+[2025-12-08T05:43:04.213Z] Executing: stigmergy call "qodercli write a simple function to find maximum of two numbers"
+  Status: 0, Time: 25115ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli write a simple function to find maximum of two numbers'
+]
+[CALL] Routing to qodercli: write a simple function to find maximum of two numbers
+[DEBUG] Tool path: qodercli, Prompt: write a simple function to find maximum of two numbers
+I've added a simple function to find the maximum of two numbers in the main_english.js file. The function is named `maxOfTwo` and takes two parameters `a` and `b`. It uses a ternary operator to return the larger of the two values. The function is also exported so it can be used in tests or other parts of the application.
+
+Here's the implementation:
+```javascript
+function maxOfTwo(a, b) {
+    return a > b ? a : b;
+}
+```
+
+This function is now available for use within the Stigmergy CLI application and can be imported from the module.
+
+  ---
+
+[PASS] qodercli - Simple Code Generation
+[2025-12-08T05:43:29.330Z] Executing: stigmergy call "codebuddy create a basic function to calculate circle circumference"

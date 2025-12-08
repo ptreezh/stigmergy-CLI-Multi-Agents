@@ -1,0 +1,2636 @@
+Stigmergy CLI End-to-End Test Log
+Started at: 2025-12-08T14:12:42.201Z
+================================================================================
+
+[2025-12-08T14:12:42.207Z] Executing: stigmergy call "claude write a simple Python function to add two numbers"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] claude - Simple Code Generation
+[2025-12-08T14:13:27.222Z] Executing: stigmergy call "gemini create a basic JavaScript function for string reversal"
+  Status: null, Time: 56547ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude write a simple Python function to add two numbers'
+]
+[CALL] Routing to claude: write a simple Python function to add two numbers
+[DEBUG] Tool path: claude, Prompt: write a simple Python function to add two numbers
+I need permission to create the file. Here's the simple Python function to add two numbers:
+
+```python
+def add_numbers(a, b):
+    """
+    Add two numbers and return the result.
+
+    Args:
+        a: First number (int or float)
+        b: Second number (int or float)
+
+    Returns:
+        The sum of a and b
+    """
+    return a + b
+
+
+# Example usage
+if __name__ == "__main__":
+    # Test the function
+    result1 = add_numbers(5, 3)
+    print(f"5 + 3 = {result1}")
+
+    result2 = add_numbers(2.5, 1.5)
+    print(f"2.5 + 1.5 = {result2}")
+
+    result3 = add_numbers(-10, 20)
+    print(f"-10 + 20 = {result3}")
+```
+
+This function:
+- Takes two parameters (a and b) which can be integers or floats
+- Returns their sum using the `+` operator
+- Includes proper documentation with docstring
+- Has example usage in the `__main__` block demonstrating how it works with different number types
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] gemini - Simple Code Generation
+[2025-12-08T14:14:12.240Z] Executing: stigmergy call "qwen generate a simple Java method to calculate area of rectangle"
+  Status: 0, Time: 19975ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen generate a simple Java method to calculate area of rectangle'
+]
+[CALL] Routing to qwen: generate a simple Java method to calculate area of rectangle
+[DEBUG] Tool path: qwen, Prompt: generate a simple Java method to calculate area of rectangle
+I'll create a simple Java method to calculate the area of a rectangle. Let me create a standalone Java file with this functionality:
+
+I apologize for the error. It seems we don't have permission to write files in this directory. Let me instead show you the Java method code directly:
+
+```java
+public class RectangleAreaCalculator {
+    
+    /**
+     * 计算矩形的面积
+     * @param length 矩形的长度
+     * @param width 矩形的宽度
+     * @return 矩形的面积
+     */
+    public static double calculateRectangleArea(double length, double width) {
+        if (length < 0 || width < 0) {
+            throw new IllegalArgumentException("长度和宽度必须为非负数");
+        }
+        return length * width;
+    }
+    
+    // 示例用法
+    public static void main(String[] args) {
+        double length = 5.0;
+        double width = 3.0;
+        
+        double area = calculateRectangleArea(length, width);
+        System.out.println("矩形的面积为: " + area);
+    }
+}
+```
+
+This Java code includes:
+1. A static method `calculateRectangleArea` that takes length and width as parameters
+2. Input validation to ensure both values are non-negative
+3. Returns the product of length and width (the area)
+4. A main method with an example showing how to use the function
+5. Chinese comments as per our project's localization requirements
+
+The method handles the basic case of rectangle area calculation (length × width) with appropriate error handling for invalid inputs.
+
+  ---
+
+[FAIL] qwen - Simple Code Generation
+[2025-12-08T14:14:32.217Z] Executing: stigmergy call "iflow write a basic function to check if a number is even"
+  Status: 0, Time: 12755ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'iflow write a basic function to check if a number is even'
+]
+[CALL] Routing to iflow: write a basic function to check if a number is even
+[DEBUG] Tool path: iflow, Prompt: write a basic function to check if a number is even
+Done. Created `is-even.js` with a basic function to check if a number is even.
+
+  STDERR:
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+
+<Execution Info>
+{
+  "session-id": "session-0de617d7-d388-4b74-b9db-13be8f93ee89",
+  "conversation-id": "06d4caeb-ce61-4a60-8ebd-d6ce97d65048",
+  "assistantRounds": 2,
+  "executionTimeMs": 9192,
+  "tokenUsage": {
+    "input": 18250,
+    "output": 21,
+    "total": 18271
+  }
+}
+</Execution Info>
+
+  ---
+
+[PASS] iflow - Simple Code Generation
+[2025-12-08T14:14:44.974Z] Executing: stigmergy call "qodercli write a simple function to find maximum of two numbers"
+  Status: 0, Time: 28704ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli write a simple function to find maximum of two numbers'
+]
+[CALL] Routing to qodercli: write a simple function to find maximum of two numbers
+[DEBUG] Tool path: qodercli, Prompt: write a simple function to find maximum of two numbers
+I've added a `max` function to find the maximum of two numbers in the Calculator class. I also added a `min` function for completeness since they're related operations.
+
+The implementation uses `Math.max()` which is the standard JavaScript way to find the maximum of two numbers. The functions are properly documented with JSDoc comments explaining their parameters and return values.
+
+These functions can be used like this:
+```javascript
+const calc = new Calculator();
+console.log(calc.max(5, 10)); // Outputs: 10
+console.log(calc.min(5, 10)); // Outputs: 5
+```
+
+  ---
+
+[PASS] qodercli - Simple Code Generation
+[2025-12-08T14:15:13.680Z] Executing: stigmergy call "codebuddy create a basic function to calculate circle circumference"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] codebuddy - Simple Code Generation
+[2025-12-08T14:15:58.692Z] Executing: stigmergy call "copilot generate a simple function to convert Celsius to Fahrenheit"
+  Status: null, Time: 48052ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codebuddy create a basic function to calculate circle circumference'
+]
+[CALL] Routing to qodercli: buddy create a basic function to calculate circle circumference
+[DEBUG] Tool path: qodercli, Prompt: buddy create a basic function to calculate circle circumference
+I've successfully created a function to calculate the circumference of a circle. Here's what I did:
+
+1. Added a `circleCircumference(radius)` method to the Calculator class in `src/calculator.js`
+2. The function:
+   - Takes a radius parameter
+   - Returns the circumference using the formula 2πr
+   - Throws an error if the radius is negative
+3. Created comprehensive tests for the function in `tests/unit/calculator.test.js`:
+   - Tests with various radius values (1, 5, 0, 2.5)
+   - Tests that negative radius values throw an error
+4. Verified all tests pass (54 tests passed)
+
+The function is now ready to use and properly tested. You can call it with `calc.circleCircumference(radius)` where `calc` is an instance of the Calculator class.
+
+  ---
+
+  Status: 0, Time: 13180ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'copilot generate a simple function to convert Celsius to Fahrenheit'
+]
+[CALL] Routing to qodercli: Fahrenheit
+[DEBUG] Tool path: qodercli, Prompt: Fahrenheit
+451
+
+  ---
+
+[PASS] copilot - Simple Code Generation
+[2025-12-08T14:16:11.873Z] Executing: stigmergy call "codex write a basic function to calculate factorial of a number"
+  Status: 0, Time: 11189ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codex write a basic function to calculate factorial of a number'
+]
+[CALL] Routing to qodercli: x write a basic function to calculate factorial of a number
+[DEBUG] Tool path: qodercli, Prompt: x write a basic function to calculate factorial of a number
+I've created a basic factorial function in factorial.js. The function:
+
+1. Handles negative numbers by throwing an error
+2. Returns 1 for inputs of 0 or 1
+3. Uses iteration to calculate factorial for positive integers
+
+Would you like me to add any specific features or modify the implementation?
+
+  ---
+
+[FAIL] codex - Simple Code Generation
+[2025-12-08T14:16:23.063Z] Executing: stigmergy call "claude implement a binary search algorithm in Python with proper error handling"
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] claude - Complex Code Generation
+[2025-12-08T14:17:23.085Z] Executing: stigmergy call "gemini create a JavaScript class for a simple banking system with deposit and withdraw methods"
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] gemini - Complex Code Generation
+[2025-12-08T14:18:23.118Z] Executing: stigmergy call "qwen generate a Java implementation of a linked list with insert and delete operations"
+  Status: null, Time: 312446ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'gemini create a basic JavaScript function for string reversal'
+]
+[CALL] Routing to gemini: create a basic JavaScript function for string reversal
+[DEBUG] Tool path: gemini, Prompt: create a basic JavaScript function for string reversal
+[WARN] gemini exited with code 1
+
+  STDERR:
+Authentication timed out after 5 minutes. The browser tab may have gotten stuck in a loading state. Please try again or use NO_BROWSER=true for manual authentication.
+
+  ---
+
+  Status: null, Time: 169414ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude implement a binary search algorithm in Python with proper error handling'
+]
+[CALL] Routing to claude: implement a binary search algorithm in Python with proper error handling
+[DEBUG] Tool path: claude, Prompt: implement a binary search algorithm in Python with proper error handling
+Perfect! I've successfully implemented a binary search algorithm in Python with comprehensive error handling. Here's what the implementation includes:
+
+## Key Features:
+
+1. **Binary Search Core Algorithm**:
+   - Uses iterative approach with `left` and `right` pointers
+   - Calculates midpoint safely using `left + (right - left) // 2` to prevent integer overflow
+   - Returns index of target if found, -1 if not found
+
+2. **Error Handling**:
+   - **TypeError**: Checks if input is actually a list
+   - **ValueError**: Validates that the array is sorted in ascending order
+   - **TypeError**: Handles type incompatibility between array elements and target
+
+3. **Comprehensive Testing**:
+   - Normal test cases with various arrays and targets
+   - Edge cases (empty arrays, single-element arrays)
+   - Error cases (wrong input types, unsorted arrays, type mismatches)
+
+4. **Performance Demonstration**:
+   - Shows binary search efficiency on large arrays
+   - Compares with linear search performance
+
+The algorithm handles all major error scenarios gracefully and provides clear error messages to help users understand what went wrong. The implementation is robust, efficient (O(log n) time complexity), and ready for production use.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] qwen - Complex Code Generation
+[2025-12-08T14:19:23.132Z] Executing: stigmergy call "iflow write a function to sort an array using quicksort algorithm"
+  Status: null, Time: 62349ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen generate a Java implementation of a linked list with insert and delete operations'
+]
+[CALL] Routing to qwen: generate a Java implementation of a linked list with insert and delete operations
+[DEBUG] Tool path: qwen, Prompt: generate a Java implementation of a linked list with insert and delete operations
+I'll help you generate a Java implementation of a linked list with insert and delete operations. Let me create a todo list first to organize the task.
+
+I'll create a Java implementation of a linked list with insert and delete operations. Let me start by creating the Node class.
+
+I need to ask for permission to create files. Let me request access to create the Java files.
+
+Let me write the complete LinkedList class with insert and delete operations. I'll put everything in a single file for now:
+
+I'll need to ask for permission to create the file. Since the write_file tool requires permission that was declined, let me show you the complete implementation here instead, and you can create the file yourself:
+
+```java
+// Node class representing each element in the linked list
+class Node {
+    int data;
+    Node next;
+
+    public Node(int data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+// LinkedList class with insert and delete operations
+public class LinkedList {
+    private Node head;
+    private int size;
+
+    // Constructor
+    public LinkedList() {
+        this.head = null;
+        this.size = 0;
+    }
+
+    // Insert at the beginning of the list
+    public void insertAtBeginning(int data) {
+        Node newNode = new Node(data);
+        newNode.next = head;
+        head = newNode;
+        size++;
+    }
+
+    // Insert at the end of the list
+    public void insertAtEnd(int data) {
+        Node newNode = new Node(data);
+
+        if (head == null) {
+            head = newNode;
+        } else {
+            Node current = head;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = newNode;
+        }
+        size++;
+    }
+
+    // Insert at a specific position (0-indexed)
+    public void insertAtPosition(int position, int data) {
+        if (position < 0 || position > size) {
+            System.out.println("Invalid position: " + position);
+            return;
+        }
+
+        if (position == 0) {
+            insertAtBeginning(data);
+            return;
+        }
+
+        Node newNode = new Node(data);
+        Node current = head;
+
+        for (int i = 0; i < position - 1; i++) {
+            current = current.next;
+        }
+
+        newNode.next = current.next;
+        current.next = newNode;
+        size++;
+    }
+
+    // Delete by value (first occurrence)
+    public boolean deleteByValue(int data) {
+        if (head == null) {
+            return false;
+        }
+
+        // If the node to be deleted is the head
+        if (head.data == data) {
+            head = head.next;
+            size--;
+            return true;
+        }
+
+        Node current = head;
+        while (current.next != null && current.next.data != data) {
+            current = current.next;
+        }
+
+        if (current.next != null) {
+            current.next = current.next.next;
+            size--;
+            return true;
+        }
+
+        return false; // Value not found
+    }
+
+    // Delete at a specific position (0-indexed)
+    public boolean deleteAtPosition(int position) {
+        if (position < 0 || position >= size) {
+            System.out.println("Invalid position: " + position);
+            return false;
+        }
+
+        if (position == 0) {
+            head = head.next;
+            size--;
+            return true;
+        }
+
+        Node current = head;
+        for (int i = 0; i < position - 1; i++) {
+            current = current.next;
+        }
+
+        current.next = current.next.next;
+        size--;
+        return true;
+    }
+
+    // Get the size of the linked list
+    public int size() {
+        return size;
+    }
+
+    // Check if the linked list is empty
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    // Display the linked list
+    public void display() {
+        if (head == null) {
+            System.out.println("List is empty");
+            return;
+        }
+
+        Node current = head;
+        System.out.print("Linked List: ");
+        while (current != null) {
+            System.out.print(current.data);
+            if (current.next != null) {
+                System.out.print(" -> ");
+            }
+            current = current.next;
+        }
+        System.out.println(" -> null");
+    }
+
+    // Search for a value and return its position (0-indexed), or -1 if not found
+    public int search(int data) {
+        Node current = head;
+        int position = 0;
+
+        while (current != null) {
+            if (current.data == data) {
+                return position;
+            }
+            current = current.next;
+            position++;
+        }
+
+        return -1; // Not found
+    }
+
+    // Get element at a specific position
+    public int get(int position) {
+        if (position < 0 || position >= size) {
+            throw new IndexOutOfBoundsException("Position: " + position + ", Size: " + size);
+        }
+
+        Node current = head;
+        for (int i = 0; i < position; i++) {
+            current = current.next;
+        }
+
+        return current.data;
+    }
+
+    // Main method for testing
+    public static void main(String[] args) {
+        LinkedList list = new LinkedList();
+
+        System.out.println("Initial list:");
+        list.display();
+        System.out.println("Is empty: " + list.isEmpty());
+        System.out.println("Size: " + list.size());
+        System.out.println();
+
+        // Test insert operations
+        System.out.println("Inserting elements:");
+        list.insertAtEnd(10);
+        list.insertAtEnd(20);
+        list.insertAtBeginning(5);
+        list.insertAtPosition(2, 15);
+        list.display();
+        System.out.println("Size: " + list.size());
+        System.out.println();
+
+        // Test search operation
+        System.out.println("Searching for 15: Position " + list.search(15));
+        System.out.println("Searching for 25: Position " + list.search(25));
+        System.out.println();
+
+        // Test delete operations
+        System.out.println("Deleting element 15 (by value): " + list.deleteByValue(15));
+        list.display();
+        System.out.println("Size: " + list.size());
+        System.out.println();
+
+        System.out.println("Deleting element at position 0: " + list.deleteAtPosition(0));
+        list.display();
+        System.out.println("Size: " + list.size());
+        System.out.println();
+
+        System.out.println("Deleting element at position 1: " + list.deleteAtPosition(1));
+        list.display();
+        System.out.println("Size: " + list.size());
+        System.out.println();
+
+        // Test edge cases
+        System.out.println("Trying to delete from invalid position:");
+        list.deleteAtPosition(10);
+
+        System.out.println("Trying to insert at invalid position:");
+        list.insertAtPosition(10, 100);
+
+        System.out.println("\nFinal list:");
+        list.display();
+    }
+}
+```
+
+Let me update the todo list to reflect the completion of all tasks:
+
+The Java implementation of a linked list with insert and delete operations is complete. Here's a summary of what was implemented:
+
+1. **Node Class**: Represents each element in the linked list with data and a reference to the next node.
+
+2. **LinkedList Class**: Contains all the functionality:
+   - **Insert Operations**:
+     - `insertAtBeginning(int data)` - Adds element at the beginning
+     - `insertAtEnd(int data)` - Adds element at the end
+     - `insertAtPosition(int position, int data)` - Adds element at specific position
+   - **Delete Operations**:
+     - `deleteByValue(int data)` - Removes first occurrence of a value
+     - `deleteAtPosition(int position)` - Removes element at specific position
+   - **Helper Methods**:
+     - `size()` - Returns the number of elements
+     - `isEmpty()` - Checks if the list is empty
+     - `display()` - Prints the entire list
+     - `search(int data)` - Finds position of an element
+     - `get(int position)` - Gets element at specific position
+
+3. **Main Method**: Includes comprehensive tests demonstrating all operations with various scenarios, including edge cases.
+
+The implementation handles error cases like invalid positions and provides proper bounds checking. The code is complete and ready to be placed in a file named LinkedList.java for compilation and execution.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] iflow - Complex Code Generation
+[2025-12-08T14:20:23.167Z] Executing: stigmergy call "qodercli implement a hash table data structure with collision handling"
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] qodercli - Complex Code Generation
+[2025-12-08T14:21:23.191Z] Executing: stigmergy call "codebuddy create a function to parse JSON data and validate its structure"
+  Status: null, Time: 133752ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'iflow write a function to sort an array using quicksort algorithm'
+]
+[CALL] Routing to iflow: write a function to sort an array using quicksort algorithm
+[DEBUG] Tool path: iflow, Prompt: write a function to sort an array using quicksort algorithm
+I'll write a quicksort function for you. Let me check the existing code structure first to follow the project's conventions.Now let me look at an existing JavaScript file to understand the coding style:Now I'll create a quicksort function following the project's coding style and conventions:I've created a comprehensive quicksort implementation with the following features:
+
+**Core Functions:**
+- `quicksort()` - Returns a new sorted array without modifying the original
+- `quicksortInPlace()` - Sorts the array in-place for memory efficiency
+- `QuickSort` class - Provides additional utility methods
+
+**Key Features:**
+- Custom comparison function support
+- Both immutable and in-place sorting options
+- Utility methods for common sorting scenarios (numbers ascending/descending, strings with/without case sensitivity)
+- Follows the project's coding conventions with JSDoc comments
+
+**Usage Examples:**
+```javascript
+const { quicksort, quicksortInPlace, QuickSort } = require('./quicksort');
+
+// Basic usage
+const numbers = [64, 34, 25, 12, 22, 11, 90];
+const sorted = quicksort(numbers);
+console.log(sorted); // [11, 12, 22, 25, 34, 64, 90]
+
+// Using the class
+const sorter = new QuickSort();
+const sortedNumbers = sorter.sortNumbersAscending([3, 1, 4, 1, 5, 9]);
+const sortedStrings = sorter.sortStringsCaseInsensitive(['Banana', 'apple', 'Cherry']);
+```
+
+The implementation follows the project's style with proper JSDoc documentation, error handling, and modular structure.
+
+  STDERR:
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+
+<Execution Info>
+{
+  "session-id": "session-b2d52fa2-2a7c-4481-acef-0e0593ce3970",
+  "conversation-id": "f35a2900-e6ea-44b1-85bb-3201d405ba44",
+  "assistantRounds": 4,
+  "executionTimeMs": 130189,
+  "tokenUsage": {
+    "input": 23028,
+    "output": 289,
+    "total": 23317
+  }
+}
+</Execution Info>
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] codebuddy - Complex Code Generation
+[2025-12-08T14:22:23.213Z] Executing: stigmergy call "copilot generate a function to implement a simple REST API client"
+  Status: null, Time: 312283ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'gemini create a JavaScript class for a simple banking system with deposit and withdraw methods'
+]
+[CALL] Routing to gemini: create a JavaScript class for a simple banking system with deposit and withdraw methods
+[DEBUG] Tool path: gemini, Prompt: create a JavaScript class for a simple banking system with deposit and withdraw methods
+[WARN] gemini exited with code 1
+
+  STDERR:
+Authentication timed out after 5 minutes. The browser tab may have gotten stuck in a loading state. Please try again or use NO_BROWSER=true for manual authentication.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] copilot - Complex Code Generation
+[2025-12-08T14:23:23.233Z] Executing: stigmergy call "codex write a function to process CSV data and generate statistics"
+  Status: null, Time: 132932ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codebuddy create a function to parse JSON data and validate its structure'
+]
+[CALL] Routing to qodercli: buddy create a function to parse JSON data and validate its structure
+[DEBUG] Tool path: qodercli, Prompt: buddy create a function to parse JSON data and validate its structure
+Excellent! Both the tests and examples are working correctly. 
+
+## Summary
+
+I've successfully enhanced the JSON parsing and validation functionality in the Stigmergy CLI project. Here's what I've done:
+
+1. **Enhanced the `parseAndValidateJSON` function** in `src/utils.js` with additional validation features:
+   - Added support for `nullable` fields
+   - Added `minimum` and `maximum` validation for numbers
+   - Added `minLength` and `maxLength` validation for strings
+   - Added `minItems` and `maxItems` validation for arrays
+   - Improved error messages with more specific details
+   - Enhanced nested object validation
+
+2. **Created comprehensive tests** in `test/json-parser-test.js` that cover:
+   - Basic JSON parsing
+   - Invalid JSON handling
+   - Schema validation with various data types
+   - Required field validation
+   - Data type validation
+   - Range validation for numbers
+   - Length validation for strings
+   - Array validation
+   - Nested object validation
+
+3. **Created usage examples** in `examples/json-parser-example.js` demonstrating:
+   - Simple JSON parsing
+   - Schema validation
+   - Error handling
+   - Complex nested structures with arrays
+
+4. **Added documentation** in `docs/json-parser.md` explaining:
+   - Features and usage
+   - Schema validation rules
+   - Error handling
+   - Examples
+
+5. **Fixed linting issues** in the codebase to ensure code quality
+
+All tests pass successfully, and the function is now more robust and feature-complete. The implementation supports a wide range of validation scenarios while maintaining clear error messages for debugging.
+
+  ---
+
+  Status: null, Time: 193519ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli implement a hash table data structure with collision handling'
+]
+[CALL] Routing to qodercli: implement a hash table data structure with collision handling
+[DEBUG] Tool path: qodercli, Prompt: implement a hash table data structure with collision handling
+Perfect! I have successfully implemented a comprehensive hash table data structure with the following features:
+
+1. **Two Collision Handling Strategies**:
+   - Chaining: Stores colliding elements in buckets (arrays)
+   - Open Addressing: Uses double hashing to find alternative slots
+
+2. **Key Features Implemented**:
+   - Automatic resizing when load factor exceeds threshold (0.75)
+   - Support for both string and numeric keys
+   - Standard dictionary operations (set, get, delete, has)
+   - Utility methods (keys, values, entries, clear, size, isEmpty, loadFactor)
+   - Duplicate key handling (updates existing values)
+   - Efficient hash functions with prime number multiplication
+
+3. **Files Created**:
+   - `src/data_structures.js`: Contains the HashTable implementation
+   - `test/hash_table_test.js`: Comprehensive tests demonstrating all features
+   - `src/data_structures.md`: Documentation for the implementation
+
+4. **Testing**:
+   - All tests pass successfully
+   - Verified both collision handling strategies work correctly
+   - Tested automatic resizing functionality
+   - Confirmed all utility methods work as expected
+
+The implementation handles edge cases properly and provides O(1) average-case performance for set, get, and delete operations. The hash table automatically resizes to maintain performance when the load factor exceeds the threshold.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] codex - Complex Code Generation
+[2025-12-08T14:24:23.246Z] Executing: stigmergy call "claude analyze this Python code for potential security vulnerabilities"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] claude - Analysis Task
+[2025-12-08T14:25:08.273Z] Executing: stigmergy call "gemini review this JavaScript code for performance optimization opportunities"
+  Status: null, Time: 174373ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'copilot generate a function to implement a simple REST API client'
+]
+[CALL] Routing to qodercli: implement a simple REST API client
+[DEBUG] Tool path: qodercli, Prompt: implement a simple REST API client
+I have successfully implemented a simple REST API client for the Stigmergy CLI project. Here's what I've done:
+
+1. Created the REST client class (`src/core/rest_client.js`) with the following features:
+   - Support for all common HTTP methods (GET, POST, PUT, PATCH, DELETE)
+   - Configurable base URL and default headers
+   - Query parameter handling
+   - JSON serialization/deserialization
+   - Authorization header support
+   - Error handling
+
+2. Created comprehensive tests (`test/rest_client.test.js`) that verify:
+   - Basic GET requests
+   - POST requests with data
+   - Custom headers
+   - Query parameters
+
+3. Added a test script to package.json:
+   - `npm run test:rest-client` - Runs the REST client tests
+
+4. Created usage examples (`examples/rest_client_example.js`) demonstrating:
+   - Basic usage patterns
+   - Custom headers
+   - Authorization
+   - Different HTTP methods
+
+5. Added an example script to package.json:
+   - `npm run example:rest-client` - Runs the REST client example
+
+6. Created documentation (`docs/rest_client.md`) explaining:
+   - How to import and instantiate the client
+   - How to make different types of requests
+   - How to set headers and authorization
+   - Response format and error handling
+
+The REST client has been tested and verified to work correctly with real HTTP requests to JSONPlaceholder API. All tests pass successfully, and the example code demonstrates practical usage patterns.
+
+  ---
+
+  Status: null, Time: 69124ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude analyze this Python code for potential security vulnerabilities'
+]
+[CALL] Routing to claude: analyze this Python code for potential security vulnerabilities
+[DEBUG] Tool path: claude, Prompt: analyze this Python code for potential security vulnerabilities
+I need to see the Python code you'd like me to analyze for security vulnerabilities. Could you please provide the code or let me know which file contains the Python code you want me to review?
+
+Once you share the code, I can analyze it for common security issues such as:
+- SQL injection vulnerabilities
+- Command injection risks
+- Cross-site scripting (XSS) potential
+- Authentication and authorization flaws
+- Input validation issues
+- Cryptographic weaknesses
+- File inclusion vulnerabilities
+- Race conditions
+
+You can either paste the code directly in your message or provide a file path and I'll read it for analysis.
+
+  ---
+
+  Status: null, Time: 131003ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codex write a function to process CSV data and generate statistics'
+]
+[CALL] Routing to qodercli: x write a function to process CSV data and generate statistics
+[DEBUG] Tool path: qodercli, Prompt: x write a function to process CSV data and generate statistics
+
+  STDERR:
+Error: failed to process events: request error
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] gemini - Analysis Task
+[2025-12-08T14:25:53.292Z] Executing: stigmergy call "qwen check this Java code for adherence to best practices"
+  Status: 0, Time: 9474ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen check this Java code for adherence to best practices'
+]
+[CALL] Routing to qwen: check this Java code for adherence to best practices
+[DEBUG] Tool path: qwen, Prompt: check this Java code for adherence to best practices
+I don't see any Java code in your message. Could you please share the Java code you'd like me to review for adherence to best practices? Once you provide the code, I'll analyze it against Java best practices including:
+
+- Code structure and organization
+- Naming conventions
+- Documentation and comments
+- Error handling
+- Performance considerations
+- Security practices
+- Modern Java idioms and patterns
+
+Please paste the Java code you'd like reviewed.
+
+  ---
+
+[FAIL] qwen - Analysis Task
+[2025-12-08T14:26:02.768Z] Executing: stigmergy call "iflow evaluate this code for potential bugs and logical errors"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] iflow - Analysis Task
+[2025-12-08T14:26:47.792Z] Executing: stigmergy call "qodercli assess this function for code quality and maintainability"
+  Status: 0, Time: 41487ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli assess this function for code quality and maintainability'
+]
+[CALL] Routing to qodercli: assess this function for code quality and maintainability
+[DEBUG] Tool path: qodercli, Prompt: assess this function for code quality and maintainability
+Based on my assessment of the codebase, particularly the `CLIHelpAnalyzer` class and related components, here's my evaluation of code quality and maintainability:
+
+## Code Quality Assessment
+
+### Strengths:
+1. **Well-Structured Architecture**: The codebase follows a modular design with clear separation of concerns. Each module has a specific responsibility:
+   - `CLIHelpAnalyzer` handles CLI tool analysis
+   - `ErrorHandler` manages centralized error handling
+   - `SmartRouter` handles intelligent routing
+
+2. **Comprehensive Error Handling**: The error handler implements:
+   - Custom error types with context
+   - Multiple log levels
+   - File-based logging with rotation
+   - Error wrapping for async functions
+
+3. **Robust Configuration Management**: CLI tools are centrally configured with:
+   - Installation commands
+   - Version checking
+   - Configuration file paths
+   - Validation functions
+
+4. **Pattern-Based Analysis**: The `CLIHelpAnalyzer` uses sophisticated pattern matching to:
+   - Identify different CLI tool types (OpenAI, Anthropic, Google, generic)
+   - Extract commands, options, and subcommands
+   - Parse usage examples
+
+### Areas for Improvement:
+
+1. **Code Duplication**: Some pattern matching logic is repeated across methods in `CLIHelpAnalyzer`.
+
+2. **Magic Numbers**: The 24-hour cache expiration and 10MB log size limit could be extracted as named constants.
+
+3. **Complex Regular Expressions**: Some regex patterns are complex and could benefit from documentation or simplification.
+
+4. **Missing Input Validation**: While there's error handling, there's limited validation of inputs to methods.
+
+5. **Test Coverage**: The codebase would benefit from more comprehensive unit tests, particularly for the pattern matching logic.
+
+## Maintainability Assessment
+
+### Positive Aspects:
+1. **Clear Documentation**: Methods are well-documented with JSDoc comments explaining parameters, return values, and functionality.
+
+2. **Consistent Naming**: Variables and methods use consistent, descriptive naming conventions.
+
+3. **Modular Design**: Components are loosely coupled and can be modified independently.
+
+4. **Extensibility**: The pattern rules system allows for easy addition of new CLI tool types.
+
+### Recommendations:
+1. **Refactor Pattern Matching**: Extract complex regex operations into separate utility functions with clearer names.
+
+2. **Add More Unit Tests**: Particularly for the `extractPatterns` and `analyzeCommandStructure` methods which contain critical business logic.
+
+3. **Implement Configuration Validation**: Add validation for the CLI tools configuration to ensure all required fields are present.
+
+4. **Improve Error Messages**: Make error messages more user-friendly and actionable.
+
+Overall, the codebase demonstrates good engineering practices with a solid foundation for maintainability, though there are opportunities for refinement in specific areas.
+
+  ---
+
+[FAIL] qodercli - Analysis Task
+[2025-12-08T14:27:29.280Z] Executing: stigmergy call "codebuddy analyze this code for potential memory leaks"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] codebuddy - Analysis Task
+[2025-12-08T14:28:14.307Z] Executing: stigmergy call "copilot review this code for proper error handling"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] copilot - Analysis Task
+[2025-12-08T14:28:59.341Z] Executing: stigmergy call "codex examine this code for potential scalability issues"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] codex - Analysis Task
+[2025-12-08T14:29:44.391Z] Executing: stigmergy call "claude generate documentation for a Python function that sorts arrays"
+  Status: null, Time: 59924ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codex examine this code for potential scalability issues'
+]
+[CALL] Routing to qodercli: for potential scalability issues
+[DEBUG] Tool path: qodercli, Prompt: for potential scalability issues
+Based on my analysis of the codebase, I've identified several potential scalability issues in the Stigmergy CLI system:
+
+## Potential Scalability Issues
+
+### 1. Memory Management Limitations
+- **Issue**: The `MemoryManager` stores all interactions in a single JSON file (`~/.stigmergy/memory.json`) without any pruning mechanism.
+- **Impact**: As usage increases, the file will grow indefinitely, causing slower load times and potential disk space issues.
+- **Location**: `src/core/memory_manager.js`
+
+### 2. Synchronous File Operations
+- **Issue**: Several core components use synchronous file operations (`fs.readFileSync`, `fs.writeFileSync`) which block the event loop.
+- **Impact**: Under high concurrency, the CLI will become unresponsive and performance will degrade significantly.
+- **Location**: Various files in `src/core/`
+
+### 3. Lack of Concurrency Control
+- **Issue**: No rate limiting or queuing mechanism for concurrent CLI tool executions.
+- **Impact**: When multiple users or processes use the system simultaneously, it could overwhelm the system resources and cause crashes.
+- **Location**: `src/core/smart_router.js` and command execution logic
+
+### 4. Cache Expiration Strategy
+- **Issue**: CLI pattern analysis cache expires after 24 hours but doesn't account for CLI updates or changes.
+- **Impact**: Could lead to using stale patterns that no longer work, causing failures, or unnecessary re-analysis overhead.
+- **Location**: `src/core/cli_help_analyzer.js`
+
+### 5. Error Handling and Recovery
+- **Issue**: Limited retry mechanisms and exponential backoff strategies for failed CLI tool executions.
+- **Impact**: Transient failures could unnecessarily disrupt user workflows, especially under high load.
+- **Location**: Throughout the codebase
+
+### 6. Single Point of Failure
+- **Issue**: The system relies heavily on the main router and memory manager as central components.
+- **Impact**: If these components fail, the entire system becomes unavailable.
+- **Location**: `src/main_english.js` and core modules
+
+## Recommendations for Improvement
+
+1. **Implement memory pruning** - Add a mechanism to limit the size of interaction history
+2. **Use asynchronous file operations** - Replace sync operations with async equivalents
+3. **Add concurrency controls** - Implement queuing and rate limiting for CLI executions
+4. **Improve cache strategy** - Add version checking for CLI tools to determine when to refresh patterns
+5. **Enhance error recovery** - Add retry mechanisms with exponential backoff
+6. **Add health checks** - Implement component health monitoring and graceful degradation
+
+These issues would become more pronounced as the user base grows or as the system handles more concurrent operations.
+
+  ---
+
+  Status: null, Time: 169605ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codebuddy analyze this code for potential memory leaks'
+]
+[CALL] Routing to qodercli: for potential memory leaks
+[DEBUG] Tool path: qodercli, Prompt: for potential memory leaks
+
+  STDERR:
+Error: failed to process events: request error
+
+  ---
+
+  Status: null, Time: 312003ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'gemini review this JavaScript code for performance optimization opportunities'
+]
+[CALL] Routing to gemini: review this JavaScript code for performance optimization opportunities
+[DEBUG] Tool path: gemini, Prompt: review this JavaScript code for performance optimization opportunities
+[WARN] gemini exited with code 1
+
+  STDERR:
+Authentication timed out after 5 minutes. The browser tab may have gotten stuck in a loading state. Please try again or use NO_BROWSER=true for manual authentication.
+
+  ---
+
+  Status: null, Time: 265011ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'iflow evaluate this code for potential bugs and logical errors'
+]
+[CALL] Routing to iflow: evaluate this code for potential bugs and logical errors
+[DEBUG] Tool path: iflow, Prompt: evaluate this code for potential bugs and logical errors
+I'll help you evaluate the code for potential bugs and logical errors. Let me first examine the codebase to understand what we're working with.[TaskTool] Creating Agent #0 with color undefined for instance task-1765203966159-6a39ad526183f
+I've completed a comprehensive evaluation of your codebase and identified **17 critical issues** ranging from security vulnerabilities to logical bugs. Here are the key findings:
+
+## 🚨 **Critical Issues Requiring Immediate Attention:**
+
+1. **Command Injection Vulnerabilities** - Multiple locations allow arbitrary code execution
+2. **Memory Management Bug** - Duration calculation always returns 0 in `src/main_english.js:73`
+3. **Path Traversal Vulnerabilities** - File operations lack proper input sanitization
+4. **Silent Error Suppression** - Critical errors are ignored in error handling
+
+## 🐛 **High Priority Bugs:**
+- Race conditions in file operations
+- Array bounds checking issues in `binary_search.py`
+- Infinite recursion risk in utility functions
+- Unhandled promise rejections
+
+## 🔒 **Security Vulnerabilities:**
+- Insecure credential storage in JSON files
+- Missing input validation across algorithms
+- Hardcoded sensitive values
+
+The most critical issue is the **command injection vulnerability** that could allow attackers to execute arbitrary system commands. I recommend addressing P0 issues immediately before any production deployment.
+
+Would you like me to help fix any of these specific issues, or would you prefer detailed remediation guidance for the most critical vulnerabilities?
+
+  STDERR:
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+
+<Execution Info>
+{
+  "session-id": "session-b58ca8f7-1b6b-4429-8471-37e8defd39fe",
+  "conversation-id": "5ac0111a-e0f2-4da8-9dd1-1bd5b280c461",
+  "assistantRounds": 5,
+  "executionTimeMs": 261575,
+  "tokenUsage": {
+    "input": 22184,
+    "output": 250,
+    "total": 22434
+  }
+}
+</Execution Info>
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] claude - Documentation Task
+[2025-12-08T14:30:29.438Z] Executing: stigmergy call "gemini create JSDoc for a JavaScript function that validates email addresses"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] gemini - Documentation Task
+[2025-12-08T14:31:14.462Z] Executing: stigmergy call "qwen write JavaDoc for a Java method that connects to database"
+  Status: 0, Time: 23258ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen write JavaDoc for a Java method that connects to database'
+]
+[CALL] Routing to qwen: write JavaDoc for a Java method that connects to database
+[DEBUG] Tool path: qwen, Prompt: write JavaDoc for a Java method that connects to database
+I'll help you write proper JavaDoc for a Java method that connects to a database. Let me create a comprehensive example with JavaDoc comments.
+
+I see that I don't have permission to write files in your current directory. Since you're working in a Node.js project (based on the file extensions I see), would you like me to:
+
+1. Show you the JavaDoc example in the chat
+2. Create it in a temporary location
+3. Or would you prefer a different approach?
+
+Here's an example of proper JavaDoc for a database connection method:
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ * 数据库连接工具类
+ * A utility class for managing database connections.
+ * Provides methods for establishing connections to various database systems.
+ */
+public class DatabaseConnection {
+    
+    /**
+     * 建立到指定数据库的连接
+     * Establishes a connection to the specified database.
+     * 
+     * <p>此方法使用提供的数据库URL、用户名和密码创建一个新的数据库连接
+     * This method creates a new database connection using the provided 
+     * database URL, username, and password.</p>
+     * 
+     * <p>示例用法 / Example usage:</p>
+     * <pre>
+     * {@code
+     * String url = "jdbc:mysql://localhost:3306/mydb";
+     * String user = "username";
+     * String password = "password";
+     * Connection conn = connectToDatabase(url, user, password);
+     * }
+     * </pre>
+     * 
+     * @param url 数据库连接URL / Database connection URL in the format jdbc:subprotocol:subname
+     * @param username 用于连接的用户名 / Username for database authentication
+     * @param password 用于连接的密码 / Password for database authentication
+     * @return 表示数据库连接的Connection对象 / A Connection object representing the database connection
+     * @throws SQLException 当连接失败时抛出，可能是由于无效的URL、认证失败或网络问题
+     *                      Thrown when the connection fails, possibly due to invalid URL, 
+     *                      authentication failure, or network issues
+     * @throws IllegalArgumentException 当任何参数为null时抛出
+     *                                  Thrown when any parameter is null
+     * @since 1.0
+     * @author Your Name
+     */
+    public static Connection connectToDatabase(String url, String username, String password) 
+            throws SQLException {
+        if (url == null || username == null || password == null) {
+            throw new IllegalArgumentException("Database connection parameters cannot be null");
+        }
+        
+        return DriverManager.getConnection(url, username, password);
+    }
+}
+```
+
+This JavaDoc example includes:
+
+1. Class-level documentation
+2. Method-level documentation with detailed description
+3. Usage example in the JavaDoc
+4. All necessary tags: @param, @return, @throws, @since, @author
+5. Both English and Chinese documentation (as per your preference for Chinese localization)
+6. Proper formatting with `<p>` and `<pre>` tags
+7. Exception handling documentation
+
+Would you like me to modify any part of this JavaDoc example or provide a different variation?
+
+  ---
+
+[PASS] qwen - Documentation Task
+[2025-12-08T14:31:37.721Z] Executing: stigmergy call "iflow generate comments for a C++ function that processes image data"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] iflow - Documentation Task
+[2025-12-08T14:32:22.748Z] Executing: stigmergy call "qodercli create documentation for a function that handles HTTP requests"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] qodercli - Documentation Task
+[2025-12-08T14:33:07.781Z] Executing: stigmergy call "codebuddy write documentation for a function that encrypts data"
+  Status: null, Time: 50876ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli create documentation for a function that handles HTTP requests'
+]
+[CALL] Routing to qodercli: create documentation for a function that handles HTTP requests
+[DEBUG] Tool path: qodercli, Prompt: create documentation for a function that handles HTTP requests
+I've created comprehensive documentation for the HTTP request handling function in the Stigmergy CLI system. The documentation covers:
+
+1. An overview of the RestClient class
+2. Detailed documentation for each method including parameters, return values, and examples
+3. Usage examples for common scenarios
+4. Error handling information
+5. Important notes about the implementation
+
+The documentation is saved in `docs/http-request-handler.md` and provides everything needed to understand and use the HTTP request handling functionality in the project.
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] codebuddy - Documentation Task
+[2025-12-08T14:33:52.808Z] Executing: stigmergy call "copilot generate README section for a machine learning model API"
+  Status: 0, Time: 4115ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'copilot generate README section for a machine learning model API'
+]
+[CALL] Routing to codebuddy: a machine learning model API
+[DEBUG] Tool path: codebuddy, Prompt: a machine learning model API
+Authentication required. Please use /login command to sign in to your account
+
+  ---
+
+[PASS] copilot - Documentation Task
+[2025-12-08T14:33:56.925Z] Executing: stigmergy call "codex create API documentation for a weather data processing function"
+  Status: null, Time: 146615ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'iflow generate comments for a C++ function that processes image data'
+]
+[CALL] Routing to iflow: generate comments for a C++ function that processes image data
+[DEBUG] Tool path: iflow, Prompt: generate comments for a C++ function that processes image data
+I'll help you generate comments for a C++ function that processes image data. Let me first check if there are any existing C++ files in your project to understand the coding style and conventions.Since there are no existing C++ files in your project, I'll create a well-commented example of a C++ function that processes image data. Let me create a sample function with comprehensive comments following best practices:Created `image_processor.cpp` with a comprehensive example of a C++ image processing function featuring:
+
+**Key Comment Elements:**
+- **File header**: Author, date, purpose
+- **Function documentation**: Parameters, return values, exceptions
+- **Doxygen-style tags**: `@brief`, `@details`, `@param`, `@return`, `@throws`
+- **Performance notes**: Time/space complexity
+- **Usage warnings**: Potential side effects
+- **Cross-references**: Links to related functions
+- **Code examples**: Usage demonstrations
+- **Implementation comments**: Algorithm explanations
+
+The example shows a Gaussian blur function with professional C++ commenting standards suitable for computer vision applications.
+
+  STDERR:
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+
+<Execution Info>
+{
+  "session-id": "session-cdaf7910-2ab0-4192-87ad-2d48ed83e5a2",
+  "conversation-id": "62154903-443f-4f32-ab88-c3fca3a51e73",
+  "assistantRounds": 5,
+  "executionTimeMs": 143067,
+  "tokenUsage": {
+    "input": 20122,
+    "output": 135,
+    "total": 20257
+  }
+}
+</Execution Info>
+
+  ---
+
+  Status: 0, Time: 32677ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codex create API documentation for a weather data processing function'
+]
+[CALL] Routing to qodercli: x create API documentation for a weather data processing function
+[DEBUG] Tool path: qodercli, Prompt: x create API documentation for a weather data processing function
+I've created comprehensive API documentation for the weather data processing function. The documentation includes:
+
+1. An overview of the module's purpose
+2. Installation and usage instructions
+3. Detailed API reference for the `processWeatherData` function with:
+   - Parameter descriptions
+   - Return value structure
+   - Error conditions
+   - Example usage
+4. Information about internal functions
+5. Supported temperature units
+6. Error handling approach
+7. Testing instructions
+
+The documentation is saved in `API_DOCS.md` in the project root directory. It provides everything a developer would need to understand and use the weather data processing functionality effectively.
+
+  ---
+
+[FAIL] codex - Documentation Task
+[2025-12-08T14:34:29.604Z] Executing: stigmergy call "qodercli write a Python function to handle user authentication"
+  Status: null, Time: 312032ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude generate documentation for a Python function that sorts arrays'
+]
+[CALL] Routing to claude: generate documentation for a Python function that sorts arrays
+[DEBUG] Tool path: claude, Prompt: generate documentation for a Python function that sorts arrays
+I'll provide the comprehensive documentation directly in the response. Here's detailed documentation for a Python array sorting function:
+
+# Python Array Sorting Function Documentation
+
+## Overview
+This documentation provides comprehensive guidance for implementing and using Python array sorting functions, covering multiple algorithms, performance characteristics, and best practices.
+
+## Core Function Definition
+
+```python
+from typing import List, Any, Optional, Callable, Union
+import time
+
+def sort_array(arr: List[Any], 
+               algorithm: str = 'auto',
+               reverse: bool = False,
+               key: Optional[Callable[[Any], Any]] = None) -> List[Any]:
+    """
+    Sort an array using the specified algorithm with flexible options.
+
+    Args:
+        arr (List[Any]): The array to be sorted. Elements must support comparison operators.
+        algorithm (str): Sorting algorithm ('auto', 'bubble', 'quick', 'merge', 'tim', 'heap')
+        reverse (bool): Sort in descending order if True
+        key (Optional[Callable]): Function to extract comparison key from elements
+
+    Returns:
+        List[Any]: New sorted array (original remains unchanged)
+
+    Raises:
+        ValueError: If algorithm is not supported
+        TypeError: If array elements are not comparable
+
+    Example:
+        >>> numbers = [64, 34, 25, 12, 22, 11, 90]
+        >>> sorted_numbers = sort_array(numbers, algorithm='quick')
+        >>> print(sorted_numbers)
+        [11, 12, 22, 25, 34, 64, 90]
+    """
+```
+
+## Algorithm Implementations
+
+### 1. Bubble Sort
+```python
+def bubble_sort(arr: List[Any]) -> List[Any]:
+    """
+    Bubble Sort: Simple comparison-based algorithm.
+    
+    Time Complexity:
+    - Best: O(n) when already sorted
+    - Average: O(n²)
+    - Worst: O(n²)
+    
+    Space: O(1) - in-place sorting
+    Stable: Yes
+    
+    Use Case: Educational purposes, very small arrays
+    """
+    n = len(arr)
+    sorted_arr = arr.copy()
+    
+    for i in range(n):
+        swapped = False
+        for j in range(0, n - i - 1):
+            if sorted_arr[j] > sorted_arr[j + 1]:
+                sorted_arr[j], sorted_arr[j + 1] = sorted_arr[j + 1], sorted_arr[j]
+                swapped = True
+        if not swapped:
+            break
+    
+    return sorted_arr
+```
+
+### 2. Quick Sort
+```python
+def quick_sort(arr: List[Any]) -> List[Any]:
+    """
+    Quick Sort: Efficient divide-and-conquer algorithm.
+    
+    Time Complexity:
+    - Best: O(n log n)
+    - Average: O(n log n)
+    - Worst: O(n²) - rare with randomization
+    
+    Space: O(log n) - recursion stack
+    Stable: No
+    
+    Use Case: General purpose, large arrays
+    """
+    def _quick_sort(items: List[Any], low: int, high: int) -> None:
+        if low < high:
+            pivot_index = _partition(items, low, high)
+            _quick_sort(items, low, pivot_index - 1)
+            _quick_sort(items, pivot_index + 1, high)
+    
+    def _partition(items: List[Any], low: int, high: int) -> int:
+        pivot = items[high]
+        i = low - 1
+        
+        for j in range(low, high):
+            if items[j] <= pivot:
+                i += 1
+                items[i], items[j] = items[j], items[i]
+        
+        items[i + 1], items[high] = items[high], items[i + 1]
+        return i + 1
+    
+    sorted_arr = arr.copy()
+    _quick_sort(sorted_arr, 0, len(sorted_arr) - 1)
+    return sorted_arr
+```
+
+### 3. Merge Sort
+```python
+def merge_sort(arr: List[Any]) -> List[Any]:
+    """
+    Merge Sort: Stable divide-and-conquer algorithm.
+    
+    Time Complexity:
+    - Best: O(n log n)
+    - Average: O(n log n)
+    - Worst: O(n log n)
+    
+    Space: O(n) - auxiliary array
+    Stable: Yes
+    
+    Use Case: When stability is required, linked lists
+    """
+    def _merge(left: List[Any], right: List[Any]) -> List[Any]:
+        merged = []
+        i = j = 0
+        
+        while i < len(left) and j < len(right):
+            if left[i] <= right[j]:
+                merged.append(left[i])
+                i += 1
+            else:
+                merged.append(right[j])
+                j += 1
+        
+        merged.extend(left[i:])
+        merged.extend(right[j:])
+        return merged
+    
+    def _merge_sort_recursive(items: List[Any]) -> List[Any]:
+        if len(items) <= 1:
+            return items
+        
+        mid = len(items) // 2
+        left = _merge_sort_recursive(items[:mid])
+        right = _merge_sort_recursive(items[mid:])
+        return _merge(left, right)
+    
+    return _merge_sort_recursive(arr)
+```
+
+### 4. Tim Sort (Python's Default)
+```python
+def tim_sort(arr: List[Any]) -> List[Any]:
+    """
+    Tim Sort: Python's built-in hybrid algorithm.
+    
+    Time Complexity:
+    - Best: O(n) - nearly sorted data
+    - Average: O(n log n)
+    - Worst: O(n log n)
+    
+    Space: O(n)
+    Stable: Yes
+    
+    Use Case: Default choice, real-world data
+    """
+    sorted_arr = arr.copy()
+    sorted_arr.sort()  # Python's optimized Tim Sort
+    return sorted_arr
+```
+
+## Performance Comparison
+
+| Algorithm | Time (Best) | Time (Avg) | Time (Worst) | Space | Stable | When to Use |
+|-----------|-------------|------------|--------------|-------|---------|-------------|
+| Bubble | O(n) | O(n²) | O(n²) | O(1) | Yes | Teaching, n < 50 |
+| Quick | O(n log n) | O(n log n) | O(n²) | O(log n) | No | General purpose |
+| Merge | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | Stability needed |
+| Tim | O(n) | O(n log n) | O(n log n) | O(n) | Yes | Default choice |
+| Heap | O(n log n) | O(n log n) | O(n log n) | O(1) | No | Memory constraints |
+
+## Usage Examples
+
+### Basic Usage
+```python
+# Simple sorting
+numbers = [5, 2, 8, 1, 9, 3]
+sorted_numbers = sort_array(numbers)
+# Result: [1, 2, 3, 5, 8, 9]
+
+# Descending order
+desc_numbers = sort_array(numbers, reverse=True)
+# Result: [9, 8, 5, 3, 2, 1]
+
+# Algorithm selection
+quick_sorted = sort_array(numbers, algorithm='quick')
+merge_sorted = sort_array(numbers, algorithm='merge')
+```
+
+### Advanced Usage with Key Functions
+```python
+# Sort strings by length
+words = ["python", "java", "javascript", "c", "rust"]
+sorted_by_length = sort_array(words, key=len)
+# Result: ['c', 'java', 'rust', 'python', 'javascript']
+
+# Sort complex objects
+students = [
+    {"name": "Alice", "age": 30, "gpa": 3.8},
+    {"name": "Bob", "age": 25, "gpa": 3.9},
+    {"name": "Charlie", "age": 22, "gpa": 3.5}
+]
+
+# Sort by age
+sorted_by_age = sort_array(students, key=lambda x: x["age"])
+
+# Sort by GPA (descending)
+sorted_by_gpa = sort_array(students, key=lambda x: x["gpa"], reverse=True)
+```
+
+### Real-World Applications
+```python
+# E-commerce product sorting
+products = [
+    {"name": "Laptop", "price": 999.99, "rating": 4.5, "sales": 150},
+    {"name": "Phone", "price": 699.99, "rating": 4.8, "sales": 300},
+    {"name": "Tablet", "price": 399.99, "rating": 4.2, "sales": 100}
+]
+
+# Multi-criteria sorting
+products_sorted = sort_array(
+    products,
+    key=lambda x: (x["rating"], x["sales"]),  # Primary: rating, Secondary: sales
+    reverse=True
+)
+
+# File system operations
+files = [
+    {"name": "doc.txt", "size": 1024, "modified": "2023-01-15"},
+    {"name": "image.jpg", "size": 2048, "modified": "2023-01-10"},
+    {"name": "video.mp4", "size": 10240, "modified": "2023-01-20"}
+]
+
+# Sort by size
+files_by_size = sort_array(files, key=lambda x: x["size"])
+
+# Sort by modification date
+files_by_date = sort_array(files, key=lambda x: x["modified"])
+```
+
+## Best Practices
+
+### 1. Algorithm Selection Strategy
+```python
+def choose_optimal_algorithm(arr: List[Any]) -> str:
+    """
+    Automatically select the best sorting algorithm.
+    """
+    n = len(arr)
+    
+    if n < 20:
+        return 'tim'  # Built-in for small arrays
+    
+    if n > 100000:
+        return 'quick'  # Quick sort for very large arrays
+    
+    # Check if nearly sorted
+    out_of_order = sum(1 for i in range(1, n) if arr[i] < arr[i-1])
+    if out_of_order / n < 0.1:  # Less than 10% out of order
+        return 'tim'  # Tim sort excels on nearly sorted data
+    
+    return 'quick'  # Good general-purpose choice
+```
+
+### 2. Error Handling
+```python
+def safe_sort_array(arr: List[Any], **kwargs) -> tuple[bool, Union[List[Any], str]]:
+    """
+    Sort array with comprehensive error handling.
+    
+    Returns:
+        tuple: (success: bool, result: List[Any] or error_message: str)
+    """
+    try:
+        if not isinstance(arr, list):
+            return False, "Input must be a list"
+        
+        if len(arr) == 0:
+            return True, []
+        
+        # Test comparability
+        if len(arr) > 1:
+            try:
+                arr[0] < arr[1]
+            except TypeError:
+                return False, "Array elements are not comparable"
+        
+        sorted_arr = sort_array(arr, **kwargs)
+        return True, sorted_arr
+    
+    except ValueError as e:
+        return False, f"Invalid parameter: {e}"
+    except Exception as e:
+        return False, f"Unexpected error: {e}"
+```
+
+### 3. Memory-Efficient Sorting for Large Arrays
+```python
+def sort_large_array(arr: List[Any], chunk_size: int = 10000) -> List[Any]:
+    """
+    Sort very large arrays while managing memory usage.
+    """
+    if len(arr) <= chunk_size:
+        return sort_array(arr)
+    
+    # Process in chunks
+    chunks = []
+    for i in range(0, len(arr), chunk_size):
+        chunk = arr[i:i + chunk_size]
+        sorted_chunk = sort_array(chunk)
+        chunks.append(sorted_chunk)
+    
+    # Merge sorted chunks
+    return merge_sorted_chunks(chunks)
+
+def merge_sorted_chunks(chunks: List[List[Any]]) -> List[Any]:
+    """Merge multiple sorted arrays."""
+    import heapq
+    
+    # Create min-heap of (value, chunk_index, element_index)
+    heap = []
+    for i, chunk in enumerate(chunks):
+        if chunk:
+            heapq.heappush(heap, (chunk[0], i, 0))
+    
+    result = []
+    while heap:
+        value, chunk_idx, elem_idx = heapq.heappop(heap)
+        result.append(value)
+        
+        # Add next element from the same chunk
+        if elem_idx + 1 < len(chunks[chunk_idx]):
+            next_elem = chunks[chunk_idx][elem_idx + 1]
+            heapq.heappush(heap, (next_elem, chunk_idx, elem_idx + 1))
+    
+    return result
+```
+
+## Testing Framework
+
+### Unit Tests
+```python
+import unittest
+import random
+
+class TestArraySorting(unittest.TestCase):
+    
+    def setUp(self):
+        self.sorter = ArraySorter()
+        self.test_cases = [
+            [],  # Empty
+            [1],  # Single element
+            [1, 2, 3, 4, 5],  # Already sorted
+            [5, 4, 3, 2, 1],  # Reverse sorted
+            [3, 1, 4, 1, 5, 9],  # With duplicates
+            [random.randint(0, 1000) for _ in range(100)],  # Random
+        ]
+    
+    def test_all_algorithms(self):
+        for arr in self.test_cases:
+            expected = sorted(arr)
+            
+            algorithms = ['bubble', 'quick', 'merge', 'tim']
+            for algorithm in algorithms:
+                with self.subTest(algorithm=algorithm, array=arr):
+                    result = sort_array(arr, algorithm=algorithm)
+                    self.assertEqual(result, expected)
+    
+    def test_stability(self):
+        """Test that stable algorithms maintain element order."""
+        arr = [(1, 'a'), (1, 'b'), (2, 'c'), (1, 'd')]
+        
+        # Merge sort should be stable
+        result = sort_array(arr, algorithm='merge', key=lambda x: x[0])
+        ones = [x for x in result if x[0] == 1]
+        self.assertEqual(ones, [(1, 'a'), (1, 'b'), (1, 'd')])
+    
+    def test_key_function(self):
+        words = ["apple", "banana", "cherry", "date"]
+        result = sort_array(words, key=len)
+        self.assertEqual(result, ["date", "apple", "banana", "cherry"])
+    
+    def test_reverse_sort(self):
+        arr = [1, 3, 2, 5, 4]
+        result = sort_array(arr, reverse=True)
+        self.assertEqual(result, [5, 4, 3, 2, 1])
+```
+
+### Performance Benchmarking
+```python
+import time
+import statistics
+
+def benchmark_algorithms():
+    """
+    Benchmark different sorting algorithms.
+    """
+    sizes = [100, 1000, 10000, 50000]
+    algorithms = ['quick', 'merge', 'tim']
+    results = {}
+    
+    for size in sizes:
+        print(f"\nTesting with array size: {size}")
+        test_array = [random.randint(0, 1000000) for _ in range(size)]
+        results[size] = {}
+        
+        for algorithm in algorithms:
+            times = []
+            for _ in range(5):  # Run 5 times for average
+                start_time = time.time()
+                sort_array(test_array, algorithm=algorithm)
+                end_time = time.time()
+                times.append(end_time - start_time)
+            
+            avg_time = statistics.mean(times)
+            results[size][algorithm] = avg_time
+            print(f"  {algorithm:8s}: {avg_time:.6f} seconds")
+    
+    return results
+
+# Generate performance report
+def generate_performance_report(results: dict):
+    """
+    Generate a formatted performance report.
+    """
+    print("\n" + "="*50)
+    print("PERFORMANCE BENCHMARK REPORT")
+    print("="*50)
+    
+    for size in sorted(results.keys()):
+        print(f"\nArray Size: {size:,}")
+        print("-" * 30)
+        
+        sorted_algorithms = sorted(
+            results[size].items(), 
+            key=lambda x: x[1]
+        )
+        
+        for algorithm, time_taken in sorted_algorithms:
+            print(f"{algorithm:8s}: {time_taken:.6f}s")
+```
+
+## Integration Examples
+
+### 1. Database Integration
+```python
+def sort_database_results(results: List[dict], 
+                         sort_by: str, 
+                         reverse: bool = False) -> List[dict]:
+    """
+    Sort database query results.
+    
+    Args:
+        results: List of database records (dicts)
+        sort_by: Column name to sort by
+        reverse: Sort descending if True
+    """
+    def safe_key_get(record: dict):
+        return record.get(sort_by, float('inf') if not reverse else float('-inf'))
+    
+    return sort_array(results, key=safe_key_get, reverse=reverse)
+
+# Usage
+db_results = [
+    {"id": 1, "name": "Alice", "score": 85},
+    {"id": 2, "name": "Bob", "score": 92},
+    {"id": 3, "name": "Charlie", "score": 78}
+]
+
+sorted_by_score = sort_database_results(db_results, "score", reverse=True)
+```
+
+### 2. API Response Processing
+```python
+def process_api_response(response_data: List[dict], 
+                        sort_config: dict) -> List[dict]:
+    """
+    Process and sort API response data.
+    
+    Args:
+        response_data: Raw API response data
+        sort_config: Configuration for sorting
+            - field: Field to sort by
+            - order: 'asc' or 'desc'
+            - algorithm: Sorting algorithm to use
+    """
+    if not response_data:
+        return []
+    
+    field = sort_config.get('field')
+    reverse = sort_config.get('order', 'asc') == 'desc'
+    algorithm = sort_config.get('algorithm', 'auto')
+    
+    # Handle nested fields
+    if '.' in field:
+        def nested_key(item):
+            keys = field.split('.')
+            value = item
+            for k in keys:
+                value = value.get(k, None)
+                return value if value is not None else float('-inf' if reverse else 'inf')
+    else:
+        def nested_key(item):
+            return item.get(field, float('-inf' if reverse else 'inf'))
+    
+    return sort_array(response_data, algorithm=algorithm, key=nested_key, reverse=reverse)
+
+# Usage
+api_response = [
+    {"user": {"name": "Alice", "age": 30}, "posts": 15},
+    {"user": {"name": "Bob", "age": 25}, "posts": 20},
+    {"user": {"name": "Charlie", "age": 35}, "posts": 10}
+]
+
+config = {"field": "user.age", "order": "desc", "algorithm": "quick"}
+sorted_users = process_api_response(api_response, config)
+```
+
+## Conclusion
+
+This comprehensive documentation covers:
+
+1. **Multiple sorting algorithms** with different characteristics
+2. **Performance trade-offs** to help choose the right algorithm
+3. **Real-world usage examples** demonstrating practical applications
+4. **Best practices** for robust and efficient sorting
+5. **Testing strategies** to ensure correctness
+6. **Error handling** for production reliability
+
+For most use cases, Python's built-in `sorted()` function or `list.sort()` (which uses Tim Sort) is the optimal choice. However, understanding these fundamental algorithms is valuable for:
+
+- Educational purposes
+- Specialized requirements
+- Performance optimization in specific scenarios
+- Building custom sorting solutions
+
+The provided implementations balance clarity with efficiency, making them suitable for both learning and practical application.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[2025-12-08T14:35:31.633Z] Executing: stigmergy call "claude analyze the security of the authentication function"
+  Status: null, Time: 311845ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'gemini create JSDoc for a JavaScript function that validates email addresses'
+]
+[CALL] Routing to gemini: create JSDoc for a JavaScript function that validates email addresses
+[DEBUG] Tool path: gemini, Prompt: create JSDoc for a JavaScript function that validates email addresses
+[WARN] gemini exited with code 1
+
+  STDERR:
+Authentication timed out after 5 minutes. The browser tab may have gotten stuck in a loading state. Please try again or use NO_BROWSER=true for manual authentication.
+
+  ---
+
+  Status: null, Time: 71965ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli write a Python function to handle user authentication'
+]
+[CALL] Routing to qodercli: write a Python function to handle user authentication
+[DEBUG] Tool path: qodercli, Prompt: write a Python function to handle user authentication
+I have successfully created a Python function to handle user authentication. The implementation includes:
+
+1. **Secure Password Handling**: Uses PBKDF2 with SHA-256 and 100,000 iterations for password hashing
+2. **Protection Against Timing Attacks**: Uses constant-time comparison for password verification
+3. **User Registration**: Validates username/password requirements and securely stores credentials
+4. **User Authentication**: Verifies credentials and generates secure session tokens
+5. **Security Features**:
+   - Salted password hashing to prevent rainbow table attacks
+   - Does not reveal if a username exists to prevent enumeration attacks
+   - Validates input parameters
+
+The key files created:
+- `user_auth.py`: Contains the authentication functions (`authenticate_user`, `register_user`, and helper `hash_password`)
+- `auth_example.py`: Demonstrates how to use the authentication functions
+
+The implementation follows security best practices and integrates well with the existing Stigmergy CLI system. The example shows how to register users, authenticate them, and handle failed authentication attempts.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[2025-12-08T14:36:33.664Z] Executing: stigmergy call "gemini suggest performance improvements for the function"
+  Status: null, Time: 106233ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude analyze the security of the authentication function'
+]
+[CALL] Routing to claude: analyze the security of the authentication function
+[DEBUG] Tool path: claude, Prompt: analyze the security of the authentication function
+## Security Analysis Report: Authentication Function
+
+Based on my analysis of the authentication system in your codebase, here's a comprehensive security assessment:
+
+### ✅ **Security Strengths**
+
+1. **Strong Password Hashing**
+   - Uses PBKDF2 with SHA-256 (`auth.js:137-143`, `auth.py:139-142`)
+   - 100,000 iterations - good resistance against brute force attacks
+   - Proper salt generation using cryptographically secure random bytes
+
+2. **Secure Session Token Generation**
+   - Uses `crypto.randomBytes(32)` with base64url encoding (`auth.js:89`)
+   - Python version uses `secrets.token_urlsafe(32)` (`auth.py:89`)
+   - Sufficient entropy (256 bits) for session tokens
+
+3. **Timing Attack Protection**
+   - Python version uses `hmac.compare_digest()` for password comparison (`auth.py:85`)
+   - Prevents timing-based side channel attacks
+
+### 🔒 **Security Vulnerabilities**
+
+#### **Critical Issues**
+
+1. **Insecure Storage of Sensitive Data** (`auth_command.js`)
+   - User credentials stored in plaintext JSON file (`~/.stigmergy/auth.json`)
+   - Session tokens stored in plaintext file (`~/.stigmergy/session.token`)
+   - No encryption or access control protections
+
+2. **No Session Expiration** (`auth.js:104-111`, `auth.py:97-111`)
+   - Session tokens remain valid indefinitely
+   - No timeout or inactivity detection
+   - Increases risk of session hijacking
+
+3. **Missing Input Validation**
+   - No protection against SQL injection (if database is added later)
+   - Username validation allows potentially dangerous characters
+   - No rate limiting for authentication attempts
+
+#### **Medium Risk Issues**
+
+4. **In-Memory Storage** (`auth.js:27-28`, `auth.py:25-26`)
+   - User data stored in memory during runtime
+   - Data loss on application restart
+   - Not production-ready for multi-user environments
+
+5. **Error Information Leakage** (`auth_command.js:138-139`)
+   - Generic error messages could be improved
+   - Different error paths could reveal username existence
+
+6. **No Account Lockout**
+   - No protection against brute force attacks
+   - No failed attempt tracking or rate limiting
+
+#### **Low Risk Issues**
+
+7. **Insufficient Password Policy**
+   - Only length validation (minimum 8 characters)
+   - No complexity requirements (special characters, numbers, etc.)
+
+8. **No Logging/Auditing**
+   - No security event logging
+   - No audit trail for authentication attempts
+
+### 📋 **Recommendations**
+
+#### **Immediate Actions Required**
+
+1. **Encrypt Stored Data**
+   - Use AES-256 encryption for the auth.json file
+   - Implement proper file permissions (600 on Unix)
+   - Consider using system keychain/storage
+
+2. **Add Session Management**
+   - Implement session expiration (e.g., 24-hour timeout)
+   - Add session refresh capability
+   - Store session creation timestamps
+
+3. **Implement Rate Limiting**
+   - Limit authentication attempts per IP/user
+   - Add account lockout after failed attempts
+   - Implement exponential backoff
+
+4. **Strengthen Password Policy**
+   - Require complexity (uppercase, lowercase, numbers, special chars)
+   - Check against common password lists
+   - Implement password strength meter
+
+#### **Long-term Improvements**
+
+5. **Database Integration**
+   - Replace in-memory storage with secure database
+   - Use parameterized queries to prevent SQL injection
+   - Implement proper user management system
+
+6. **Add Security Headers**
+   - If web-based, implement CSRF protection
+   - Add security headers (HSTS, X-Frame-Options, etc.)
+
+7. **Implement Multi-Factor Authentication**
+   - Add TOTP or SMS-based 2FA
+   - Provide backup codes for recovery
+
+### 🚨 **Overall Risk Assessment: MEDIUM-HIGH**
+
+The authentication system has good cryptographic foundations but significant operational security flaws that make it unsuitable for production use without addressing the storage and session management issues.
+
+**Priority**: Address the critical storage and session expiration issues before any production deployment.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] Collaboration - Code Review Workflow
+[2025-12-08T14:37:35.707Z] Executing: stigmergy call "qwen generate a Java implementation of a calculator class"
+  TIMEOUT after 60000ms
+  ---
+
+[2025-12-08T14:38:37.752Z] Executing: stigmergy call "copilot create a C# version of the same calculator"
+  Status: null, Time: 67710ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qwen generate a Java implementation of a calculator class'
+]
+[CALL] Routing to qwen: generate a Java implementation of a calculator class
+[DEBUG] Tool path: qwen, Prompt: generate a Java implementation of a calculator class
+I'll help you create a Java implementation of a calculator class. Let me start by organizing the task and then implementing it.
+
+Now I'll create the Java Calculator class with the basic arithmetic operations:
+
+I need permission to create the file. Let me use the edit tool instead to create the Calculator class:
+
+I'll create the Calculator.java file in the current directory with your permission:
+
+I understand that I need permission to create files in this directory. Instead of trying to create a new file, I'll show you the complete Java Calculator class code that you can copy and paste into your own .java file. Let me mark the first task as completed and update the status:
+
+Here's the complete Java Calculator class implementation that you can copy and paste into a file named `Calculator.java`:
+
+```java
+/**
+ * 计算器类 - 提供基本的数学运算功能
+ */
+public class Calculator {
+    
+    /**
+     * 加法运算
+     * @param a 第一个操作数
+     * @param b 第二个操作数
+     * @return 两数之和
+     */
+    public double add(double a, double b) {
+        return a + b;
+    }
+    
+    /**
+     * 减法运算
+     * @param a 被减数
+     * @param b 减数
+     * @return 两数之差
+     */
+    public double subtract(double a, double b) {
+        return a - b;
+    }
+    
+    /**
+     * 乘法运算
+     * @param a 第一个操作数
+     * @param b 第二个操作数
+     * @return 两数之积
+     */
+    public double multiply(double a, double b) {
+        return a * b;
+    }
+    
+    /**
+     * 除法运算
+     * @param a 被除数
+     * @param b 除数
+     * @return 两数之商
+     * @throws ArithmeticException 当除数为零时抛出异常
+     */
+    public double divide(double a, double b) {
+        if (b == 0) {
+            throw new ArithmeticException("错误：不能被零除");
+        }
+        return a / b;
+    }
+    
+    /**
+     * 幂运算
+     * @param base 底数
+     * @param exponent 指数
+     * @return 幂运算结果
+     */
+    public double power(double base, double exponent) {
+        return Math.pow(base, exponent);
+    }
+    
+    /**
+     * 平方根运算
+     * @param a 操作数
+     * @return 平方根值
+     * @throws ArithmeticException 当操作数为负数时抛出异常
+     */
+    public double sqrt(double a) {
+        if (a < 0) {
+            throw new ArithmeticException("错误：不能计算负数的平方根");
+        }
+        return Math.sqrt(a);
+    }
+    
+    /**
+     * 求余运算
+     * @param a 被除数
+     * @param b 除数
+     * @return 余数
+     * @throws ArithmeticException 当除数为零时抛出异常
+     */
+    public double modulo(double a, double b) {
+        if (b == 0) {
+            throw new ArithmeticException("错误：不能对零取余");
+        }
+        return a % b;
+    }
+    
+    /**
+     * 计算阶乘
+     * @param n 操作数（必须为非负整数）
+     * @return 阶乘结果
+     * @throws ArithmeticException 当操作数为负数或不是整数时抛出异常
+     */
+    public long factorial(int n) {
+        if (n < 0) {
+            throw new ArithmeticException("错误：不能计算负数的阶乘");
+        }
+        if (n > 20) { // 防止结果过大
+            throw new ArithmeticException("错误：输入值过大，可能导致溢出");
+        }
+        
+        long result = 1;
+        for (int i = 1; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+}
+```
+
+And here's a demonstration class that shows how to use the calculator:
+
+```java
+/**
+ * 计算器测试类 - 演示计算器的功能
+ */
+public class CalculatorDemo {
+    public static void main(String[] args) {
+        Calculator calc = new Calculator();
+        
+        System.out.println("=== 计算器演示 ===");
+        
+        // 基本运算测试
+        System.out.println("加法: 10 + 5 = " + calc.add(10, 5));
+        System.out.println("减法: 10 - 5 = " + calc.subtract(10, 5));
+        System.out.println("乘法: 10 * 5 = " + calc.multiply(10, 5));
+        System.out.println("除法: 10 / 5 = " + calc.divide(10, 5));
+        
+        // 其他运算测试
+        System.out.println("幂运算: 2^3 = " + calc.power(2, 3));
+        System.out.println("平方根: √16 = " + calc.sqrt(16));
+        System.out.println("取余: 10 % 3 = " + calc.modulo(10, 3));
+        System.out.println("阶乘: 5! = " + calc.factorial(5));
+        
+        // 错误处理演示
+        try {
+            System.out.println("除以零测试: 10 / 0 = " + calc.divide(10, 0));
+        } catch (ArithmeticException e) {
+            System.out.println("捕获到异常: " + e.getMessage());
+        }
+        
+        try {
+            System.out.println("负数平方根测试: √(-4) = " + calc.sqrt(-4));
+        } catch (ArithmeticException e) {
+            System.out.println("捕获到异常: " + e.getMessage());
+        }
+        
+        try {
+            System.out.println("负数阶乘测试: (-3)! = " + calc.factorial(-3));
+        } catch (ArithmeticException e) {
+            System.out.println("捕获到异常: " + e.getMessage());
+        }
+    }
+}
+```
+
+To compile and run this code:
+1. Save the first class as `Calculator.java`
+2. Save the second class as `CalculatorDemo.java`
+3. Compile using: `javac Calculator.java CalculatorDemo.java`
+4. Run using: `java CalculatorDemo`
+
+The calculator includes:
+- Basic operations: addition, subtraction, multiplication, division
+- Advanced operations: power, square root, modulo, factorial
+- Proper error handling for mathematical errors
+- Comprehensive Chinese documentation
+- A demonstration program showing all features
+
+  ---
+
+  Status: 0, Time: 10284ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'copilot create a C# version of the same calculator'
+]
+[CALL] Routing to qodercli: r
+[DEBUG] Tool path: qodercli, Prompt: r
+I'll help you with the stigmergy-CLI-Multi-Agents project. Could you please specify what you'd like me to do with this project? For example, are you looking to:
+
+1. Understand how to use the CLI tools collaboration system
+2. Set up the development environment
+3. Add a new AI tool adapter
+4. Debug an issue with the system
+5. Something else?
+
+Please let me know what specific task you'd like me to help with.
+
+  ---
+
+[2025-12-08T14:38:50.042Z] Executing: stigmergy call "codex write a JavaScript equivalent of the calculator"
+  Status: null, Time: 372891ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codebuddy write documentation for a function that encrypts data'
+]
+[CALL] Routing to qodercli: buddy write documentation for a function that encrypts data
+[DEBUG] Tool path: qodercli, Prompt: buddy write documentation for a function that encrypts data
+Perfect! I have successfully completed the following tasks:
+
+1. Created encryption functions (`encryptData`, `decryptData`, and `generateKey`) and added them to `src/utils.js`
+2. Created comprehensive documentation in `DATA_ENCRYPTION_DOCS.md` explaining how to use these functions
+3. Created an example file in `examples/encryption-example.js` demonstrating usage
+4. Created a test file in `test/encryption-simple-test.js` to verify functionality
+5. Verified that all functions work correctly with various data types including Unicode characters
+
+The encryption functions provide secure AES-256-GCM authenticated encryption with proper error handling and follow security best practices. The documentation explains how to use the functions safely with important security considerations.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] Collaboration - Multi-language Implementation
+[2025-12-08T14:39:52.103Z] Executing: stigmergy call "iflow write a complex algorithm in Python"
+  Status: null, Time: 110691ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codex write a JavaScript equivalent of the calculator'
+]
+[CALL] Routing to qodercli: x write a JavaScript equivalent of the calculator
+[DEBUG] Tool path: qodercli, Prompt: x write a JavaScript equivalent of the calculator
+I have successfully created a JavaScript equivalent of the calculator. Here's what I've implemented:
+
+1. **javascript-calculator.js** - A functional JavaScript implementation that mirrors all the features of the original Calculator class:
+   - All basic arithmetic operations (add, subtract, multiply, divide)
+   - Advanced math functions (power, sqrt, factorial, percentage)
+   - Utility functions (max, min, fibonacci, fibonacciSequence, circleCircumference)
+   - Calculation chaining capability with fluent API
+
+2. **Test files** to verify functionality:
+   - `test-javascript-calculator.js` - Basic functionality verification
+   - `compare-calculators.js` - Comprehensive comparison test against the original Calculator class
+
+3. **Documentation** in `JAVASCRIPT_CALCULATOR.md` explaining the implementation and usage.
+
+The implementation has been thoroughly tested and produces identical results to the original Calculator class for all operations, including error handling. The calculator supports the same API and can be used in the same way as the class-based version, but as a functional JavaScript object.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[2025-12-08T14:40:54.135Z] Executing: stigmergy call "codebuddy generate unit tests for the algorithm"
+  Status: null, Time: 312428ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'gemini suggest performance improvements for the function'
+]
+[CALL] Routing to gemini: suggest performance improvements for the function
+[DEBUG] Tool path: gemini, Prompt: suggest performance improvements for the function
+[WARN] gemini exited with code 1
+
+  STDERR:
+Authentication timed out after 5 minutes. The browser tab may have gotten stuck in a loading state. Please try again or use NO_BROWSER=true for manual authentication.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[2025-12-08T14:41:56.182Z] Executing: stigmergy call "qodercli create comprehensive documentation for the algorithm"
+  Status: null, Time: 106976ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'codebuddy generate unit tests for the algorithm'
+]
+[CALL] Routing to qodercli: buddy generate unit tests for the algorithm
+[DEBUG] Tool path: qodercli, Prompt: buddy generate unit tests for the algorithm
+I've successfully created comprehensive unit tests for the algorithm functions in the Calculator class. Here's what I accomplished:
+
+1. Created a new test file `tests/unit/calculator-algorithms.test.js` that includes:
+   - Tests for the Fibonacci functions (`fibonacci` and `fibonacciSequence`)
+   - Tests for the `circleCircumference` function
+   - Tests for advanced algorithm combinations using chained calculations
+
+2. The tests cover:
+   - Normal use cases for all functions
+   - Edge cases and error conditions
+   - Complex scenarios combining multiple algorithms
+
+3. All tests are passing successfully, verifying that:
+   - Fibonacci functions correctly calculate the sequence values
+   - Proper errors are thrown for invalid inputs (negative numbers, non-integers)
+   - Circle circumference calculations work correctly with proper error handling for negative radii
+   - Chained calculations work properly with algorithm functions
+
+The test file follows the existing project patterns and integrates seamlessly with the current test suite. All 10 tests in the new file are passing, and the functionality is thoroughly validated.
+
+  ---
+
+  Status: 0, Time: 50925ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'qodercli create comprehensive documentation for the algorithm'
+]
+[CALL] Routing to qodercli: create comprehensive documentation for the algorithm
+[DEBUG] Tool path: qodercli, Prompt: create comprehensive documentation for the algorithm
+I've created comprehensive documentation for the key algorithms in the Stigmergy CLI - Multi-Agents system. The documentation covers:
+
+1. **QuickSort Algorithm** - Detailed explanation of the implementation, including both functional and in-place versions, time/space complexities, and usage examples.
+
+2. **Calculator Algorithms** - Documentation of all mathematical operations including basic arithmetic, advanced functions like factorial and Fibonacci sequences, and chained calculations with their respective complexities.
+
+3. **HashTable Data Structure** - In-depth coverage of the implementation with two collision resolution strategies (chaining and open addressing), hash functions, dynamic resizing, and performance characteristics.
+
+The documentation includes implementation details, usage examples, and complexity analysis for each algorithm to help developers understand and use these components effectively.
+
+  ---
+
+[FAIL] Collaboration - Documentation and Testing
+[2025-12-08T14:42:49.127Z] Executing: stigmergy call "xyz generate a function to add two numbers"
+  Status: 0, Time: 11775ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'xyz generate a function to add two numbers'
+]
+[CALL] Routing to qodercli: add two numbers
+[DEBUG] Tool path: qodercli, Prompt: add two numbers
+2 + 2 = 4
+
+  ---
+
+[FAIL] Error Handling - Invalid Tool
+[2025-12-08T14:43:00.903Z] Executing: stigmergy call "claude "
+  TIMEOUT after 30000ms
+  ---
+
+[PASS] Error Handling - Malformed Input
+[2025-12-08T14:43:30.927Z] Executing: stigmergy call "gemini analyze code with special chars: 
+	\"'"
+  Status: null, Time: 30962ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude '
+]
+[CALL] Routing to claude: 
+[DEBUG] Tool path: claude, Prompt: 
+[WARN] claude exited with code 1
+
+  STDERR:
+Error: Input must be provided either through stdin or as a prompt argument when using --print
+
+  ---
+
+  TIMEOUT after 30000ms
+  ---
+
+[PASS] Error Handling - Special Characters
+[2025-12-08T14:44:00.966Z] Executing: stigmergy call "claude very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt very long prompt "
+  Status: 1, Time: 46ms
+  STDERR:
+������̫����
+
+  ---
+
+[PASS] Error Handling - Extremely Long Input
+[2025-12-08T14:44:01.014Z] Executing: stigmergy call "claude write a simple function to add two numbers"
+  TIMEOUT after 30000ms
+  ---
+
+[2025-12-08T14:44:31.036Z] Executing: node -e "const fs = require('fs'); const path = require('path'); const memPath = path.join(process.cwd(), 'STIGMERGY.md'); console.log(fs.existsSync(memPath) ? 'Memory file exists' : 'Memory file missing')"
+  Status: 0, Time: 82ms
+  STDOUT:
+Memory file exists
+
+  ---
+
+[PASS] Advanced Features - Memory Management
+[2025-12-08T14:44:31.119Z] Executing: stigmergy call "write a Python function to authenticate users"
+  Status: null, Time: 56055ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\Users\\WIN10\\AppData\\Roaming\\npm\\node_modules\\stigmergy\\src\\main_english.js',
+  'call',
+  'claude write a simple function to add two numbers'
+]
+[CALL] Routing to claude: write a simple function to add two numbers
+[DEBUG] Tool path: claude, Prompt: write a simple function to add two numbers
+Here's a simple function to add two numbers:
+
+```javascript
+/**
+ * Add two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} The sum of a and b
+ */
+function add(a, b) {
+  return a + b;
+}
+```
+
+Since I need permissions to modify the existing utils.js file, here are a few ways you can use this function:
+
+1. **Add it to utils.js**: You can manually add this function to `src/utils.js` and export it in the module.exports
+2. **Create a separate file**: Create a new file called `math.js` with the function
+3. **Use it directly**: Just copy the function wherever you need it
+
+The function takes two numeric parameters and returns their sum. It includes JSDoc comments for documentation and follows the same pattern as the other utility functions in your codebase.
+
+  ---
+
+  TIMEOUT after 30000ms
+  ---
+
+[FAIL] Advanced Features - Smart Routing

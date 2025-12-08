@@ -1,0 +1,322 @@
+Stigmergy CLI End-to-End Test Log
+Started at: 2025-12-08T10:11:32.567Z
+================================================================================
+
+[2025-12-08T10:11:32.579Z] Executing: node src/main_english.js call "claude write a simple Python function to add two numbers"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] Claude CLI - Simple Code Generation
+[2025-12-08T10:12:17.607Z] Executing: node src/main_english.js call "claude implement a binary search algorithm in Python with proper error handling"
+  Status: null, Time: 58853ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\stigmergy-CLI-Multi-Agents\\src\\main_english.js',
+  'call',
+  'claude write a simple Python function to add two numbers'
+]
+[CALL] Routing to claude: write a simple Python function to add two numbers
+[DEBUG] Tool path: claude, Prompt: write a simple Python function to add two numbers
+Here's a simple Python function to add two numbers:
+
+```python
+def add_numbers(a, b):
+    """
+    Adds two numbers together.
+
+    Args:
+        a (int or float): The first number
+        b (int or float): The second number
+
+    Returns:
+        int or float: The sum of a and b
+    """
+    return a + b
+
+# Example usage
+if __name__ == "__main__":
+    # Test cases
+    result1 = add_numbers(5, 3)
+    result2 = add_numbers(2.5, 1.5)
+    result3 = add_numbers(-1, 4)
+
+    print(f"5 + 3 = {result1}")
+    print(f"2.5 + 1.5 = {result2}")
+    print(f"-1 + 4 = {result3}")
+```
+
+This function:
+- Takes two parameters `a` and `b` that can be integers or floats
+- Returns their sum using the `+` operator
+- Includes a docstring with documentation
+- Has example usage that demonstrates the function with different types of numbers
+
+The function works with both integers and floating-point numbers, making it versatile for basic arithmetic operations.
+
+  ---
+
+  TIMEOUT after 60000ms
+  ---
+
+[FAIL] Claude CLI - Complex Algorithm Implementation
+[2025-12-08T10:13:17.633Z] Executing: node src/main_english.js call "claude analyze this Python code for potential security vulnerabilities: def login(user, password): if user == "admin" and password == "123456": return True"
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] Claude CLI - Code Analysis and Review
+[2025-12-08T10:14:02.658Z] Executing: node src/main_english.js call "claude generate documentation for a Python function that sorts arrays"
+  Status: null, Time: 79863ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\stigmergy-CLI-Multi-Agents\\src\\main_english.js',
+  'call',
+  'claude analyze this Python code for potential security vulnerabilities: def login(user, password): if user == admin and password == 123456: return True'
+]
+[CALL] Routing to claude: analyze this Python code for potential security vulnerabilities: def login(user, password): if user == admin and password == 123456: return True
+[DEBUG] Tool path: claude, Prompt: analyze this Python code for potential security vulnerabilities: def login(user, password): if user == admin and password == 123456: return True
+Looking at this Python login function, I've identified several critical security vulnerabilities:
+
+## Critical Security Issues
+
+### 1. Hardcoded Credentials (CRITICAL)
+```python
+if user == admin and password == 123456:
+```
+- Username `admin` is undefined (will cause NameError)
+- Password `123456` is hardcoded and extremely weak
+- Credentials should never be stored in plaintext in code
+
+### 2. Plaintext Password Storage (CRITICAL)
+- No password hashing or encryption
+- Passwords are compared in plaintext
+- Violates all security best practices
+
+### 3. Basic Logic Flaw (HIGH)
+- Missing string quotes around `admin`
+- Function will crash with `NameError: name 'admin' is not defined`
+
+## Secure Implementation Recommendation
+
+```python
+import bcrypt
+import hashlib
+
+def verify_password(plain_password, hashed_password):
+    """Verify a password against its hash."""
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def login(user, password, users_db):
+    """Secure login function with database integration."""
+    try:
+        # Get stored user data from database
+        user_data = users_db.get_user(user)
+        if not user_data:
+            return False
+            
+        # Verify the password against stored hash
+        return verify_password(password, user_data['password_hash'])
+        
+    except Exception as e:
+        # Log security events
+        security_log.log_login_attempt(user, False, str(e))
+        return False
+```
+
+## Security Best Practices Needed
+
+1. **Use strong password hashing** (bcrypt, Argon2)
+2. **Implement rate limiting** to prevent brute force attacks
+3. **Add account lockout** after failed attempts
+4. **Use secure database** for credential storage
+5. **Implement audit logging** for security events
+6. **Add input validation** and sanitization
+
+The current code is production-insecure and should never be deployed.
+
+  ---
+
+  Status: null, Time: 143346ms
+  STDOUT:
+[DEBUG] Stigmergy CLI script started...
+[DEBUG] Main function called with args: [
+  'C:\\Program Files\\nodejs\\node.exe',
+  'C:\\stigmergy-CLI-Multi-Agents\\src\\main_english.js',
+  'call',
+  'claude implement a binary search algorithm in Python with proper error handling'
+]
+[CALL] Routing to claude: implement a binary search algorithm in Python with proper error handling
+[DEBUG] Tool path: claude, Prompt: implement a binary search algorithm in Python with proper error handling
+Here's a binary search algorithm implementation in Python with comprehensive error handling:
+
+```python
+def binary_search(arr, target):
+    """
+    Perform binary search on a sorted array.
+
+    Args:
+        arr (list): A sorted list of comparable elements
+        target: The element to search for
+
+    Returns:
+        int: Index of the target element if found, -1 otherwise
+
+    Raises:
+        TypeError: If arr is not a list or elements are not comparable
+        ValueError: If the array is not sorted
+    """
+    # Error handling for input validation
+    if not isinstance(arr, list):
+        raise TypeError("Input must be a list")
+
+    if not arr:
+        return -1  # Empty array, target not found
+
+    # Check if array is sorted (both ascending and descending)
+    is_ascending = all(arr[i] <= arr[i + 1] for i in range(len(arr) - 1))
+    is_descending = all(arr[i] >= arr[i + 1] for i in range(len(arr) - 1))
+
+    if not (is_ascending or is_descending):
+        raise ValueError("Array must be sorted in ascending or descending order")
+
+    # Check if target can be compared with array elements
+    try:
+        arr[0] < target or arr[0] > target
+    except TypeError:
+        raise TypeError("Target must be comparable with array elements")
+
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        if arr[mid] == target:
+            return mid
+
+        if is_ascending:
+            if arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        else:  # descending order
+            if arr[mid] > target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+    return -1
+
+
+def binary_search_with_wrapper(arr, target):
+    """
+    Wrapper function that provides additional error handling and user-friendly messages.
+
+    Args:
+        arr (list): A sorted list of comparable elements
+        target: The element to search for
+
+    Returns:
+        tuple: (index: int, message: str)
+    """
+    try:
+        index = binary_search(arr, target)
+        if index != -1:
+            return (index, f"Target {target} found at index {index}")
+        else:
+            return (-1, f"Target {target} not found in the array")
+    except TypeError as e:
+        return (-1, f"Type Error: {e}")
+    except ValueError as e:
+        return (-1, f"Value Error: {e}")
+    except Exception as e:
+        return (-1, f"Unexpected Error: {e}")
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    # Test cases
+    test_cases = [
+        # Normal cases
+        ([1, 3, 5, 7, 9, 11, 13], 7),  # Middle element
+        ([1, 2, 3, 4, 5], 1),          # First element
+        ([1, 2, 3, 4, 5], 5),          # Last element
+        ([1, 2, 3, 4, 5], 6),          # Not found
+
+        # Descending order
+        ([9, 7, 5, 3, 1], 5),          # Middle element in descending
+
+        # Edge cases
+        ([], 5),                        # Empty array
+        ([42], 42),                     # Single element, found
+        ([42], 43),                     # Single element, not found
+
+        # Different data types
+        (["apple", "banana", "cherry"], "banana"),  # Strings
+        ([1.1, 2.2, 3.3, 4.4], 3.3),             # Floats
+    ]
+
+    print("Binary Search Algorithm Testing")
+    print("=" * 40)
+
+    for arr, target in test_cases:
+        index, message = binary_search_with_wrapper(arr, target)
+        print(f"Array: {arr}")
+        print(f"Target: {target}")
+        print(f"Result: {message}")
+        print("-" * 40)
+
+    # Test error cases
+    print("\nError Handling Tests")
+    print("=" * 40)
+
+    # Unsorted array
+    unsorted_arr = [3, 1, 4, 1, 5]
+    index, message = binary_search_with_wrapper(unsorted_arr, 4)
+    print(f"Unsorted Array: {unsorted_arr}")
+    print(f"Result: {message}")
+    print("-" * 40)
+
+    # Non-list input
+    index, message = binary_search_with_wrapper("not a list", 5)
+    print(f"Non-list Input: 'not a list'")
+    print(f"Result: {message}")
+    print("-" * 40)
+
+    # Incompatible types
+    index, message = binary_search_with_wrapper([1, 2, 3], "string")
+    print(f"Array: [1, 2, 3], Target: 'string'")
+    print(f"Result: {message}")
+    print("-" * 40)
+```
+
+## Key Features:
+
+1. **Input Validation**:
+   - Checks if input is a list
+   - Validates array is sorted (ascending or descending)
+   - Ensures target is comparable with array elements
+
+2. **Error Handling**:
+   - `TypeError` for invalid input types
+   - `ValueError` for unsorted arrays
+   - Generic exception handling in wrapper function
+
+3. **Functionality**:
+   - Works with both ascending and descending sorted arrays
+   - Supports various data types (integers, floats, strings)
+   - Returns -1 if target not found
+   - Provides user-friendly error messages
+
+4. **Time Complexity**: O(log n) - efficient for large datasets
+
+The implementation includes comprehensive test cases demonstrating normal usage, edge cases, and error scenarios.
+
+  ---
+
+  TIMEOUT after 45000ms
+  ---
+
+[FAIL] Claude CLI - Documentation Generation
