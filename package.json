@@ -31,7 +31,7 @@
     "test:conflict-prevention": "node test/conflict-prevention-test.js",
     "post-deployment-config": "node scripts/post-deployment-config.js",
     "preinstall": "node scripts/preinstall-check.js",
-    "postinstall": "echo \"[INFO] Stigmergy CLI is setting up...\" && node src/main_english.js auto-install && echo \"[INFO] Setup completed. Run 'stigmergy --help' to see available commands.\""
+    "postinstall": "node src/main_english.js auto-install"
   },
   "keywords": [
     "ai",
@@ -52,7 +52,7 @@
     "src/**/*.js",
     "config/**/*.json",
     "templates/**/*.md",
-    "bin/**/*.cmd",
+    "bin/**/*",
     "test/**/*.js",
     "scripts/**/*.js",
     "examples/**/*",
@@ -83,7 +83,6 @@
     "glob": "^10.3.10",
     "inquirer": "^8.2.6",
     "js-yaml": "^4.1.0",
-    "node-fetch": "^2.6.7",
     "ora": "^5.4.1",
     "os": "^0.1.2",
     "path": "^0.12.7",
