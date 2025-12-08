@@ -9,10 +9,10 @@ class RestClient {
    * @param {string} baseURL - The base URL for API requests
    * @param {Object} defaultHeaders - Default headers to include in all requests
    */
-  constructor(baseURL = "", defaultHeaders = {}) {
+  constructor(baseURL = '', defaultHeaders = {}) {
     this.baseURL = baseURL;
     this.defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...defaultHeaders,
     };
   }
@@ -33,7 +33,7 @@ class RestClient {
     // Add query parameters
     if (Object.keys(params).length > 0) {
       const queryParams = new URLSearchParams(params);
-      fullURL += (fullURL.includes("?") ? "&" : "?") + queryParams.toString();
+      fullURL += (fullURL.includes('?') ? '&' : '?') + queryParams.toString();
     }
 
     // Merge headers
@@ -50,17 +50,17 @@ class RestClient {
     };
 
     // Add body for methods that support it
-    if (body && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    if (body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
       fetchOptions.body =
-        typeof body === "object" ? JSON.stringify(body) : body;
+        typeof body === 'object' ? JSON.stringify(body) : body;
     }
 
     try {
       const response = await fetch(fullURL, fetchOptions);
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers.get('content-type');
 
       let data;
-      if (contentType && contentType.includes("application/json")) {
+      if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
         data = await response.text();
@@ -88,7 +88,7 @@ class RestClient {
    * @returns {Promise<Object>} Response data
    */
   async get(url, options = {}) {
-    return this.request("GET", url, options);
+    return this.request('GET', url, options);
   }
 
   /**
@@ -99,7 +99,7 @@ class RestClient {
    * @returns {Promise<Object>} Response data
    */
   async post(url, data, options = {}) {
-    return this.request("POST", url, { ...options, body: data });
+    return this.request('POST', url, { ...options, body: data });
   }
 
   /**
@@ -110,7 +110,7 @@ class RestClient {
    * @returns {Promise<Object>} Response data
    */
   async put(url, data, options = {}) {
-    return this.request("PUT", url, { ...options, body: data });
+    return this.request('PUT', url, { ...options, body: data });
   }
 
   /**
@@ -121,7 +121,7 @@ class RestClient {
    * @returns {Promise<Object>} Response data
    */
   async patch(url, data, options = {}) {
-    return this.request("PATCH", url, { ...options, body: data });
+    return this.request('PATCH', url, { ...options, body: data });
   }
 
   /**
@@ -131,7 +131,7 @@ class RestClient {
    * @returns {Promise<Object>} Response data
    */
   async delete(url, options = {}) {
-    return this.request("DELETE", url, options);
+    return this.request('DELETE', url, options);
   }
 
   /**
@@ -150,7 +150,7 @@ class RestClient {
    * @param {string} token - Authorization token
    * @param {string} type - Authorization type (Bearer, Basic, etc.)
    */
-  setAuthorization(token, type = "Bearer") {
+  setAuthorization(token, type = 'Bearer') {
     this.setDefaultHeaders({
       Authorization: `${type} ${token}`,
     });

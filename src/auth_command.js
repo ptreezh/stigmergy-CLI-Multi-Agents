@@ -3,9 +3,9 @@
  * Provides CLI commands for user registration, login, and session management.
  */
 
-const fs = require("fs");
-const path = require("path");
-const { UserAuthenticator, authenticateAndGetToken } = require("./auth");
+const fs = require('fs');
+const path = require('path');
+const { UserAuthenticator, authenticateAndGetToken } = require('./auth');
 
 /**
  * Get the path to the authentication data file.
@@ -13,14 +13,14 @@ const { UserAuthenticator, authenticateAndGetToken } = require("./auth");
  */
 function getAuthDataPath() {
   const homeDir = process.env.HOME || process.env.USERPROFILE;
-  const configDir = path.join(homeDir, ".stigmergy");
+  const configDir = path.join(homeDir, '.stigmergy');
 
   // Create config directory if it doesn't exist
   if (!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir, { recursive: true });
   }
 
-  return path.join(configDir, "auth.json");
+  return path.join(configDir, 'auth.json');
 }
 
 /**
@@ -31,7 +31,7 @@ function loadAuthData(authenticator) {
   try {
     const authFile = getAuthDataPath();
     if (fs.existsSync(authFile)) {
-      const data = JSON.parse(fs.readFileSync(authFile, "utf8"));
+      const data = JSON.parse(fs.readFileSync(authFile, 'utf8'));
 
       // Load users
       if (data.users) {
@@ -48,7 +48,7 @@ function loadAuthData(authenticator) {
       }
     }
   } catch (error) {
-    console.warn("[WARN] Could not load authentication data:", error.message);
+    console.warn('[WARN] Could not load authentication data:', error.message);
   }
 }
 
@@ -78,7 +78,7 @@ function saveAuthData(authenticator) {
 
     fs.writeFileSync(authFile, JSON.stringify(data, null, 2));
   } catch (error) {
-    console.warn("[WARN] Could not save authentication data:", error.message);
+    console.warn('[WARN] Could not save authentication data:', error.message);
   }
 }
 
@@ -128,11 +128,11 @@ function handleLogin(username, password) {
     // Also save the token to a session file for easy access
     const sessionFile = path.join(
       path.dirname(getAuthDataPath()),
-      "session.token",
+      'session.token',
     );
     fs.writeFileSync(sessionFile, token);
 
-    console.log(`[SUCCESS] Login successful`);
+    console.log('[SUCCESS] Login successful');
     console.log(`Session token: ${token}`);
   } else {
     console.log(`[ERROR] Login failed: ${result}`);
@@ -150,23 +150,23 @@ function handleLogout() {
   // Read the current session token
   const sessionFile = path.join(
     path.dirname(getAuthDataPath()),
-    "session.token",
+    'session.token',
   );
 
   if (!fs.existsSync(sessionFile)) {
-    console.log(`[ERROR] No active session found`);
+    console.log('[ERROR] No active session found');
     process.exit(1);
   }
 
-  const token = fs.readFileSync(sessionFile, "utf8").trim();
+  const token = fs.readFileSync(sessionFile, 'utf8').trim();
 
   const success = authenticator.logout(token);
   if (success) {
     saveAuthData(authenticator);
     fs.unlinkSync(sessionFile); // Remove the session file
-    console.log(`[SUCCESS] Logged out successfully`);
+    console.log('[SUCCESS] Logged out successfully');
   } else {
-    console.log(`[ERROR] Logout failed: Invalid session`);
+    console.log('[ERROR] Logout failed: Invalid session');
     process.exit(1);
   }
 }
@@ -181,21 +181,21 @@ function handleStatus() {
   // Read the current session token
   const sessionFile = path.join(
     path.dirname(getAuthDataPath()),
-    "session.token",
+    'session.token',
   );
 
   if (!fs.existsSync(sessionFile)) {
-    console.log(`[INFO] No active session`);
+    console.log('[INFO] No active session');
     return;
   }
 
-  const token = fs.readFileSync(sessionFile, "utf8").trim();
+  const token = fs.readFileSync(sessionFile, 'utf8').trim();
   const username = authenticator.validateSession(token);
 
   if (username) {
     console.log(`[INFO] Authenticated as: ${username}`);
   } else {
-    console.log(`[INFO] Session expired or invalid`);
+    console.log('[INFO] Session expired or invalid');
     fs.unlinkSync(sessionFile); // Remove the invalid session file
   }
 }

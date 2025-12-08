@@ -3,28 +3,28 @@
  * Provides consistent error handling, logging, and reporting across the application
  */
 
-const fs = require("fs/promises");
-const path = require("path");
-const os = require("os");
-const chalk = require("chalk");
+const fs = require('fs/promises');
+const path = require('path');
+const os = require('os');
+const chalk = require('chalk');
 
 // Error types enumeration
 const ERROR_TYPES = {
-  VALIDATION: "VALIDATION_ERROR",
-  NETWORK: "NETWORK_ERROR",
-  FILE_SYSTEM: "FILE_SYSTEM_ERROR",
-  CLI_TOOL: "CLI_TOOL_ERROR",
-  CONFIGURATION: "CONFIGURATION_ERROR",
-  PERMISSION: "PERMISSION_ERROR",
-  UNKNOWN: "UNKNOWN_ERROR",
+  VALIDATION: 'VALIDATION_ERROR',
+  NETWORK: 'NETWORK_ERROR',
+  FILE_SYSTEM: 'FILE_SYSTEM_ERROR',
+  CLI_TOOL: 'CLI_TOOL_ERROR',
+  CONFIGURATION: 'CONFIGURATION_ERROR',
+  PERMISSION: 'PERMISSION_ERROR',
+  UNKNOWN: 'UNKNOWN_ERROR',
 };
 
 // Log levels enumeration
 const LOG_LEVELS = {
-  ERROR: "ERROR",
-  WARN: "WARN",
-  INFO: "INFO",
-  DEBUG: "DEBUG",
+  ERROR: 'ERROR',
+  WARN: 'WARN',
+  INFO: 'INFO',
+  DEBUG: 'DEBUG',
 };
 
 class StigmergyError extends Error {
@@ -35,7 +35,7 @@ class StigmergyError extends Error {
     details = null,
   ) {
     super(message);
-    this.name = "StigmergyError";
+    this.name = 'StigmergyError';
     this.type = type;
     this.code = code;
     this.details = details;
@@ -50,7 +50,7 @@ class StigmergyError extends Error {
 
 class ErrorHandler {
   constructor() {
-    this.logFile = path.join(os.homedir(), ".stigmergy", "error.log");
+    this.logFile = path.join(os.homedir(), '.stigmergy', 'error.log');
     this.maxLogSize = 10 * 1024 * 1024; // 10MB
   }
 
@@ -81,8 +81,8 @@ class ErrorHandler {
     try {
       const timestamp = new Date().toISOString();
       const errorType = error.type || ERROR_TYPES.UNKNOWN;
-      const errorCode = error.code || "NO_CODE";
-      const errorMessage = error.message || "Unknown error";
+      const errorCode = error.code || 'NO_CODE';
+      const errorMessage = error.message || 'Unknown error';
 
       // Format log entry
       const logEntry = {
@@ -92,41 +92,41 @@ class ErrorHandler {
         code: errorCode,
         message: errorMessage,
         context,
-        stack: error.stack || "No stack trace available",
+        stack: error.stack || 'No stack trace available',
       };
 
       // Console output with enhanced formatting
       const consoleMessage = `[${timestamp}] [${level}] [${errorType}] ${errorMessage}`;
-      const contextMessage = context ? `[CONTEXT] ${context}` : "";
+      const contextMessage = context ? `[CONTEXT] ${context}` : '';
 
       switch (level) {
-        case LOG_LEVELS.ERROR:
-          console.error(chalk.red.bold(consoleMessage));
-          if (contextMessage) console.error(chalk.yellow(contextMessage));
-          if (error.stack) console.error(chalk.gray(error.stack));
-          break;
-        case LOG_LEVELS.WARN:
-          console.warn(chalk.yellow.bold(consoleMessage));
-          if (contextMessage) console.warn(chalk.yellow(contextMessage));
-          break;
-        case LOG_LEVELS.INFO:
-          console.info(chalk.blue(consoleMessage));
-          if (contextMessage) console.info(chalk.gray(contextMessage));
-          break;
-        case LOG_LEVELS.DEBUG:
-          console.debug(chalk.gray(consoleMessage));
-          if (contextMessage) console.debug(chalk.gray(contextMessage));
-          if (error.stack) console.debug(chalk.gray(error.stack));
-          break;
-        default:
-          console.log(chalk.white(consoleMessage));
-          if (contextMessage) console.log(chalk.gray(contextMessage));
+      case LOG_LEVELS.ERROR:
+        console.error(chalk.red.bold(consoleMessage));
+        if (contextMessage) console.error(chalk.yellow(contextMessage));
+        if (error.stack) console.error(chalk.gray(error.stack));
+        break;
+      case LOG_LEVELS.WARN:
+        console.warn(chalk.yellow.bold(consoleMessage));
+        if (contextMessage) console.warn(chalk.yellow(contextMessage));
+        break;
+      case LOG_LEVELS.INFO:
+        console.info(chalk.blue(consoleMessage));
+        if (contextMessage) console.info(chalk.gray(contextMessage));
+        break;
+      case LOG_LEVELS.DEBUG:
+        console.debug(chalk.gray(consoleMessage));
+        if (contextMessage) console.debug(chalk.gray(contextMessage));
+        if (error.stack) console.debug(chalk.gray(error.stack));
+        break;
+      default:
+        console.log(chalk.white(consoleMessage));
+        if (contextMessage) console.log(chalk.gray(contextMessage));
       }
 
       // File logging
       await this.writeToFile(logEntry);
     } catch (logError) {
-      console.error("[ERROR_HANDLER] Failed to log error:", logError.message);
+      console.error('[ERROR_HANDLER] Failed to log error:', logError.message);
     }
   }
 
@@ -144,8 +144,8 @@ class ErrorHandler {
       await this.rotateLogFile();
 
       // Append to log file
-      const logLine = JSON.stringify(logEntry) + "\n";
-      await fs.appendFile(this.logFile, logLine, { encoding: "utf8" });
+      const logLine = JSON.stringify(logEntry) + '\n';
+      await fs.appendFile(this.logFile, logLine, { encoding: 'utf8' });
     } catch (error) {
       // Silent fail to prevent infinite loop
     }
@@ -158,7 +158,7 @@ class ErrorHandler {
     try {
       const stats = await fs.stat(this.logFile);
       if (stats.size > this.maxLogSize) {
-        const backupFile = this.logFile + ".old";
+        const backupFile = this.logFile + '.old';
         await fs.rename(this.logFile, backupFile);
       }
     } catch (error) {
@@ -174,7 +174,7 @@ class ErrorHandler {
    */
   async handleCLIError(toolName, error, command = null) {
     const cliError = new StigmergyError(
-      `Failed to execute ${toolName}${command ? ` command: ${command}` : ""}`,
+      `Failed to execute ${toolName}${command ? ` command: ${command}` : ''}`,
       ERROR_TYPES.CLI_TOOL,
       null,
       {
@@ -185,7 +185,7 @@ class ErrorHandler {
       },
     );
 
-    await this.logError(cliError, LOG_LEVELS.ERROR, "CLI_EXECUTION");
+    await this.logError(cliError, LOG_LEVELS.ERROR, 'CLI_EXECUTION');
     return cliError;
   }
 
@@ -208,7 +208,7 @@ class ErrorHandler {
       },
     );
 
-    await this.logError(fileError, LOG_LEVELS.ERROR, "FILE_SYSTEM");
+    await this.logError(fileError, LOG_LEVELS.ERROR, 'FILE_SYSTEM');
     return fileError;
   }
 
@@ -231,7 +231,7 @@ class ErrorHandler {
       },
     );
 
-    await this.logError(networkError, LOG_LEVELS.ERROR, "NETWORK");
+    await this.logError(networkError, LOG_LEVELS.ERROR, 'NETWORK');
     return networkError;
   }
 
@@ -245,7 +245,7 @@ class ErrorHandler {
     const validationError = new StigmergyError(
       `Validation failed for ${field}: ${reason}`,
       ERROR_TYPES.VALIDATION,
-      "VALIDATION_FAILED",
+      'VALIDATION_FAILED',
       {
         field,
         value,
@@ -272,7 +272,7 @@ class ErrorHandler {
           throw error;
         } else {
           const wrappedError = new StigmergyError(
-            error.message || "Unknown error occurred",
+            error.message || 'Unknown error occurred',
             ERROR_TYPES.UNKNOWN,
             null,
             { originalError: error.message, stack: error.stack },
@@ -289,8 +289,8 @@ class ErrorHandler {
    */
   async getErrorStats() {
     try {
-      const data = await fs.readFile(this.logFile, "utf8");
-      const lines = data.split("\n").filter((line) => line.trim());
+      const data = await fs.readFile(this.logFile, 'utf8');
+      const lines = data.split('\n').filter((line) => line.trim());
 
       const stats = {
         totalErrors: lines.length,
@@ -320,20 +320,20 @@ class ErrorHandler {
    * @returns {string} Formatted error report
    */
   generateErrorReport(stats) {
-    let report = "\n=== Stigmergy CLI Error Report ===\n";
+    let report = '\n=== Stigmergy CLI Error Report ===\n';
     report += `Total Errors: ${stats.totalErrors}\n\n`;
 
-    report += "Errors by Type:\n";
+    report += 'Errors by Type:\n';
     for (const [type, count] of Object.entries(stats.byType)) {
       report += `  ${type}: ${count}\n`;
     }
 
-    report += "\nErrors by Level:\n";
+    report += '\nErrors by Level:\n';
     for (const [level, count] of Object.entries(stats.byLevel)) {
       report += `  ${level}: ${count}\n`;
     }
 
-    report += "==================================\n";
+    report += '==================================\n';
     return report;
   }
 
@@ -350,12 +350,12 @@ class ErrorHandler {
 // Set up global error handlers within the error handler module
 function setupGlobalErrorHandlers() {
   // Only set up handlers if they haven't been set up already
-  if (!process.listenerCount("unhandledRejection")) {
-    process.on("unhandledRejection", async (reason, promise) => {
+  if (!process.listenerCount('unhandledRejection')) {
+    process.on('unhandledRejection', async (reason, promise) => {
       console.error(
-        "[FATAL] Global Unhandled Rejection at:",
+        '[FATAL] Global Unhandled Rejection at:',
         promise,
-        "reason:",
+        'reason:',
         reason,
       );
 
@@ -365,7 +365,7 @@ function setupGlobalErrorHandlers() {
       await errorHandler.logError(
         error,
         LOG_LEVELS.ERROR,
-        "global_unhandledRejection",
+        'global_unhandledRejection',
       );
 
       // Exit gracefully after a short delay to allow logging
@@ -373,15 +373,15 @@ function setupGlobalErrorHandlers() {
     });
   }
 
-  if (!process.listenerCount("uncaughtException")) {
-    process.on("uncaughtException", async (error) => {
-      console.error("[FATAL] Global Uncaught Exception:", error);
+  if (!process.listenerCount('uncaughtException')) {
+    process.on('uncaughtException', async (error) => {
+      console.error('[FATAL] Global Uncaught Exception:', error);
 
       // Log the error using our error handler
       await errorHandler.logError(
         error,
         LOG_LEVELS.ERROR,
-        "global_uncaughtException",
+        'global_uncaughtException',
       );
 
       // Exit gracefully after a short delay to allow logging

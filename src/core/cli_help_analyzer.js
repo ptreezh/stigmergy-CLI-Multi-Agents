@@ -1,16 +1,16 @@
 // Enhanced CLI Help Analyzer with better pattern extraction
-const { spawnSync } = require("child_process");
-const fs = require("fs/promises");
-const path = require("path");
-const os = require("os");
-const { CLI_TOOLS } = require("./cli_tools");
-const { errorHandler, ERROR_TYPES } = require("./error_handler");
+const { spawnSync } = require('child_process');
+const fs = require('fs/promises');
+const path = require('path');
+const os = require('os');
+const { CLI_TOOLS } = require('./cli_tools');
+const { errorHandler, ERROR_TYPES } = require('./error_handler');
 
 class CLIHelpAnalyzer {
   constructor() {
-    this.configDir = path.join(os.homedir(), ".stigmergy", "cli-patterns");
-    this.persistentConfig = path.join(this.configDir, "cli-patterns.json");
-    this.lastAnalysisFile = path.join(this.configDir, "last-analysis.json");
+    this.configDir = path.join(os.homedir(), '.stigmergy', 'cli-patterns');
+    this.persistentConfig = path.join(this.configDir, 'cli-patterns.json');
+    this.lastAnalysisFile = path.join(this.configDir, 'last-analysis.json');
     this.cliTools = CLI_TOOLS;
 
     // Pattern recognition rules for different CLI types
@@ -69,7 +69,7 @@ class CLIHelpAnalyzer {
       const configExists = await this.fileExists(this.persistentConfig);
       if (!configExists) {
         await this.savePersistentConfig({
-          version: "1.0.0",
+          version: '1.0.0',
           lastUpdated: new Date().toISOString(),
           cliPatterns: {},
           failedAttempts: {},
@@ -78,7 +78,7 @@ class CLIHelpAnalyzer {
 
       return true;
     } catch (error) {
-      await errorHandler.logError(error, "ERROR", "CLIHelpAnalyzer.initialize");
+      await errorHandler.logError(error, 'ERROR', 'CLIHelpAnalyzer.initialize');
       return false;
     }
   }
@@ -91,14 +91,14 @@ class CLIHelpAnalyzer {
 
     for (const [cliName, cliConfig] of Object.entries(this.cliTools)) {
       try {
-        if (process.env.DEBUG === "true") {
+        if (process.env.DEBUG === 'true') {
           console.log(`Analyzing ${cliName}...`);
         }
         results[cliName] = await this.analyzeCLI(cliName);
       } catch (error) {
         await errorHandler.logError(
           error,
-          "WARN",
+          'WARN',
           `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
         );
         results[cliName] = { success: false, error: error.message };
@@ -165,36 +165,36 @@ class CLIHelpAnalyzer {
    */
   async getHelpInfo(cliName, cliConfig) {
     const helpMethods = [
-      ["--help"],
-      ["-h"],
-      ["help"],
-      ["--usage"],
-      [""],
-      ["version"],
-      ["--version"],
-      ["-v"],
+      ['--help'],
+      ['-h'],
+      ['help'],
+      ['--usage'],
+      [''],
+      ['version'],
+      ['--version'],
+      ['-v'],
     ];
 
-    let rawHelp = "";
-    let version = "unknown";
-    let method = "unknown";
+    let rawHelp = '';
+    let version = 'unknown';
+    let method = 'unknown';
 
     // Try different help commands
     for (const helpArgs of helpMethods) {
       try {
         const result = spawnSync(cliName, helpArgs, {
-          encoding: "utf8",
+          encoding: 'utf8',
           timeout: 15000,
           shell: true,
         });
 
         if (result.status === 0 && result.stdout) {
           rawHelp = result.stdout;
-          method = `${cliName} ${helpArgs.join(" ")}`;
+          method = `${cliName} ${helpArgs.join(' ')}`;
           break;
         } else if (result.stderr) {
           rawHelp = result.stderr;
-          method = `${cliName} ${helpArgs.join(" ")} (stderr)`;
+          method = `${cliName} ${helpArgs.join(' ')} (stderr)`;
           break;
         }
       } catch (error) {
@@ -206,9 +206,9 @@ class CLIHelpAnalyzer {
     // Try to get version separately
     if (cliConfig.version) {
       try {
-        const versionCmd = cliConfig.version.split(" ");
+        const versionCmd = cliConfig.version.split(' ');
         const versionResult = spawnSync(versionCmd[0], versionCmd.slice(1), {
-          encoding: "utf8",
+          encoding: 'utf8',
           timeout: 10000,
           shell: true,
         });
@@ -236,41 +236,41 @@ class CLIHelpAnalyzer {
     const name = cliName.toLowerCase();
 
     // Detect based on CLI name
-    if (name.includes("claude") || name.includes("anthropic")) {
-      return "anthropic";
+    if (name.includes('claude') || name.includes('anthropic')) {
+      return 'anthropic';
     }
-    if (name.includes("gemini") || name.includes("google")) {
-      return "google";
+    if (name.includes('gemini') || name.includes('google')) {
+      return 'google';
     }
     if (
-      name.includes("codex") ||
-      name.includes("openai") ||
-      name.includes("chatgpt")
+      name.includes('codex') ||
+      name.includes('openai') ||
+      name.includes('chatgpt')
     ) {
-      return "openai";
+      return 'openai';
     }
 
     // Detect based on help content patterns
-    if (text.includes("anthropic") || text.includes("claude")) {
-      return "anthropic";
+    if (text.includes('anthropic') || text.includes('claude')) {
+      return 'anthropic';
     }
     if (
-      text.includes("google") ||
-      text.includes("gemini") ||
-      text.includes("vertex")
+      text.includes('google') ||
+      text.includes('gemini') ||
+      text.includes('vertex')
     ) {
-      return "google";
+      return 'google';
     }
     if (
-      text.includes("openai") ||
-      text.includes("gpt") ||
-      text.includes("codex")
+      text.includes('openai') ||
+      text.includes('gpt') ||
+      text.includes('codex')
     ) {
-      return "openai";
+      return 'openai';
     }
 
     // Default to generic
-    return "generic";
+    return 'generic';
   }
 
   /**
@@ -298,7 +298,7 @@ class CLIHelpAnalyzer {
         const parts = match.trim().split(/\s+/);
         return {
           name: parts[0],
-          description: parts.slice(1).join(" "),
+          description: parts.slice(1).join(' '),
           syntax: match.trim(),
         };
       });
@@ -309,12 +309,12 @@ class CLIHelpAnalyzer {
     if (optionMatches) {
       patterns.options = [...new Set(optionMatches)];
       patterns.flags = optionMatches
-        .filter((opt) => opt.startsWith("--"))
-        .map((opt) => opt.replace(/^--/, ""));
+        .filter((opt) => opt.startsWith('--'))
+        .map((opt) => opt.replace(/^--/, ''));
     }
 
     // Extract main commands (first level)
-    const lines = helpText.split("\n");
+    const lines = helpText.split('\n');
     for (const line of lines) {
       const trimmed = line.trim();
 
@@ -322,7 +322,7 @@ class CLIHelpAnalyzer {
       if (/^[a-z][a-z0-9_-]+\s+.+$/.test(trimmed)) {
         const parts = trimmed.split(/\s+/);
         const command = parts[0];
-        const description = parts.slice(1).join(" ");
+        const description = parts.slice(1).join(' ');
 
         if (!patterns.commands.find((cmd) => cmd.name === command)) {
           patterns.commands.push({
@@ -348,30 +348,30 @@ class CLIHelpAnalyzer {
 
     // Look for non-interactive mode flags
     if (
-      text.includes("print") ||
-      text.includes("non-interactive") ||
-      text.includes("output")
+      text.includes('print') ||
+      text.includes('non-interactive') ||
+      text.includes('output')
     ) {
-      patterns.nonInteractiveFlag = "--print";
+      patterns.nonInteractiveFlag = '--print';
     }
 
     // Look for prompt-related flags
-    if (text.includes("prompt") || text.includes("-p ")) {
-      patterns.promptFlag = "-p";
+    if (text.includes('prompt') || text.includes('-p ')) {
+      patterns.promptFlag = '-p';
     }
 
     // Look for required flags for non-interactive mode
-    if (text.includes("non-interactive") && text.includes("prompt")) {
-      patterns.requiredFlags.push("-p");
+    if (text.includes('non-interactive') && text.includes('prompt')) {
+      patterns.requiredFlags.push('-p');
     }
 
     // Extract common usage patterns from examples
-    const exampleLines = helpText.split("\n");
+    const exampleLines = helpText.split('\n');
     for (const line of exampleLines) {
       if (
         line.includes('-p "') ||
-        line.includes("--prompt") ||
-        line.includes(" -p ")
+        line.includes('--prompt') ||
+        line.includes(' -p ')
       ) {
         patterns.commonPatterns.push(line.trim());
       }
@@ -383,17 +383,17 @@ class CLIHelpAnalyzer {
    */
   analyzeCommandStructure(patterns) {
     const structure = {
-      primaryCommand: "",
-      commandFormat: "",
-      argumentStyle: "",
-      optionStyle: "",
+      primaryCommand: '',
+      commandFormat: '',
+      argumentStyle: '',
+      optionStyle: '',
       interactiveMode: false,
       hasSubcommands: patterns.subcommands.length > 0,
-      complexity: "simple",
+      complexity: 'simple',
       // Fields for better execution
       nonInteractiveSupport: !!patterns.nonInteractiveFlag,
-      promptStyle: patterns.promptFlag ? "flag" : "argument",
-      executionPattern: "",
+      promptStyle: patterns.promptFlag ? 'flag' : 'argument',
+      executionPattern: '',
       // Additional fields for CLI parameter handling
       nonInteractiveFlag: patterns.nonInteractiveFlag,
       promptFlag: patterns.promptFlag,
@@ -403,39 +403,39 @@ class CLIHelpAnalyzer {
 
     // Determine complexity based on available commands
     if (patterns.commands.length > 10 || patterns.subcommands.length > 5) {
-      structure.complexity = "complex";
+      structure.complexity = 'complex';
     } else if (patterns.commands.length > 3 || patterns.options.length > 10) {
-      structure.complexity = "moderate";
+      structure.complexity = 'moderate';
     }
 
     // Determine command format based on patterns
     if (patterns.subcommands.length > 0) {
-      structure.commandFormat = "cli <subcommand> [options] [args]";
+      structure.commandFormat = 'cli <subcommand> [options] [args]';
     } else if (patterns.options.length > 0) {
-      structure.commandFormat = "cli [options] [args]";
+      structure.commandFormat = 'cli [options] [args]';
     } else {
-      structure.commandFormat = "cli [args]";
+      structure.commandFormat = 'cli [args]';
     }
 
     // Check for interactive mode indicators
     const hasInteractiveIndicators = patterns.commands.some(
       (cmd) =>
-        cmd.name.includes("chat") ||
-        cmd.name.includes("interactive") ||
-        cmd.name.includes("shell") ||
+        cmd.name.includes('chat') ||
+        cmd.name.includes('interactive') ||
+        cmd.name.includes('shell') ||
         (cmd.description &&
-          cmd.description.toLowerCase().includes("interactive")),
+          cmd.description.toLowerCase().includes('interactive')),
     );
 
     structure.interactiveMode = hasInteractiveIndicators;
 
     // Determine execution pattern
     if (patterns.nonInteractiveFlag && patterns.promptFlag) {
-      structure.executionPattern = "flag-based";
+      structure.executionPattern = 'flag-based';
     } else if (patterns.nonInteractiveFlag) {
-      structure.executionPattern = "argument-based";
+      structure.executionPattern = 'argument-based';
     } else {
-      structure.executionPattern = "interactive-default";
+      structure.executionPattern = 'interactive-default';
     }
 
     return structure;
@@ -454,34 +454,34 @@ class CLIHelpAnalyzer {
     if (exampleMatches) {
       for (const match of exampleMatches) {
         const exampleText = match
-          .replace(/^(example|usage|用法|使用)[:：]\s*/i, "")
+          .replace(/^(example|usage|用法|使用)[:：]\s*/i, '')
           .trim();
 
         // Split by lines and extract command examples
         const lines = exampleText
-          .split("\n")
+          .split('\n')
           .map((line) => line.trim())
           .filter(
-            (line) => line && !line.startsWith("#") && !line.startsWith("//"),
+            (line) => line && !line.startsWith('#') && !line.startsWith('//'),
           );
 
         for (const line of lines) {
           if (
-            line.includes("$") ||
-            line.includes(">") ||
-            line.startsWith("cli") ||
+            line.includes('$') ||
+            line.includes('>') ||
+            line.startsWith('cli') ||
             /^[a-z][\w-]*\s/.test(line)
           ) {
             // Extract clean command
             const command = line
-              .replace(/^[>$\s]+/, "")
-              .replace(/^cli\s*/, "")
+              .replace(/^[>$\s]+/, '')
+              .replace(/^cli\s*/, '')
               .trim();
             if (command) {
               examples.push({
                 command,
                 raw: line,
-                description: "",
+                description: '',
               });
             }
           }
@@ -500,30 +500,30 @@ class CLIHelpAnalyzer {
 
     // Check for different interaction modes
     if (
-      text.includes("chat") ||
-      text.includes("conversation") ||
-      text.includes("interactive")
+      text.includes('chat') ||
+      text.includes('conversation') ||
+      text.includes('interactive')
     ) {
-      return "chat";
+      return 'chat';
     }
 
     if (
-      text.includes("api") ||
-      text.includes("endpoint") ||
-      text.includes("request")
+      text.includes('api') ||
+      text.includes('endpoint') ||
+      text.includes('request')
     ) {
-      return "api";
+      return 'api';
     }
 
     if (patterns.subcommands.length > 0) {
-      return "subcommand";
+      return 'subcommand';
     }
 
     if (patterns.options.length > 5) {
-      return "option";
+      return 'option';
     }
 
-    return "simple";
+    return 'simple';
   }
 
   /**
@@ -586,7 +586,7 @@ class CLIHelpAnalyzer {
       config.lastUpdated = new Date().toISOString();
       await this.savePersistentConfig(config);
     } catch (err) {
-      console.error("Failed to record failed attempt:", err.message);
+      console.error('Failed to record failed attempt:', err.message);
     }
   }
 
@@ -595,11 +595,11 @@ class CLIHelpAnalyzer {
    */
   async loadPersistentConfig() {
     try {
-      const data = await fs.readFile(this.persistentConfig, "utf8");
+      const data = await fs.readFile(this.persistentConfig, 'utf8');
       return JSON.parse(data);
     } catch (error) {
       return {
-        version: "1.0.0",
+        version: '1.0.0',
         lastUpdated: new Date().toISOString(),
         cliPatterns: {},
         failedAttempts: {},

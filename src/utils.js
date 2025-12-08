@@ -2,7 +2,7 @@
  * Utility functions for the Stigmergy CLI
  */
 
-const { processWeatherData } = require("./weatherProcessor");
+const { processWeatherData } = require('./weatherProcessor');
 
 /**
  * Simple REST API client
@@ -13,10 +13,10 @@ class RESTClient {
    * @param {string} baseURL - The base URL for the API
    * @param {Object} defaultHeaders - Default headers to include in all requests
    */
-  constructor(baseURL = "", defaultHeaders = {}) {
+  constructor(baseURL = '', defaultHeaders = {}) {
     this.baseURL = baseURL;
     this.defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...defaultHeaders,
     };
   }
@@ -43,7 +43,7 @@ class RESTClient {
     // Handle JSON body
     if (
       options.body &&
-      typeof options.body === "object" &&
+      typeof options.body === 'object' &&
       !(options.body instanceof String)
     ) {
       config.body = JSON.stringify(options.body);
@@ -54,8 +54,8 @@ class RESTClient {
 
       // Try to parse JSON response
       let data;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
         data = await response.text();
@@ -86,7 +86,7 @@ class RESTClient {
    * @returns {Promise} Response promise
    */
   async get(url, options = {}) {
-    return this.request("GET", url, options);
+    return this.request('GET', url, options);
   }
 
   /**
@@ -97,7 +97,7 @@ class RESTClient {
    * @returns {Promise} Response promise
    */
   async post(url, data, options = {}) {
-    return this.request("POST", url, { ...options, body: data });
+    return this.request('POST', url, { ...options, body: data });
   }
 
   /**
@@ -108,7 +108,7 @@ class RESTClient {
    * @returns {Promise} Response promise
    */
   async put(url, data, options = {}) {
-    return this.request("PUT", url, { ...options, body: data });
+    return this.request('PUT', url, { ...options, body: data });
   }
 
   /**
@@ -118,7 +118,7 @@ class RESTClient {
    * @returns {Promise} Response promise
    */
   async delete(url, options = {}) {
-    return this.request("DELETE", url, options);
+    return this.request('DELETE', url, options);
   }
 }
 
@@ -226,7 +226,7 @@ class HashTable {
  */
 function factorial(n) {
   if (n < 0) {
-    throw new Error("Factorial is not defined for negative numbers");
+    throw new Error('Factorial is not defined for negative numbers');
   }
 
   if (n === 0 || n === 1) {
@@ -248,7 +248,7 @@ function factorial(n) {
  */
 function fibonacci(n) {
   if (n < 0) {
-    throw new Error("Fibonacci is not defined for negative numbers");
+    throw new Error('Fibonacci is not defined for negative numbers');
   }
 
   if (n === 0) return 0;
@@ -273,7 +273,7 @@ function fibonacci(n) {
  */
 function fibonacciRecursive(n) {
   if (n < 0) {
-    throw new Error("Fibonacci is not defined for negative numbers");
+    throw new Error('Fibonacci is not defined for negative numbers');
   }
 
   if (n === 0) return 0;
@@ -349,8 +349,8 @@ function parseAndValidateJSON(jsonString, schema = null) {
  */
 function validateSchema(data, schema) {
   // Check if schema is an object
-  if (typeof schema !== "object" || schema === null) {
-    throw new Error("Schema must be a valid object");
+  if (typeof schema !== 'object' || schema === null) {
+    throw new Error('Schema must be a valid object');
   }
 
   // Check required fields
@@ -379,16 +379,16 @@ function validateSchema(data, schema) {
           continue; // Accept null values for nullable fields
         }
 
-        if (propertySchema.type === "array" && !Array.isArray(value)) {
+        if (propertySchema.type === 'array' && !Array.isArray(value)) {
           throw new Error(`Field '${key}' should be an array`);
         } else if (
-          propertySchema.type === "object" &&
-          (typeof value !== "object" || value === null || Array.isArray(value))
+          propertySchema.type === 'object' &&
+          (typeof value !== 'object' || value === null || Array.isArray(value))
         ) {
           throw new Error(`Field '${key}' should be an object`);
         } else if (
-          propertySchema.type !== "array" &&
-          propertySchema.type !== "object" &&
+          propertySchema.type !== 'array' &&
+          propertySchema.type !== 'object' &&
           typeof value !== propertySchema.type
         ) {
           throw new Error(
@@ -400,12 +400,12 @@ function validateSchema(data, schema) {
       // Check enum values
       if (propertySchema.enum && !propertySchema.enum.includes(value)) {
         throw new Error(
-          `Field '${key}' should be one of: ${propertySchema.enum.join(", ")}`,
+          `Field '${key}' should be one of: ${propertySchema.enum.join(', ')}`,
         );
       }
 
       // Check minimum and maximum for numbers
-      if (typeof value === "number") {
+      if (typeof value === 'number') {
         if (
           propertySchema.minimum !== undefined &&
           value < propertySchema.minimum
@@ -425,7 +425,7 @@ function validateSchema(data, schema) {
       }
 
       // Check minLength and maxLength for strings
-      if (typeof value === "string") {
+      if (typeof value === 'string') {
         if (
           propertySchema.minLength !== undefined &&
           value.length < propertySchema.minLength
@@ -445,13 +445,13 @@ function validateSchema(data, schema) {
       }
 
       // Check nested objects recursively
-      if (propertySchema.type === "object" && propertySchema.properties) {
+      if (propertySchema.type === 'object' && propertySchema.properties) {
         validateSchema(value, propertySchema);
       }
 
       // Check array items
       if (
-        propertySchema.type === "array" &&
+        propertySchema.type === 'array' &&
         propertySchema.items &&
         Array.isArray(value)
       ) {
@@ -485,7 +485,7 @@ function validateSchema(data, schema) {
 
           // Recursively validate object items
           if (
-            propertySchema.items.type === "object" &&
+            propertySchema.items.type === 'object' &&
             propertySchema.items.properties
           ) {
             validateSchema(item, propertySchema.items);
@@ -505,16 +505,16 @@ function validateSchema(data, schema) {
 function processCSV(csvData, options = {}) {
   // Default options
   const opts = {
-    delimiter: ",",
+    delimiter: ',',
     hasHeader: true,
     ...options,
   };
 
   // Split CSV data into lines
-  const lines = csvData.trim().split("\n");
+  const lines = csvData.trim().split('\n');
 
   if (lines.length === 0) {
-    return { error: "Empty CSV data" };
+    return { error: 'Empty CSV data' };
   }
 
   // Parse header
@@ -537,7 +537,7 @@ function processCSV(csvData, options = {}) {
       if (opts.hasHeader) {
         // Map values to headers
         headers.forEach((header, index) => {
-          row[header] = values[index] || "";
+          row[header] = values[index] || '';
         });
       } else {
         // Use indices as keys
@@ -581,7 +581,7 @@ function processCSV(csvData, options = {}) {
 
       columnStats.count++;
 
-      if (value === "" || value === null || value === undefined) {
+      if (value === '' || value === null || value === undefined) {
         columnStats.emptyCount++;
       } else {
         columnStats.uniqueValues.add(value);
@@ -625,12 +625,12 @@ function processCSV(csvData, options = {}) {
  * @returns {Promise<Object>} Result of the execution
  */
 async function executeCommand(command, args = [], options = {}) {
-  const { spawn } = require("child_process");
-  const path = require("path");
+  const { spawn } = require('child_process');
+  const path = require('path');
 
   // Default options
   const opts = {
-    stdio: "inherit",
+    stdio: 'inherit',
     shell: true,
     timeout: 300000, // 5 minute timeout
     ...options,
@@ -638,20 +638,20 @@ async function executeCommand(command, args = [], options = {}) {
 
   return new Promise((resolve, reject) => {
     // Don't log the command if it contains sensitive information
-    if (process.env.DEBUG === "true") {
-      console.log(`[EXEC] Running: ${command} ${args.join(" ")}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`[EXEC] Running: ${command} ${args.join(' ')}`);
     }
 
     try {
       // Validate that command is a string and not empty
-      if (!command || typeof command !== "string") {
+      if (!command || typeof command !== 'string') {
         reject({
           error: new Error(
-            "Invalid command: command must be a non-empty string",
+            'Invalid command: command must be a non-empty string',
           ),
-          message: "Invalid command: command must be a non-empty string",
-          stdout: "",
-          stderr: "",
+          message: 'Invalid command: command must be a non-empty string',
+          stdout: '',
+          stderr: '',
         });
         return;
       }
@@ -659,16 +659,16 @@ async function executeCommand(command, args = [], options = {}) {
       // Validate that args is an array
       if (!Array.isArray(args)) {
         reject({
-          error: new Error("Invalid arguments: args must be an array"),
-          message: "Invalid arguments: args must be an array",
-          stdout: "",
-          stderr: "",
+          error: new Error('Invalid arguments: args must be an array'),
+          message: 'Invalid arguments: args must be an array',
+          stdout: '',
+          stderr: '',
         });
         return;
       }
 
       // Special handling for JS files - ensure they are executed with node
-      if (command.endsWith(".js") || command.endsWith(".cjs")) {
+      if (command.endsWith('.js') || command.endsWith('.cjs')) {
         // Prepend 'node' to the command if it's a JS file
         const nodeArgs = [command, ...args];
         command = process.execPath; // Use the same node executable
@@ -679,22 +679,22 @@ async function executeCommand(command, args = [], options = {}) {
 
       const child = spawn(command, args, opts);
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
       if (child.stdout) {
-        child.stdout.on("data", (data) => {
+        child.stdout.on('data', (data) => {
           stdout += data.toString();
         });
       }
 
       if (child.stderr) {
-        child.stderr.on("data", (data) => {
+        child.stderr.on('data', (data) => {
           stderr += data.toString();
         });
       }
 
-      child.on("close", (code) => {
+      child.on('close', (code) => {
         resolve({
           code,
           stdout,
@@ -703,14 +703,14 @@ async function executeCommand(command, args = [], options = {}) {
         });
       });
 
-      child.on("error", (error) => {
+      child.on('error', (error) => {
         // Provide more detailed error information
         let errorMessage = error.message;
-        if (error.code === "ENOENT") {
+        if (error.code === 'ENOENT') {
           errorMessage = `Command not found: ${command}. Please check if the command is installed and in your PATH.`;
-        } else if (error.code === "EACCES") {
+        } else if (error.code === 'EACCES') {
           errorMessage = `Permission denied: Cannot execute ${command}. Please check file permissions.`;
-        } else if (error.code === "EISDIR") {
+        } else if (error.code === 'EISDIR') {
           errorMessage = `Cannot execute directory: ${command}. This might be a file path issue.`;
         }
 
@@ -727,7 +727,7 @@ async function executeCommand(command, args = [], options = {}) {
         setTimeout(() => {
           child.kill();
           reject({
-            error: new Error("Command timeout"),
+            error: new Error('Command timeout'),
             message: `Command timed out after ${opts.timeout}ms`,
             stdout,
             stderr,
@@ -751,8 +751,8 @@ async function executeCommand(command, args = [], options = {}) {
  * @returns {Promise<Object>} Result of the execution
  */
 async function executeJSFile(jsFilePath, args = [], options = {}) {
-  const fs = require("fs").promises;
-  const path = require("path");
+  const fs = require('fs').promises;
+  const path = require('path');
 
   try {
     // Validate that the file exists
@@ -766,7 +766,7 @@ async function executeJSFile(jsFilePath, args = [], options = {}) {
 
     // Validate file extension
     const ext = path.extname(jsFilePath).toLowerCase();
-    if (ext !== ".js" && ext !== ".cjs") {
+    if (ext !== '.js' && ext !== '.cjs') {
       throw new Error(`File is not a JavaScript file: ${jsFilePath}`);
     }
 
@@ -794,30 +794,30 @@ async function executeJSFile(jsFilePath, args = [], options = {}) {
  * @throws {Error} If encryption fails due to invalid inputs or cryptographic errors
  */
 function encryptData(data, secretKey) {
-  const crypto = require("crypto");
+  const crypto = require('crypto');
 
   // Validate inputs
   if (!data) {
-    throw new Error("Data to encrypt cannot be empty");
+    throw new Error('Data to encrypt cannot be empty');
   }
 
   if (!secretKey) {
-    throw new Error("Secret key is required");
+    throw new Error('Secret key is required');
   }
 
   // Generate a random initialization vector
   const iv = crypto.randomBytes(16);
 
   // Create cipher using AES-256-GCM
-  const cipher = crypto.createCipheriv("aes-256-gcm", secretKey, iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', secretKey, iv);
 
   // Encrypt the data
   let encrypted;
-  if (typeof data === "string") {
-    encrypted = cipher.update(data, "utf8", "hex");
+  if (typeof data === 'string') {
+    encrypted = cipher.update(data, 'utf8', 'hex');
   } else {
     encrypted = cipher.update(data);
-    encrypted = encrypted.toString("hex");
+    encrypted = encrypted.toString('hex');
   }
   cipher.final();
 
@@ -827,8 +827,8 @@ function encryptData(data, secretKey) {
   // Return encrypted data with IV and auth tag
   return {
     encryptedData: encrypted,
-    iv: iv.toString("base64"),
-    authTag: authTag.toString("base64"),
+    iv: iv.toString('base64'),
+    authTag: authTag.toString('base64'),
   };
 }
 
@@ -845,7 +845,7 @@ function encryptData(data, secretKey) {
  * @throws {Error} If decryption fails due to invalid inputs, tampered data, or cryptographic errors
  */
 function decryptData(encryptedObj, secretKey) {
-  const crypto = require("crypto");
+  const crypto = require('crypto');
 
   // Validate inputs
   if (
@@ -854,30 +854,30 @@ function decryptData(encryptedObj, secretKey) {
     !encryptedObj.iv ||
     !encryptedObj.authTag
   ) {
-    throw new Error("Invalid encrypted object");
+    throw new Error('Invalid encrypted object');
   }
 
   if (!secretKey) {
-    throw new Error("Secret key is required");
+    throw new Error('Secret key is required');
   }
 
   // Decode base64 encoded values
-  const iv = Buffer.from(encryptedObj.iv, "base64");
-  const authTag = Buffer.from(encryptedObj.authTag, "base64");
+  const iv = Buffer.from(encryptedObj.iv, 'base64');
+  const authTag = Buffer.from(encryptedObj.authTag, 'base64');
 
   // Create decipher using AES-256-GCM
-  const decipher = crypto.createDecipheriv("aes-256-gcm", secretKey, iv);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', secretKey, iv);
 
   // Set the authentication tag
   decipher.setAuthTag(authTag);
 
   // Decrypt the data
   let decrypted;
-  if (typeof encryptedObj.encryptedData === "string") {
-    decrypted = decipher.update(encryptedObj.encryptedData, "hex", "utf8");
+  if (typeof encryptedObj.encryptedData === 'string') {
+    decrypted = decipher.update(encryptedObj.encryptedData, 'hex', 'utf8');
   } else {
     decrypted = decipher.update(encryptedObj.encryptedData);
-    decrypted = decrypted.toString("utf8");
+    decrypted = decrypted.toString('utf8');
   }
   decipher.final();
 
@@ -893,7 +893,7 @@ function decryptData(encryptedObj, secretKey) {
  * @returns {Buffer} A cryptographically secure random key
  */
 function generateKey(length = 32) {
-  const crypto = require("crypto");
+  const crypto = require('crypto');
   return crypto.randomBytes(length);
 }
 

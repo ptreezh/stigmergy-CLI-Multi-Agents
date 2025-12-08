@@ -6,75 +6,75 @@
  * Version: 1.0.76
  */
 
-const { spawn, spawnSync } = require("child_process");
-const path = require("path");
-const fs = require("fs/promises");
-const os = require("os");
+const { spawn, spawnSync } = require('child_process');
+const path = require('path');
+const fs = require('fs/promises');
+const os = require('os');
 
 // Import error handler
-const { errorHandler } = require("./core/error_handler");
+const { errorHandler } = require('./core/error_handler');
 
 // Set up global error handlers using our error handler module
-const { setupGlobalErrorHandlers } = require("./core/error_handler");
+const { setupGlobalErrorHandlers } = require('./core/error_handler');
 setupGlobalErrorHandlers();
 
 // AI CLI Tools Configuration
 const CLI_TOOLS = {
   claude: {
-    name: "Claude CLI",
-    version: "claude --version",
-    install: "npm install -g @anthropic-ai/claude-cli",
-    hooksDir: path.join(os.homedir(), ".claude", "hooks"),
-    config: path.join(os.homedir(), ".claude", "config.json"),
+    name: 'Claude CLI',
+    version: 'claude --version',
+    install: 'npm install -g @anthropic-ai/claude-cli',
+    hooksDir: path.join(os.homedir(), '.claude', 'hooks'),
+    config: path.join(os.homedir(), '.claude', 'config.json'),
   },
   gemini: {
-    name: "Gemini CLI",
-    version: "gemini --version",
-    install: "npm install -g @google/generative-ai-cli",
-    hooksDir: path.join(os.homedir(), ".gemini", "extensions"),
-    config: path.join(os.homedir(), ".gemini", "config.json"),
+    name: 'Gemini CLI',
+    version: 'gemini --version',
+    install: 'npm install -g @google/generative-ai-cli',
+    hooksDir: path.join(os.homedir(), '.gemini', 'extensions'),
+    config: path.join(os.homedir(), '.gemini', 'config.json'),
   },
   qwen: {
-    name: "Qwen CLI",
-    version: "qwen --version",
-    install: "npm install -g @alibaba/qwen-cli",
-    hooksDir: path.join(os.homedir(), ".qwen", "hooks"),
-    config: path.join(os.homedir(), ".qwen", "config.json"),
+    name: 'Qwen CLI',
+    version: 'qwen --version',
+    install: 'npm install -g @alibaba/qwen-cli',
+    hooksDir: path.join(os.homedir(), '.qwen', 'hooks'),
+    config: path.join(os.homedir(), '.qwen', 'config.json'),
   },
   iflow: {
-    name: "iFlow CLI",
-    version: "iflow --version",
-    install: "npm install -g iflow-cli",
-    hooksDir: path.join(os.homedir(), ".iflow", "hooks"),
-    config: path.join(os.homedir(), ".iflow", "config.json"),
+    name: 'iFlow CLI',
+    version: 'iflow --version',
+    install: 'npm install -g iflow-cli',
+    hooksDir: path.join(os.homedir(), '.iflow', 'hooks'),
+    config: path.join(os.homedir(), '.iflow', 'config.json'),
   },
   qoder: {
-    name: "Qoder CLI",
-    version: "qodercli --version",
-    install: "npm install -g @qoder-ai/qodercli",
-    hooksDir: path.join(os.homedir(), ".qoder", "hooks"),
-    config: path.join(os.homedir(), ".qoder", "config.json"),
+    name: 'Qoder CLI',
+    version: 'qodercli --version',
+    install: 'npm install -g @qoder-ai/qodercli',
+    hooksDir: path.join(os.homedir(), '.qoder', 'hooks'),
+    config: path.join(os.homedir(), '.qoder', 'config.json'),
   },
   codebuddy: {
-    name: "CodeBuddy CLI",
-    version: "codebuddy --version",
-    install: "npm install -g codebuddy-cli",
-    hooksDir: path.join(os.homedir(), ".codebuddy", "hooks"),
-    config: path.join(os.homedir(), ".codebuddy", "config.json"),
+    name: 'CodeBuddy CLI',
+    version: 'codebuddy --version',
+    install: 'npm install -g codebuddy-cli',
+    hooksDir: path.join(os.homedir(), '.codebuddy', 'hooks'),
+    config: path.join(os.homedir(), '.codebuddy', 'config.json'),
   },
   copilot: {
-    name: "GitHub Copilot CLI",
-    version: "copilot --version",
-    install: "npm install -g @github/copilot-cli",
-    hooksDir: path.join(os.homedir(), ".copilot", "mcp"),
-    config: path.join(os.homedir(), ".copilot", "config.json"),
+    name: 'GitHub Copilot CLI',
+    version: 'copilot --version',
+    install: 'npm install -g @github/copilot-cli',
+    hooksDir: path.join(os.homedir(), '.copilot', 'mcp'),
+    config: path.join(os.homedir(), '.copilot', 'config.json'),
   },
   codex: {
-    name: "OpenAI Codex CLI",
-    version: "codex --version",
-    install: "npm install -g openai-codex-cli",
-    hooksDir: path.join(os.homedir(), ".config", "codex", "slash_commands"),
-    config: path.join(os.homedir(), ".codex", "config.json"),
+    name: 'OpenAI Codex CLI',
+    version: 'codex --version',
+    install: 'npm install -g openai-codex-cli',
+    hooksDir: path.join(os.homedir(), '.config', 'codex', 'slash_commands'),
+    config: path.join(os.homedir(), '.codex', 'config.json'),
   },
 };
 
@@ -82,18 +82,18 @@ class SmartRouter {
   constructor() {
     this.tools = CLI_TOOLS;
     this.routeKeywords = [
-      "use",
-      "help",
-      "please",
-      "write",
-      "generate",
-      "explain",
-      "analyze",
-      "translate",
-      "code",
-      "article",
+      'use',
+      'help',
+      'please',
+      'write',
+      'generate',
+      'explain',
+      'analyze',
+      'translate',
+      'code',
+      'article',
     ];
-    this.defaultTool = "claude";
+    this.defaultTool = 'claude';
   }
 
   shouldRoute(userInput) {
@@ -111,8 +111,8 @@ class SmartRouter {
         if (input.toLowerCase().includes(keyword.toLowerCase())) {
           // Extract clean parameters
           const cleanInput = input
-            .replace(new RegExp(`.*${keyword}\\s*`, "gi"), "")
-            .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, "")
+            .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
+            .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, '')
             .trim();
           return { tool: toolName, prompt: cleanInput };
         }
@@ -121,21 +121,21 @@ class SmartRouter {
 
     // Default routing
     const cleanInput = input
-      .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, "")
+      .replace(/^(用|帮我|请|麻烦|给我|帮我写|帮我生成)\s*/i, '')
       .trim();
     return { tool: this.defaultTool, prompt: cleanInput };
   }
 
   extractKeywords(toolName) {
     const keywordMap = {
-      claude: ["claude", "anthropic"],
-      gemini: ["gemini", "google", "谷歌"],
-      qwen: ["qwen", "通义", "阿里"],
-      iflow: ["iflow", "心流", "intelligent"],
-      qoder: ["qoder", "qodercli"],
-      codebuddy: ["codebuddy", "buddy"],
-      copilot: ["copilot", "github"],
-      codex: ["codex", "openai"],
+      claude: ['claude', 'anthropic'],
+      gemini: ['gemini', 'google', '谷歌'],
+      qwen: ['qwen', '通义', '阿里'],
+      iflow: ['iflow', '心流', 'intelligent'],
+      qoder: ['qoder', 'qodercli'],
+      codebuddy: ['codebuddy', 'buddy'],
+      copilot: ['copilot', 'github'],
+      codex: ['codex', 'openai'],
     };
     return keywordMap[toolName] || [toolName];
   }
@@ -152,7 +152,7 @@ class SmartRouter {
 
     try {
       const result = spawnSync(toolName, [prompt], {
-        encoding: "utf8",
+        encoding: 'utf8',
         timeout: 30000,
       });
 
@@ -169,11 +169,11 @@ class SmartRouter {
   checkCLI(toolName) {
     try {
       const tool = this.tools[toolName];
-      const command = tool.version.split(" ")[0];
-      const args = tool.version.split(" ").slice(1);
+      const command = tool.version.split(' ')[0];
+      const args = tool.version.split(' ').slice(1);
 
       const result = spawnSync(command, args, {
-        stdio: "ignore",
+        stdio: 'ignore',
         timeout: 10000,
         env: { ...process.env },
       });
@@ -188,8 +188,8 @@ class SmartRouter {
     if (!tool) return null;
 
     try {
-      const result = spawnSync(toolName, ["--help"], {
-        encoding: "utf8",
+      const result = spawnSync(toolName, ['--help'], {
+        encoding: 'utf8',
         timeout: 15000,
       });
 
@@ -228,7 +228,7 @@ class SmartRouter {
     );
     if (exampleMatches) {
       capabilities.examples = exampleMatches.map((match) =>
-        match.replace(/^(example|Usage|用法)[:：]\s*/i, "").trim(),
+        match.replace(/^(example|Usage|用法)[:：]\s*/i, '').trim(),
       );
     }
 
@@ -239,7 +239,7 @@ class SmartRouter {
 class StigmergyInstaller {
   constructor() {
     this.homeDir = os.homedir();
-    this.stigmergyDir = path.join(this.homeDir, ".stigmergy");
+    this.stigmergyDir = path.join(this.homeDir, '.stigmergy');
     this.projectDir = process.cwd();
   }
 
@@ -255,11 +255,11 @@ class StigmergyInstaller {
   checkCLI(toolName) {
     try {
       const tool = CLI_TOOLS[toolName];
-      const command = tool.version.split(" ")[0];
-      const args = tool.version.split(" ").slice(1);
+      const command = tool.version.split(' ')[0];
+      const args = tool.version.split(' ').slice(1);
 
       const result = spawnSync(command, args, {
-        stdio: "ignore",
+        stdio: 'ignore',
         timeout: 10000,
         env: { ...process.env },
       });
@@ -277,8 +277,8 @@ class StigmergyInstaller {
       details: [],
     };
 
-    console.log("[SCAN] Scanning for AI CLI tools on your system...");
-    console.log("=".repeat(60));
+    console.log('[SCAN] Scanning for AI CLI tools on your system...');
+    console.log('='.repeat(60));
 
     for (const [key, tool] of Object.entries(CLI_TOOLS)) {
       const isAvailable = this.checkCLI(key);
@@ -289,7 +289,7 @@ class StigmergyInstaller {
         results.details.push({
           key,
           name: tool.name,
-          status: "Available",
+          status: 'Available',
           install: tool.install,
           hooksDir: tool.hooksDir,
         });
@@ -299,54 +299,54 @@ class StigmergyInstaller {
         results.details.push({
           key,
           name: tool.name,
-          status: "Not Available",
+          status: 'Not Available',
           install: tool.install,
           hooksDir: tool.hooksDir,
         });
       }
     }
 
-    console.log("=".repeat(60));
+    console.log('='.repeat(60));
     console.log(
       `[SUMMARY] ${results.available.length}/${results.total} tools available`,
     );
-    console.log("");
+    console.log('');
 
     return results;
   }
 
   async promptForInstallation(scanResults) {
     if (scanResults.unavailable.length === 0) {
-      console.log("[SUCCESS] All AI CLI tools are already installed!");
+      console.log('[SUCCESS] All AI CLI tools are already installed!');
       return [];
     }
 
     console.log(
-      "[INSTALL] The following AI CLI tools can be automatically installed:",
+      '[INSTALL] The following AI CLI tools can be automatically installed:',
     );
-    console.log("");
+    console.log('');
 
     scanResults.unavailable.forEach((toolKey, index) => {
       const tool = CLI_TOOLS[toolKey];
       console.log(`  ${index + 1}. ${tool.name}`);
       console.log(`     Install: ${tool.install}`);
-      console.log("");
+      console.log('');
     });
 
-    console.log("[OPTIONS] Installation Options:");
-    console.log("  - Enter numbers separated by spaces (e.g: 1 3 5)");
+    console.log('[OPTIONS] Installation Options:');
+    console.log('  - Enter numbers separated by spaces (e.g: 1 3 5)');
     console.log('  - Enter "all" to install all missing tools');
     console.log('  - Enter "skip" to skip CLI installation');
 
     return new Promise((resolve) => {
-      process.stdout.write("\n[SELECT] Select tools to install: ");
+      process.stdout.write('\n[SELECT] Select tools to install: ');
 
-      process.stdin.once("data", (data) => {
+      process.stdin.once('data', (data) => {
         const input = data.toString().trim();
 
-        if (input === "" || input.toLowerCase() === "skip") {
+        if (input === '' || input.toLowerCase() === 'skip') {
           resolve([]);
-        } else if (input.toLowerCase() === "all") {
+        } else if (input.toLowerCase() === 'all') {
           resolve(scanResults.unavailable);
         } else {
           const numbers = input.split(/\s+/).map((n) => parseInt(n) - 1);
@@ -361,12 +361,12 @@ class StigmergyInstaller {
 
   async installTools(toolKeys) {
     if (toolKeys.length === 0) {
-      console.log("[SKIP] Skipping CLI tool installation.");
+      console.log('[SKIP] Skipping CLI tool installation.');
       return;
     }
 
     console.log(`\n[INSTALL] Installing ${toolKeys.length} AI CLI tools...`);
-    console.log("=".repeat(60));
+    console.log('='.repeat(60));
 
     for (const toolKey of toolKeys) {
       const tool = CLI_TOOLS[toolKey];
@@ -374,16 +374,16 @@ class StigmergyInstaller {
 
       try {
         const packageInstall = spawn(
-          "npm",
-          ["install", "-g"].concat(tool.install.split(" ").slice(3)),
+          'npm',
+          ['install', '-g'].concat(tool.install.split(' ').slice(3)),
           {
-            stdio: "inherit",
+            stdio: 'inherit',
             shell: true,
           },
         );
 
         await new Promise((resolve, reject) => {
-          packageInstall.on("close", (code) => {
+          packageInstall.on('close', (code) => {
             if (code === 0) {
               console.log(`[OK] ${tool.name} installed successfully!`);
               resolve();
@@ -398,12 +398,12 @@ class StigmergyInstaller {
       }
     }
 
-    console.log("\n[VERIFY] CLI Installation completed! Verifying...");
+    console.log('\n[VERIFY] CLI Installation completed! Verifying...');
     await this.verifyInstallation(toolKeys);
   }
 
   async verifyInstallation(toolKeys) {
-    console.log("=".repeat(60));
+    console.log('='.repeat(60));
     let successCount = 0;
 
     for (const toolKey of toolKeys) {
@@ -423,20 +423,20 @@ class StigmergyInstaller {
     );
 
     if (successCount === toolKeys.length) {
-      console.log("[SUCCESS] All selected CLI tools are now ready to use!");
+      console.log('[SUCCESS] All selected CLI tools are now ready to use!');
     }
   }
 
   async deployHooks(availableTools) {
     if (availableTools.length === 0) {
-      console.log("[SKIP] No CLI tools available for hook deployment.");
+      console.log('[SKIP] No CLI tools available for hook deployment.');
       return;
     }
 
     console.log(
       `\n[DEPLOY] Deploying Stigmergy hooks to ${availableTools.length} CLI tools...`,
     );
-    console.log("=".repeat(60));
+    console.log('='.repeat(60));
 
     const hookTemplate = `#!/usr/bin/env node
 
@@ -519,13 +519,13 @@ const hook = new StigmergyHook();
 
       await this.ensureDirectory(hooksDir);
 
-      const hookFile = path.join(hooksDir, "stigmergy-hook.cjs");
+      const hookFile = path.join(hooksDir, 'stigmergy-hook.cjs');
       try {
-        await fs.writeFile(hookFile, hookTemplate, "utf8");
+        await fs.writeFile(hookFile, hookTemplate, 'utf8');
 
-        if (process.platform !== "win32") {
-          const { spawn } = require("child_process");
-          spawn("chmod", ["+x", hookFile], { stdio: "ignore" });
+        if (process.platform !== 'win32') {
+          const { spawn } = require('child_process');
+          spawn('chmod', ['+x', hookFile], { stdio: 'ignore' });
         }
 
         console.log(`[OK] ${tool.name}: Hook deployed to ${hooksDir}`);
@@ -538,17 +538,17 @@ const hook = new StigmergyHook();
     }
 
     console.log(
-      "\n[RESULT] Hook Deployment Result: " +
+      '\n[RESULT] Hook Deployment Result: ' +
         deployedCount +
-        "/" +
+        '/' +
         availableTools.length +
-        " hooks deployed",
+        ' hooks deployed',
     );
   }
 
   async removeHooks() {
-    console.log("\n[REMOVE] Removing Stigmergy hooks from CLI tools...");
-    console.log("=".repeat(60));
+    console.log('\n[REMOVE] Removing Stigmergy hooks from CLI tools...');
+    console.log('='.repeat(60));
 
     let removedCount = 0;
     let errorCount = 0;
@@ -559,7 +559,7 @@ const hook = new StigmergyHook();
 
       try {
         // Remove the stigmergy hook file
-        const hookFile = path.join(toolInfo.hooksDir, "stigmergy-hook.cjs");
+        const hookFile = path.join(toolInfo.hooksDir, 'stigmergy-hook.cjs');
 
         // Check if the hook file exists
         try {
@@ -601,29 +601,29 @@ const hook = new StigmergyHook();
     }
 
     console.log(
-      "\n[RESULT] Hook Removal Result: " +
+      '\n[RESULT] Hook Removal Result: ' +
         removedCount +
-        " hooks removed, " +
+        ' hooks removed, ' +
         errorCount +
-        " errors",
+        ' errors',
     );
-    console.log("[SUCCESS] Stigmergy hooks removal completed!");
+    console.log('[SUCCESS] Stigmergy hooks removal completed!');
 
     // Also remove global configuration
     try {
-      const configPath = path.join(this.stigmergyDir, "config.json");
+      const configPath = path.join(this.stigmergyDir, 'config.json');
       await fs.unlink(configPath);
-      console.log("[OK] Removed global configuration file");
+      console.log('[OK] Removed global configuration file');
     } catch (error) {
       console.log(
-        "[INFO] Global configuration file not found or already removed",
+        '[INFO] Global configuration file not found or already removed',
       );
     }
 
-    console.log("\n[NEXT] To completely uninstall Stigmergy:");
-    console.log("  1. Run: npm uninstall -g stigmergy");
+    console.log('\n[NEXT] To completely uninstall Stigmergy:');
+    console.log('  1. Run: npm uninstall -g stigmergy');
     console.log(
-      "  2. Manually check and clean up any remaining files if needed",
+      '  2. Manually check and clean up any remaining files if needed',
     );
   }
 
@@ -631,7 +631,7 @@ const hook = new StigmergyHook();
     await this.ensureDirectory(this.stigmergyDir);
 
     const globalConfig = {
-      version: "1.0.77",
+      version: '1.0.77',
       installed: new Date().toISOString(),
       projectPath: this.projectDir,
       availableTools: availableTools,
@@ -639,36 +639,36 @@ const hook = new StigmergyHook();
       collaboration: {
         enabled: true,
         protocols: [
-          "Use {cli} to {task}",
-          "Call {cli} to {task}",
-          "Ask {cli} for {task}",
-          "Get {cli} to {task}",
-          "Have {cli} {task}",
+          'Use {cli} to {task}',
+          'Call {cli} to {task}',
+          'Ask {cli} for {task}',
+          'Get {cli} to {task}',
+          'Have {cli} {task}',
         ],
         examples: [
-          "Use claude to help debug this code",
-          "Call gemini to analyze the file",
-          "Ask qwen to translate this text",
+          'Use claude to help debug this code',
+          'Call gemini to analyze the file',
+          'Ask qwen to translate this text',
         ],
       },
     };
 
-    const configPath = path.join(this.stigmergyDir, "config.json");
+    const configPath = path.join(this.stigmergyDir, 'config.json');
     try {
       await fs.writeFile(configPath, JSON.stringify(globalConfig, null, 2));
-      console.log("[CONFIG] Global configuration saved to:", configPath);
+      console.log('[CONFIG] Global configuration saved to:', configPath);
     } catch (error) {
-      console.log("[WARN] Warning: Could not save global configuration");
+      console.log('[WARN] Warning: Could not save global configuration');
     }
 
-    const projectDocs = path.join(this.projectDir, "STIGMERGY.md");
+    const projectDocs = path.join(this.projectDir, 'STIGMERGY.md');
     const docsTemplate = `# Stigmergy Multi-AI CLI Collaboration
 
 This project is configured for Stigmergy-based multi-AI CLI collaboration.
 
 ## Available AI CLI Tools
 
-${availableTools.map((tool) => `- **${CLI_TOOLS[tool].name}**: \`stigmergy call ${tool}\``).join("\n")}
+${availableTools.map((tool) => `- **${CLI_TOOLS[tool].name}**: \`stigmergy call ${tool}\``).join('\n')}
 
 ## Usage Examples
 
@@ -707,42 +707,42 @@ For more information: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
 `;
 
     try {
-      await fs.writeFile(projectDocs, docsTemplate, "utf8");
-      console.log("[DOCS] Project documentation created: STIGMERGY.md");
+      await fs.writeFile(projectDocs, docsTemplate, 'utf8');
+      console.log('[DOCS] Project documentation created: STIGMERGY.md');
     } catch (error) {
-      console.log("[WARN] Warning: Could not create project documentation");
+      console.log('[WARN] Warning: Could not create project documentation');
     }
   }
 
   async showUsageInstructions() {
-    console.log("\n" + "=".repeat(60));
-    console.log("[SUCCESS] Stigmergy Installation and Deployment Complete!");
-    console.log("=".repeat(60));
-    console.log("");
-    console.log("[NEXT] Next Steps:");
-    console.log("");
-    console.log("1. Verify Installation:");
-    console.log("   stigmergy status");
-    console.log("");
-    console.log("2. Check Available Tools:");
-    console.log("   stigmergy scan");
-    console.log("");
-    console.log("3. Start Using AI CLI Collaboration:");
+    console.log('\n' + '='.repeat(60));
+    console.log('[SUCCESS] Stigmergy Installation and Deployment Complete!');
+    console.log('='.repeat(60));
+    console.log('');
+    console.log('[NEXT] Next Steps:');
+    console.log('');
+    console.log('1. Verify Installation:');
+    console.log('   stigmergy status');
+    console.log('');
+    console.log('2. Check Available Tools:');
+    console.log('   stigmergy scan');
+    console.log('');
+    console.log('3. Start Using AI CLI Collaboration:');
     console.log('   stigmergy call claude "help me debug this code"');
     console.log('   stigmergy call gemini "generate documentation"');
     console.log('   stigmergy call qwen "translate to English"');
-    console.log("");
-    console.log("4. Initialize New Projects:");
-    console.log("   stigmergy init --primary claude");
-    console.log("");
-    console.log("[INFO] Documentation:");
-    console.log("   - Global Config: ~/.stigmergy/config.json");
-    console.log("   - Project Docs: ./STIGMERGY.md");
+    console.log('');
+    console.log('4. Initialize New Projects:');
+    console.log('   stigmergy init --primary claude');
+    console.log('');
+    console.log('[INFO] Documentation:');
+    console.log('   - Global Config: ~/.stigmergy/config.json');
+    console.log('   - Project Docs: ./STIGMERGY.md');
     console.log(
-      "   - GitHub: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents",
+      '   - GitHub: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents',
     );
-    console.log("");
-    console.log("[END] Happy collaborating with multiple AI CLI tools!");
+    console.log('');
+    console.log('[END] Happy collaborating with multiple AI CLI tools!');
   }
 }
 
@@ -751,62 +751,62 @@ async function main() {
   const args = process.argv.slice(2);
   const installer = new StigmergyInstaller();
 
-  if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+  if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(
-      "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
+      'Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System',
     );
-    console.log("Version: 1.0.78");
-    console.log("");
-    console.log("[SYSTEM] Automated Installation and Deployment System");
-    console.log("");
-    console.log("Usage: stigmergy [command] [options]");
-    console.log("");
-    console.log("Commands:");
-    console.log("  help, --help     Show this help message");
-    console.log("  version, --version Show version information");
-    console.log("  status          Check CLI tools status");
-    console.log("  scan            Scan for available AI CLI tools");
-    console.log("  install         Auto-install missing CLI tools");
-    console.log("  deploy          Deploy hooks to installed tools");
+    console.log('Version: 1.0.78');
+    console.log('');
+    console.log('[SYSTEM] Automated Installation and Deployment System');
+    console.log('');
+    console.log('Usage: stigmergy [command] [options]');
+    console.log('');
+    console.log('Commands:');
+    console.log('  help, --help     Show this help message');
+    console.log('  version, --version Show version information');
+    console.log('  status          Check CLI tools status');
+    console.log('  scan            Scan for available AI CLI tools');
+    console.log('  install         Auto-install missing CLI tools');
+    console.log('  deploy          Deploy hooks to installed tools');
     console.log(
-      "  remove          Remove all Stigmergy hooks from installed tools",
+      '  remove          Remove all Stigmergy hooks from installed tools',
     );
-    console.log("  setup           Complete setup and configuration");
+    console.log('  setup           Complete setup and configuration');
     console.log(
-      "  call <tool>     Execute prompt with specified or auto-routed AI CLI",
+      '  call <tool>     Execute prompt with specified or auto-routed AI CLI',
     );
-    console.log("");
-    console.log("[WORKFLOW] Automated Workflow:");
-    console.log("  1. npm install -g stigmergy        # Install Stigmergy");
+    console.log('');
+    console.log('[WORKFLOW] Automated Workflow:');
+    console.log('  1. npm install -g stigmergy        # Install Stigmergy');
     console.log(
-      "  2. stigmergy install             # Auto-scan & install CLI tools",
+      '  2. stigmergy install             # Auto-scan & install CLI tools',
     );
-    console.log("  3. stigmergy setup               # Deploy hooks & config");
-    console.log("  4. stigmergy call <ai> <prompt>   # Start collaborating");
-    console.log("");
+    console.log('  3. stigmergy setup               # Deploy hooks & config');
+    console.log('  4. stigmergy call <ai> <prompt>   # Start collaborating');
+    console.log('');
     console.log(
-      "For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents",
+      'For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents',
     );
     return;
   }
 
-  if (args.includes("--version") || args.includes("version")) {
-    console.log("1.0.77");
+  if (args.includes('--version') || args.includes('version')) {
+    console.log('1.0.77');
     return;
   }
 
   // Auto-install mode for postinstall script
-  if (args.includes("auto-install")) {
+  if (args.includes('auto-install')) {
     console.log(
-      "[AUTO-INSTALL] Stigmergy CLI - Automated Installation and Deployment",
+      '[AUTO-INSTALL] Stigmergy CLI - Automated Installation and Deployment',
     );
-    console.log("Multi-AI CLI Tools Collaboration System v1.0.77");
-    console.log("=".repeat(60));
+    console.log('Multi-AI CLI Tools Collaboration System v1.0.77');
+    console.log('='.repeat(60));
 
     const originalPrompt = installer.promptForInstallation;
     installer.promptForInstallation = async () => {
       console.log(
-        "[AUTO-INSTALL] Skipping interactive CLI installation in postinstall mode",
+        '[AUTO-INSTALL] Skipping interactive CLI installation in postinstall mode',
       );
       console.log(
         '[AUTO-INSTALL] You can run "stigmergy" manually to install CLI tools interactively',
@@ -814,16 +814,16 @@ async function main() {
       return [];
     };
 
-    console.log("\n[STEP 1] Scanning for AI CLI tools...");
+    console.log('\n[STEP 1] Scanning for AI CLI tools...');
     const scanResults = await installer.scanAvailableTools();
 
-    console.log("\n[STEP 2] Deploying Stigmergy hooks...");
+    console.log('\n[STEP 2] Deploying Stigmergy hooks...');
     await installer.deployHooks(scanResults.available);
 
-    console.log("\n[STEP 3] Setting up configuration...");
+    console.log('\n[STEP 3] Setting up configuration...');
     await installer.setupGlobalConfiguration(scanResults.available);
 
-    console.log("\n[AUTO-INSTALL] Stigmergy automated setup completed!");
+    console.log('\n[AUTO-INSTALL] Stigmergy automated setup completed!');
     console.log(
       '[AUTO-INSTALL] Run "stigmergy" to start interactive CLI tool installation',
     );
@@ -832,76 +832,76 @@ async function main() {
 
   // Define valid commands
   const validCommands = [
-    "help",
-    "--help",
-    "-h",
-    "version",
-    "--version",
-    "status",
-    "scan",
-    "install",
-    "deploy",
-    "remove",
-    "setup",
-    "auto-install",
-    "call",
+    'help',
+    '--help',
+    '-h',
+    'version',
+    '--version',
+    'status',
+    'scan',
+    'install',
+    'deploy',
+    'remove',
+    'setup',
+    'auto-install',
+    'call',
   ];
 
   // Handle remove command
-  if (args[0] === "remove") {
+  if (args[0] === 'remove') {
     console.log(
-      "[REMOVE] Removing Stigmergy hooks from all installed CLI tools...",
+      '[REMOVE] Removing Stigmergy hooks from all installed CLI tools...',
     );
     await installer.removeHooks();
     return;
   }
 
   // Handle call command
-  if (args[0] === "call") {
+  if (args[0] === 'call') {
     return await handleCallCommand(args.slice(1));
   }
 
   // Check for invalid commands
   const hasValidCommand = args.some((arg) => validCommands.includes(arg));
   if (!hasValidCommand && args.length > 0) {
-    console.log("[ERROR] Invalid command:", args[0]);
-    console.log("");
-    console.log("Usage: stigmergy [command] [options]");
-    console.log("");
-    console.log("Available commands:");
-    console.log("  help, --help     Show this help message");
-    console.log("  version, --version Show version information");
-    console.log("  status          Check CLI tools status");
-    console.log("  scan            Scan for available AI CLI tools");
-    console.log("  install         Auto-install missing CLI tools");
-    console.log("  deploy          Deploy hooks to installed tools");
-    console.log("  setup           Complete setup and configuration");
+    console.log('[ERROR] Invalid command:', args[0]);
+    console.log('');
+    console.log('Usage: stigmergy [command] [options]');
+    console.log('');
+    console.log('Available commands:');
+    console.log('  help, --help     Show this help message');
+    console.log('  version, --version Show version information');
+    console.log('  status          Check CLI tools status');
+    console.log('  scan            Scan for available AI CLI tools');
+    console.log('  install         Auto-install missing CLI tools');
+    console.log('  deploy          Deploy hooks to installed tools');
+    console.log('  setup           Complete setup and configuration');
     console.log(
-      "  call <tool>     Execute prompt with specified or auto-routed AI CLI",
+      '  call <tool>     Execute prompt with specified or auto-routed AI CLI',
     );
     console.log(
-      "  call <tool>     Execute prompt with specified or auto-routed AI CLI",
+      '  call <tool>     Execute prompt with specified or auto-routed AI CLI',
     );
-    console.log("");
+    console.log('');
     console.log('Run "stigmergy --help" for more information.');
     process.exit(1);
   }
 
   // Start automated installation and deployment
-  console.log("[START] Stigmergy CLI - Automated Installation and Deployment");
-  console.log("Multi-AI CLI Tools Collaboration System v1.0.77");
-  console.log("=".repeat(60));
+  console.log('[START] Stigmergy CLI - Automated Installation and Deployment');
+  console.log('Multi-AI CLI Tools Collaboration System v1.0.77');
+  console.log('='.repeat(60));
 
-  console.log("\n[STEP 1] Scanning for AI CLI tools...");
+  console.log('\n[STEP 1] Scanning for AI CLI tools...');
   const scanResults = await installer.scanAvailableTools();
 
   if (scanResults.unavailable.length > 0) {
-    console.log("\n[STEP 2] CLI Tool Installation");
+    console.log('\n[STEP 2] CLI Tool Installation');
     const selectedTools = await installer.promptForInstallation(scanResults);
     await installer.installTools(selectedTools);
 
     if (selectedTools.length > 0) {
-      console.log("\n[RESCAN] Re-scanning after installation...");
+      console.log('\n[RESCAN] Re-scanning after installation...');
       scanResults.available = scanResults.available.concat(
         selectedTools.filter((tool) => installer.checkCLI(tool)),
       );
@@ -910,13 +910,13 @@ async function main() {
       );
     }
   } else {
-    console.log("\n[STEP 2] All CLI tools already available!");
+    console.log('\n[STEP 2] All CLI tools already available!');
   }
 
-  console.log("\n[STEP 3] Deploying Stigmergy hooks...");
+  console.log('\n[STEP 3] Deploying Stigmergy hooks...');
   await installer.deployHooks(scanResults.available);
 
-  console.log("\n[STEP 4] Setting up configuration...");
+  console.log('\n[STEP 4] Setting up configuration...');
   await installer.setupGlobalConfiguration(scanResults.available);
 
   await installer.showUsageInstructions();
@@ -925,9 +925,9 @@ async function main() {
 // Memory Management System
 class MemoryManager {
   constructor(stigmergyDir) {
-    this.memoryDir = path.join(stigmergyDir, "memory");
-    this.globalMemoryFile = path.join(this.memoryDir, "global.json");
-    this.projectMemoryFile = path.join(process.cwd(), ".stigmergy-memory.json");
+    this.memoryDir = path.join(stigmergyDir, 'memory');
+    this.globalMemoryFile = path.join(this.memoryDir, 'global.json');
+    this.projectMemoryFile = path.join(process.cwd(), '.stigmergy-memory.json');
   }
 
   async ensureDirectory() {
@@ -952,7 +952,7 @@ class MemoryManager {
   async loadGlobalMemory() {
     try {
       await this.ensureDirectory();
-      const data = await fs.readFile(this.globalMemoryFile, "utf8");
+      const data = await fs.readFile(this.globalMemoryFile, 'utf8');
       return JSON.parse(data);
     } catch (error) {
       return {};
@@ -977,7 +977,7 @@ class MemoryManager {
 
   async loadProjectMemory() {
     try {
-      const data = await fs.readFile(this.projectMemoryFile, "utf8");
+      const data = await fs.readFile(this.projectMemoryFile, 'utf8');
       return JSON.parse(data);
     } catch (error) {
       return {
@@ -1010,16 +1010,16 @@ class MemoryManager {
 async function handleCallCommand(args) {
   const router = new SmartRouter();
   const memoryManager = new MemoryManager(
-    path.join(os.homedir(), ".stigmergy"),
+    path.join(os.homedir(), '.stigmergy'),
   );
 
   if (args.length === 0) {
-    console.log("[ERROR] Call command requires a tool name and/or prompt");
-    console.log("");
-    console.log("Usage: stigmergy call <tool> <prompt>");
-    console.log("       stigmergy call <prompt> (auto-route to best tool)");
-    console.log("");
-    console.log("Available tools:", Object.keys(CLI_TOOLS).join(", "));
+    console.log('[ERROR] Call command requires a tool name and/or prompt');
+    console.log('');
+    console.log('Usage: stigmergy call <tool> <prompt>');
+    console.log('       stigmergy call <prompt> (auto-route to best tool)');
+    console.log('');
+    console.log('Available tools:', Object.keys(CLI_TOOLS).join(', '));
     return;
   }
 
@@ -1028,29 +1028,29 @@ async function handleCallCommand(args) {
   // Check if first argument is a valid tool
   if (CLI_TOOLS[args[0]]) {
     toolName = args[0];
-    prompt = args.slice(1).join(" ");
+    prompt = args.slice(1).join(' ');
   } else {
     // Auto-route based on keywords
-    const routeResult = router.smartRoute(args.join(" "));
+    const routeResult = router.smartRoute(args.join(' '));
     toolName = routeResult.tool;
-    prompt = routeResult.prompt || args.join(" ");
+    prompt = routeResult.prompt || args.join(' ');
   }
 
   if (!prompt) {
-    console.log("[ERROR] Prompt is required");
+    console.log('[ERROR] Prompt is required');
     return;
   }
 
   console.log(`[CALL] Routing to: ${CLI_TOOLS[toolName].name}`);
   console.log(`[PROMPT] ${prompt}`);
-  console.log("=".repeat(60));
+  console.log('='.repeat(60));
 
   const result = await router.executeTool(toolName, prompt);
 
   if (result.success) {
-    console.log("[SUCCESS] Execution completed");
+    console.log('[SUCCESS] Execution completed');
     if (result.output) {
-      console.log("[OUTPUT]");
+      console.log('[OUTPUT]');
       console.log(result.output);
     }
 
@@ -1058,36 +1058,36 @@ async function handleCallCommand(args) {
     await memoryManager.addInteraction(
       toolName,
       prompt,
-      result.output || "Success",
+      result.output || 'Success',
     );
-    console.log(`[MEMORY] Interaction saved to project memory`);
+    console.log('[MEMORY] Interaction saved to project memory');
   } else {
-    console.log("[ERROR] Execution failed");
+    console.log('[ERROR] Execution failed');
     if (result.error) {
-      console.log("[ERROR]", result.error);
+      console.log('[ERROR]', result.error);
     }
 
     // Save failed interaction to memory
     await memoryManager.addInteraction(
       toolName,
       prompt,
-      result.error || "Failed",
+      result.error || 'Failed',
     );
   }
 
-  console.log("");
-  console.log("[INFO] For help with CLI usage: stigmergy help");
+  console.log('');
+  console.log('[INFO] For help with CLI usage: stigmergy help');
 }
 
 // Setup stdin for interactive prompts
 if (require.main === module) {
   if (process.stdin.isTTY) {
     process.stdin.resume();
-    process.stdin.setEncoding("utf8");
+    process.stdin.setEncoding('utf8');
   }
 
   main().catch((error) => {
-    console.error("[ERROR] Error:", error.message);
+    console.error('[ERROR] Error:', error.message);
     process.exit(1);
   });
 }

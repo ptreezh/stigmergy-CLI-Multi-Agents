@@ -48,7 +48,7 @@ class Calculator {
    */
   divide(a, b) {
     if (b === 0) {
-      throw new Error("Cannot divide by zero");
+      throw new Error('Cannot divide by zero');
     }
     return a / b;
   }
@@ -71,7 +71,7 @@ class Calculator {
    */
   sqrt(a) {
     if (a < 0) {
-      throw new Error("Cannot calculate square root of negative number");
+      throw new Error('Cannot calculate square root of negative number');
     }
     return Math.sqrt(a);
   }
@@ -84,7 +84,7 @@ class Calculator {
    */
   factorial(n) {
     if (n < 0) {
-      throw new Error("Cannot calculate factorial of negative number");
+      throw new Error('Cannot calculate factorial of negative number');
     }
 
     if (n === 0 || n === 1) {
@@ -106,7 +106,7 @@ class Calculator {
    */
   percentage(part, whole) {
     if (whole === 0) {
-      throw new Error("Cannot calculate percentage with zero as whole");
+      throw new Error('Cannot calculate percentage with zero as whole');
     }
     return (part / whole) * 100;
   }
@@ -139,11 +139,11 @@ class Calculator {
    */
   fibonacci(n) {
     if (n < 0) {
-      throw new Error("Cannot calculate Fibonacci of negative number");
+      throw new Error('Cannot calculate Fibonacci of negative number');
     }
 
     if (!Number.isInteger(n)) {
-      throw new Error("Fibonacci input must be an integer");
+      throw new Error('Fibonacci input must be an integer');
     }
 
     if (n === 0) return 0;
@@ -170,12 +170,12 @@ class Calculator {
   fibonacciSequence(n) {
     if (n < 0) {
       throw new Error(
-        "Cannot generate Fibonacci sequence with negative length",
+        'Cannot generate Fibonacci sequence with negative length',
       );
     }
 
     if (!Number.isInteger(n)) {
-      throw new Error("Fibonacci sequence length must be an integer");
+      throw new Error('Fibonacci sequence length must be an integer');
     }
 
     if (n === 0) return [];
@@ -199,7 +199,7 @@ class Calculator {
    */
   circleCircumference(radius) {
     if (radius < 0) {
-      throw new Error("Radius cannot be negative");
+      throw new Error('Radius cannot be negative');
     }
     return 2 * Math.PI * radius;
   }
@@ -264,7 +264,7 @@ class CalculationChain {
    */
   divide(value) {
     if (value === 0) {
-      throw new Error("Cannot divide by zero");
+      throw new Error('Cannot divide by zero');
     }
     this.result /= value;
     return this;
@@ -287,7 +287,7 @@ class CalculationChain {
    */
   sqrt() {
     if (this.result < 0) {
-      throw new Error("Cannot calculate square root of negative number");
+      throw new Error('Cannot calculate square root of negative number');
     }
     this.result = Math.sqrt(this.result);
     return this;

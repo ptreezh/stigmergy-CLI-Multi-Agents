@@ -11,13 +11,13 @@ class HashTable {
    * @param {number} size - Initial size of the hash table
    * @param {string} collisionStrategy - Collision handling strategy ('chaining' or 'openAddressing')
    */
-  constructor(size = 53, collisionStrategy = "chaining") {
+  constructor(size = 53, collisionStrategy = 'chaining') {
     this.size = size;
     this.collisionStrategy = collisionStrategy;
 
-    if (collisionStrategy === "chaining") {
+    if (collisionStrategy === 'chaining') {
       this.buckets = new Array(size).fill(null).map(() => []);
-    } else if (collisionStrategy === "openAddressing") {
+    } else if (collisionStrategy === 'openAddressing') {
       this.buckets = new Array(size).fill(null);
       this.deleted = new Array(size).fill(false);
     } else {
@@ -36,7 +36,7 @@ class HashTable {
    * @returns {number} Index in the hash table
    */
   _hash(key) {
-    if (typeof key === "number") {
+    if (typeof key === 'number') {
       return key % this.size;
     }
 
@@ -56,7 +56,7 @@ class HashTable {
    * @returns {number} Secondary hash value
    */
   _hash2(key) {
-    if (typeof key === "number") {
+    if (typeof key === 'number') {
       return 7 - (key % 7);
     }
 
@@ -80,7 +80,7 @@ class HashTable {
     this.size *= 2;
     this.count = 0;
 
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       this.buckets = new Array(this.size).fill(null).map(() => []);
     } else {
       this.buckets = new Array(this.size).fill(null);
@@ -88,7 +88,7 @@ class HashTable {
     }
 
     // Rehash all existing elements
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       for (let i = 0; i < oldSize; i++) {
         const bucket = oldBuckets[i];
         if (bucket) {
@@ -118,7 +118,7 @@ class HashTable {
       this._resize();
     }
 
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       return this._setChaining(key, value);
     } else {
       return this._setOpenAddressing(key, value);
@@ -196,7 +196,7 @@ class HashTable {
    * @returns {*} The value associated with the key, or undefined if not found
    */
   get(key) {
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       return this._getChaining(key);
     } else {
       return this._getOpenAddressing(key);
@@ -252,7 +252,7 @@ class HashTable {
    * @returns {boolean} True if the key was found and deleted, false otherwise
    */
   delete(key) {
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       return this._deleteChaining(key);
     } else {
       return this._deleteOpenAddressing(key);
@@ -322,7 +322,7 @@ class HashTable {
   keys() {
     const keysArr = [];
 
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       for (let i = 0; i < this.size; i++) {
         const bucket = this.buckets[i];
         if (bucket) {
@@ -349,7 +349,7 @@ class HashTable {
   values() {
     const valuesArr = [];
 
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       for (let i = 0; i < this.size; i++) {
         const bucket = this.buckets[i];
         if (bucket) {
@@ -376,7 +376,7 @@ class HashTable {
   entries() {
     const entriesArr = [];
 
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       for (let i = 0; i < this.size; i++) {
         const bucket = this.buckets[i];
         if (bucket) {
@@ -400,7 +400,7 @@ class HashTable {
    * Clear the hash table
    */
   clear() {
-    if (this.collisionStrategy === "chaining") {
+    if (this.collisionStrategy === 'chaining') {
       this.buckets = new Array(this.size).fill(null).map(() => []);
     } else {
       this.buckets = new Array(this.size).fill(null);

@@ -3,7 +3,7 @@
  * Provides secure data encryption and decryption functions using AES-256-GCM
  */
 
-const crypto = require("crypto");
+const crypto = require('crypto');
 
 /**
  * Encrypts data using AES-256-GCM authenticated encryption
@@ -32,26 +32,26 @@ const crypto = require("crypto");
 function encryptData(data, secretKey) {
   // Validate inputs
   if (!data) {
-    throw new Error("Data to encrypt cannot be empty");
+    throw new Error('Data to encrypt cannot be empty');
   }
 
   if (!secretKey) {
-    throw new Error("Secret key is required");
+    throw new Error('Secret key is required');
   }
 
   // Generate a random initialization vector
   const iv = crypto.randomBytes(16);
 
   // Create cipher using AES-256-GCM
-  const cipher = crypto.createCipherGCM("aes-256-gcm", secretKey, iv);
+  const cipher = crypto.createCipherGCM('aes-256-gcm', secretKey, iv);
 
   // Encrypt the data
   let encrypted;
-  if (typeof data === "string") {
-    encrypted = cipher.update(data, "utf8", "hex");
+  if (typeof data === 'string') {
+    encrypted = cipher.update(data, 'utf8', 'hex');
   } else {
     encrypted = cipher.update(data);
-    encrypted = encrypted.toString("hex");
+    encrypted = encrypted.toString('hex');
   }
   cipher.final();
 
@@ -61,8 +61,8 @@ function encryptData(data, secretKey) {
   // Return encrypted data with IV and auth tag
   return {
     encryptedData: encrypted,
-    iv: iv.toString("base64"),
-    authTag: authTag.toString("base64"),
+    iv: iv.toString('base64'),
+    authTag: authTag.toString('base64'),
   };
 }
 
@@ -90,30 +90,30 @@ function decryptData(encryptedObj, secretKey) {
     !encryptedObj.iv ||
     !encryptedObj.authTag
   ) {
-    throw new Error("Invalid encrypted object");
+    throw new Error('Invalid encrypted object');
   }
 
   if (!secretKey) {
-    throw new Error("Secret key is required");
+    throw new Error('Secret key is required');
   }
 
   // Decode base64 encoded values
-  const iv = Buffer.from(encryptedObj.iv, "base64");
-  const authTag = Buffer.from(encryptedObj.authTag, "base64");
+  const iv = Buffer.from(encryptedObj.iv, 'base64');
+  const authTag = Buffer.from(encryptedObj.authTag, 'base64');
 
   // Create decipher using AES-256-GCM
-  const decipher = crypto.createDecipherGCM("aes-256-gcm", secretKey, iv);
+  const decipher = crypto.createDecipherGCM('aes-256-gcm', secretKey, iv);
 
   // Set the authentication tag
   decipher.setAuthTag(authTag);
 
   // Decrypt the data
   let decrypted;
-  if (typeof encryptedObj.encryptedData === "string") {
-    decrypted = decipher.update(encryptedObj.encryptedData, "hex", "utf8");
+  if (typeof encryptedObj.encryptedData === 'string') {
+    decrypted = decipher.update(encryptedObj.encryptedData, 'hex', 'utf8');
   } else {
     decrypted = decipher.update(encryptedObj.encryptedData);
-    decrypted = decrypted.toString("utf8");
+    decrypted = decrypted.toString('utf8');
   }
   decipher.final();
 

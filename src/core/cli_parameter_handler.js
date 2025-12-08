@@ -1,5 +1,5 @@
 // Unified CLI Parameter Handler
-const { spawn } = require("child_process");
+const { spawn } = require('child_process');
 
 class CLIParameterHandler {
   /**
@@ -14,8 +14,8 @@ class CLIParameterHandler {
     let toolArgs = [];
 
     // Special handling for Codex CLI which always needs 'exec' subcommand
-    if (toolName === "codex") {
-      return ["exec", "-p", `"${prompt}"`];
+    if (toolName === 'codex') {
+      return ['exec', '-p', `"${prompt}"`];
     }
 
     try {
@@ -32,21 +32,21 @@ class CLIParameterHandler {
             toolArgs = [commandStructure.nonInteractiveFlag, `"${prompt}"`];
           } else {
             // Fallback to standard -p flag
-            toolArgs = ["-p", `"${prompt}"`];
+            toolArgs = ['-p', `"${prompt}"`];
           }
-        } else if (commandStructure.executionPattern === "flag-based") {
+        } else if (commandStructure.executionPattern === 'flag-based') {
           // Explicitly flag-based tools
           if (commandStructure.promptFlag) {
             toolArgs = [commandStructure.promptFlag, `"${prompt}"`];
           } else {
-            toolArgs = ["-p", `"${prompt}"`];
+            toolArgs = ['-p', `"${prompt}"`];
           }
-        } else if (commandStructure.executionPattern === "argument-based") {
+        } else if (commandStructure.executionPattern === 'argument-based') {
           // Argument-based tools
           toolArgs = [`"${prompt}"`];
-        } else if (commandStructure.executionPattern === "subcommand-based") {
+        } else if (commandStructure.executionPattern === 'subcommand-based') {
           // Subcommand-based tools
-          toolArgs = ["-p", `"${prompt}"`];
+          toolArgs = ['-p', `"${prompt}"`];
         } else {
           // Fallback to tool-specific handling
           toolArgs = this.getToolSpecificArguments(toolName, prompt);
@@ -72,12 +72,12 @@ class CLIParameterHandler {
   static getToolSpecificArguments(toolName, prompt) {
     // Tool-specific argument handling
     const toolSpecificArgs = {
-      claude: ["-p", `"${prompt}"`],
-      qodercli: ["-p", `"${prompt}"`],
-      iflow: ["-p", `"${prompt}"`],
-      codebuddy: ["-p", `"${prompt}"`],
-      copilot: ["-p", `"${prompt}"`],
-      codex: ["exec", "-p", `"${prompt}"`], // Codex needs 'exec' subcommand
+      claude: ['-p', `"${prompt}"`],
+      qodercli: ['-p', `"${prompt}"`],
+      iflow: ['-p', `"${prompt}"`],
+      codebuddy: ['-p', `"${prompt}"`],
+      copilot: ['-p', `"${prompt}"`],
+      codex: ['exec', '-p', `"${prompt}"`], // Codex needs 'exec' subcommand
     };
 
     // Return tool-specific arguments if available
@@ -88,14 +88,14 @@ class CLIParameterHandler {
     // Default handling for other tools
     // Check if the tool commonly uses -p flag
     const toolsWithPFlag = [
-      "claude",
-      "qodercli",
-      "iflow",
-      "codebuddy",
-      "copilot",
+      'claude',
+      'qodercli',
+      'iflow',
+      'codebuddy',
+      'copilot',
     ];
     if (toolsWithPFlag.includes(toolName)) {
-      return ["-p", `"${prompt}"`];
+      return ['-p', `"${prompt}"`];
     }
 
     // Default to argument-based approach
@@ -116,7 +116,7 @@ class CLIParameterHandler {
 
     // Execute the tool
     const child = spawn(toolPath, toolArgs, {
-      stdio: "inherit",
+      stdio: 'inherit',
       shell: true,
     });
 

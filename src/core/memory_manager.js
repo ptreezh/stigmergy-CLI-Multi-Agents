@@ -1,8 +1,8 @@
 // src/core/memory_manager.js
 
-const fs = require("fs/promises");
-const path = require("path");
-const os = require("os");
+const fs = require('fs/promises');
+const path = require('path');
+const os = require('os');
 
 /**
  * Memory Manager - Handles global memory and context sharing between CLI tools
@@ -11,10 +11,10 @@ class MemoryManager {
   constructor() {
     this.globalMemoryFile = path.join(
       os.homedir(),
-      ".stigmergy",
-      "memory.json",
+      '.stigmergy',
+      'memory.json',
     );
-    this.projectMemoryFile = path.join(process.cwd(), "STIGMERGY.md");
+    this.projectMemoryFile = path.join(process.cwd(), 'STIGMERGY.md');
   }
 
   /**
@@ -23,12 +23,12 @@ class MemoryManager {
    */
   async getGlobalMemory() {
     try {
-      const data = await fs.readFile(this.globalMemoryFile, "utf8");
+      const data = await fs.readFile(this.globalMemoryFile, 'utf8');
       return JSON.parse(data);
     } catch (error) {
       // Return default memory structure if file doesn't exist or is invalid
       return {
-        version: "1.0.0",
+        version: '1.0.0',
         lastUpdated: new Date().toISOString(),
         interactions: [],
         collaborations: [],

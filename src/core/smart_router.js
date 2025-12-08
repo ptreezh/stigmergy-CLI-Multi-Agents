@@ -1,6 +1,6 @@
-const CLIHelpAnalyzer = require("./cli_help_analyzer");
-const { CLI_TOOLS, validateCLITool } = require("./cli_tools");
-const { errorHandler, ERROR_TYPES } = require("./error_handler");
+const CLIHelpAnalyzer = require('./cli_help_analyzer');
+const { CLI_TOOLS, validateCLITool } = require('./cli_tools');
+const { errorHandler, ERROR_TYPES } = require('./error_handler');
 
 class SmartRouter {
   constructor() {
@@ -9,22 +9,22 @@ class SmartRouter {
       this.analyzer = new CLIHelpAnalyzer();
       this.analyzer.setCLITools(this.tools);
     } catch (error) {
-      errorHandler.logError(error, "ERROR", "SmartRouter.constructor");
+      errorHandler.logError(error, 'ERROR', 'SmartRouter.constructor');
       throw error;
     }
     this.routeKeywords = [
-      "use",
-      "help",
-      "please",
-      "write",
-      "generate",
-      "explain",
-      "analyze",
-      "translate",
-      "code",
-      "article",
+      'use',
+      'help',
+      'please',
+      'write',
+      'generate',
+      'explain',
+      'analyze',
+      'translate',
+      'code',
+      'article',
     ];
-    this.defaultTool = "claude";
+    this.defaultTool = 'claude';
   }
 
   /**
@@ -75,8 +75,8 @@ class SmartRouter {
           if (input.toLowerCase().includes(keyword.toLowerCase())) {
             // Extract clean parameters
             const cleanInput = input
-              .replace(new RegExp(`.*${keyword}\\s*`, "gi"), "")
-              .replace(/^(use|please|help|using|with)\s*/i, "")
+              .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
+              .replace(/^(use|please|help|using|with)\s*/i, '')
               .trim();
             return { tool: toolName, prompt: cleanInput };
           }
@@ -84,7 +84,7 @@ class SmartRouter {
       } catch (error) {
         await errorHandler.logError(
           error,
-          "WARN",
+          'WARN',
           `SmartRouter.smartRoute.${toolName}`,
         );
         // Continue with next tool
@@ -94,7 +94,7 @@ class SmartRouter {
 
     // Default routing
     const cleanInput = input
-      .replace(/^(use|please|help|using|with)\s*/i, "")
+      .replace(/^(use|please|help|using|with)\s*/i, '')
       .trim();
     return { tool: this.defaultTool, prompt: cleanInput };
   }
@@ -107,14 +107,14 @@ class SmartRouter {
 
     // Add tool-specific keywords
     const toolSpecificKeywords = {
-      claude: ["claude", "anthropic"],
-      gemini: ["gemini", "google"],
-      qwen: ["qwen", "alibaba", "tongyi"],
-      iflow: ["iflow", "workflow", "intelligent"],
-      qodercli: ["qoder", "code"],
-      codebuddy: ["codebuddy", "buddy", "assistant"],
-      copilot: ["copilot", "github", "gh"],
-      codex: ["codex", "openai", "gpt"],
+      claude: ['claude', 'anthropic'],
+      gemini: ['gemini', 'google'],
+      qwen: ['qwen', 'alibaba', 'tongyi'],
+      iflow: ['iflow', 'workflow', 'intelligent'],
+      qodercli: ['qoder', 'code'],
+      codebuddy: ['codebuddy', 'buddy', 'assistant'],
+      copilot: ['copilot', 'github', 'gh'],
+      codex: ['codex', 'openai', 'gpt'],
     };
 
     if (toolSpecificKeywords[toolName]) {

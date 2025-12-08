@@ -3,7 +3,7 @@
  * Provides user authentication functionality including password hashing and token management.
  */
 
-const crypto = require("crypto");
+const crypto = require('crypto');
 
 /**
  * Custom exception for authentication failures.
@@ -11,7 +11,7 @@ const crypto = require("crypto");
 class AuthenticationError extends Error {
   constructor(message) {
     super(message);
-    this.name = "AuthenticationError";
+    this.name = 'AuthenticationError';
   }
 }
 
@@ -38,15 +38,15 @@ class UserAuthenticator {
    */
   registerUser(username, password) {
     if (!username || !password) {
-      throw new Error("Username and password cannot be empty");
+      throw new Error('Username and password cannot be empty');
     }
 
     if (username.length < 3) {
-      throw new Error("Username must be at least 3 characters long");
+      throw new Error('Username must be at least 3 characters long');
     }
 
     if (password.length < 8) {
-      throw new Error("Password must be at least 8 characters long");
+      throw new Error('Password must be at least 8 characters long');
     }
 
     if (this._users.has(username)) {
@@ -54,7 +54,7 @@ class UserAuthenticator {
     }
 
     // Hash the password with a salt
-    const salt = crypto.randomBytes(16).toString("hex");
+    const salt = crypto.randomBytes(16).toString('hex');
     const passwordHash = this._hashPassword(password, salt);
 
     this._users.set(username, {
@@ -75,18 +75,18 @@ class UserAuthenticator {
    */
   authenticateUser(username, password) {
     if (!this._users.has(username)) {
-      throw new AuthenticationError("Invalid username or password");
+      throw new AuthenticationError('Invalid username or password');
     }
 
     const userData = this._users.get(username);
     const passwordHash = this._hashPassword(password, userData.salt);
 
     if (passwordHash !== userData.passwordHash) {
-      throw new AuthenticationError("Invalid username or password");
+      throw new AuthenticationError('Invalid username or password');
     }
 
     // Generate session token
-    const sessionToken = crypto.randomBytes(32).toString("base64url");
+    const sessionToken = crypto.randomBytes(32).toString('base64url');
     this._sessions.set(sessionToken, {
       username: username,
       createdAt: Date.now(),
@@ -139,9 +139,9 @@ class UserAuthenticator {
         salt,
         100000, // iterations
         32, // key length
-        "sha256", // digest
+        'sha256', // digest
       )
-      .toString("hex");
+      .toString('hex');
   }
 }
 

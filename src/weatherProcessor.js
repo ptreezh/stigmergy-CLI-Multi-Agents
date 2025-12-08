@@ -17,27 +17,27 @@
  */
 function processWeatherData(rawData, options = {}) {
   // Validate input
-  if (!rawData || typeof rawData !== "object") {
-    throw new Error("Invalid weather data: must be an object");
+  if (!rawData || typeof rawData !== 'object') {
+    throw new Error('Invalid weather data: must be an object');
   }
 
   // Default options
   const opts = {
-    unit: "celsius",
+    unit: 'celsius',
     includeForecasts: false,
     forecastDays: 5,
     ...options,
   };
 
   // Validate options
-  if (!["celsius", "fahrenheit", "kelvin"].includes(opts.unit)) {
+  if (!['celsius', 'fahrenheit', 'kelvin'].includes(opts.unit)) {
     throw new Error(
       'Invalid unit: must be "celsius", "fahrenheit", or "kelvin"',
     );
   }
 
   if (opts.forecastDays < 1 || opts.forecastDays > 7) {
-    throw new Error("Invalid forecastDays: must be between 1 and 7");
+    throw new Error('Invalid forecastDays: must be between 1 and 7');
   }
 
   // Process current weather data
@@ -62,8 +62,8 @@ function _extractLocation(data) {
   // Handle various location formats from different APIs
   if (data.location) {
     return {
-      name: data.location.name || data.location.city || "Unknown",
-      country: data.location.country || "",
+      name: data.location.name || data.location.city || 'Unknown',
+      country: data.location.country || '',
       coordinates: {
         lat: data.location.lat || data.location.latitude || 0,
         lon: data.location.lon || data.location.longitude || 0,
@@ -74,7 +74,7 @@ function _extractLocation(data) {
   if (data.city) {
     return {
       name: data.city.name || data.city,
-      country: data.city.country || "",
+      country: data.city.country || '',
       coordinates: {
         lat: data.city.coord?.lat || data.city.latitude || 0,
         lon: data.city.coord?.lon || data.city.longitude || 0,
@@ -83,8 +83,8 @@ function _extractLocation(data) {
   }
 
   return {
-    name: "Unknown",
-    country: "",
+    name: 'Unknown',
+    country: '',
     coordinates: { lat: 0, lon: 0 },
   };
 }
@@ -103,12 +103,12 @@ function _processCurrentWeather(current, unit) {
   // Convert temperature to requested unit
   const temp = _convertTemperature(
     current.temp || current.temperature || 0,
-    "kelvin",
+    'kelvin',
     unit,
   );
   const feelsLike = _convertTemperature(
     current.feels_like || current.feelsLike || temp,
-    "kelvin",
+    'kelvin',
     unit,
   );
 
@@ -127,8 +127,8 @@ function _processCurrentWeather(current, unit) {
     visibility: current.visibility || 0,
     cloudiness: current.clouds || current.cloudiness || 0,
     description:
-      current.description || current.weather?.[0]?.description || "Unknown",
-    icon: current.icon || current.weather?.[0]?.icon || "",
+      current.description || current.weather?.[0]?.description || 'Unknown',
+    icon: current.icon || current.weather?.[0]?.icon || '',
   };
 }
 
@@ -148,20 +148,20 @@ function _processForecastData(forecasts, options) {
 
   return limitedForecasts.map((forecast) => {
     const date = forecast.dt
-      ? new Date(forecast.dt * 1000).toISOString().split("T")[0]
-      : forecast.date || new Date().toISOString().split("T")[0];
+      ? new Date(forecast.dt * 1000).toISOString().split('T')[0]
+      : forecast.date || new Date().toISOString().split('T')[0];
 
     return {
       date: date,
       temperature: {
         min: _convertTemperature(
           forecast.temp?.min || forecast.min_temp || 0,
-          "kelvin",
+          'kelvin',
           options.unit,
         ),
         max: _convertTemperature(
           forecast.temp?.max || forecast.max_temp || 0,
-          "kelvin",
+          'kelvin',
           options.unit,
         ),
         unit: options.unit,
@@ -177,7 +177,7 @@ function _processForecastData(forecasts, options) {
         amount: forecast.rain || forecast.snow || 0,
       },
       description:
-        forecast.weather?.[0]?.description || forecast.description || "Unknown",
+        forecast.weather?.[0]?.description || forecast.description || 'Unknown',
     };
   });
 }
@@ -197,29 +197,29 @@ function _convertTemperature(value, fromUnit, toUnit) {
   // Convert to Celsius first
   let celsius;
   switch (fromUnit) {
-    case "celsius":
-      celsius = value;
-      break;
-    case "fahrenheit":
-      celsius = ((value - 32) * 5) / 9;
-      break;
-    case "kelvin":
-      celsius = value - 273.15;
-      break;
-    default:
-      celsius = value;
+  case 'celsius':
+    celsius = value;
+    break;
+  case 'fahrenheit':
+    celsius = ((value - 32) * 5) / 9;
+    break;
+  case 'kelvin':
+    celsius = value - 273.15;
+    break;
+  default:
+    celsius = value;
   }
 
   // Convert from Celsius to target unit
   switch (toUnit) {
-    case "celsius":
-      return celsius;
-    case "fahrenheit":
-      return (celsius * 9) / 5 + 32;
-    case "kelvin":
-      return celsius + 273.15;
-    default:
-      return celsius;
+  case 'celsius':
+    return celsius;
+  case 'fahrenheit':
+    return (celsius * 9) / 5 + 32;
+  case 'kelvin':
+    return celsius + 273.15;
+  default:
+    return celsius;
   }
 }
 
