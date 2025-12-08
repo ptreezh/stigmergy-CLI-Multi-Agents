@@ -6,6 +6,17 @@
 const path = require('path');
 const { spawn } = require('child_process');
 
+// Set up global error handlers for the launcher
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[FATAL] Launcher Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[FATAL] Launcher Uncaught Exception:', error);
+  process.exit(1);
+});
+
 // Get the path to the main script
 const mainScript = path.join(__dirname, '..', 'src', 'main_english.js');
 
