@@ -189,13 +189,20 @@ class StigmergyInstaller {
     console.log('\n[DEPLOY] Deploying project documentation...');
 
     try {
-      // Create standard project documentation files
-      const docs = {
+      // Create standard project documentation files for each CLI
+      const cliDocs = {
+        'claude.md': this.generateCLIDocumentation('claude'),
+        'gemini.md': this.generateCLIDocumentation('gemini'),
+        'qwen.md': this.generateCLIDocumentation('qwen'),
+        'iflow.md': this.generateCLIDocumentation('iflow'),
+        'qodercli.md': this.generateCLIDocumentation('qodercli'),
+        'codebuddy.md': this.generateCLIDocumentation('codebuddy'),
+        'copilot.md': this.generateCLIDocumentation('copilot'),
+        'codex.md': this.generateCLIDocumentation('codex'),
         'STIGMERGY.md': this.generateProjectMemoryTemplate(),
-        'README.md': this.generateProjectReadme(),
       };
 
-      for (const [filename, content] of Object.entries(docs)) {
+      for (const [filename, content] of Object.entries(cliDocs)) {
         const filepath = path.join(process.cwd(), filename);
         if (!(await this.fileExists(filepath))) {
           await fs.writeFile(filepath, content);
@@ -211,26 +218,45 @@ class StigmergyInstaller {
     }
   }
 
-  generateProjectMemoryTemplate() {
-    return `# Stigmergy Project Memory
+  generateCLIDocumentation(cliName) {
+    const cliInfo = this.router.tools[cliName] || { name: cliName };
+    return `# ${cliInfo.name} CLI Documentation
 
-## Project Information
-- **Project Name**: ${path.basename(process.cwd())}
-- **Created**: ${new Date().toISOString()}
-- **Stigmergy Version**: 1.0.94
+## Overview
+This document contains configuration and usage information for the ${cliInfo.name} CLI tool within the Stigmergy system.
 
-## Usage Instructions
-This file automatically tracks all interactions with AI CLI tools through the Stigmergy system.
+## Basic Information
+- **CLI Name**: ${cliName}
+- **Tool Name**: ${cliInfo.name}
+- **Installation Command**: \`${cliInfo.install || 'Not configured'}\`
+- **Version Check**: \`${cliInfo.version || cliName + ' --version'}\`
 
-## Recent Interactions
-No interactions recorded yet.
+## Usage Patterns
+The ${cliInfo.name} CLI can be invoked in several ways:
+1. Direct execution: \`${cliName} [arguments]\`
+2. Through Stigmergy coordination layer
+3. Cross-CLI calls from other tools
 
-## Collaboration History
-No collaboration history yet.
+## Cross-CLI Communication
+To call ${cliInfo.name} from another CLI tool:
+\`\`\`bash
+# From any other supported CLI
+use ${cliName} to [task description]
+# or
+call ${cliName} [task description]
+# or
+ask ${cliName} [task description]
+\`\`\`
+
+## Configuration
+This tool integrates with Stigmergy through hooks deployed to:
+\`${cliInfo.hooksDir || 'Not configured'}\`
+
+## Last Updated
+${new Date().toISOString()}
 
 ---
 *This file is automatically managed by Stigmergy CLI*
-*Last updated: ${new Date().toISOString()}*
 `;
   }
 
@@ -359,16 +385,86 @@ See [STIGMERGY.md](STIGMERGY.md) for interaction history and collaboration recor
     console.log('='.repeat(60));
     console.log('');
     console.log('Next steps:');
-    console.log('  ✅ Run `stigmergy call "<your prompt>"` to start collaborating');
-    console.log('  ✅ Or use `stigmergy --help` for more commands');
-    console.log('');
-    console.log('Example usage:');
-    console.log('  stigmergy call "Create a React component for a todo list"');
-    console.log('  stigmergy call "Refactor this Python code for better performance"');
-    console.log('  stigmergy call "Explain how this JavaScript function works"');
+    console.log('  ✅ Use `stigmergy --help` for available commands');
     console.log('');
     console.log('Happy coding with Stigmergy! 🚀');
     console.log('');
+  }
+
+  generateProjectMemoryTemplate() {
+    return `# Stigmergy Project Memory
+
+## Project Information
+- **Project Name**: ${path.basename(process.cwd())}
+- **Created**: ${new Date().toISOString()}
+- **Stigmergy Version**: 1.0.94
+
+## Usage Instructions
+This file automatically tracks all interactions with AI CLI tools through the Stigmergy system.
+
+## Recent Interactions
+No interactions recorded yet.
+
+## Collaboration History
+No collaboration history yet.
+
+## Available CLI Tools
+See individual documentation files:
+- claude.md
+- gemini.md
+- qwen.md
+- iflow.md
+- qodercli.md
+- codebuddy.md
+- copilot.md
+- codex.md
+
+---
+*This file is automatically managed by Stigmergy CLI*
+*Last updated: ${new Date().toISOString()}*
+`;
+  }
+
+  generateCLIDocumentation(cliName) {
+    const cliInfo = this.router.tools[cliName] || { name: cliName };
+    return `# ${cliInfo.name} CLI Documentation
+
+## Overview
+This document contains configuration and usage information for the ${cliInfo.name} CLI tool within the Stigmergy system.
+
+## Basic Information
+- **CLI Name**: ${cliName}
+- **Tool Name**: ${cliInfo.name}
+- **Installation Command**: \`${cliInfo.install || 'Not configured'}\`
+- **Version Check**: \`${cliInfo.version || cliName + ' --version'}\`
+
+## Usage Patterns
+The ${cliInfo.name} CLI can be invoked in several ways:
+1. Direct execution: \`${cliName} [arguments]\`
+2. Through Stigmergy coordination layer
+3. Cross-CLI calls from other tools
+
+## Cross-CLI Communication
+To call ${cliInfo.name} from another CLI tool:
+\`\`\`bash
+# From any other supported CLI
+use ${cliName} to [task description]
+# or
+call ${cliName} [task description]
+# or
+ask ${cliName} [task description]
+\`\`\`
+
+## Configuration
+This tool integrates with Stigmergy through hooks deployed to:
+\`${cliInfo.hooksDir || 'Not configured'}\`
+
+## Last Updated
+${new Date().toISOString()}
+
+---
+*This file is automatically managed by Stigmergy CLI*
+`;
   }
 }
 

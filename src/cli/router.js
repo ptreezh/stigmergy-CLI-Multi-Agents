@@ -60,7 +60,7 @@ async function main() {
     console.log(
       '  init            Initialize Stigmergy configuration (alias for setup)',
     );
-    console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
+    
     console.log('  fibonacci <n>   Calculate the nth Fibonacci number');
     console.log('  fibonacci seq <n> Generate the first n Fibonacci numbers');
     console.log('  errors          Display error report and statistics');
@@ -71,7 +71,7 @@ async function main() {
       '  2. stigmergy install             # Auto-scan & install CLI tools',
     );
     console.log('  3. stigmergy setup               # Deploy hooks & config');
-    console.log('  4. stigmergy call "<prompt>"   # Start collaborating');
+    
     console.log('');
     console.log(
       'For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents',
@@ -281,107 +281,7 @@ async function main() {
     break;
   }
 
-  case 'call': {
-    if (args.length < 2) {
-      console.log('[ERROR] Please provide a prompt');
-      console.log('Usage: stigmergy call "<your prompt>"');
-      process.exit(1);
-    }
-
-    // Extract prompt from quotes or join remaining args
-    let prompt = '';
-    if (args[1].startsWith('"') && args[args.length - 1].endsWith('"')) {
-      // Quoted prompt
-      prompt = args.slice(1).join(' ').slice(1, -1);
-    } else {
-      // Unquoted prompt
-      prompt = args.slice(1).join(' ');
-    }
-
-    try {
-      console.log(`[ROUTE] Analyzing prompt: ${prompt}`);
-
-      // Route to appropriate AI CLI tool
-      const route = await router.smartRoute(prompt);
-      console.log(`[ROUTE] Selected tool: ${route.tool}`);
-
-      // Prepare tool arguments
-      let toolArgs = [];
-      
-      try {
-        // Get CLI pattern for this tool
-        const cliPattern = await router.analyzer.getCLIPattern(route.tool);
-
-        // Use the unified CLI parameter handler
-        const CLIParameterHandler = require('../core/cli_parameter_handler');
-        toolArgs = CLIParameterHandler.generateArguments(
-          route.tool,
-          route.prompt,
-          cliPattern,
-        );
-      } catch (patternError) {
-        // Fallback to original logic if pattern analysis fails
-        const CLIParameterHandler = require('../core/cli_parameter_handler');
-        toolArgs = CLIParameterHandler.getToolSpecificArguments(route.tool, route.prompt);
-      }
-      
-      const toolPath = route.tool;
-
-      console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
-
-      // Execute the AI CLI tool
-      const startTime = Date.now();
-      try {
-        const result = await executeCommand(toolPath, toolArgs);
-
-        if (result.success) {
-          console.log('[RESULT] Success!');
-          console.log(result.output);
-
-          // Save to memory
-          await memory.addInteraction(route.tool, prompt, result.output);
-
-          // Exit with the same code as the executed command
-          process.exit(result.code || 0);
-        }
-      } catch (executionError) {
-        const cliError = await errorHandler.handleCLIError(
-          route.tool,
-          executionError.error || executionError,
-          toolArgs.join(' '),
-        );
-
-        // Provide clear ANSI English error message
-        console.log('==================================================');
-        console.log('ERROR: Failed to execute AI CLI tool');
-        console.log('==================================================');
-        console.log(`Tool: ${route.tool}`);
-        console.log(`Error: ${cliError.message}`);
-        if (executionError.stderr) {
-          console.log(`Stderr: ${executionError.stderr}`);
-        }
-        console.log('');
-        console.log('Possible solutions:');
-        console.log('1. Check if the AI CLI tool is properly installed');
-        console.log('2. Verify the tool is in your system PATH');
-        console.log('3. Try reinstalling the tool with: stigmergy install');
-        console.log('4. Run stigmergy status to check tool availability');
-        console.log('');
-        console.log('For manual execution, you can run:');
-        console.log(`${toolPath} ${toolArgs.join(' ')}`);
-        console.log('==================================================');
-
-        process.exit(1);
-      }
-    } catch (error) {
-      console.log(
-        `[ERROR] Failed to route prompt:`,
-        error.message,
-      );
-      process.exit(1);
-    }
-    break;
-  }
+  
 
   case 'auto-install':
     // Auto-install mode for npm postinstall - NON-INTERACTIVE

@@ -122,20 +122,31 @@ class ${this.capitalize(cliName)}NodeJsHook {
   }
 
   detectCrossCLIRequest(prompt) {
-    // Simple pattern matching for cross-CLI requests
+    // Enhanced pattern matching for cross-CLI requests
     const patterns = [
-      /(?:use|call|ask)\\s+(\\w+)\\s+(?:to|for)\\s+(.+)$/i,
-      /(?:use|call|ask)\\s+(\\w+)\\s+(?:to|for)\\s+(.+)$/i  // English-only pattern
+      /(?:use|call|ask)\\\\s+(\\\\w+)\\\\s+(?:to|for)\\\\s+(.+)$/i,
+      /(?:please\\\\s+)?(?:use|call|ask)\\\\s+(\\\\w+)\\\\s+(.+)$/i,
+      /(\\\\w+)[,\\\\s]+(?:please\\\\s+)?(?:help\\\\s+me\\\\s+)?(.+)$/i
     ];
     
     for (const pattern of patterns) {
       const match = prompt.match(pattern);
-      if (match) {
-        return {
-          targetCLI: match[1].toLowerCase(),
-          task: match[2] || match[3],
-          source: this.cliName
-        };
+      if (match && match.length >= 3) {
+        const targetCLI = match[1].toLowerCase();
+        const task = match[2];
+        
+        // Validate that the target CLI is supported
+        const supportedCLIs = [
+          'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot'
+        ];
+        
+        if (supportedCLIs.includes(targetCLI)) {
+          return {
+            targetCLI: targetCLI,
+            task: task,
+            source: this.cliName
+          };
+        }
       }
     }
     
@@ -145,14 +156,46 @@ class ${this.capitalize(cliName)}NodeJsHook {
   async handleCrossCLIRequest(request, context) {
     this.log('INFO', \`Cross-CLI request detected: \${JSON.stringify(request)}\`);
     
-    // In a real implementation, this would communicate with the coordination layer
-    // For now, we simulate the response
-    return \`[NODE.JS HOOK] Simulated cross-CLI call to \${request.targetCLI}: \${request.task}\`;
+    // Validate the request
+    if (!request.targetCLI || !request.task) {
+      this.log('ERROR', 'Invalid cross-CLI request: missing targetCLI or task');
+      return \`[CROSS-CLI] Invalid request: missing targetCLI or task\`;
+    }
+    
+    // Check if the target CLI is the same as the source
+    if (request.targetCLI === this.cliName) {
+      this.log('WARN', 'Cross-CLI request to self ignored');
+      return \`[CROSS-CLI] Cannot call self (\${request.targetCLI})\`;
+    }
+    
+    // Communicate with the coordination layer to execute the cross-CLI call
+    try {
+      // Dynamically load the CLCommunication module
+      const modulePath = path.join(__dirname, '..', '..', '..', '..', 'src', 'core', 'coordination', 'nodejs', 'CLCommunication');
+      const CLCommunication = require(modulePath);
+      const communicator = new CLCommunication();
+      
+      const result = await communicator.executeTask(
+        request.source, 
+        request.targetCLI, 
+        request.task, 
+        context
+      );
+      
+      if (result.success) {
+        return \`[CROSS-CLI] Response from \${request.targetCLI}: \${result.output}\`;
+      } else {
+        return \`[CROSS-CLI] Error from \${request.targetCLI}: \${result.error}\`;
+      }
+    } catch (error) {
+      this.log('ERROR', \`Failed to handle cross-CLI request: \${error.message}\`);
+      return \`[CROSS-CLI] Failed to execute \${request.targetCLI}: \${error.message}\`;
+    }
   }
 
   log(level, message) {
     const timestamp = new Date().toISOString();
-    const logEntry = \`[\${timestamp}] [\${level}] [\${this.cliName.toUpperCase()}] \${message}\\n\`;
+    const logEntry = \`[\${timestamp}] [\${level}] [\${this.cliName.toUpperCase()}] \${message}\\\\n\`;
     
     try {
       fs.appendFileSync(this.logFile, logEntry);
