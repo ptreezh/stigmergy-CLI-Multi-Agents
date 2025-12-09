@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
@@ -112,7 +112,12 @@
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -121,7 +126,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -130,6 +134,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -154,7 +162,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -170,43 +180,48 @@
 &nbsp;
 const fs = <span class="cstat-no" title="statement not covered" >require('fs').promises;</span>
 const path = <span class="cstat-no" title="statement not covered" >require('path');</span>
-const os = <span class="cstat-no" title="statement not covered" >require('os');</span>
 &nbsp;
 // Import the main Stigmergy installer
 const { StigmergyInstaller } = <span class="cstat-no" title="statement not covered" >require('./main_english.js');</span>
 &nbsp;
+// Set up global error handlers using our error handler module
+const { setupGlobalErrorHandlers } = <span class="cstat-no" title="statement not covered" >require('./core/error_handler');</span>
+<span class="cstat-no" title="statement not covered" >setupGlobalErrorHandlers();</span>
+&nbsp;
 async function <span class="fstat-no" title="function not covered" >deploy(</span>) {
-<span class="cstat-no" title="statement not covered" >    console.log('Stigmergy Deployment Script');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('==========================');</span>
-    
-<span class="cstat-no" title="statement not covered" >    try {</span>
-        // Create installer instance
-        const installer = <span class="cstat-no" title="statement not covered" >new StigmergyInstaller();</span>
-        
-        // Scan for available tools
-<span class="cstat-no" title="statement not covered" >        console.log('[SCAN] Scanning for available CLI tools...');</span>
-        const scanResult = <span class="cstat-no" title="statement not covered" >await installer.scanCLI();</span>
-        const available = <span class="cstat-no" title="statement not covered" >scanResult.available;</span>
-        
-        // Deploy hooks for all available tools
-<span class="cstat-no" title="statement not covered" >        console.log('[DEPLOY] Deploying hooks for all available tools...');</span>
-<span class="cstat-no" title="statement not covered" >        await installer.deployHooks(available);</span>
-        
-<span class="cstat-no" title="statement not covered" >        console.log('\n[SUCCESS] Deployment completed successfully!');</span>
-<span class="cstat-no" title="statement not covered" >        return true;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >        console.error('[ERROR] Deployment failed:', error.message);</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-    }
+<span class="cstat-no" title="statement not covered" >  console.log('Stigmergy Deployment Script');</span>
+<span class="cstat-no" title="statement not covered" >  console.log('==========================');</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    // Create installer instance
+    const installer = <span class="cstat-no" title="statement not covered" >new StigmergyInstaller();</span>
+&nbsp;
+    // Scan for available tools
+<span class="cstat-no" title="statement not covered" >    console.log('[SCAN] Scanning for available CLI tools...');</span>
+    const scanResult = <span class="cstat-no" title="statement not covered" >await installer.scanCLI();</span>
+    const available = <span class="cstat-no" title="statement not covered" >scanResult.available;</span>
+&nbsp;
+    // Deploy hooks for all available tools
+<span class="cstat-no" title="statement not covered" >    console.log('[DEPLOY] Deploying hooks for all available tools...');</span>
+<span class="cstat-no" title="statement not covered" >    await installer.deployHooks(available);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    console.log('\n[SUCCESS] Deployment completed successfully!');</span>
+<span class="cstat-no" title="statement not covered" >    return true;</span>
+  } catch (error) {
+<span class="cstat-no" title="statement not covered" >    console.error('[ERROR] Deployment failed:', error.message);</span>
+<span class="cstat-no" title="statement not covered" >    return false;</span>
+  }
 }
 &nbsp;
 // Run deployment if called directly
 <span class="cstat-no" title="statement not covered" >if (require.main === module) {</span>
-<span class="cstat-no" title="statement not covered" >    deploy().then(<span class="fstat-no" title="function not covered" >su</span>ccess =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        process.exit(success ? 0 : 1);</span>
-    }).catch(<span class="fstat-no" title="function not covered" >er</span>ror =&gt; {
-<span class="cstat-no" title="statement not covered" >        console.error('[FATAL ERROR]:', error.message);</span>
-<span class="cstat-no" title="statement not covered" >        process.exit(1);</span>
+<span class="cstat-no" title="statement not covered" >  deploy()</span>
+    .then(<span class="fstat-no" title="function not covered" >(s</span>uccess) =&gt; {
+<span class="cstat-no" title="statement not covered" >      process.exit(success ? 0 : 1);</span>
+    })
+    .catch(<span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {
+<span class="cstat-no" title="statement not covered" >      console.error('[FATAL ERROR]:', error.message);</span>
+<span class="cstat-no" title="statement not covered" >      process.exit(1);</span>
     });
 }
 &nbsp;
@@ -217,7 +232,7 @@ async function <span class="fstat-no" title="function not covered" >deploy(</spa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-08T04:11:07.278Z
+                at 2025-12-09T04:57:17.232Z
             </div>
         <script src="../prettify.js"></script>
         <script>

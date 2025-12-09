@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from unittest.mock import patch, Mock
 from src.utils.cli_detector import detect_claude_cli_status
-from src.core.base_adapter import IntentResult
+from src.adapters.codex.natural_language_parser import IntentResult
 
 
 class TestClaudeHookIntegration:
@@ -82,7 +82,7 @@ class TestClaudeHookIntegration:
     @pytest.mark.integration
     def test_cross_cli_intent_detection(self):
         """测试跨CLI调用意图检测"""
-        from src.core.parser import NaturalLanguageParser
+        from src.adapters.codex.natural_language_parser import NaturalLanguageParser
 
         parser = NaturalLanguageParser()
 

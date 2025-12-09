@@ -25,8 +25,6 @@ smart-cli-router/
 ├── 🔧 核心代码 (src/)
 │   ├── core/                        # 核心框架
 │   │   ├── __init__.py
-│   │   ├── base_adapter.py          # 适配器基类
-│   │   ├── factory.py               # 适配器工厂
 │   │   ├── parser.py                # 自然语言解析器
 │   │   ├── router.py                # 意图路由器
 │   │   └── collaboration.py         # 协作协调器
@@ -201,25 +199,7 @@ smart-cli-router/
 
 ## 🔧 核心组件说明
 
-### 1. **BaseAdapter** (`src/core/base_adapter.py`)
-所有CLI适配器的基类，定义统一接口：
-```python
-class BaseCrossCLIAdapter(ABC):
-    @abstractmethod
-    async def execute_task(self, task: str, context: dict) -> str
-    @abstractmethod
-    def is_available(self) -> bool
-```
-
-### 2. **AdapterFactory** (`src/core/factory.py`)
-适配器工厂，负责创建和管理适配器实例：
-```python
-class CrossCliAdapterFactory:
-    def get_adapter(self, cli_name: str) -> BaseCrossCLIAdapter
-    def list_available_adapters(self) -> Dict[str, bool]
-```
-
-### 3. **NaturalLanguageParser** (`src/core/parser.py`)
+### 1. **NaturalLanguageParser** (`src/core/parser.py`)
 自然语言解析器，识别跨CLI调用意图：
 ```python
 class NaturalLanguageParser:
@@ -227,12 +207,12 @@ class NaturalLanguageParser:
     def detect_cross_cli_call(self, text: str) -> bool
 ```
 
-### 4. **IntentRouter** (`src/core/router.py`)
+### 2. **IntentRouter** (`src/core/router.py`)
 意图路由器，根据解析结果路由到相应处理器：
 ```python
 class IntentRouter:
     def route_request(self, intent: IntentResult) -> RequestTarget
-    def select_adapter(self, target_cli: str) -> BaseCrossCLIAdapter
+    def select_adapter(self, target_cli: str) -> Handler
 ```
 
 ---

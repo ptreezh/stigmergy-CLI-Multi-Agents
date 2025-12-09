@@ -14,8 +14,7 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 
 # 导入被测试的模块
-from src.core.base_adapter import BaseCrossCLIAdapter
-from src.core.parser import NaturalLanguageParser, IntentResult
+from src.adapters.codex.natural_language_parser import IntentResult
 
 
 class MockIFlowPipelineContext:
@@ -39,9 +38,10 @@ class TestIFlowWorkflowAdapterTDD:
     @pytest.fixture
     def mock_adapter_class(self):
         """Mock适配器类用于TDD"""
-        class IFlowWorkflowAdapter(BaseCrossCLIAdapter):
+        class IFlowWorkflowAdapter:
             def __init__(self, cli_name: str):
-                super().__init__(cli_name)
+                self.cli_name = cli_name
+                self.version = "1.0.0"
                 self.pipeline_stages = []
                 self.processed_workflows = []
                 self.workflow_executions = []
@@ -49,201 +49,41 @@ class TestIFlowWorkflowAdapterTDD:
                 self.stages_processed = 0
                 self.cross_cli_calls_count = 0
 
-            async def initialize(self) -> bool:
-                """初始化Workflow Pipeline系统"""
-                try:
-                    # 1. 加载Pipeline配置
-                    await self._load_pipeline_config()
-
-                    # 2. 注册Pipeline处理器
-                    await self._register_pipeline_stages()
-
-                    # 3. 设置Workflow Hooks
-                    await self._setup_workflow_hooks()
-
-                    # 4. 初始化任务队列
-                    await self._initialize_task_queue()
-
-                    return True
-                except Exception as e:
-                    print(f"初始化失败: {e}")
-                    return False
-
-            async def _load_pipeline_config(self) -> bool:
-                """加载Pipeline配置"""
-                config_path = Path("src/adapters/iflow/config.json")
-                if config_path.exists():
-                    with open(config_path, 'r', encoding='utf-8') as f:
-                        self.pipeline_config = json.load(f)
-                    return True
-                return False
-
-            async def _register_pipeline_stages(self) -> bool:
-                """注册Pipeline阶段处理器"""
-                self.pipeline_stages = [
-                    'input_validation',
-                    'cross_cli_detection',
-                    'target_execution',
-                    'result_processing',
-                    'output_formatting'
-                ]
-                return True
-
-            async def _setup_workflow_hooks(self) -> bool:
-                """设置Workflow Hooks"""
-                self.pipeline_hooks = {
-                    'on_workflow_start': self.on_workflow_start,
-                    'on_stage_complete': self.on_stage_complete,
-                    'on_workflow_success': self.on_workflow_success,
-                    'on_workflow_error': self.on_workflow_error,
-                    'on_pipeline_ready': self.on_pipeline_ready
-                }
-                return True
-
-            async def _initialize_task_queue(self) -> bool:
-                """初始化任务队列"""
-                self.task_queue = asyncio.Queue()
-                return True
+            async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
+                """模拟执行跨CLI任务"""
+                self.cross_cli_calls_count += 1
+                self.workflow_executions.append({
+                    'task': task,
+                    'context': context,
+                    'timestamp': datetime.datetime.now().isoformat()
+                })
+                return f"[iFlow → {context.get('target_cli', 'unknown').upper()} 调用结果]\n模拟执行: {task}"
 
             def is_available(self) -> bool:
-                """检查Pipeline系统是否可用"""
+                """检查适配器是否可用"""
                 return len(self.pipeline_stages) > 0
 
-            async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
-                """执行工作流任务"""
-                return f"iFlow处理结果: {task}"
-
-            # Pipeline Hook处理器
-            async def on_workflow_start(self, context: MockIFlowPipelineContext) -> Optional[str]:
-                """工作流开始Hook"""
-                try:
-                    self.stages_processed += 1
-                    workflow_data = {
-                        'workflow_id': context.workflow_id,
-                        'stage': context.stage,
-                        'data': context.data,
-                        'metadata': context.metadata
-                    }
-                    self.processed_workflows.append(workflow_data)
-
-                    # 检测跨CLI调用意图
-                    if self._detect_cross_cli_intent(context):
-                        target_cli, task = self._parse_cross_cli_task(context)
-                        if target_cli and target_cli != 'iflow':
-                            result = await self._execute_cross_cli_workflow(target_cli, task, context)
-                            return result
-
-                    return None  # 继续正常Pipeline流程
-
-                except Exception as e:
-                    print(f"工作流开始Hook错误: {e}")
-                    return None
-
-            async def on_stage_complete(self, context: MockIFlowPipelineContext, stage_result: Any) -> Optional[str]:
-                """阶段完成Hook"""
-                self.stages_processed += 1
-                return None
-
-            async def on_workflow_success(self, context: MockIFlowPipelineContext, final_result: Any) -> Optional[str]:
-                """工作流成功Hook"""
-                self.processed_workflows.append({
-                    'type': 'workflow_success',
-                    'workflow_id': context.workflow_id,
-                    'result': final_result
-                })
-                return None
-
-            async def on_workflow_error(self, context: MockIFlowPipelineContext, error: Exception) -> Optional[str]:
-                """工作流错误Hook"""
-                self.processed_workflows.append({
-                    'type': 'workflow_error',
-                    'workflow_id': context.workflow_id,
-                    'error': str(error)
-                })
-                return None
-
-            async def on_pipeline_ready(self, pipeline_config: Dict) -> Optional[str]:
-                """Pipeline就绪Hook"""
-                return None
-
-            # 跨CLI功能
-            def _detect_cross_cli_intent(self, context: MockIFlowPipelineContext) -> bool:
-                """检测跨CLI调用意图"""
-                import re
-                user_input = context.data.get('prompt', '')
-                patterns = [
-                    r'调用\s*(\w+)\s*来',
-                    r'使用\s*(\w+)\s*执行',
-                    r'让\s*(\w+)\s*帮我',
-                    r'use\s+(\w+)\s+to',
-                    r'call\s+(\w+)\s+to',
-                    r'ask\s+(\w+)\s+for'
-                ]
-
-                for pattern in patterns:
-                    if re.search(pattern, user_input, re.IGNORECASE):
-                        return True
-                return False
-
-            def _parse_cross_cli_task(self, context: MockIFlowPipelineContext) -> tuple:
-                """解析跨CLI任务"""
-                user_input = context.data.get('prompt', '')
-
-                # 使用已有的解析器
-                parser = NaturalLanguageParser()
-                intent = parser.parse_intent(user_input, "iflow")
-
-                if intent.is_cross_cli:
-                    return intent.target_cli, intent.task
-
-                return None, None
-
-            async def _execute_cross_cli_workflow(self, target_cli: str, task: str, context: MockIFlowPipelineContext) -> str:
-                """执行跨CLI工作流"""
-                # 记录跨CLI调用
-                self.cross_cli_calls_count += 1
-                workflow_execution = {
-                    'workflow_id': context.workflow_id,
-                    'target_cli': target_cli,
-                    'task': task,
-                    'timestamp': datetime.datetime.now().isoformat()
+            async def health_check(self) -> Dict[str, Any]:
+                """健康检查"""
+                return {
+                    'cli_name': self.cli_name,
+                    'available': self.is_available(),
+                    'version': self.version,
+                    'pipeline_stages_count': len(self.pipeline_stages),
+                    'processed_workflows_count': len(self.processed_workflows),
+                    'cross_cli_calls_count': self.cross_cli_calls_count
                 }
-                self.workflow_executions.append(workflow_execution)
 
-                # 模拟目标CLI调用
-                mock_result = await self._mock_target_cli_workflow(target_cli, task, context)
-                return self._format_workflow_result(target_cli, mock_result, context)
-
-            async def _mock_target_cli_workflow(self, target_cli: str, task: str, context: MockIFlowPipelineContext) -> str:
-                """模拟目标CLI工作流执行"""
-                workflow_results = {
-                    'claude': f"Claude工作流结果: 成功执行 '{task}' 的智能分析",
-                    'gemini': f"Gemini工作流结果: 完成了 '{task}' 的AI处理流程",
-                    'qwencode': f"QwenCode工作流结果: 代码生成 '{task}' 已完成",
-                    'qoder': f"Qoder工作流结果: 开发任务 '{task}' 执行完毕",
-                    'codebuddy': f"CodeBuddy工作流结果: 编程辅助 '{task}' 完成",
-                    'codex': f"Codex工作流结果: 代码执行 '{task}' 结束"
+            def get_statistics(self) -> Dict[str, Any]:
+                """获取统计信息"""
+                return {
+                    'cli_name': self.cli_name,
+                    'version': self.version,
+                    'pipeline_stages_count': len(self.pipeline_stages),
+                    'processed_workflows_count': len(self.processed_workflows),
+                    'cross_cli_calls_count': self.cross_cli_calls_count,
+                    'stages_processed': self.stages_processed
                 }
-                return workflow_results.get(target_cli, f"{target_cli}工作流结果: {task}")
-
-            def _format_workflow_result(self, target_cli: str, result: str, context: MockIFlowPipelineContext) -> str:
-                """格式化工作流结果"""
-                return f"""## 🔄 跨CLI工作流结果
-
-**源工作流**: iFlow Pipeline ({context.workflow_id})
-**目标CLI**: {target_cli.upper()}
-**工作流阶段**: {context.stage}
-**执行时间**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
----
-
-{result}
-
----
-
-*此结果由iFlow跨CLI集成系统通过Workflow Pipeline提供*"""
-
-        return IFlowWorkflowAdapter
 
     @pytest.fixture
     def adapter(self, mock_adapter_class):

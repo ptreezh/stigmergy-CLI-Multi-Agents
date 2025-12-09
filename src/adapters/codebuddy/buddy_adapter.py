@@ -31,7 +31,6 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from functools import wraps
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -67,7 +66,7 @@ class BuddyContext:
     timestamp: datetime = field(default_factory=datetime.now)
 
 
-class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
+class CodeBuddyBuddyAdapter:
     """
     CodeBuddy CLI Buddy适配器
 
@@ -89,7 +88,7 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"codebuddy"
         """
-        super().__init__(cli_name)
+        super().__init__()
 
         # Buddy系统配置
         self.buddy_config_file = os.path.expanduser("~/.codebuddy/buddy_config.json")
@@ -103,9 +102,14 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
         self.cross_cli_calls_count = 0
         self.processed_requests: List[Dict[str, Any]] = []
         self.collaboration_sessions: Dict[str, Dict] = {}
+        self.error_count = 0
 
         # 组件
         self.parser = NaturalLanguageParser()
+
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
+        self.get_adapter = get_cross_cli_adapter
 
         # Buddy配置
         self.buddy_config = {
@@ -372,8 +376,8 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
 
             logger.info(f"跨CLI协调器: 调用 {target_cli} 执行任务: {task}")
 
-            # 获取目标CLI适配器
-            from ...core.base_adapter import get_cross_cli_adapter
+            # 获取目标CLI适配器 - 使用新的注册机制
+            from .. import get_cross_cli_adapter
             target_adapter = get_cross_cli_adapter(target_cli)
 
             if not target_adapter or not target_adapter.is_available():
@@ -443,8 +447,8 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
 
             logger.info(f"AI工具桥接器: 桥接调用 {normalized_cli} 执行任务: {task}")
 
-            # 获取目标CLI适配器
-            from ...core.base_adapter import get_cross_cli_adapter
+            # 获取目标CLI适配器 - 使用新的注册机制
+            from .. import get_cross_cli_adapter
             target_adapter = get_cross_cli_adapter(normalized_cli)
 
             if not target_adapter or not target_adapter.is_available():
@@ -518,8 +522,8 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
 
         logger.info(f"通用助手: 处理跨CLI调用到 {target_cli}")
 
-        # 使用AI工具桥接器
-        from ...core.base_adapter import get_cross_cli_adapter
+        # 使用AI工具桥接器 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
         target_adapter = get_cross_cli_adapter(target_cli)
 
         if not target_adapter or not target_adapter.is_available():
@@ -930,9 +934,10 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 健康状态
         """
-        base_health = await super().health_check()
-
-        codebuddy_health = {
+        return {
+            'cli_name': "codebuddy",
+            'available': self.is_available(),
+            'version': "1.0.0",
             'buddy_config_file': self.buddy_config_file,
             'buddy_modules_dir': self.buddy_modules_dir,
             'config_exists': os.path.exists(self.buddy_config_file),
@@ -947,38 +952,13 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
             'supported_clis': list(set().union(*[
                 skill.supported_clis for skill in self.skills_registry.values()
             ])),
-            'enabled_buddies': list(self.skills_registry.keys())
+            'enabled_buddies': list(self.skills_registry.keys()),
+            'codebuddy_environment': self._check_codebuddy_environment()
         }
 
-        # 检查环境
-        try:
-            codebuddy_health['codebuddy_environment'] = self._check_codebuddy_environment()
-        except Exception as e:
-            codebuddy_health['codebuddy_environment_error'] = str(e)
-
-        # 检查Buddy状态
-        try:
-            for buddy_name, buddy_instance in self.active_buddies.items():
-                buddy_skill = self.skills_registry.get(buddy_name)
-                if buddy_skill:
-                    # 尝试检查Buddy是否响应
-                    if hasattr(buddy_instance, 'is_healthy'):
-                        if isinstance(buddy_instance.is_healthy, type(True)):
-                            healthy = buddy_instance.is_healthy()
-                        else:
-                            # 假设为健康
-                            healthy = True
-                    else:
-                        healthy = True
-
-                    codebuddy_health[f'buddy_{buddy_name}_healthy'] = healthy
-
-        except Exception as e:
-            logger.error(f"检查Buddy状态失败: {e}")
-
-        # 合并基础健康信息
-        base_health.update(codebuddy_health)
-        return base_health
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
     def get_statistics(self) -> Dict[str, Any]:
         """
@@ -987,13 +967,14 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
-
-        codebuddy_stats = {
+        return {
+            'cli_name': "codebuddy",
+            'version': "1.0.0",
             'registered_skills_count': len(self.skills_registry),
-            'active_buddies_count': len(self.active_buddy_instances),
+            'active_buddies_count': len(self.active_buddies),
             'buddy_calls_count': self.buddy_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
+            'error_count': self.error_count,
             'processed_requests_count': len(self.processed_requests),
             'collaboration_sessions_count': len(self.collaboration_sessions),
             'supported_clis': list(set().union(*[
@@ -1004,21 +985,6 @@ class CodeBuddyBuddyAdapter(BaseCrossCLIAdapter):
                 name: skill.priority for name, skill in self.skills_registry.items()
             }
         }
-
-        # 计算Buddy使用统计
-        buddy_usage = {}
-        for buddy_name, buddy_info in self.active_buddies.items():
-            buddy_skill = self.skills_registry.get(buddy_name)
-            if buddy_skill:
-                buddy_usage[buddy_name] = {
-                    'calls': buddy_info.get('call_count', 0),
-                    'last_used': buddy_info.get('last_used'),
-                    'priority': buddy_skill.priority
-                }
-
-        codebuddy_stats['buddy_usage'] = buddy_usage
-        base_stats.update(codebuddy_stats)
-        return base_stats
 
     async def cleanup(self) -> bool:
         """

@@ -10,7 +10,8 @@ const path = require('path');
 
 function runCommand(args) {
     return new Promise((resolve, reject) => {
-        const child = spawn('node', ['package/src/main.js', ...args], {
+        const mainPath = path.join(__dirname, '..', 'src', 'main.js');
+        const child = spawn('node', [mainPath, ...args], {
             cwd: path.join(__dirname, '..'),
             stdio: ['pipe', 'pipe', 'pipe'],
             encoding: 'utf8'

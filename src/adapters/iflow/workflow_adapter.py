@@ -12,8 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Union
 
-from src.core.base_adapter import BaseCrossCLIAdapter
-from src.core.parser import NaturalLanguageParser
+# Use the correct parser from codex adapter
+from ..codex.natural_language_parser import NaturalLanguageParser
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class WorkflowStage:
         self.end_time = None
 
 
-class IFlowWorkflowAdapter(BaseCrossCLIAdapter):
+class IFlowWorkflowAdapter:
     """
     iFlow CLI Workflow Pipeline适配器
 
@@ -68,8 +68,6 @@ class IFlowWorkflowAdapter(BaseCrossCLIAdapter):
     """
 
     def __init__(self, cli_name: str = "iflow"):
-        super().__init__(cli_name)
-
         # Pipeline相关属性
         self.pipeline_stages: List[WorkflowStage] = []
         self.workflow_hooks: Dict[str, callable] = {}
@@ -81,6 +79,7 @@ class IFlowWorkflowAdapter(BaseCrossCLIAdapter):
         self.stages_processed = 0
         self.cross_cli_calls_count = 0
         self.workflow_count = 0
+        self.error_count = 0
 
         # 配置
         self.pipeline_config: Dict = {}
@@ -89,7 +88,32 @@ class IFlowWorkflowAdapter(BaseCrossCLIAdapter):
         # 组件
         self.parser = NaturalLanguageParser()
 
-        logger.info("iFlow Workflow Pipeline适配器初始化完成")
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
+        self.get_adapter = get_cross_cli_adapter
+
+    async def health_check(self) -> Dict[str, Any]:
+        """
+        健康检查
+
+        Returns:
+            Dict[str, Any]: 健康状态
+        """
+        return {
+            'cli_name': "iflow",
+            'available': self.is_available(),
+            'version': "1.0.0",
+            'stages_processed': self.stages_processed,
+            'cross_cli_calls_count': self.cross_cli_calls_count,
+            'workflow_count': self.workflow_count,
+            'error_count': self.error_count,
+            'pipeline_stages_count': len(self.pipeline_stages),
+            'workflow_hooks_count': len(self.workflow_hooks),
+            'processed_workflows_count': len(self.processed_workflows),
+            'task_queue_size': self.task_queue.qsize() if self.task_queue else 0,
+            'pipeline_config_loaded': len(self.pipeline_config) > 0,
+            'workflow_config_loaded': len(self.workflow_config) > 0
+        }
 
     async def initialize(self) -> bool:
         """

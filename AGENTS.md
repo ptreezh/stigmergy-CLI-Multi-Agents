@@ -5,6 +5,8 @@ This file provides guidance to Qoder (qoder.com) when working with code in this 
 ## Project Overview
 This is the Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System. It enables existing AI CLI tools to collaborate with each other through a plugin system rather than replacing them. The system supports tools like Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, and Codex.
 
+The system features a dual implementation architecture with Node.js as the primary implementation and Python as a fallback for graceful degradation.
+
 ## Common Commands
 
 ### Development Workflow
@@ -20,6 +22,11 @@ npm test
 
 # Run specific tests
 node test/real-test.js
+
+# Run Node.js coordination layer tests
+npm run test:nodejs-coordination
+npm run test:nodejs-hooks
+npm run test:nodejs-integration
 
 # Lint the code
 npm run lint

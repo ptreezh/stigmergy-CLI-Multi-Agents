@@ -13,7 +13,7 @@ import os
 from unittest.mock import Mock, AsyncMock, patch, MagicMock, mock_open
 from typing import Dict, Any, Optional
 
-from src.core.base_adapter import BaseCrossCLIAdapter, IntentResult
+from src.adapters.codex.natural_language_parser import IntentResult
 
 
 class MockCodexCommandContext:
@@ -34,9 +34,10 @@ class TestCodexSlashCommandAdapterTDD:
     @pytest.fixture
     def mock_adapter_class(self):
         """Mock适配器类用于TDD"""
-        class CodexSlashCommandAdapter(BaseCrossCLIAdapter):
+        class CodexSlashCommandAdapter:
             def __init__(self, cli_name: str):
-                super().__init__(cli_name)
+                self.cli_name = cli_name
+                self.version = "1.0.0"
                 self.extension_registered = False
                 self.custom_commands = {}
                 self.processed_commands = []
@@ -47,124 +48,38 @@ class TestCodexSlashCommandAdapterTDD:
             async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
                 """模拟执行跨CLI任务"""
                 self.command_calls_count += 1
-
-                # 检查是否为跨CLI调用命令
-                if task.startswith('/x '):
-                    self.cross_cli_calls_count += 1
-                    parts = task[3:].strip().split(' ', 1)
-                    if len(parts) == 2:
-                        target_cli, task_content = parts
-                        result = await self._execute_cross_cli_call(target_cli, task_content, context)
-                        return result
-
-                return f"[Codex → 处理完成]\n模拟执行: {task}"
-
-            def is_available(self) -> bool:
-                """模拟可用性检查"""
-                return self.extension_registered and bool(self.custom_commands)
-
-            async def register_extension(self):
-                """模拟扩展注册"""
-                self.extension_registered = True
-                self.custom_commands = {
-                    '/x': self._handle_cross_cli_command,
-                    '/help-x': self._handle_help_command,
-                    '/status-x': self._handle_status_command
-                }
-
-            async def _execute_cross_cli_call(self, target_cli: str, task: str, context: Dict[str, Any]) -> str:
-                """执行跨CLI调用"""
-                self.processed_commands.append({
-                    'type': 'cross_cli_execution',
-                    'target_cli': target_cli,
+                self.cross_cli_calls.append({
                     'task': task,
-                    'success': True,
+                    'context': context,
                     'timestamp': asyncio.get_event_loop().time()
                 })
+                return f"[Codex → {context.get('target_cli', 'unknown').upper()} 调用结果]\n模拟执行: {task}"
 
-                return f"""## 🔗 跨CLI调用结果
+            def is_available(self) -> bool:
+                """检查适配器是否可用"""
+                return self.extension_registered
 
-**源工具**: Codex CLI
-**目标工具**: {target_cli.upper()}
-**原始任务**: {task}
-**执行时间**: 模拟时间
+            async def health_check(self) -> Dict[str, Any]:
+                """健康检查"""
+                return {
+                    'cli_name': self.cli_name,
+                    'available': self.is_available(),
+                    'version': self.version,
+                    'extension_registered': self.extension_registered,
+                    'command_calls_count': self.command_calls_count,
+                    'cross_cli_calls_count': self.cross_cli_calls_count
+                }
 
----
-
-模拟执行结果: {task}
-
----
-
-*此结果由跨CLI集成系统通过 Codex CLI 斜杠命令提供*"""
-
-            async def _handle_cross_cli_command(self, args: list, context: MockCodexCommandContext) -> str:
-                """处理跨CLI命令"""
-                if len(args) < 2:
-                    return """❌ 使用方法不正确
-
-**正确用法**:
-```
-/x <CLI工具> <任务描述>
-```
-
-**示例**:
-```
-/x claude 帮我分析这段代码
-/x gemini 生成一个Python函数
-/x qwencode 重构这个组件
-```
-
-使用 `/help-x` 查看完整帮助信息。"""
-
-                target_cli = args[0].lower()
-                task = ' '.join(args[1:])
-                return await self._execute_cross_cli_call(target_cli, task, {})
-
-            async def _handle_help_command(self, args: list, context: MockCodexCommandContext) -> str:
-                """处理帮助命令"""
-                return """## 🔗 跨CLI集成系统帮助
-
-### 基本用法
-```
-/x <CLI工具> <任务描述>
-```
-
-### 支持的CLI工具
-- `claude` - Claude CLI
-- `gemini` - Gemini CLI
-- `qwencode` - QwenCode CLI
-
-### 示例
-```bash
-# 使用Claude分析代码
-/x claude 分析这个Python函数的性能问题
-
-# 使用Gemini生成测试
-/x gemini 为这个组件写单元测试
-```
-
----
-*由跨CLI集成系统提供支持*"""
-
-            async def _handle_status_command(self, args: list, context: MockCodexCommandContext) -> str:
-                """处理状态命令"""
-                return f"""## 📊 跨CLI适配器状态
-
-**适配器**: Codex CLI 斜杠命令适配器
-**版本**: 1.0.0
-**状态**: healthy
-**扩展注册**: ✅ 已注册
-
-### 统计信息
-- 命令调用次数: {self.command_calls_count}
-- 跨CLI调用次数: {self.cross_cli_calls_count}
-- 成功率: 100.0%
-- 错误次数: 0
-
----
-*状态更新时间: 模拟时间*"""
-
-        return CodexSlashCommandAdapter
+            def get_statistics(self) -> Dict[str, Any]:
+                """获取统计信息"""
+                return {
+                    'cli_name': self.cli_name,
+                    'version': self.version,
+                    'command_calls_count': self.command_calls_count,
+                    'cross_cli_calls_count': self.cross_cli_calls_count,
+                    'processed_commands': len(self.processed_commands),
+                    'custom_commands_count': len(self.custom_commands)
+                }
 
     @pytest.mark.asyncio
     async def test_adapter_initialization(self, mock_adapter_class):
@@ -259,7 +174,7 @@ class TestCodexSlashCommandAdapterTDD:
         await adapter.register_extension()
 
         # 模拟解析器检测到跨CLI意图
-        with patch('src.core.parser.NaturalLanguageParser') as mock_parser:
+        with patch('src.adapters.codex.natural_language_parser.NaturalLanguageParser') as mock_parser:
             mock_intent = Mock()
             mock_intent.is_cross_cli = True
             mock_intent.target_cli = "gemini"

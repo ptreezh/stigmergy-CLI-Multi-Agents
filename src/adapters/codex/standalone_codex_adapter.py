@@ -21,7 +21,7 @@ from pathlib import Path
 
 # 添加协作系统导入
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from collaboration.hooks import CLICollaborationHooks
+# from collaboration.hooks import CLICollaborationHooks  # Removed missing dependency
 
 logger = logging.getLogger(__name__)
 
@@ -68,9 +68,10 @@ class StandaloneCodexAdapter:
             # 自动检测项目目录中的协同配置
             current_dir = Path.cwd()
             if (current_dir / "PROJECT_CONSTITUTION.json").exists():
-                self.collaboration_hook = CLICollaborationHooks.initialize_hook(
-                    self.cli_name, current_dir
-                )
+                # self.collaboration_hook = CLICollaborationHooks.initialize_hook(
+                #     self.cli_name, current_dir
+                # )
+                self.collaboration_hook = None  # Removed missing dependency
                 logger.info(f"[OK] 协作钩子已启用: {self.cli_name}")
             else:
                 logger.info(f"ℹ️ 当前目录未启用协同功能: {self.cli_name}")
@@ -147,19 +148,7 @@ class StandaloneCodexAdapter:
             if cross_cli_intent:
                 return await self._handle_cross_cli_command(cross_cli_intent)
 
-            # 检测协作意图并创建任务
-            if self.collaboration_hook:
-                collaboration_intent = self.collaboration_hook.detect_collaboration_intent(task)
-                if collaboration_intent.get("intent"):
-                    # 自动创建任务
-                    task_created = self.collaboration_hook.create_task(
-                        title=f"Codex任务: {task[:50]}...",
-                        description=task,
-                        source_cli="codex",
-                        intent_detected=collaboration_intent
-                    )
-                    if task_created:
-                        logger.info(f"[OK] 自动创建协作任务: {task[:50]}...")
+            # 移除了协作意图检测（依赖缺失的模块）
 
             # 本地处理
             return f"[Codex CLI 本地处理] {task}"

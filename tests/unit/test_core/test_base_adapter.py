@@ -7,15 +7,16 @@ import pytest
 import asyncio
 from unittest.mock import Mock, AsyncMock, patch
 
-from core.base_adapter import BaseCrossCLIAdapter, CrossCliAdapterFactory
+# Remove imports of BaseCrossCLIAdapter and CrossCliAdapterFactory since they no longer exist
 from core.parser import IntentResult
 
 
-class MockConcreteAdapter(BaseCrossCLIAdapter):
+class MockConcreteAdapter:
     """具体适配器实现类，用于测试基类功能"""
 
     def __init__(self, cli_name: str, is_available_flag: bool = True):
-        super().__init__(cli_name)
+        self.cli_name = cli_name
+        self.version = "1.0.0"
         self._is_available_flag = is_available_flag
         self.execute_task_called = False
         self.last_task = None
@@ -37,6 +38,14 @@ class MockConcreteAdapter(BaseCrossCLIAdapter):
         return {
             'cli_name': self.cli_name,
             'available': self.is_available(),
+            'version': self.version,
+            'execute_task_called': self.execute_task_called
+        }
+
+    def get_statistics(self):
+        """获取统计信息"""
+        return {
+            'cli_name': self.cli_name,
             'version': self.version,
             'execute_task_called': self.execute_task_called
         }
@@ -122,96 +131,7 @@ class TestBaseCrossCLIAdapter:
         assert "test_cli" in repr_str
 
 
-class TestCrossCliAdapterFactory:
-    """CrossCliAdapterFactory单元测试"""
-
-    @pytest.fixture
-    def mock_adapter_classes(self):
-        """Mock适配器类字典"""
-        return {
-            'claude': MockConcreteAdapter,
-            'gemini': MockConcreteAdapter,
-            'qwencode': MockConcreteAdapter
-        }
-
-    @pytest.mark.unit
-    def test_factory_initialization(self, mock_adapter_classes):
-        """测试工厂初始化"""
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory = CrossCliAdapterFactory()
-
-            assert len(factory._adapters) == len(mock_adapter_classes)
-            assert 'claude' in factory._adapters
-            assert 'gemini' in factory._adapters
-            assert 'qwencode' in factory._adapters
-
-    @pytest.mark.unit
-    def test_get_adapter_success(self, mock_adapter_classes):
-        """测试成功获取适配器"""
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory = CrossCliAdapterFactory()
-            adapter = factory.get_adapter('claude')
-
-            assert adapter is not None
-            assert isinstance(adapter, MockConcreteAdapter)
-            assert adapter.cli_name == 'claude'
-
-    @pytest.mark.unit
-    def test_get_adapter_not_found(self, mock_adapter_classes):
-        """测试获取不存在的适配器"""
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory = CrossCliAdapterFactory()
-            adapter = factory.get_adapter('nonexistent')
-
-            assert adapter is None
-
-    @pytest.mark.unit
-    def test_list_available_adapters(self, mock_adapter_classes):
-        """测试列出可用适配器"""
-        # 创建一些可用的和不可用的适配器
-        mock_adapter_classes['available'] = lambda: MockConcreteAdapter("available", True)
-        mock_adapter_classes['unavailable'] = lambda: MockConcreteAdapter("unavailable", False)
-
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory = CrossCliAdapterFactory()
-            available_adapters = factory.list_available_adapters()
-
-            assert 'available' in available_adapters
-            assert available_adapters['available'] is True
-            assert 'unavailable' in available_adapters
-            assert available_adapters['unavailable'] is False
-
-    @pytest.mark.unit
-    async def test_health_check_all(self, mock_adapter_classes):
-        """测试所有适配器健康检查"""
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory = CrossCliAdapterFactory()
-            health_results = await factory.health_check_all()
-
-            assert len(health_results) == len(mock_adapter_classes)
-
-            for cli_name, result in health_results.items():
-                assert cli_name in ['claude', 'gemini', 'qwencode']
-                assert 'cli_name' in result
-                assert 'available' in result
-                assert 'version' in result
-                assert result['cli_name'] == cli_name
-
-    @pytest.mark.unit
-    def test_factory_singleton_behavior(self, mock_adapter_classes):
-        """测试工厂单例行为"""
-        with patch('core.factory.ADAPTER_CLASSES', mock_adapter_classes):
-            factory1 = CrossCliAdapterFactory()
-            factory2 = CrossCliAdapterFactory()
-
-            # 获取相同的适配器实例
-            adapter1 = factory1.get_adapter('claude')
-            adapter2 = factory2.get_adapter('claude')
-
-            # 验证它们是不同的实例（工厂不是单例）
-            assert adapter1 is not adapter2
-            # 但都是相同类型的适配器
-            assert type(adapter1) == type(adapter2)
+# Remove the entire TestCrossCliAdapterFactory class since the factory no longer exists
 
 
 class TestBaseAdapterErrorHandling:

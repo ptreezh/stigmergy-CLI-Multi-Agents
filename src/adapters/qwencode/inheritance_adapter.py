@@ -19,7 +19,6 @@ from typing import Dict, Any, Optional, List, Type
 from datetime import datetime
 from pathlib import Path
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -39,7 +38,7 @@ class PluginContext:
         self.timestamp = datetime.now()
 
 
-class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
+class QwenCodeInheritanceAdapter:
     """
     QwenCode CLI Class Inheritance适配器
 
@@ -60,7 +59,7 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"qwencode"
         """
-        super().__init__(cli_name)
+        super().__init__()
 
         # Inheritance相关配置
         self.config_file = os.path.expanduser("~/.config/qwencode/config.yml")
@@ -79,12 +78,13 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         self.plugin_calls_count = 0
         self.cross_cli_calls_count = 0
         self.processed_requests: List[Dict[str, Any]] = []
+        self.error_count = 0
 
         # 解析器
         self.parser = NaturalLanguageParser()
 
-        # 跨CLI适配器工厂
-        from ...core.base_adapter import get_cross_cli_adapter
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
         self.get_adapter = get_cross_cli_adapter
 
         # Inheritance系统状态
@@ -641,9 +641,10 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 健康状态
         """
-        base_health = await super().health_check()
-
-        qwencode_health = {
+        return {
+            'cli_name': "qwencode",
+            'available': self.is_available(),
+            'version': "1.0.0",
             'plugins_loaded': self.plugins_loaded,
             'plugin_calls_count': self.plugin_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
@@ -652,18 +653,13 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
             'config_exists': os.path.exists(self.config_file),
             'plugin_handlers': list(self.plugin_handlers.keys()),
             'inheritance_setup_complete': self.inheritance_setup_complete,
-            'base_class_loaded': self.base_class is not None
+            'base_class_loaded': self.base_class is not None,
+            'qwencode_environment': self._check_qwencode_environment()
         }
 
-        # 检查环境
-        try:
-            qwencode_health['qwencode_environment'] = self._check_qwencode_environment()
-        except Exception as e:
-            qwencode_health['qwencode_environment_error'] = str(e)
-
-        # 合并基础健康信息
-        base_health.update(qwencode_health)
-        return base_health
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
     def get_statistics(self) -> Dict[str, Any]:
         """
@@ -672,19 +668,17 @@ class QwenCodeInheritanceAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
-
-        qwencode_stats = {
+        return {
+            'cli_name': "qwencode",
+            'version': "1.0.0",
             'plugins_loaded': self.plugins_loaded,
             'plugin_calls_count': self.plugin_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
+            'error_count': self.error_count,
             'success_rate': self._calculate_success_rate(),
             'last_activity': self._get_last_activity(),
             'supported_plugins': list(self.plugin_handlers.keys())
         }
-
-        base_stats.update(qwencode_stats)
-        return base_stats
 
     def _calculate_success_rate(self) -> float:
         """

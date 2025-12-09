@@ -20,11 +20,8 @@ from typing import Dict, Any, Optional, List, Tuple
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from core.base_adapter import BaseCrossCLIAdapter
-from core.cross_platform_safe_cli import CrossPlatformSafeCLI
 
-
-class StandaloneClineAdapter(BaseCrossCLIAdapter):
+class StandaloneClineAdapter:
     """
     Cline CLI adapter implementing hook-based integration with cross-CLI capabilities.
     
@@ -37,7 +34,7 @@ class StandaloneClineAdapter(BaseCrossCLIAdapter):
     """
     
     def __init__(self):
-        super().__init__("cline")
+        self.cli_name = "cline"
         self.display_name = "Cline CLI"
         self.integration_type = "hook_system"
         
@@ -76,7 +73,7 @@ class StandaloneClineAdapter(BaseCrossCLIAdapter):
         }
         
         # Initialize safe CLI executor
-        self.safe_cli = CrossPlatformSafeCLI()
+        self.safe_cli = None  # Removed dependency on CrossPlatformSafeCLI
 
     def is_available(self) -> bool:
         """Check if Cline CLI is available and properly configured."""
@@ -436,8 +433,44 @@ if __name__ == '__main__':
             pass  # Silent fail for logging errors
 
 
+    def get_statistics(self) -> Dict[str, Any]:
+        """获取统计信息 - 直接实现"""
+        total_requests = self.stats.get('total_requests', 0)
+        failed_calls = self.stats.get('failed_calls', 0)
+        success_rate = ((total_requests - failed_calls) / total_requests) if total_requests > 0 else 1.0
+        
+        return {
+            'cli_name': self.cli_name,
+            'display_name': self.display_name,
+            'integration_type': self.integration_type,
+            'total_requests': total_requests,
+            'cross_cli_calls': self.stats.get('cross_cli_calls', 0),
+            'successful_calls': self.stats.get('successful_calls', 0),
+            'failed_calls': failed_calls,
+            'success_rate': success_rate,
+            'start_time': self.stats.get('start_time').isoformat() if self.stats.get('start_time') else None,
+            'design': 'standalone_hook_native',
+            'no_abstraction': True,
+            'hook_directory': str(self.hook_config.get('hook_directory', '')),
+            'supported_hooks': self.hook_config.get('supported_hooks', [])
+        }
+
+
+# 便捷函数 - 无抽象层
+def get_standalone_cline_adapter() -> StandaloneClineAdapter:
+    """获取独立的 Cline CLI 适配器实例"""
+    return StandaloneClineAdapter()
+
+
+# 保持向后兼容的函数名
+def get_cline_hook_adapter() -> StandaloneClineAdapter:
+    """获取 Cline Hook 适配器实例（向后兼容）"""
+    return get_standalone_cline_adapter()
+
+
 def main():
     """Main function for standalone testing."""
+    import sys
     adapter = StandaloneClineAdapter()
     
     if not adapter.is_available():
@@ -453,6 +486,10 @@ def main():
     print(f"Cline Adapter Health: {json.dumps(health, indent=2, ensure_ascii=False)}")
     
     return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
 
 
 if __name__ == '__main__':

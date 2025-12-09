@@ -13,7 +13,7 @@ import os
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Dict, Any, Optional
 
-from src.core.base_adapter import BaseCrossCLIAdapter, IntentResult
+from src.adapters.codex.natural_language_parser import IntentResult
 
 
 class MockGeminiExtensionContext:
@@ -33,9 +33,10 @@ class TestGeminiExtensionAdapterTDD:
     @pytest.fixture
     def mock_adapter_class(self):
         """Mock适配器类用于TDD"""
-        class GeminiExtensionAdapter(BaseCrossCLIAdapter):
+        class GeminiExtensionAdapter:
             def __init__(self, cli_name: str):
-                super().__init__(cli_name)
+                self.cli_name = cli_name
+                self.version = "1.0.0"
                 self.extensions_registered = False
                 self.processed_requests = []
                 self.cross_cli_calls = []
@@ -55,107 +56,26 @@ class TestGeminiExtensionAdapterTDD:
                 return f"[Gemini → {context.get('target_cli', 'unknown').upper()} 调用结果]\n模拟执行: {task}"
 
             def is_available(self) -> bool:
-                """模拟可用性检查"""
+                """检查适配器是否可用"""
                 return self.extensions_registered
 
-            async def register_extensions(self):
-                """模拟Extension注册"""
-                self.extensions_registered = True
+            async def health_check(self) -> Dict[str, Any]:
+                """健康检查"""
+                return {
+                    'cli_name': self.cli_name,
+                    'available': self.is_available(),
+                    'version': self.version,
+                    'extensions_registered': self.extensions_registered
+                }
 
-            async def on_prompt_submit(self, context: MockGeminiExtensionContext) -> Optional[str]:
-                """用户提示提交Extension处理函数"""
-                try:
-                    user_input = context.prompt
-
-                    # 1. 检测是否为跨CLI调用
-                    if self._is_cross_cli_call(user_input):
-                        # 2. 解析目标CLI和任务
-                        target_cli, task = self._parse_cross_cli_intent(user_input)
-
-                        if target_cli and target_cli != 'gemini':
-                            # 3. 执行跨CLI调用
-                            result = await self.execute_cross_cli_call(target_cli, task, context)
-                            return result
-
-                    return None  # 让Gemini CLI继续正常处理
-                except Exception as e:
-                    # 错误情况下返回None，不中断Gemini正常流程
-                    return None
-
-            def _is_cross_cli_call(self, user_input: str) -> bool:
-                """检测是否为跨CLI调用"""
-                from src.core.parser import NaturalLanguageParser
-                parser = NaturalLanguageParser()
-                return parser.detect_cross_cli_call(user_input, "gemini")
-
-            def _parse_cross_cli_intent(self, user_input: str) -> tuple[Optional[str], str]:
-                """解析跨CLI调用意图"""
-                from src.core.parser import NaturalLanguageParser
-                parser = NaturalLanguageParser()
-                intent = parser.parse_intent(user_input, "gemini")
-
-                if intent.is_cross_cli:
-                    return intent.target_cli, intent.task
-                return None, user_input
-
-            async def execute_cross_cli_call(self, target_cli: str, task: str, context: MockGeminiExtensionContext) -> str:
-                """执行跨CLI调用"""
-                self.processed_requests.append({
-                    'type': 'cross_cli_call',
-                    'target_cli': target_cli,
-                    'task': task,
-                    'context': context.__dict__,
-                    'timestamp': asyncio.get_event_loop().time()
-                })
-
-                # 模拟调用其他CLI适配器
-                mock_result = await self._mock_target_cli_call(target_cli, task, context)
-                return self._format_result(target_cli, mock_result)
-
-            async def _mock_target_cli_call(self, target_cli: str, task: str, context: MockGeminiExtensionContext) -> str:
-                """模拟目标CLI调用"""
-                # 模拟不同CLI的不同响应格式
-                if target_cli == 'claude':
-                    return f"Claude分析结果: {task}的分析已完成"
-                elif target_cli == 'qwencode':
-                    return f"QwenCode生成结果: \n```python\n# {task} 的代码\ndef gemini_example():\n    pass\n```"
-                elif target_cli == 'iflow':
-                    return f"iFlow工作流结果: 成功执行 {task}"
-                elif target_cli == 'qoder':
-                    return f"Qoder处理结果: {task} 已完成"
-                elif target_cli == 'codebuddy':
-                    return f"CodeBuddy协助结果: {task} 已处理"
-                elif target_cli == 'codex':
-                    return f"Codex生成结果: {task} 的代码实现"
-                else:
-                    return f"{target_cli.upper()} 处理结果: {task}"
-
-            def _format_result(self, target_cli: str, result: str) -> str:
-                """格式化跨CLI调用结果"""
-                import datetime
-                return f"""## 🔗 跨CLI调用结果
-
-**源工具**: Gemini CLI
-**目标工具**: {target_cli.upper()}
-**调用时间**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
----
-
-{result}
-
----
-
-*此结果由跨CLI集成系统通过Gemini CLI Extension提供*"""
-
-            async def on_command_execute(self, context: MockGeminiExtensionContext) -> Optional[str]:
-                """命令执行Extension处理函数"""
-                return None
-
-            async def on_response_format(self, context: MockGeminiExtensionContext) -> Optional[str]:
-                """响应格式化Extension处理函数"""
-                return None
-
-        return GeminiExtensionAdapter
+            def get_statistics(self) -> Dict[str, Any]:
+                """获取统计信息"""
+                return {
+                    'cli_name': self.cli_name,
+                    'version': self.version,
+                    'processed_requests': len(self.processed_requests),
+                    'cross_cli_calls': len(self.cross_cli_calls)
+                }
 
     @pytest.fixture
     def adapter(self, mock_adapter_class):
@@ -445,7 +365,7 @@ class TestGeminiExtensionAdapterEdgeCases:
                 return True
 
             async def on_prompt_submit(self, context: MockGeminiExtensionContext) -> Optional[str]:
-                from src.core.parser import NaturalLanguageParser
+                from src.adapters.codex.natural_language_parser import NaturalLanguageParser
                 parser = NaturalLanguageParser()
                 intent = parser.parse_intent(context.prompt, "gemini")
 

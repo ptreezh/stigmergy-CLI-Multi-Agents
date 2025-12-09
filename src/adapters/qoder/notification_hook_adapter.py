@@ -30,7 +30,6 @@ from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -48,7 +47,7 @@ class QoderHookEvent:
     exit_code: Optional[int] = None
 
 
-class QoderNotificationHookAdapter(BaseCrossCLIAdapter):
+class QoderNotificationHookAdapter:
     """
     QoderCLI通知Hook适配器
 
@@ -63,7 +62,7 @@ class QoderNotificationHookAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"qoder"
         """
-        super().__init__(cli_name)
+        super().__init__()
 
         # Qoder Hook相关配置
         self.is_macos = platform.system() == "Darwin"
@@ -91,6 +90,7 @@ class QoderNotificationHookAdapter(BaseCrossCLIAdapter):
         self.cross_cli_calls = 0
         self.processed_events: List[QoderHookEvent] = []
         self.active_sessions: Dict[str, Dict] = {}
+        self.error_count = 0
 
         # Hook脚本路径
         self.hook_script_dir = os.path.expanduser("~/.qoder/hooks")
@@ -98,6 +98,10 @@ class QoderNotificationHookAdapter(BaseCrossCLIAdapter):
 
         # 组件
         self.parser = NaturalLanguageParser()
+
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
+        self.get_adapter = get_cross_cli_adapter
 
         logger.info("Qoder通知Hook适配器初始化完成")
 
@@ -708,9 +712,10 @@ exit 0
         Returns:
             Dict[str, Any]: 健康状态
         """
-        base_health = await super().health_check()
-
-        qoder_health = {
+        return {
+            'cli_name': "qoder",
+            'available': self.is_available(),
+            'version': "1.0.0",
             'hook_enabled': self.hook_enabled,
             'is_macos': self.is_macos,
             'hook_executions': self.hook_executions.copy(),
@@ -720,18 +725,13 @@ exit 0
             'hook_script_dir': self.hook_script_dir,
             'hook_scripts_exist': os.path.exists(os.path.join(self.hook_script_dir, 'pre_hook.sh')),
             'temp_dir': self.temp_dir,
-            'env_vars_configured': all(key in os.environ for key in self.env_vars.keys())
+            'env_vars_configured': all(key in os.environ for key in self.env_vars.keys()),
+            'qoder_environment': self._check_qoder_environment()
         }
 
-        # 检查环境
-        try:
-            qoder_health['qoder_environment'] = self._check_qoder_environment()
-        except Exception as e:
-            qoder_health['qoder_environment_error'] = str(e)
-
-        # 合并基础健康信息
-        base_health.update(qoder_health)
-        return base_health
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
     def get_statistics(self) -> Dict[str, Any]:
         """
@@ -740,22 +740,20 @@ exit 0
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
-
-        qoder_stats = {
+        return {
+            'cli_name': "qoder",
+            'version': "1.0.0",
             'hook_enabled': self.hook_enabled,
             'is_macos': self.is_macos,
             'hook_executions': self.hook_executions.copy(),
             'cross_cli_calls': self.cross_cli_calls,
+            'error_count': self.error_count,
             'processed_events_count': len(self.processed_events),
             'active_sessions_count': len(self.active_sessions),
             'total_hook_calls': sum(self.hook_executions.values()),
             'notification_sent': self.hook_executions['notification_sent'],
             'hook_script_dir': self.hook_script_dir
         }
-
-        base_stats.update(qoder_stats)
-        return base_stats
 
     async def cleanup(self) -> bool:
         """

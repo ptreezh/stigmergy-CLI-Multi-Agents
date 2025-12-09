@@ -17,7 +17,6 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from pathlib import Path
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ class CopilotMCPContext:
         self.tool_permissions = self.metadata.get('tool_permissions', {})
 
 
-class CopilotMCPAdapter(BaseCrossCLIAdapter):
+class CopilotMCPAdapter:
     """
     Copilot CLI MCP适配器
 
@@ -88,8 +87,8 @@ class CopilotMCPAdapter(BaseCrossCLIAdapter):
         # 解析器
         self.parser = NaturalLanguageParser()
 
-        # 跨CLI适配器工厂
-        from ...core.base_adapter import get_cross_cli_adapter
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
         self.get_adapter = get_cross_cli_adapter
 
     async def initialize(self) -> bool:
@@ -445,8 +444,9 @@ Always maintain the original intent and context of the user's request.""",
             str: 可用CLI列表
         """
         try:
-            from ...core.base_adapter import get_all_adapters
-            adapters = get_all_adapters()
+            # 使用新的适配器注册机制获取所有适配器
+            from .. import _ADAPTER_REGISTRY
+            adapters = list(_ADAPTER_REGISTRY.values())
 
             available_clis = []
             for name, adapter in adapters.items():

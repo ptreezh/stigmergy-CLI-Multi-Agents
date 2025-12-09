@@ -17,7 +17,6 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from pathlib import Path
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ class ExtensionContext:
         self.timestamp = datetime.now()
 
 
-class GeminiExtensionAdapter(BaseCrossCLIAdapter):
+class GeminiExtensionAdapter:
     """
     Gemini CLI Extension适配器
 
@@ -58,7 +57,7 @@ class GeminiExtensionAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"gemini"
         """
-        super().__init__(cli_name)
+        super().__init__()
 
         # Extension相关配置
         self.extensions_file = os.path.expanduser("~/.config/gemini/extensions.json")
@@ -75,12 +74,13 @@ class GeminiExtensionAdapter(BaseCrossCLIAdapter):
         self.extension_calls_count = 0
         self.cross_cli_calls_count = 0
         self.processed_requests: List[Dict[str, Any]] = []
+        self.error_count = 0
 
         # 解析器
         self.parser = NaturalLanguageParser()
 
-        # 跨CLI适配器工厂
-        from ...core.base_adapter import get_cross_cli_adapter
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
         self.get_adapter = get_cross_cli_adapter
 
     async def initialize(self) -> bool:
@@ -515,27 +515,23 @@ class GeminiExtensionAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 健康状态
         """
-        base_health = await super().health_check()
-
-        gemini_health = {
+        return {
+            'cli_name': "gemini",
+            'available': self.is_available(),
+            'version': "1.0.0",
             'extensions_registered': self.extensions_registered,
             'extension_calls_count': self.extension_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
             'processed_requests_count': len(self.processed_requests),
             'extensions_file': self.extensions_file,
             'extensions_config_exists': os.path.exists(self.extensions_file),
-            'extension_handlers': list(self.extension_handlers.keys())
+            'extension_handlers': list(self.extension_handlers.keys()),
+            'gemini_environment': self._check_gemini_environment()
         }
 
-        # 检查环境
-        try:
-            gemini_health['gemini_environment'] = self._check_gemini_environment()
-        except Exception as e:
-            gemini_health['gemini_environment_error'] = str(e)
-
-        # 合并基础健康信息
-        base_health.update(gemini_health)
-        return base_health
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
     def get_statistics(self) -> Dict[str, Any]:
         """
@@ -544,19 +540,17 @@ class GeminiExtensionAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
-
-        gemini_stats = {
+        return {
+            'cli_name': "gemini",
+            'version': "1.0.0",
             'extensions_registered': self.extensions_registered,
             'extension_calls_count': self.extension_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
+            'error_count': self.error_count,
             'success_rate': self._calculate_success_rate(),
             'last_activity': self._get_last_activity(),
             'supported_extensions': list(self.extension_handlers.keys())
         }
-
-        base_stats.update(gemini_stats)
-        return base_stats
 
     def _calculate_success_rate(self) -> float:
         """

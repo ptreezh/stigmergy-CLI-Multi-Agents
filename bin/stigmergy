@@ -18,7 +18,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Get the path to the main script
-const mainScript = path.join(__dirname, '..', 'src', 'main_english.js');
+const mainScript = path.join(__dirname, '..', 'src', 'index.js');
 
 // Spawn the Node.js process with the main script and all arguments
 const child = spawn(process.execPath, [mainScript, ...process.argv.slice(2)], {

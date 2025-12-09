@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
+# Remove unused import since we're not using BaseCrossCLIAdapter anymore
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class IFlowEvent:
     context: Optional[IFlowHookContext] = None
 
 
-class IFlowHookAdapter(BaseCrossCLIAdapter):
+class IFlowHookAdapter:
     """
     iFlow CLI Hook适配器
 
@@ -82,7 +82,12 @@ class IFlowHookAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"iflow"
         """
-        super().__init__(cli_name)
+        # Initialize what was in the base class
+        self.cli_name = cli_name.lower().strip()
+        self.version = "1.0.0"
+        self.last_execution_time = None
+        self.execution_count = 0
+        self.error_count = 0
 
         # Hook相关配置
         self.hooks_config_file = os.path.expanduser("~/.config/iflow/hooks.yml")
@@ -640,7 +645,8 @@ class IFlowHookAdapter(BaseCrossCLIAdapter):
             logger.info(f"执行跨CLI调用: {target_cli} -> {task}")
 
             # 获取目标CLI适配器
-            from ...core.base_adapter import get_cross_cli_adapter
+            # 跨CLI适配器访问 - 使用新的注册机制
+            from .. import get_cross_cli_adapter
             target_adapter = get_cross_cli_adapter(target_cli)
 
             if not target_adapter:
@@ -955,7 +961,13 @@ class IFlowHookAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
+        base_stats = {
+            'cli_name': self.cli_name,
+            'version': self.version,
+            'execution_count': self.execution_count,
+            'error_count': self.error_count,
+            'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None
+        }
 
         iflow_stats = {
             'hooks_registered': self.hooks_registered,
@@ -972,6 +984,10 @@ class IFlowHookAdapter(BaseCrossCLIAdapter):
 
         base_stats.update(iflow_stats)
         return base_stats
+
+    def record_error(self):
+        """记录错误 - 直接实现，无抽象层"""
+        self.error_count += 1
 
     async def cleanup(self) -> bool:
         """

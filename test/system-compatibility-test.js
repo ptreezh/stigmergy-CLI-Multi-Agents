@@ -122,7 +122,15 @@ class SystemCompatibilityTest {
         console.log('---------------------');
 
         // Check if hooks are properly installed
-        const hookDirectories = ['.claude/hooks', '.gemini/hooks', '.qwen/hooks', '.iflow/hooks', '.codebuddy/hooks'];
+        const os = require('os');
+        const path = require('path');
+        const hookDirectories = [
+            path.join(os.homedir(), '.claude', 'hooks'),
+            path.join(os.homedir(), '.gemini', 'hooks'),
+            path.join(os.homedir(), '.qwen', 'hooks'),
+            path.join(os.homedir(), '.iflow', 'hooks'),
+            path.join(os.homedir(), '.codebuddy', 'hooks')
+        ];
 
         let installedHooks = 0;
         for (const hookDir of hookDirectories) {
@@ -146,7 +154,7 @@ class SystemCompatibilityTest {
 
         // Check hook execution simulation
         try {
-            const testHook = path.join('.claude/hooks', 'skill-forced-eval-hook.sh');
+            const testHook = path.join(os.homedir(), '.claude', 'hooks', 'skill-forced-eval-hook.sh');
             if (fs.existsSync(testHook)) {
                 console.log('  ✅ Hook files are executable');
                 console.log('  ⚠️  Note: Hooks are in simulation mode, not real AI tool integration');
@@ -176,7 +184,8 @@ class SystemCompatibilityTest {
         try {
             // Test skills list
             console.log('Testing skills list functionality...');
-            const skillsResult = spawnSync('node', ['package/src/main.js', 'skills', 'list'], {
+            const mainJsPath = path.join(this.projectRoot, 'src', 'main.js');
+            const skillsResult = spawnSync('node', [mainJsPath, 'skills', 'list'], {
                 cwd: this.projectRoot,
                 stdio: 'pipe',
                 encoding: 'utf8'
@@ -193,7 +202,7 @@ class SystemCompatibilityTest {
 
             // Test skills execution
             console.log('Testing skills execution...');
-            const execResult = spawnSync('node', ['package/src/main.js', 'skills', 'execute', 'translation', '--text=hello', '--to=zh'], {
+            const execResult = spawnSync('node', [mainJsPath, 'skills', 'execute', 'translation', '--text=hello', '--to=zh'], {
                 cwd: this.projectRoot,
                 stdio: 'pipe',
                 encoding: 'utf8'
@@ -270,8 +279,19 @@ class SystemCompatibilityTest {
 
         // Check Node.js module system compatibility
         try {
-            require('./package/src/skills/skills-manager.js');
-            console.log('  ✅ ES6 modules work correctly');
+            const skillsManagerPath = path.join(this.projectRoot, 'src', 'skills', 'skills-manager.js');
+            if (fs.existsSync(skillsManagerPath)) {
+                require(skillsManagerPath);
+                console.log('  ✅ ES6 modules work correctly');
+            } else {
+                console.log('  ⚠️  Skills manager module not found at expected location');
+                this.issues.push({
+                    severity: 'LOW',
+                    category: 'COMPATIBILITY',
+                    description: 'Skills manager module not found at expected location',
+                    component: 'module system'
+                });
+            }
         } catch (error) {
             console.log(`  ❌ ES6 module import failed: ${error.message}`);
             this.issues.push({

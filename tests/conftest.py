@@ -24,8 +24,19 @@ def event_loop():
     yield loop
     loop.close()
 
-from core.base_adapter import BaseCrossCLIAdapter
-from core.parser import IntentResult
+# Remove imports of BaseCrossCLIAdapter and IntentResult since they no longer exist
+# from core.base_adapter import BaseCrossCLIAdapter
+# from core.parser import IntentResult
+
+# Simple IntentResult class for testing purposes
+class IntentResult:
+    """Simple IntentResult for testing - standalone implementation"""
+    
+    def __init__(self, is_cross_cli: bool = False, target_cli: str = None, task: str = "", confidence: float = 1.0):
+        self.is_cross_cli = is_cross_cli
+        self.target_cli = target_cli
+        self.task = task
+        self.confidence = confidence
 
 
 class MockHookContext:
@@ -53,26 +64,48 @@ class MockContext:
         }
 
 
-class MockCrossCLIAdapter(BaseCrossCLIAdapter):
-    """Mock跨CLI适配器用于测试"""
+class MockCrossCLIAdapter:
+    """Mock跨CLI适配器用于测试 - 独立实现，无继承"""
 
     def __init__(self, cli_name: str, mock_result: str = "mock_result"):
-        super().__init__(cli_name)
+        self.cli_name = cli_name.lower().strip()
+        self.version = "1.0.0"
         self.mock_result = mock_result
         self.call_count = 0
         self.last_task = None
         self.last_context = None
+        self.last_execution_time = None
+        self.execution_count = 0
+        self.error_count = 0
 
     async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
         """Mock执行任务"""
         self.call_count += 1
         self.last_task = task
         self.last_context = context
+        self.execution_count += 1
+        from datetime import datetime
+        self.last_execution_time = datetime.now()
         return f"[{self.cli_name.upper()} 调用结果]\n{self.mock_result}"
 
     def is_available(self) -> bool:
-        """Mock可用性检查"""
+        """检查可用性"""
         return True
+
+    def get_statistics(self) -> Dict[str, Any]:
+        """获取统计信息"""
+        from datetime import datetime
+        return {
+            'cli_name': self.cli_name,
+            'version': self.version,
+            'execution_count': self.execution_count,
+            'error_count': self.error_count,
+            'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None
+        }
+
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
 
 @pytest.fixture

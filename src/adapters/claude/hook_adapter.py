@@ -17,8 +17,10 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from pathlib import Path
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
+# Direct implementation without abstract base class
 from ...core.parser import NaturalLanguageParser
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class HookContext:
         self.timestamp = datetime.now()
 
 
-class ClaudeHookAdapter(BaseCrossCLIAdapter):
+class ClaudeHookAdapter:
     """
     Claude CLI Hook适配器
 
@@ -55,7 +57,7 @@ class ClaudeHookAdapter(BaseCrossCLIAdapter):
         Args:
             cli_name: CLI工具名称，默认为"claude"
         """
-        super().__init__(cli_name)
+        super().__init__()
 
         # Hook相关配置
         self.hooks_config_file = os.path.expanduser("~/.config/claude/hooks.json")
@@ -71,12 +73,13 @@ class ClaudeHookAdapter(BaseCrossCLIAdapter):
         self.hook_calls_count = 0
         self.cross_cli_calls_count = 0
         self.processed_requests: List[Dict[str, Any]] = []
+        self.error_count = 0
 
         # 解析器
         self.parser = NaturalLanguageParser()
 
-        # 跨CLI适配器工厂
-        from ...core.base_adapter import get_cross_cli_adapter
+        # 跨CLI适配器访问 - 使用新的注册机制
+        from .. import get_cross_cli_adapter
         self.get_adapter = get_cross_cli_adapter
 
     async def initialize(self) -> bool:
@@ -489,26 +492,22 @@ class ClaudeHookAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 健康状态
         """
-        base_health = await super().health_check()
-
-        claude_health = {
+        return {
+            'cli_name': "claude",
+            'available': self.is_available(),
+            'version': "1.0.0",
             'hooks_registered': self.hooks_registered,
             'hook_calls_count': self.hook_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
             'processed_requests_count': len(self.processed_requests),
             'hooks_config_file': self.hooks_config_file,
-            'hooks_config_exists': os.path.exists(self.hooks_config_file)
+            'hooks_config_exists': os.path.exists(self.hooks_config_file),
+            'claude_environment': self._check_claude_environment()
         }
 
-        # 检查环境
-        try:
-            claude_health['claude_environment'] = self._check_claude_environment()
-        except Exception as e:
-            claude_health['claude_environment_error'] = str(e)
-
-        # 合并基础健康信息
-        base_health.update(claude_health)
-        return base_health
+    def record_error(self):
+        """记录错误"""
+        self.error_count += 1
 
     def get_statistics(self) -> Dict[str, Any]:
         """
@@ -517,19 +516,17 @@ class ClaudeHookAdapter(BaseCrossCLIAdapter):
         Returns:
             Dict[str, Any]: 统计信息
         """
-        base_stats = super().get_statistics()
-
-        claude_stats = {
+        return {
+            'cli_name': "claude",
+            'version': "1.0.0",
             'hooks_registered': self.hooks_registered,
             'hook_calls_count': self.hook_calls_count,
             'cross_cli_calls_count': self.cross_cli_calls_count,
+            'error_count': self.error_count,
             'success_rate': self._calculate_success_rate(),
             'last_activity': self._get_last_activity(),
             'supported_hooks': list(self.hook_handlers.keys())
         }
-
-        base_stats.update(claude_stats)
-        return base_stats
 
     def _calculate_success_rate(self) -> float:
         """

@@ -29,7 +29,6 @@ from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass
 
-from ...core.base_adapter import BaseCrossCLIAdapter, IntentResult
 from ...core.parser import NaturalLanguageParser
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ class IFlowHookEvent:
     command: Optional[str] = None
 
 
-class IFlowOfficialHookAdapter(BaseCrossCLIAdapter):
+class IFlowOfficialHookAdapter:
     """
     iFlow CLI官方Hook适配器
 
@@ -876,8 +875,8 @@ if __name__ == "__main__":
         try:
             logger.info(f"执行跨CLI调用: {target_cli} -> {task}")
 
-            # 获取目标CLI适配器
-            from ...core.base_adapter import get_cross_cli_adapter
+            # 获取目标CLI适配器 - 使用新的注册机制
+            from .. import get_cross_cli_adapter
             target_adapter = get_cross_cli_adapter(target_cli)
 
             if not target_adapter:

@@ -47,6 +47,23 @@ Stigmergy CLI enhances the following AI CLI tools:
 - **GitHub Copilot CLI** - Microsoft's Copilot
 - **OpenAI Codex CLI** - OpenAI's code completion
 
+## Dual Implementation Architecture
+
+Stigmergy CLI features a unique dual implementation architecture:
+
+### Node.js First Approach
+- **Primary Implementation**: Native Node.js coordination layer
+- **No System Python Required**: Works without Python installation
+- **Graceful Degradation**: Falls back to Python when needed
+- **Enhanced Performance**: Optimized for modern Node.js environments
+
+### Python Fallback
+- **Secondary Implementation**: Python-based coordination layer
+- **Legacy Support**: Maintains compatibility with existing installations
+- **Automatic Detection**: Seamlessly switches based on system capabilities
+
+This architecture ensures maximum compatibility and reliability across different environments.
+
 ## Usage
 
 ### Basic Commands

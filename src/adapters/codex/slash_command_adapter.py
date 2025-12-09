@@ -17,7 +17,6 @@ import subprocess
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from .base import BaseCodexAdapter
 from .natural_language_parser import NaturalLanguageParser, IntentResult
 from .mcp_server import CrossCliMCPServer
 
@@ -34,7 +33,7 @@ class CodexCommandContext:
         self.timestamp = datetime.now()
 
 
-class CodexSlashCommandAdapter(BaseCodexAdapter):
+class CodexSlashCommandAdapter:
     """
     Codex CLI 斜杠命令适配器
 
@@ -46,7 +45,12 @@ class CodexSlashCommandAdapter(BaseCodexAdapter):
     """
 
     def __init__(self, cli_name: str = "codex"):
-        super().__init__(cli_name)
+        # Initialize what was in the base class
+        self.cli_name = cli_name.lower().strip()
+        self.version = "1.0.0"
+        self.last_execution_time = None
+        self.execution_count = 0
+        self.error_count = 0
 
         # 配置文件路径
         self.slash_commands_file = os.path.expanduser("~/.config/codex/slash_commands.json")
@@ -296,6 +300,26 @@ class CodexSlashCommandAdapter(BaseCodexAdapter):
         except Exception as e:
             logger.error(f"适配器初始化失败: {e}")
             return False
+
+    def get_statistics(self) -> Dict[str, Any]:
+        """获取统计信息 - 直接实现，无抽象层"""
+        return {
+            'cli_name': self.cli_name,
+            'version': self.version,
+            'execution_count': self.execution_count,
+            'error_count': self.error_count,
+            'command_calls_count': self.command_calls_count,
+            'cross_cli_calls_count': self.cross_cli_calls_count,
+            'processed_commands_count': len(self.processed_commands),
+            'extension_registered': self.extension_registered,
+            'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None,
+            'design': 'standalone_slash_command_native',
+            'no_abstraction': True
+        }
+
+    def record_error(self):
+        """记录错误 - 直接实现，无抽象层"""
+        self.error_count += 1
 
     async def _register_slash_commands(self) -> bool:
         """注册斜杠命令"""

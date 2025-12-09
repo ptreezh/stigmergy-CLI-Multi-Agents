@@ -1,1 +1,21 @@
-{ "plugins": [], "integration_settings": { "enable_cross_cli": true } }
+{
+  "integration_settings": {
+    "enable_cross_cli": true,
+    "cross_cli_detection_patterns": [
+      "use\\s+(\\w+)\\s+to\\s+([^\\.\\n!?]*)",
+      "call\\s+(\\w+)\\s+to\\s+([^\\.\\n!?]*)",
+      "ask\\s+(\\w+)\\s+for\\s+([^\\.\\n!?]*)",
+      "请用(\\w+)\\s*帮我?([^。！？\\n]*)",
+      "调用(\\w+)\\s*来([^。！？\\n]*)",
+      "用(\\w+)\\s*帮我?([^。！？\\n]*)"
+    ]
+  },
+  "inheritance_settings": {
+    "auto_inherit_methods": true,
+    "inheritance_hooks": [
+      "on_code_generation",
+      "on_analysis_request",
+      "on_refactor_request"
+    ]
+  }
+}

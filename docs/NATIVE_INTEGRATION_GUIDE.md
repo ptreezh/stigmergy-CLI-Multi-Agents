@@ -804,98 +804,63 @@ register_extensions([
 ### 核心适配器工厂
 ```python
 # cross_cli_factory.py
-from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 import importlib
 import os
 
-class BaseCrossCLIAdapter(ABC):
-    """跨CLI适配器基类"""
+# 简化的适配器获取函数，不使用抽象基类和工厂模式
+def get_cross_cli_adapter(cli_name: str) -> Optional[Any]:
+    """获取跨CLI适配器"""
+    cli_name = cli_name.lower().strip()
+    
+    try:
+        if cli_name == "claude":
+            from src.adapters.claude.hook_adapter import get_claude_hook_adapter
+            return get_claude_hook_adapter()
+        elif cli_name == "gemini":
+            from src.adapters.gemini.extension_adapter import get_gemini_extension_adapter
+            return get_gemini_extension_adapter()
+        elif cli_name == "qwencode":
+            from src.adapters.qwencode.inheritance_adapter import get_qwencode_inheritance_adapter
+            return get_qwencode_inheritance_adapter()
+        elif cli_name == "iflow":
+            from src.adapters.iflow.workflow_adapter import get_iflow_workflow_adapter
+            return get_iflow_workflow_adapter()
+        elif cli_name == "qoder":
+            from src.adapters.qoder.notification_hook_adapter import get_qoder_notification_hook_adapter
+            return get_qoder_notification_hook_adapter()
+        elif cli_name == "codebuddy":
+            from src.adapters.codebuddy.buddy_adapter import get_codebuddy_buddy_adapter
+            return get_codebuddy_buddy_adapter()
+        elif cli_name == "codex":
+            from src.adapters.codex.slash_command_adapter import get_codex_slash_command_adapter
+            return get_codex_slash_command_adapter()
+        else:
+            return None
+    except ImportError:
+        return None
 
-    def __init__(self, cli_name: str):
-        self.cli_name = cli_name
-        self.version = "1.0.0"
+def get_all_adapters() -> Dict[str, Any]:
+    """获取所有可用的跨CLI适配器"""
+    adapters = {}
+    
+    # 尝试加载每个适配器
+    for cli_name in ["claude", "gemini", "qwencode", "iflow", "qoder", "codebuddy", "codex"]:
+        try:
+            adapter = get_cross_cli_adapter(cli_name)
+            if adapter:
+                adapters[cli_name] = adapter
+        except Exception:
+            # 跳过加载失败的适配器
+            pass
+            
+    return adapters
 
-    @abstractmethod
-    async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
-        """执行跨CLI任务"""
-        pass
-
-    @abstractmethod
-    def is_available(self) -> bool:
-        """检查CLI工具是否可用"""
-        pass
-
-    async def health_check(self) -> Dict[str, Any]:
-        """健康检查"""
-        return {
-            'cli_name': self.cli_name,
-            'available': self.is_available(),
-            'version': self.version,
-            'last_check': datetime.now().isoformat()
-        }
-
-class CrossCliAdapterFactory:
-    """跨CLI适配器工厂"""
-
-    def __init__(self):
-        self._adapters: Dict[str, BaseCrossCLIAdapter] = {}
-        self._load_adapters()
-
-    def _load_adapters(self):
-        """加载所有适配器"""
-        adapter_configs = {
-            'claude': 'claude_adapter.ClaudeAdapter',
-            'gemini': 'gemini_adapter.GeminiAdapter',
-            'qwencode': 'qwencode_adapter.QwenCodeAdapter',
-            'iflow': 'iflow_adapter.IFlowAdapter',
-            'qoder': 'qoder_adapter.QoderAdapter',
-            'codebuddy': 'codebuddy_adapter.CodeBuddyAdapter',
-            'codex': 'codex_adapter.CodexAdapter'
-        }
-
-        for cli_name, adapter_path in adapter_configs.items():
-            try:
-                self._load_adapter(cli_name, adapter_path)
-            except Exception as e:
-                logger.warning(f"加载 {cli_name} 适配器失败: {e}")
-
-    def _load_adapter(self, cli_name: str, adapter_path: str):
-        """加载单个适配器"""
-        module_path, class_name = adapter_path.rsplit('.', 1)
-        module = importlib.import_module(module_path)
-        adapter_class = getattr(module, class_name)
-
-        self._adapters[cli_name] = adapter_class(cli_name)
-
-    def get_adapter(self, cli_name: str) -> Optional[BaseCrossCLIAdapter]:
-        """获取适配器"""
-        return self._adapters.get(cli_name.lower())
-
-    def list_available_adapters(self) -> Dict[str, bool]:
-        """列出所有可用适配器"""
-        return {
-            name: adapter.is_available()
-            for name, adapter in self._adapters.items()
-        }
-
-    async def health_check_all(self) -> Dict[str, Dict[str, Any]]:
-        """所有适配器健康检查"""
-        results = {}
-        for name, adapter in self._adapters.items():
-            try:
-                results[name] = await adapter.health_check()
-            except Exception as e:
-                results[name] = {
-                    'cli_name': name,
-                    'available': False,
-                    'error': str(e),
-                    'last_check': datetime.now().isoformat()
-                }
-        return results
-
-# 全局适配器工厂实例
-adapter_factory = CrossCliAdapterFactory()
+# 全局适配器获取函数
+def get_adapter(cli_name: str) -> Optional[Any]:
+    """获取适配器的便捷函数"""
+    return get_cross_cli_adapter(cli_name)
+```
 
 def get_cross_cli_adapter(cli_name: str) -> Optional[BaseCrossCLIAdapter]:
     """获取跨CLI适配器的便捷函数"""

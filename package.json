@@ -1,23 +1,26 @@
 {
   "name": "stigmergy",
-  "version": "1.0.99",
+  "version": "1.1.0",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
-  "main": "src/main_english.js",
+  "main": "src/index.js",
   "bin": {
     "stigmergy": "bin/stigmergy"
   },
   "scripts": {
-    "start": "node src/main_english.js",
+    "start": "node src/index.js",
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
     "test:e2e": "jest tests/e2e",
     "test:rest-client": "node test/rest_client.test.js",
+    "test:nodejs-coordination": "jest tests/unit/nodejs-coordination-layer.test.js",
+    "test:nodejs-hooks": "jest tests/unit/nodejs-hook-deployment.test.js",
+    "test:nodejs-integration": "jest tests/unit/nodejs-cli-integration.test.js",
     "example:rest-client": "node examples/rest_client_example.js",
     "coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "build": "node scripts/build.js",
-    "deploy": "node src/deploy.js",
+    "deploy": "node src/index.js deploy",
     "status": "node src/index.js status",
     "scan": "node src/index.js scan",
     "init": "node src/index.js init",
@@ -33,7 +36,7 @@
     "test:conflict-prevention": "node test/conflict-prevention-test.js",
     "post-deployment-config": "node scripts/post-deployment-config.js",
     "preinstall": "node scripts/preinstall-check.js",
-    "postinstall": "node src/main_english.js auto-install"
+    "postinstall": "node src/index.js auto-install"
   },
   "keywords": [
     "ai",
@@ -106,7 +109,7 @@
     "unicode-free": true
   },
   "npx": {
-    "stigmergy": "src/main_english.js"
+    "stigmergy": "src/index.js"
   },
   "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
   "bugs": {

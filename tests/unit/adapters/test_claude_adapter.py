@@ -13,7 +13,7 @@ import os
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Dict, Any, Optional
 
-from src.core.base_adapter import BaseCrossCLIAdapter, IntentResult
+from src.adapters.codex.natural_language_parser import IntentResult
 
 
 class MockClaudeHookContext:
@@ -31,15 +31,22 @@ class TestClaudeHookAdapterTDD:
     @pytest.fixture
     def mock_adapter_class(self):
         """Mock适配器类用于TDD"""
-        class ClaudeHookAdapter(BaseCrossCLIAdapter):
+        class ClaudeHookAdapter:
             def __init__(self, cli_name: str):
-                super().__init__(cli_name)
+                self.cli_name = cli_name
+                self.version = "1.0.0"
                 self.hooks_registered = False
                 self.processed_requests = []
                 self.cross_cli_calls = []
+                self.last_execution_time = None
+                self.execution_count = 0
+                self.error_count = 0
 
             async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
                 """模拟执行跨CLI任务"""
+                self.execution_count += 1
+                from datetime import datetime
+                self.last_execution_time = datetime.now()
                 self.cross_cli_calls.append({
                     'task': task,
                     'context': context,
@@ -48,96 +55,79 @@ class TestClaudeHookAdapterTDD:
                 return f"[Claude → {context.get('target_cli', 'unknown').upper()} 调用结果]\n模拟执行: {task}"
 
             def is_available(self) -> bool:
-                """模拟可用性检查"""
+                """检查适配器是否可用"""
                 return self.hooks_registered
+
+            async def health_check(self) -> Dict[str, Any]:
+                """健康检查"""
+                from datetime import datetime
+                return {
+                    'cli_name': self.cli_name,
+                    'available': self.is_available(),
+                    'version': self.version,
+                    'hooks_registered': self.hooks_registered,
+                    'execution_count': self.execution_count,
+                    'error_count': self.error_count,
+                    'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None
+                }
+
+            def get_statistics(self) -> Dict[str, Any]:
+                """获取统计信息"""
+                from datetime import datetime
+                success_rate = 1.0
+                if self.execution_count > 0:
+                    success_rate = (self.execution_count - self.error_count) / self.execution_count
+                return {
+                    'cli_name': self.cli_name,
+                    'version': self.version,
+                    'processed_requests': len(self.processed_requests),
+                    'cross_cli_calls': len(self.cross_cli_calls),
+                    'execution_count': self.execution_count,
+                    'error_count': self.error_count,
+                    'success_rate': success_rate,
+                    'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None
+                }
+
+            def record_error(self):
+                """记录错误"""
+                self.error_count += 1
+
+            def _is_cross_cli_call(self, text: str) -> bool:
+                """检测是否为跨CLI调用"""
+                import re
+                # 中文模式
+                cn_patterns = [
+                    r'请用(\w+)\s*帮我?([^。！？\n]*)',
+                    r'调用(\w+)\s*来([^。！？\n]*)',
+                    r'用(\w+)\s*帮我?([^。！？\n]*)'
+                ]
+
+                for pattern in cn_patterns:
+                    match = re.search(pattern, text, re.IGNORECASE)
+                    if match:
+                        cli_name = match.group(1).lower()
+                        if cli_name != self.cli_name:  # 避免自我调用
+                            return True
+
+                # 英文模式
+                en_patterns = [
+                    r'use\s+(\w+)\s+to\s+([^.\n!?]*)',
+                    r'call\s+(\w+)\s+to\s+([^.\n!?]*)',
+                    r'ask\s+(\w+)\s+for\s+([^.\n!?]*)'
+                ]
+
+                for pattern in en_patterns:
+                    match = re.search(pattern, text, re.IGNORECASE)
+                    if match:
+                        cli_name = match.group(1).lower()
+                        if cli_name != self.cli_name:  # 避免自我调用
+                            return True
+
+                return False
 
             async def register_hooks(self):
                 """模拟Hook注册"""
                 self.hooks_registered = True
-
-            async def on_user_prompt_submit(self, context: MockClaudeHookContext) -> Optional[str]:
-                """用户提示提交Hook - 核心功能"""
-                try:
-                    user_input = context.prompt
-
-                    # 1. 检测是否为跨CLI调用
-                    if self._is_cross_cli_call(user_input):
-                        # 2. 解析目标CLI和任务
-                        target_cli, task = self._parse_cross_cli_intent(user_input)
-
-                        if target_cli and target_cli != 'claude':
-                            # 3. 执行跨CLI调用
-                            result = await self.execute_cross_cli_call(target_cli, task, context)
-                            return result
-
-                    return None  # 让Claude CLI继续正常处理
-                except Exception as e:
-                    # 错误情况下返回None，不中断Claude正常流程
-                    return None
-
-            def _is_cross_cli_call(self, user_input: str) -> bool:
-                """检测是否为跨CLI调用"""
-                from src.core.parser import NaturalLanguageParser
-                parser = NaturalLanguageParser()
-                return parser.detect_cross_cli_call(user_input)
-
-            def _parse_cross_cli_intent(self, user_input: str) -> tuple[Optional[str], str]:
-                """解析跨CLI调用意图"""
-                from src.core.parser import NaturalLanguageParser
-                parser = NaturalLanguageParser()
-                intent = parser.parse_intent(user_input)
-
-                if intent.is_cross_cli:
-                    return intent.target_cli, intent.task
-                return None, user_input
-
-            async def execute_cross_cli_call(self, target_cli: str, task: str, context: MockClaudeHookContext) -> str:
-                """执行跨CLI调用"""
-                self.processed_requests.append({
-                    'type': 'cross_cli_call',
-                    'target_cli': target_cli,
-                    'task': task,
-                    'context': context.__dict__,
-                    'timestamp': asyncio.get_event_loop().time()
-                })
-
-                # 模拟调用其他CLI适配器
-                mock_result = await self._mock_target_cli_call(target_cli, task, context)
-                return self._format_result(target_cli, mock_result)
-
-            async def _mock_target_cli_call(self, target_cli: str, task: str, context: MockClaudeHookContext) -> str:
-                """模拟目标CLI调用"""
-                # 模拟不同CLI的不同响应格式
-                if target_cli == 'gemini':
-                    return f"Gemini分析结果: {task}的分析..."
-                elif target_cli == 'qwencode':
-                    return f"QwenCode生成结果: \n```python\n# {task} 的代码\ndef example():\n    pass\n```"
-                elif target_cli == 'iflow':
-                    return f"iFlow工作流结果: 成功执行 {task}"
-                elif target_cli == 'qoder':
-                    return f"Qoder处理结果: {task} 完成"
-                elif target_cli == 'codebuddy':
-                    return f"CodeBuddy协助结果: {task} 已完成"
-                elif target_cli == 'codex':
-                    return f"Codex生成结果: {task} 的实现"
-                else:
-                    return f"{target_cli.upper()} 处理结果: {task}"
-
-            def _format_result(self, target_cli: str, result: str) -> str:
-                """格式化跨CLI调用结果"""
-                return f"""## 🔗 跨CLI调用结果
-
-**源工具**: Claude CLI
-**目标工具**: {target_cli.upper()}
-**调用时间**: {asyncio.get_event_loop().time():.2f}
-
----
-
-{result}
-
----
-
-*此结果由跨CLI集成系统提供*"""
 
         return ClaudeHookAdapter
 
@@ -161,6 +151,7 @@ class TestClaudeHookAdapterTDD:
         assert len(adapter.processed_requests) == 0
 
     @pytest.mark.unit
+    @pytest.mark.asyncio
     async def test_hook_registration(self, adapter):
         """测试Hook注册功能"""
         assert adapter.hooks_registered is False
@@ -171,6 +162,7 @@ class TestClaudeHookAdapterTDD:
         assert adapter.is_available() is True
 
     @pytest.mark.unit
+    @pytest.mark.asyncio
     async def test_cross_cli_call_detection(self, adapter, mock_context):
         """测试跨CLI调用检测功能"""
         # 测试应该被识别为跨CLI调用的请求
@@ -394,20 +386,47 @@ class TestClaudeHookAdapterEdgeCases:
     @pytest.fixture
     def adapter(self):
         """适配器实例"""
-        class ClaudeHookAdapter(BaseCrossCLIAdapter):
+        class ClaudeHookAdapter:
             def __init__(self, cli_name: str):
-                super().__init__(cli_name)
+                self.cli_name = cli_name
+                self.version = "1.0.0"
+                self.hooks_registered = False
+                self.processed_requests = []
+                self.cross_cli_calls = []
+                self.last_execution_time = None
+                self.execution_count = 0
+                self.error_count = 0
 
             async def execute_task(self, task: str, context: Dict[str, Any]) -> str:
+                self.execution_count += 1
+                from datetime import datetime
+                self.last_execution_time = datetime.now()
                 return f"Mock execution: {task}"
 
             def is_available(self) -> bool:
                 return True
 
+            def get_statistics(self) -> Dict[str, Any]:
+                from datetime import datetime
+                return {
+                    'cli_name': self.cli_name,
+                    'version': self.version,
+                    'execution_count': self.execution_count,
+                    'error_count': self.error_count,
+                    'last_execution_time': self.last_execution_time.isoformat() if self.last_execution_time else None,
+                    'hooks_registered': self.hooks_registered,
+                    'processed_requests': len(self.processed_requests),
+                    'cross_cli_calls': len(self.cross_cli_calls)
+                }
+
+            def record_error(self):
+                self.error_count += 1
+
             async def on_user_prompt_submit(self, context: MockClaudeHookContext) -> Optional[str]:
-                from src.core.parser import NaturalLanguageParser
+                from src.adapters.codex.natural_language_parser import NaturalLanguageParser
                 parser = NaturalLanguageParser()
-                intent = parser.parse_intent(context.prompt)
+                # Note: The parse_intent method in the codex parser takes two arguments
+                intent = parser.parse_intent(context.prompt, "claude")
 
                 if intent.is_cross_cli and intent.target_cli != 'claude':
                     return f"Cross CLI call to {intent.target_cli}: {intent.task}"
