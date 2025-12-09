@@ -121,7 +121,7 @@ function testCharacterEncoding() {
     console.log('----------------------------------------');
 
     const filesToCheck = [
-        'package/src/main.js',
+        'package/src/index.js',
         'package/src/skills/skills-manager.js',
         'package/src/natural-language/nl-parser.cjs',
         'hooks/install-hooks.js'
@@ -217,7 +217,7 @@ function testCrossPlatformCompatibility() {
 
     // Test file paths work on current platform
     const testPaths = [
-        'package/src/main.js',
+        'package/src/index.js',
         'package/src/skills/skills-manager.cjs',
         '.claude/settings.json'
     ];

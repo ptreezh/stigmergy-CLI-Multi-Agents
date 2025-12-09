@@ -8,7 +8,7 @@ class HookDeploymentManager {
   constructor() {
     this.deploymentDir = path.join(os.homedir(), '.stigmergy', 'hooks');
     this.supportedCLIs = [
-      'claude', 'gemini', 'qwencode', 'iflow', 'qoder', 'codebuddy', 'codex', 'copilot'
+      'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot'
     ];
   }
 

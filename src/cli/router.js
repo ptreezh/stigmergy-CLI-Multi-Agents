@@ -61,6 +61,8 @@ async function main() {
       '  init            Initialize Stigmergy configuration (alias for setup)',
     );
     console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
+    console.log('  fibonacci <n>   Calculate the nth Fibonacci number');
+    console.log('  fibonacci seq <n> Generate the first n Fibonacci numbers');
     console.log('  errors          Display error report and statistics');
     console.log('');
     console.log('[WORKFLOW] Automated Workflow:');
@@ -82,17 +84,9 @@ async function main() {
   switch (command) {
   case 'version':
   case '--version': {
-    // Use the version from configuration instead of hardcoding
-    const config = {
-      version: '1.0.94',
-      initialized: true,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      defaultCLI: 'claude',
-      enableCrossCLI: true,
-      enableMemory: true,
-    };
-    console.log(`Stigmergy CLI v${config.version}`);
+    // Use the version from package.json instead of hardcoding
+    const packageJson = require('../../package.json');
+    console.log(`Stigmergy CLI v${packageJson.version}`);
     break;
   }
 
@@ -243,6 +237,50 @@ async function main() {
     break;
 
   
+  case 'fibonacci': {
+    if (args.length < 2) {
+      console.log('[ERROR] Please provide a number');
+      console.log('Usage: stigmergy fibonacci <n>');
+      console.log('Calculates the nth Fibonacci number or generates a sequence of n Fibonacci numbers');
+      console.log('Examples:');
+      console.log('  stigmergy fibonacci 10     # Calculates the 10th Fibonacci number');
+      console.log('  stigmergy fibonacci seq 10 # Generates the first 10 Fibonacci numbers');
+      process.exit(1);
+    }
+
+    const Calculator = require('../calculator');
+    const calc = new Calculator();
+
+    try {
+      if (args[1] === 'seq' && args.length >= 3) {
+        // Generate a sequence of Fibonacci numbers
+        const n = parseInt(args[2]);
+        if (isNaN(n)) {
+          console.log('[ERROR] Invalid number provided');
+          process.exit(1);
+        }
+
+        const sequence = calc.fibonacciSequence(n);
+        console.log(`First ${n} Fibonacci numbers:`);
+        console.log(sequence.join(', '));
+      } else {
+        // Calculate a single Fibonacci number
+        const n = parseInt(args[1]);
+        if (isNaN(n)) {
+          console.log('[ERROR] Invalid number provided');
+          process.exit(1);
+        }
+
+        const result = calc.fibonacci(n);
+        console.log(`F(${n}) = ${result}`);
+      }
+    } catch (error) {
+      console.log(`[ERROR] ${error.message}`);
+      process.exit(1);
+    }
+    break;
+  }
+
   case 'call': {
     if (args.length < 2) {
       console.log('[ERROR] Please provide a prompt');

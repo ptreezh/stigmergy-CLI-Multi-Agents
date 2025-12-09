@@ -77,7 +77,7 @@ async function testToolSelectionIntegration() {
 
     for (const testCase of testCases) {
         console.log(`${testCase.name}`);
-        console.log(`Command: node package/src/main.js ${testCase.args.join(' ')}`);
+        console.log(`Command: node package/src/index.js ${testCase.args.join(' ')}`);
 
         try {
             const result = await runCommand(testCase.args);

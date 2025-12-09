@@ -22,7 +22,7 @@ console.log(`Building version ${pkg.version} of ${pkg.name}`);
 
 // Verify required files exist
 const requiredFiles = [
-    'src/main_english.js',
+    'src/index.js',
     'package.json',
     'README.md',
     'LICENSE'
@@ -49,7 +49,7 @@ try {
 // Run basic syntax check
 console.log('\nRunning syntax checks...');
 try {
-    execSync('node -c src/main_english.js', { stdio: 'inherit' });
+    execSync('node -c src/index.js', { stdio: 'inherit' });
     console.log('✅ Main file syntax is valid');
 } catch (error) {
     console.error('❌ Syntax error in main file:', error.message);

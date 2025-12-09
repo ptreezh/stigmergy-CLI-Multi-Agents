@@ -245,7 +245,7 @@ class SystemCompatibilityTest {
         // Check file encoding
         const skillsFiles = [
             'package/src/skills/skills-manager.js',
-            'package/src/main.js',
+            'package/src/index.js',
             'hooks/install-hooks.js'
         ];
 

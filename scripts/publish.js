@@ -79,7 +79,7 @@ class NPMPublisher {
 
             // 复制必要文件
             const filesToCopy = [
-                'src/main.js',
+                'src/index.js',
                 'src/adapters/',
                 'src/templates/',
                 'package.json',
@@ -104,16 +104,16 @@ class NPMPublisher {
             const publishConfig = {
                 ...publishPackage,
                 files: [
-                    'src/main.js',
+                    'src/index.js',
                     'src/adapters/**',
                     'src/templates/**',
                     'bin/**',
                     'README.md',
                     'LICENSE'
                 ],
-                main: 'src/main.js',
+                main: 'src/index.js',
                 bin: {
-                    'stigmergy-cli': 'src/main.js'
+                    'stigmergy-cli': 'src/index.js'
                 }
             };
 

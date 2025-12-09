@@ -25,7 +25,7 @@ async function main() {
         console.log(`📦 描述: ${pkg.description}`);
 
         // 检查必要文件
-        const requiredFiles = ['src/main.js', 'package.json', 'README.md', 'LICENSE'];
+        const requiredFiles = ['src/index.js', 'package.json', 'README.md', 'LICENSE'];
         console.log('📍 检查必要文件...');
 
         for (const file of requiredFiles) {
