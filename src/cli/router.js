@@ -264,11 +264,40 @@ async function main() {
       console.log(`[ROUTE] Analyzing prompt: ${prompt}`);
 
       // Route to appropriate AI CLI tool
-      const route = await router.routePrompt(prompt);
+      const route = await router.smartRoute(prompt);
       console.log(`[ROUTE] Selected tool: ${route.tool}`);
 
       // Prepare tool arguments
-      const toolArgs = router.prepareToolArguments(route, prompt);
+      let toolArgs = [];
+      
+      try {
+        // Get CLI pattern for this tool
+        const cliPattern = await router.analyzer.getCLIPattern(route.tool);
+
+        // Use the unified CLI parameter handler
+        const CLIParameterHandler = require('../core/cli_parameter_handler');
+        toolArgs = CLIParameterHandler.generateArguments(
+          route.tool,
+          route.prompt,
+          cliPattern,
+        );
+      } catch (patternError) {
+        // Fallback to original logic if pattern analysis fails
+        if (route.tool === 'claude') {
+          // Claude CLI expects the prompt with -p flag for non-interactive mode
+          toolArgs = ['-p', `"${route.prompt}"`];
+        } else if (route.tool === 'qodercli' || route.tool === 'iflow') {
+          // Qoder CLI and iFlow expect the prompt with -p flag
+          toolArgs = ['-p', `"${route.prompt}"`];
+        } else if (route.tool === 'codex') {
+          // Codex CLI needs 'exec' subcommand for non-interactive mode
+          toolArgs = ['exec', '-p', `"${route.prompt}"`];
+        } else {
+          // For other tools, pass the prompt with -p flag
+          toolArgs = ['-p', `"${route.prompt}"`];
+        }
+      }
+      
       const toolPath = route.tool;
 
       console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
