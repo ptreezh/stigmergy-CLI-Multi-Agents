@@ -321,19 +321,8 @@ async function main() {
         );
       } catch (patternError) {
         // Fallback to original logic if pattern analysis fails
-        if (route.tool === 'claude') {
-          // Claude CLI expects the prompt with -p flag for non-interactive mode
-          toolArgs = ['-p', `"${route.prompt}"`];
-        } else if (route.tool === 'qodercli' || route.tool === 'iflow') {
-          // Qoder CLI and iFlow expect the prompt with -p flag
-          toolArgs = ['-p', `"${route.prompt}"`];
-        } else if (route.tool === 'codex') {
-          // Codex CLI needs 'exec' subcommand for non-interactive mode
-          toolArgs = ['exec', '-p', `"${route.prompt}"`];
-        } else {
-          // For other tools, pass the prompt with -p flag
-          toolArgs = ['-p', `"${route.prompt}"`];
-        }
+        const CLIParameterHandler = require('../core/cli_parameter_handler');
+        toolArgs = CLIParameterHandler.getToolSpecificArguments(route.tool, route.prompt);
       }
       
       const toolPath = route.tool;
