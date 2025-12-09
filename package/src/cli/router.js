@@ -33,7 +33,6 @@ async function main() {
   // Create instances
   const memory = new MemoryManager();
   const installer = new StigmergyInstaller();
-  const router = new SmartRouter();
 
   // Handle help command early
   if (
@@ -318,9 +317,14 @@ async function main() {
         process.exit(1);
       }
     } catch (error) {
+      const cliError = await errorHandler.handleCLIError(
+        route.tool,
+        error,
+        prompt,
+      );
       console.log(
-        `[ERROR] Failed to route prompt:`,
-        error.message,
+        `[ERROR] Failed to execute ${route.tool}:`,
+        cliError.message,
       );
       process.exit(1);
     }
