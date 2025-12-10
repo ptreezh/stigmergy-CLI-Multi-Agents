@@ -1,0 +1,19 @@
+{
+  "integration_settings": {
+    "enable_cross_cli": true,
+    "cross_cli_detection_patterns": [
+      "use\\s+(\\w+)\\s+to\\s+([^\\.\\n!?]*)",
+      "call\\s+(\\w+)\\s+to\\s+([^\\.\\n!?]*)",
+      "ask\\s+(\\w+)\\s+for\\s+([^\\.\\n!?]*)",
+      "请用(\\w+)\\s*帮我?([^。！？\\n]*)",
+      "调用(\\w+)\\s*来([^。！？\\n]*)",
+      "用(\\w+)\\s*帮我?([^。！？\\n]*)"
+    ]
+  },
+  "hook_settings": {
+    "user_prompt_submit": true,
+    "tool_use_pre": true,
+    "tool_use_post": true,
+    "response_generated": true
+  }
+}

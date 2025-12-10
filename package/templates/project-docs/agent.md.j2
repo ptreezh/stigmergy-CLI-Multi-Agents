@@ -1,0 +1,219 @@
+# AI Agent Project Memory Document
+
+## Project Overview
+- **Project Name**: {{PROJECT_NAME}}
+- **Project Type**: {{PROJECT_TYPE}}
+- **Main Tech Stack**: {{TECH_STACK}}
+- **Created Date**: {{CREATED_DATE}}
+- **Last Updated**: {{LAST_UPDATED}}
+
+## AI Agent Collaboration Guide
+
+### 1. Agent Role Definition
+```bash
+# Claude Agent - Architect and Code Review Expert
+claude-agent --role="architect" --task="{{TASK_DESCRIPTION}}"
+
+# Gemini Agent - Data Analysis and Translation Expert  
+gemini-agent --role="analyst" --task="{{TASK_DESCRIPTION}}"
+
+# Qwen Agent - Localization and Chinese Content Expert
+qwen-agent --role="localizer" --task="{{TASK_DESCRIPTION}}"
+
+# iFlow Agent - Workflow Orchestration Expert
+iflow-agent --role="orchestrator" --task="{{TASK_DESCRIPTION}}"
+
+# CodeBuddy Agent - Code Generation and Refactoring Expert
+codebuddy-agent --role="generator" --task="{{TASK_DESCRIPTION}}"
+```
+
+### 2. Project Specific Configuration
+- **Agent communication protocol**: {{AGENT_COMMUNICATION_PROTOCOL}}
+- **Collaboration mode**: {{COLLABORATION_MODE}}
+- **Decision mechanism**: {{DECISION_MECHANISM}}
+- **Conflict resolution**: {{CONFLICT_RESOLUTION}}
+
+### 3. Agent Collaboration Templates
+
+#### Multi-Agent Collaboration Template
+```
+Start multi-agent collaboration task:
+
+Task objective: {{COLLABORATION_GOAL}}
+Participating agents: {{PARTICIPATING_AGENTS}}
+Collaboration pattern: {{COLLABORATION_PATTERN}}
+
+Agent division of labor:
+- Claude Agent: {{CLAUDE_RESPONSIBILITIES}}
+- Gemini Agent: {{GEMINI_RESPONSIBILITIES}}
+- Qwen Agent: {{QWEN_RESPONSIBILITIES}}
+- iFlow Agent: {{IFLOW_RESPONSIBILITIES}}
+- CodeBuddy Agent: {{CODEBUDDY_RESPONSIBILITIES}}
+
+Collaboration process:
+1. {{COLLABORATION_STEP_1}}
+2. {{COLLABORATION_STEP_2}}
+3. {{COLLABORATION_STEP_3}}
+
+Data exchange format: {{DATA_EXCHANGE_FORMAT}}
+State synchronization mechanism: {{STATE_SYNC_MECHANISM}}
+```
+
+#### Agent Specialization Task Template
+```
+Assign specialized agent task:
+
+Task type: {{TASK_TYPE}}
+Professional domain: {{DOMAIN_EXPERTISE}}
+Preferred agent: {{PREFERRED_AGENT}}
+
+Task details:
+- Input data: {{INPUT_DATA}}
+- Output requirements: {{OUTPUT_REQUIREMENTS}}
+- Quality standards: {{QUALITY_STANDARDS}}
+- Time constraints: {{TIME_CONSTRAINTS}}
+
+Agent configuration:
+- Model parameters: {{MODEL_PARAMETERS}}
+- Tool integrations: {{TOOL_INTEGRATIONS}}
+- Permission level: {{PERMISSION_LEVEL}}
+```
+
+### 4. Inter-Agent Communication Protocol
+```
+Inter-agent communication standard:
+
+Message format:
+{
+  "from_agent": "{{SENDER_AGENT}}",
+  "to_agent": "{{RECEIVER_AGENT}}",
+  "message_type": "{{MESSAGE_TYPE}}",
+  "timestamp": "{{TIMESTAMP}}",
+  "content": {{MESSAGE_CONTENT}},
+  "priority": "{{PRIORITY_LEVEL}}",
+  "correlation_id": "{{CORRELATION_ID}}"
+}
+
+Message types:
+- task_assignment: Task assignment
+- status_update: Status update
+- result_delivery: Result delivery
+- error_report: Error report
+- coordination_request: Coordination request
+- resource_sharing: Resource sharing
+
+Priority levels:
+- critical: Critical tasks
+- high: High priority
+- normal: Normal priority
+- low: Low priority
+```
+
+### 5. Collective Decision Mechanism
+```
+Multi-agent decision process:
+
+Decision topic: {{DECISION_TOPIC}}
+Participating agents: {{DECISION_PARTICIPANTS}}
+Decision type: {{DECISION_TYPE}}
+
+Decision process:
+1. Information collection phase
+   - Claude Agent: {{INFO_COLLECTION_CLAUDE}}
+   - Gemini Agent: {{INFO_COLLECTION_GEMINI}}
+   - Qwen Agent: {{INFO_COLLECTION_QWEN}}
+
+2. Solution generation phase
+   - Each agent independently generates solutions
+   - Solution evaluation and comparison
+
+3. Negotiation discussion phase
+   - Solution pros and cons analysis
+   - Improvement suggestions
+   - Reach consensus or vote
+
+4. Decision execution phase
+   - Final decision confirmation
+   - Execution plan development
+   - Responsibility division
+
+Decision criteria:
+- Technical feasibility: {{TECHNICAL_FEASIBILITY_WEIGHT}}
+- Cost-effectiveness: {{COST_BENEFIT_WEIGHT}}
+- Risk assessment: {{RISK_ASSESSMENT_WEIGHT}}
+- Time efficiency: {{TIME_EFFICIENCY_WEIGHT}}
+```
+
+### 6. Project Memory
+- **Agent configuration profiles**: {{AGENT_PROFILES}}
+- **Collaboration history**: {{COLLABORATION_HISTORY}}
+- **Decision records**: {{DECISION_RECORDS}}
+- **Performance metrics**: {{PERFORMANCE_METRICS}}
+
+## Example Usage Scenarios
+
+### Scenario 1: Large System Architecture Design
+```bash
+# Start multi-agent collaboration for architecture design
+stigmergy agent-collaboration --task="design-microservices-architecture" \
+  --agents="claude,gemini,qwen,iflow" \
+  --collaboration-mode="sequential"
+```
+
+### Scenario 2: Internationalization Project Development
+```bash
+# Multi-agent collaboration handling internationalization requirements
+stigmergy agent-collaboration --task="internationalization" \
+  --agents="claude,gemini,qwen,codebuddy" \
+  --collaboration-mode="parallel"
+```
+
+### Scenario 3: Code Quality Review
+```bash
+# Multi-perspective code review
+stigmergy agent-collaboration --task="code-review" \
+  --file="{{CODE_FILE_PATH}}" \
+  --review-aspects="security,performance,maintainability,i18n"
+```
+
+### Scenario 4: Automated Workflow Creation
+```bash
+# Agent collaboration creating complex workflow
+stigmergy agent-collaboration --task="create-automated-workflow" \
+  --workflow-type="ci-cd-pipeline" \
+  --agents="iflow,claude,codebuddy"
+```
+
+## Agent Best Practices
+
+### Collaboration Principles
+1. **Clear division of labor**: Each agent has clear responsibility scope
+2. **Effective communication**: Establish clear communication protocols
+3. **Mutual respect**: Recognize each agent's expertise
+4. **Common goals**: Ensure all agents work towards shared objectives
+
+### Conflict Resolution
+1. **Data-driven**: Make decisions based on objective data
+2. **Expert priority**: Listen to corresponding agent opinions in professional domains
+3. **Democratic consultation**: Reach consensus through discussion
+4. **Arbitration mechanism**: Introduce arbitration agent when consensus cannot be reached
+
+### Performance Optimization
+1. **Parallel processing**: Reasonably distribute parallel tasks
+2. **Cache reuse**: Share intermediate results to reduce duplicate computation
+3. **Load balancing**: Reasonably distribute tasks based on agent capabilities
+4. **Resource management**: Optimize computing resource usage efficiency
+
+## Agent Capability Matrix
+
+| Agent | Main Capabilities | Applicable Scenarios | Collaboration Advantages |
+|-------|------------------|---------------------|-----------------------|
+| Claude | Architecture design, code review | System design, quality assurance | Provide technical authority |
+| Gemini | Data analysis, translation | Internationalization, report generation | Multilingual support |
+| Qwen | Localization, Chinese processing | China market, Chinese content | Cultural adaptability |
+| iFlow | Workflow orchestration, automation | Process optimization, CI/CD | System integration |
+| CodeBuddy | Code generation, refactoring | Development efficiency, code optimization | Rapid iteration |
+
+---
+*This document is automatically generated and updated by Stigmergy CLI*
+*Last update time: {{GENERATION_TIME}}*

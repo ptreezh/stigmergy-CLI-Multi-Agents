@@ -85,7 +85,8 @@
       "Bash(~/.stigmergy-test/claude.cmd)",
       "Bash(\"C:\\Users\\WIN10\\.stigmergy-test\\testai-wrapper.cmd\":*)",
       "Bash(npx stigmergy@latest:*)",
-      "Bash(cmd:*)"
+      "Bash(cmd:*)",
+      "Bash(npm pack)"
     ],
     "deny": [],
     "ask": []

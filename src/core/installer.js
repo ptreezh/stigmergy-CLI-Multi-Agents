@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs/promises');
 const os = require('os');
 const { spawnSync } = require('child_process');
+const inquirer = require('inquirer');
 const SmartRouter = require('./smart_router');
 const { errorHandler } = require('./error_handler');
 const MemoryManager = require('./memory_manager');
