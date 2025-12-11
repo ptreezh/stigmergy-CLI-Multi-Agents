@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definitions -->
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Arrow markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+    </marker>
+    
+    <marker id="arrowheadGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+    </marker>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f8fafc"/>
+  
+  <!-- Grid pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  </pattern>
+  <rect width="1200" height="800" fill="url(#grid)" opacity="0.5"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-size="28" font-weight="bold" fill="#1f2937">Stigmergy 系统架构图</text>
+  <text x="600" y="65" text-anchor="middle" font-size="16" fill="#6b7280">基于仿生学原理的AI工具协作生态系统</text>
+  
+  <!-- Central Coordination Layer -->
+  <g id="coordination-layer">
+    <rect x="400" y="350" width="400" height="120" rx="15" fill="url(#primaryGradient)" filter="url(#shadow)"/>
+    <text x="600" y="390" text-anchor="middle" font-size="20" font-weight="bold" fill="white">Stigmergy 协调核心</text>
+    <text x="600" y="415" text-anchor="middle" font-size="14" fill="white">智能调度引擎</text>
+    <text x="600" y="435" text-anchor="middle" font-size="14" fill="white">Pheromone 信息素管理</text>
+    <text x="600" y="455" text-anchor="middle" font-size="14" fill="white">跨工具通信协议</text>
+  </g>
+  
+  <!-- AI Tools Layer -->
+  <g id="ai-tools-layer">
+    <!-- Claude -->
+    <rect x="100" y="150" width="180" height="100" rx="10" fill="white" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"/>
+    <text x="190" y="180" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f2937">Claude</text>
+    <text x="190" y="200" text-anchor="middle" font-size="12" fill="#6b7280">代码生成与推理</text>
+    <text x="190" y="220" text-anchor="middle" font-size="14" fill="#10b981">● 已连接</text>
+    
+    <!-- Qwen -->
+    <rect x="920" y="150" width="180" height="100" rx="10" fill="white" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)"/>
+    <text x="1010" y="180" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f2937">Qwen</text>
+    <text x="1010" y="200" text-anchor="middle" font-size="12" fill="#6b7280">中文AI助手</text>
+    <text x="1010" y="220" text-anchor="middle" font-size="14" fill="#10b981">● 已连接</text>
+    
+    <!-- CodeBuddy -->
+    <rect x="100" y="550" width="180" height="100" rx="10" fill="white" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+    <text x="190" y="580" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f2937">CodeBuddy</text>
+    <text x="190" y="600" text-anchor="middle" font-size="12" fill="#6b7280">代码审查</text>
+    <text x="190" y="620" text-anchor="middle" font-size="14" fill="#10b981">● 已连接</text>
+    
+    <!-- iFlow -->
+    <rect x="920" y="550" width="180" height="100" rx="10" fill="white" stroke="#06b6d4" stroke-width="2" filter="url(#shadow)"/>
+    <text x="1010" y="580" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f2937">iFlow</text>
+    <text x="1010" y="600" text-anchor="middle" font-size="12" fill="#6b7280">工作流引擎</text>
+    <text x="1010" y="620" text-anchor="middle" font-size="14" fill="#10b981">● 已连接</text>
+  </g>
+  
+  <!-- Interface Layer -->
+  <g id="interface-layer">
+    <rect x="350" y="150" width="500" height="80" rx="10" fill="url(#secondaryGradient)" filter="url(#shadow)"/>
+    <text x="600" y="180" text-anchor="middle" font-size="18" font-weight="bold" fill="white">用户接口层</text>
+    <text x="600" y="200" text-anchor="middle" font-size="14" fill="white">CLI 统一入口 | Web 管理界面 | API Gateway</text>
+    <text x="600" y="220" text-anchor="middle" font-size="14" fill="white">认证授权 | 请求路由 | 响应聚合</text>
+  </g>
+  
+  <!-- Data Flow Layer -->
+  <g id="data-flow-layer">
+    <rect x="350" y="550" width="500" height="80" rx="10" fill="url(#accentGradient)" filter="url(#shadow)"/>
+    <text x="600" y="580" text-anchor="middle" font-size="18" font-weight="bold" fill="white">数据流管理层</text>
+    <text x="600" y="600" text-anchor="middle" font-size="14" fill="white">消息队列 | 事件总线 | 状态同步</text>
+    <text x="600" y="620" text-anchor="middle" font-size="14" fill="white">数据持久化 | 缓存管理 | 日志追踪</text>
+  </g>
+  
+  <!-- Connection Lines -->
+  <g id="connections">
+    <!-- Tools to Coordination -->
+    <path d="M 280 200 Q 340 275 400 380" stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5" opacity="0.7"/>
+    <path d="M 920 200 Q 860 275 800 380" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5" opacity="0.7"/>
+    <path d="M 280 600 Q 340 525 400 440" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5" opacity="0.7"/>
+    <path d="M 920 600 Q 860 525 800 440" stroke="#06b6d4" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5" opacity="0.7"/>
+    
+    <!-- Interface to Coordination -->
+    <path d="M 600 230 L 600 350" stroke="url(#secondaryGradient)" stroke-width="3" fill="none" marker-end="url(#arrowheadGreen)" opacity="0.8"/>
+    
+    <!-- Coordination to Data Flow -->
+    <path d="M 600 470 L 600 550" stroke="url(#accentGradient)" stroke-width="3" fill="none" marker-end="url(#arrowheadGreen)" opacity="0.8"/>
+  </g>
+  
+  <!-- Collaboration Flows -->
+  <g id="collaboration-flows">
+    <!-- Bidirectional flow between tools -->
+    <path d="M 280 250 Q 600 320 920 250" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrowheadGreen)" opacity="0.5" stroke-dasharray="8,3"/>
+    <path d="M 920 550 Q 600 480 280 550" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrowheadGreen)" opacity="0.5" stroke-dasharray="8,3"/>
+  </g>
+  
+  <!-- Annotations -->
+  <g id="annotations">
+    <text x="150" y="100" font-size="12" fill="#6b7280">AI 工具层</text>
+    <text x="600" y="130" font-size="12" fill="#6b7280">接口层</text>
+    <text x="600" y="340" font-size="12" fill="#6b7280">协调层</text>
+    <text x="600" y="530" font-size="12" fill="#6b7280">数据层</text>
+  </g>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="700" width="1100" height="80" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="70" y="725" font-size="14" font-weight="bold" fill="#1f2937">图例说明</text>
+    
+    <circle cx="100" cy="750" r="5" fill="#10b981"/>
+    <text x="115" y="755" font-size="12" fill="#6b7280">工具已连接</text>
+    
+    <line x1="250" y1="750" x2="290" y2="750" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+    <text x="300" y="755" font-size="12" fill="#6b7280">数据链路</text>
+    
+    <line x1="450" y1="750" x2="490" y2="750" stroke="#10b981" stroke-width="2" marker-end="url(#arrowheadGreen)"/>
+    <text x="500" y="755" font-size="12" fill="#6b7280">数据流向</text>
+    
+    <rect x="650" y="740" width="60" height="20" rx="3" fill="url(#primaryGradient)"/>
+    <text x="720" y="755" font-size="12" fill="#6b7280">协调核心</text>
+    
+    <rect x="850" y="740" width="60" height="20" rx="3" fill="url(#secondaryGradient)"/>
+    <text x="920" y="755" font-size="12" fill="#6b7280">接口层</text>
+    
+    <rect x="1030" y="740" width="60" height="20" rx="3" fill="url(#accentGradient)"/>
+    <text x="1100" y="755" font-size="12" fill="#6b7280">数据层</text>
+  </g>
+</svg>

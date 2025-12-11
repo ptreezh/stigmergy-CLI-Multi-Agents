@@ -6,7 +6,7 @@ This document contains configuration and usage information for the Qwen CLI CLI 
 ## Basic Information
 - **CLI Name**: qwen
 - **Tool Name**: Qwen CLI
-- **Installation Command**: `npm install -g @alibaba/qwen-cli`
+- **Installation Command**: `npm install -g @qwen-code/qwen-code`
 - **Version Check**: `qwen --version`
 
 ## Usage Patterns

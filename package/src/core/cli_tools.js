@@ -21,7 +21,7 @@ const CLI_TOOLS = {
   qwen: {
     name: 'Qwen CLI',
     version: 'qwen --version',
-    install: 'npm install -g @alibaba/qwen-cli',
+    install: 'npm install -g @qwen-code/qwen-code',
     hooksDir: path.join(os.homedir(), '.qwen', 'hooks'),
     config: path.join(os.homedir(), '.qwen', 'config.json'),
   },

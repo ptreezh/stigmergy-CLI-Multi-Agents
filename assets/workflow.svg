@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definitions -->
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="stepGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="stepGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="stepGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="stepGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="stepGradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Arrow markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+    </marker>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="#f8fafc"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-size="28" font-weight="bold" fill="#1f2937">Stigmergy 工作流程</text>
+  <text x="600" y="65" text-anchor="middle" font-size="16" fill="#6b7280">AI工具协作的完整生命周期</text>
+  
+  <!-- Workflow Steps -->
+  <g id="workflow-steps">
+    <!-- Step 1: Environment Detection -->
+    <g id="step1">
+      <circle cx="150" cy="200" r="60" fill="url(#stepGradient1)" filter="url(#shadow)"/>
+      <text x="150" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">环境检测</text>
+      <text x="150" y="210" text-anchor="middle" font-size="12" fill="white">Environment</text>
+      <text x="150" y="225" text-anchor="middle" font-size="12" fill="white">Detection</text>
+      
+      <rect x="90" y="280" width="120" height="60" rx="5" fill="white" stroke="#3b82f6" stroke-width="2"/>
+      <text x="150" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 扫描系统环境</text>
+      <text x="150" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 检测AI工具</text>
+      <text x="150" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 分析依赖关系</text>
+    </g>
+    
+    <!-- Step 2: Tool Installation -->
+    <g id="step2">
+      <circle cx="390" cy="200" r="60" fill="url(#stepGradient2)" filter="url(#shadow)"/>
+      <text x="390" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">工具安装</text>
+      <text x="390" y="210" text-anchor="middle" font-size="12" fill="white">Tool</text>
+      <text x="390" y="225" text-anchor="middle" font-size="12" fill="white">Installation</text>
+      
+      <rect x="330" y="280" width="120" height="60" rx="5" fill="white" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="390" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 批量安装</text>
+      <text x="390" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 版本管理</text>
+      <text x="390" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 配置初始化</text>
+    </g>
+    
+    <!-- Step 3: Hook Deployment -->
+    <g id="step3">
+      <circle cx="630" cy="200" r="60" fill="url(#stepGradient3)" filter="url(#shadow)"/>
+      <text x="630" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">钩子部署</text>
+      <text x="630" y="210" text-anchor="middle" font-size="12" fill="white">Hook</text>
+      <text x="630" y="225" text-anchor="middle" font-size="12" fill="white">Deployment</text>
+      
+      <rect x="570" y="280" width="120" height="60" rx="5" fill="white" stroke="#10b981" stroke-width="2"/>
+      <text x="630" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 协作钩子</text>
+      <text x="630" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 通信协议</text>
+      <text x="630" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 事件监听</text>
+    </g>
+    
+    <!-- Step 4: Collaboration -->
+    <g id="step4">
+      <circle cx="870" cy="200" r="60" fill="url(#stepGradient4)" filter="url(#shadow)"/>
+      <text x="870" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">智能协作</text>
+      <text x="870" y="210" text-anchor="middle" font-size="12" fill="white">AI</text>
+      <text x="870" y="225" text-anchor="middle" font-size="12" fill="white">Collaboration</text>
+      
+      <rect x="810" y="280" width="120" height="60" rx="5" fill="white" stroke="#06b6d4" stroke-width="2"/>
+      <text x="870" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 跨工具调用</text>
+      <text x="870" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 上下文共享</text>
+      <text x="870" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 结果聚合</text>
+    </g>
+    
+    <!-- Step 5: Monitoring -->
+    <g id="step5">
+      <circle cx="1050" cy="200" r="60" fill="url(#stepGradient5)" filter="url(#shadow)"/>
+      <text x="1050" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">监控优化</text>
+      <text x="1050" y="210" text-anchor="middle" font-size="12" fill="white">Monitoring</text>
+      <text x="1050" y="225" text-anchor="middle" font-size="12" fill="white">&amp; Analytics</text>
+      
+      <rect x="990" y="280" width="120" height="60" rx="5" fill="white" stroke="#f59e0b" stroke-width="2"/>
+      <text x="1050" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 性能监控</text>
+      <text x="1050" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 错误追踪</text>
+      <text x="1050" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 智能优化</text>
+    </g>
+  </g>
+  
+  <!-- Flow Arrows -->
+  <g id="flow-arrows">
+    <path d="M 210 200 L 330 200" stroke="#3b82f6" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
+    <path d="M 450 200 L 570 200" stroke="#8b5cf6" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
+    <path d="M 690 200 L 810 200" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
+    <path d="M 930 200 L 990 200" stroke="#06b6d4" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
+  </g>
+  
+  <!-- Pheromone Trails (Stigmergy Concept) -->
+  <g id="pheromone-trails" opacity="0.6">
+    <circle cx="150" cy="400" r="4" fill="#3b82f6">
+      <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="390" cy="400" r="4" fill="#8b5cf6">
+      <animate attributeName="r" values="4;8;4" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="630" cy="400" r="4" fill="#10b981">
+      <animate attributeName="r" values="4;8;4" dur="2s" begin="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="870" cy="400" r="4" fill="#06b6d4">
+      <animate attributeName="r" values="4;8;4" dur="2s" begin="1.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1050" cy="400" r="4" fill="#f59e0b">
+      <animate attributeName="r" values="4;8;4" dur="2s" begin="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.6s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Connecting trails -->
+    <path d="M 150 400 Q 270 420 390 400" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 390 400 Q 510 420 630 400" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 630 400 Q 750 420 870 400" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 870 400 Q 960 420 1050 400" stroke="#06b6d4" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+  </g>
+  
+  <!-- Central Coordination Box -->
+  <g id="coordination-box">
+    <rect x="450" y="470" width="300" height="80" rx="10" fill="#f3f4f6" stroke="#6b7280" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="600" y="500" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Stigmergy 协调机制</text>
+    <text x="600" y="520" text-anchor="middle" font-size="12" fill="#6b7280">基于信息素的间接通信</text>
+    <text x="600" y="535" text-anchor="middle" font-size="12" fill="#6b7280">自组织协作网络</text>
+  </g>
+  
+  <!-- Ant Icons (representing Stigmergy) -->
+  <g id="ant-icons">
+    <text x="600" y="540" text-anchor="middle" font-size="24" opacity="0.3">🐜</text>
+  </g>
+  
+  <!-- Feedback Loop -->
+  <g id="feedback-loop">
+    <path d="M 1050 140 Q 600 80 150 140" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="8,3" marker-end="url(#arrowhead)" opacity="0.4"/>
+    <text x="600" y="100" text-anchor="middle" font-size="12" fill="#ef4444" opacity="0.6">持续反馈优化</text>
+  </g>
+  
+  <!-- Command Examples -->
+  <g id="command-examples">
+    <rect x="50" y="450" width="1100" height="120" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="70" y="475" font-size="14" font-weight="bold" fill="#1f2937">命令行示例</text>
+    
+    <text x="90" y="500" font-family="monospace" font-size="11" fill="#3b82f6">stigmergy scan</text>
+    <text x="90" y="515" font-size="10" fill="#6b7280"># 扫描系统环境，检测已安装的AI工具</text>
+    
+    <text x="350" y="500" font-family="monospace" font-size="11" fill="#8b5cf6">stigmergy install</text>
+    <text x="350" y="515" font-size="10" fill="#6b7280"># 批量安装缺失的AI CLI工具</text>
+    
+    <text x="600" y="500" font-family="monospace" font-size="11" fill="#10b981">stigmergy deploy</text>
+    <text x="600" y="515" font-size="10" fill="#6b7280"># 部署协作钩子，建立工具间通信</text>
+    
+    <text x="850" y="500" font-family="monospace" font-size="11" fill="#06b6d4">stigmergy call "task"</text>
+    <text x="850" y="515" font-size="10" fill="#6b7280"># 调用AI工具执行协作任务</text>
+    
+    <text x="90" y="545" font-family="monospace" font-size="11" fill="#f59e0b">stigmergy status</text>
+    <text x="90" y="560" font-size="10" fill="#6b7280"># 查看系统状态和工具运行情况</text>
+    
+    <text x="350" y="545" font-family="monospace" font-size="11" fill="#ef4444">stigmergy monitor</text>
+    <text x="350" y="560" font-size="10" fill="#6b7280"># 实时监控性能和协作效果</text>
+  </g>
+</svg>

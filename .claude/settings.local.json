@@ -86,7 +86,15 @@
       "Bash(\"C:\\Users\\WIN10\\.stigmergy-test\\testai-wrapper.cmd\":*)",
       "Bash(npx stigmergy@latest:*)",
       "Bash(cmd:*)",
-      "Bash(npm pack)"
+      "Bash(npm pack)",
+      "Bash(ping:*)",
+      "Bash(dir %USERPROFILE%.qwen /s)",
+      "Bash(env:*)",
+      "Bash(dir:*)",
+      "Bash(npm access get:*)",
+      "Bash(npm access list:*)",
+      "Bash(npm token create --help:*)",
+      "Bash(npm token create:*)"
     ],
     "deny": [],
     "ask": []
