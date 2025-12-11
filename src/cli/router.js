@@ -16,11 +16,20 @@ const { executeCommand, executeJSFile } = require('../utils');
 const { UserAuthenticator } = require('../auth');
 const MemoryManager = require('../core/memory_manager');
 const StigmergyInstaller = require('../core/installer');
+const UpgradeManager = require('../core/upgrade_manager');
 const { maxOfTwo, isAuthenticated } = require('../utils/helpers');
 
 // Set up global error handlers using our error handler module
 const { setupGlobalErrorHandlers } = require('../core/error_handler');
 setupGlobalErrorHandlers();
+
+// Helper function to format bytes
+function formatBytes(bytes) {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  if (bytes === 0) return '0 Bytes';
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -53,6 +62,7 @@ async function main() {
     console.log('  status          Check CLI tools status');
     console.log('  scan            Scan for available AI CLI tools');
     console.log('  install         Auto-install missing CLI tools');
+    console.log('  upgrade         Upgrade all CLI tools to latest versions');
     console.log(
       '  deploy          Deploy hooks and integration to installed tools',
     );
@@ -60,17 +70,18 @@ async function main() {
     console.log(
       '  init            Initialize Stigmergy configuration (alias for setup)',
     );
+    console.log('  clean (c)       Clean temporary files and caches');
+    console.log('  diagnostic (d)  Show system diagnostic information');
     
     console.log('  fibonacci <n>   Calculate the nth Fibonacci number');
     console.log('  fibonacci seq <n> Generate the first n Fibonacci numbers');
     console.log('  errors          Display error report and statistics');
     console.log('');
-    console.log('[WORKFLOW] Automated Workflow:');
-    console.log('  1. npm install -g stigmergy        # Install Stigmergy');
-    console.log(
-      '  2. stigmergy install             # Auto-scan & install CLI tools',
-    );
-    console.log('  3. stigmergy setup               # Deploy hooks & config');
+    console.log('[QUICK START] Getting Started:');
+    console.log('  1. npm install -g stigmergy      # Install Stigmergy (auto-cleans cache)');
+    console.log('  2. stigmergy d                    # System diagnostic');
+    console.log('  3. stigmergy inst                 # Install missing AI CLI tools');
+    console.log('  4. stigmergy deploy               # Deploy hooks for CLI integration');
     
     console.log('');
     console.log(
@@ -198,7 +209,157 @@ async function main() {
     }
     break;
 
+  case 'upgrade': {
+    try {
+      console.log('[UPGRADE] Starting CLI tools upgrade process...');
+      const upgrader = new UpgradeManager();
+      await upgrader.initialize();
+
+      // 解析命令行选项
+      const upgradeArgs = args.slice(1);
+      const options = {
+        dryRun: upgradeArgs.includes('--dry-run'),
+        force: upgradeArgs.includes('--force'),
+        verbose: upgradeArgs.includes('--verbose'),
+        diagnose: upgradeArgs.includes('--diagnose'),
+        suggest: upgradeArgs.includes('--suggest')
+      };
+
+      if (options.diagnose) {
+        console.log('\n🔍 DIAGNOSTIC MODE - Checking for issues...\n');
+        const deprecations = await upgrader.checkDeprecations();
+
+        if (deprecations.length === 0) {
+          console.log('✅ No issues detected.');
+        } else {
+          console.log('❌ Issues found:');
+          deprecations.forEach((dep, index) => {
+            console.log(`\n${index + 1}. ${dep.type || 'Unknown'}`);
+            if (dep.dependency) console.log(`   Dependency: ${dep.dependency}`);
+            console.log(`   Issues: ${dep.issues.join(', ')}`);
+          });
+        }
+        break;
+      }
+
+      if (options.suggest) {
+        console.log('\n💡 SUGGESTION MODE - Generating recommendations...\n');
+        const plan = await upgrader.generateUpgradePlan(options);
+
+        console.log('📋 Recommendations:');
+        if (plan.upgrades.length > 0) {
+          console.log('\n🔺 Available Upgrades:');
+          plan.upgrades.forEach(upgrade => {
+            console.log(`  • ${upgrade.tool}: ${upgrade.from} → ${upgrade.to}`);
+          });
+        }
+
+        if (plan.fixes.length > 0) {
+          console.log('\n🔧 Recommended Fixes:');
+          plan.fixes.forEach(fix => {
+            console.log(`  • ${fix.type}: ${fix.description}`);
+          });
+        }
+
+        if (plan.upgrades.length === 0 && plan.fixes.length === 0) {
+          console.log('✅ Everything is up to date!');
+        }
+        break;
+      }
+
+      // 生成升级计划
+      console.log('\n📋 Generating upgrade plan...\n');
+      const plan = await upgrader.generateUpgradePlan(options);
+
+      // 显示计划
+      console.log('📊 UPGRADE PLAN');
+      console.log('='.repeat(50));
+
+      if (plan.upgrades.length > 0) {
+        console.log('\n🔺 CLI Tool Upgrades:');
+        plan.upgrades.forEach(upgrade => {
+          console.log(`  • ${upgrade.tool.padEnd(12)} ${upgrade.from} → ${upgrade.to}`);
+        });
+      } else {
+        console.log('\n✅ All CLI tools are up to date');
+      }
+
+      if (plan.fixes.length > 0) {
+        console.log('\n🔧 Issues to Fix:');
+        plan.fixes.forEach(fix => {
+          console.log(`  • ${fix.type}: ${fix.description}`);
+        });
+      }
+
+      if (plan.warnings.length > 0) {
+        console.log('\n⚠️  Warnings:');
+        plan.warnings.forEach(warning => {
+          console.log(`  • ${warning.tool || 'Unknown'}: ${warning.error}`);
+        });
+      }
+
+      if (options.dryRun) {
+        console.log('\n🔍 DRY RUN MODE - No changes will be made');
+        console.log('   Use --force to execute the upgrade plan');
+        break;
+      }
+
+      // 确认执行
+      if (!options.force) {
+        const { confirm } = await inquirer.prompt([{
+          type: 'confirm',
+          name: 'confirm',
+          message: 'Do you want to proceed with this upgrade plan?',
+          default: false
+        }]);
+
+        if (!confirm) {
+          console.log('\n❌ Upgrade cancelled by user');
+          break;
+        }
+      }
+
+      // 执行升级
+      console.log('\n🚀 Executing upgrade plan...\n');
+      const results = await upgrader.executeUpgrade(plan, options);
+
+      // 显示结果
+      console.log('\n📊 UPGRADE RESULTS');
+      console.log('='.repeat(50));
+
+      if (results.successful.length > 0) {
+        console.log(`\n✅ Successful (${results.successful.length}):`);
+        results.successful.forEach(result => {
+          const name = result.tool || result.type;
+          console.log(`  • ${name}`);
+        });
+      }
+
+      if (results.failed.length > 0) {
+        console.log(`\n❌ Failed (${results.failed.length}):`);
+        results.failed.forEach(result => {
+          const name = result.tool || result.type;
+          console.log(`  • ${name}: ${result.error}`);
+        });
+      }
+
+      // 记录日志
+      await upgrader.logUpgrade(plan, results);
+
+      console.log('\n🎉 Upgrade process completed!');
+
+    } catch (error) {
+      console.error('[ERROR] Upgrade failed:', error.message);
+      if (options.verbose) {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+    break;
+  }
+
   case 'install':
+  case 'inst':
     try {
       console.log('[INSTALL] Starting AI CLI tools installation...');
       const { missing: missingTools } = await installer.scanCLI();
@@ -367,12 +528,12 @@ async function main() {
         }
 
         console.log('\n[USAGE] Get started with these commands:');
-        console.log('  stigmergy          - Show this help message');
-        console.log('  stigmergy scan     - Scan for available CLI tools');
-        console.log('  stigmergy install  - Install missing CLI tools');
-        console.log('  stigmergy status   - Show system status');
+        console.log('  stigmergy d        - System diagnostic (recommended first)');
+        console.log('  stigmergy inst     - Install missing CLI tools');
+        console.log('  stigmergy deploy   - Deploy hooks for CLI integration');
+        console.log('  stigmergy c        - Clean caches if needed');
         console.log('\n[INFO] Stigmergy CLI enables collaboration between multiple AI CLI tools!');
-        console.log('[INFO] Try "stigmergy" to see all available commands and examples.');
+        console.log('[INFO] Try "stigmergy" to see all available commands and abbreviations.');
 
       } catch (error) {
         console.log(`[WARN] Failed to show usage instructions: ${error.message}`);
@@ -469,6 +630,123 @@ async function main() {
       process.exit(1);
     }
     break;
+
+  case 'clean':
+  case 'c': {
+    try {
+      console.log('[CLEAN] Starting intelligent cache cleaning...\n');
+
+      // Import our enhanced cache cleaner
+      const CacheCleaner = require('../core/cache_cleaner');
+      const cleaner = new CacheCleaner({
+        dryRun: false,
+        force: true,
+        verbose: true,
+        preserveRecent: 60 * 60 * 1000 // Preserve files from last hour
+      });
+
+      // Show options if arguments provided
+      if (args.includes('--dry-run')) {
+        console.log('[DRY RUN] Preview mode - no files will be deleted\n');
+        await cleaner.cleanAllCaches({
+          cleanStigmergy: args.includes('--stigmergy') || args.includes('--all'),
+          cleanNPX: args.includes('--npx') || args.includes('--all'),
+          cleanNPM: args.includes('--npm') || args.includes('--all'),
+          cleanCLI: args.includes('--cli') || args.includes('--all'),
+          cleanTemp: true // Always clean temp files
+        });
+        break;
+      }
+
+      // Default clean: safe options
+      console.log('[OPTIONS] Running safe cache cleaning...');
+      console.log('[INFO] This will remove temporary files and NPX cache only\n');
+
+      const results = await cleaner.cleanAllCaches({
+        cleanStigmergy: false,  // Don't clean main config
+        cleanNPX: true,          // Clean NPX cache (safe)
+        cleanNPM: false,         // Don't clean NPM cache during normal run
+        cleanCLI: false,         // Don't clean CLI configs during normal run
+        cleanTemp: true          // Clean temporary files (always safe)
+      });
+
+      console.log('\n[SUMMARY] Cache cleaning completed:');
+      console.log(`  📄 Files removed: ${results.filesRemoved}`);
+      console.log(`  📁 Directories removed: ${results.directoriesRemoved}`);
+      console.log(`  💾 Space freed: ${formatBytes(results.bytesFreed)}`);
+
+      if (results.errors.length > 0) {
+        console.log(`\n⚠️  Warnings: ${results.errors.length} files couldn't be removed`);
+      }
+
+    } catch (error) {
+      console.error('[ERROR] Cache cleaning failed:', error.message);
+      process.exit(1);
+    }
+    break;
+  }
+
+  case 'diagnostic':
+  case 'diag':
+  case 'd': {
+    try {
+      console.log('[DIAGNOSTIC] Stigmergy CLI System Diagnostic...\n');
+
+      // System information
+      const packageJson = require('../../package.json');
+      console.log(`📦 Stigmergy CLI v${packageJson.version}`);
+      console.log(`🔧 Node.js: ${process.version}`);
+      console.log(`💻 Platform: ${process.platform} (${process.arch})\n`);
+
+      // Check cache cleaner availability
+      try {
+        const CacheCleaner = require('../core/cache_cleaner');
+        const cleaner = new CacheCleaner({ dryRun: true });
+
+        const plan = await cleaner.createInstallationPlan();
+        console.log('🧹 Cache Analysis:');
+        console.log(`  📊 Estimated space to clean: ${formatBytes(plan.estimatedSize)}`);
+        console.log(`  🗂️  Temporary files detected: ${plan.files.length}`);
+      } catch (error) {
+        console.log('⚠️  Cache cleaner not available');
+      }
+
+      // CLI tools status
+      try {
+        const { available, missing } = await installer.scanCLI();
+        console.log('\n🔧 CLI Tools Status:');
+        console.log(`  ✅ Available: ${Object.keys(available).length}`);
+        console.log(`  ❌ Missing: ${Object.keys(missing).length}`);
+
+        if (Object.keys(missing).length > 0) {
+          console.log('\nMissing Tools:');
+          for (const [toolName, toolInfo] of Object.entries(missing)) {
+            console.log(`  - ${toolInfo.name}`);
+          }
+        }
+      } catch (error) {
+        console.log('⚠️  CLI scan failed');
+      }
+
+      // Installation suggestions
+      console.log('\n💡 Recommendations:');
+      console.log('  • Run "stigmergy install" to install missing CLI tools');
+      console.log('  • Run "stigmergy clean" to free up disk space');
+      console.log('  • Run "stigmergy setup" for complete configuration');
+
+      if (args.includes('--verbose')) {
+        console.log('\n📋 Advanced Options:');
+        console.log('  • stigmergy clean --all      - Clean all caches');
+        console.log('  • stigmergy clean --dry-run - Preview cleaning');
+        console.log('  • npm run uninstall        - Uninstall Stigmergy completely');
+      }
+
+    } catch (error) {
+      console.error('[ERROR] Diagnostic failed:', error.message);
+      process.exit(1);
+    }
+    break;
+  }
 
   default:
     console.log(`[ERROR] Unknown command: ${command}`);

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Stigmergy Pre-installation Safety Check
- * This script prevents installation conflicts by checking for potential issues
+ * Enhanced Stigmergy Pre-installation Check
+ * This script prevents installation conflicts and cleans historical caches
  */
 
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-console.log('[PRE-INSTALL] Running safety checks...');
+console.log('[PRE-INSTALL] Running enhanced installation preparation...');
 
 // Check 1: Verify no conflicting "node" package is already installed
 function checkConflictingNodePackage() {
@@ -96,16 +96,78 @@ function checkExistingInstallation() {
     console.log('[OK] No conflicting Stigmergy installation found.');
 }
 
-// Run all checks
-try {
-    checkSystemNode();
-    checkNpm();
-    checkConflictingNodePackage();
-    checkExistingInstallation();
-    
-    console.log('[SUCCESS] All safety checks passed. Proceeding with installation.');
-    process.exit(0);
-} catch (error) {
-    console.error('[FATAL] Safety check failed:', error.message);
-    process.exit(1);
+// Check 5: Clean historical caches (NEW FUNCTION)
+function cleanHistoricalCaches() {
+    console.log('[CLEAN] Cleaning historical caches to prevent conflicts...');
+
+    try {
+        // Import and use our enhanced cache cleaner
+        const CacheCleaner = require('../src/core/cache_cleaner');
+        const cleaner = new CacheCleaner({
+            dryRun: false,
+            force: true,
+            verbose: false,
+            preserveRecent: 60 * 60 * 1000 // Preserve files from last hour
+        });
+
+        // Clean only safe items before installation
+        cleaner.cleanAllCaches({
+            cleanStigmergy: false,  // Don't clean main config during install
+            cleanNPX: true,          // Clean NPX cache (safe)
+            cleanNPM: false,         // Don't clean NPM cache during install
+            cleanCLI: false,         // Don't clean CLI configs during install
+            cleanTemp: true          // Clean temporary files (safe)
+        }).then(results => {
+            if (results.filesRemoved > 0) {
+                console.log(`[CLEAN] Removed ${results.filesRemoved} cache files`);
+                console.log(`[CLEAN] Freed ${formatBytes(results.bytesFreed)} space`);
+            } else {
+                console.log('[CLEAN] No cache files needed cleaning');
+            }
+        }).catch(error => {
+            console.log(`[WARN] Cache cleaning failed: ${error.message}`);
+            console.log('[INFO] Continuing with installation...');
+        });
+
+    } catch (error) {
+        console.log(`[WARN] Could not initialize cache cleaner: ${error.message}`);
+        console.log('[INFO] Continuing with installation...');
+    }
 }
+
+// Helper function to format bytes
+function formatBytes(bytes) {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Run all checks and preparation
+async function runInstallationPreparation() {
+    try {
+        // System requirements first
+        checkSystemNode();
+        checkNpm();
+        checkConflictingNodePackage();
+        checkExistingInstallation();
+
+        // Clean caches (async, but don't wait for completion to avoid blocking npm install)
+        cleanHistoricalCaches();
+
+        console.log('[SUCCESS] Enhanced installation preparation completed.');
+        console.log('[INFO] Proceeding with package installation...');
+
+        // Give cache cleaning a moment to start
+        setTimeout(() => {
+            process.exit(0);
+        }, 1000);
+
+    } catch (error) {
+        console.error('[FATAL] Installation preparation failed:', error.message);
+        process.exit(1);
+    }
+}
+
+// Run the enhanced preparation
+runInstallationPreparation();
