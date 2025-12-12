@@ -1,3 +1,13 @@
+#!/usr/bin/env node
+
+/**
+ * Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
+ * Unified Entry Point
+ * International Version - Pure English & ANSI Only
+ * Version: 1.0.94
+ */
+
+// Import all components
 const path = require('path');
 const os = require('os');
 const { Command } = require('commander');
@@ -72,17 +82,15 @@ async function main() {
     );
     console.log('  clean (c)       Clean temporary files and caches');
     console.log('  diagnostic (d)  Show system diagnostic information');
-    
-    console.log('  fibonacci <n>   Calculate the nth Fibonacci number');
-    console.log('  fibonacci seq <n> Generate the first n Fibonacci numbers');
-    console.log('  errors          Display error report and statistics');
+    console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
     console.log('');
+
     console.log('[QUICK START] Getting Started:');
     console.log('  1. npm install -g stigmergy      # Install Stigmergy (auto-cleans cache)');
     console.log('  2. stigmergy d                    # System diagnostic');
     console.log('  3. stigmergy inst                 # Install missing AI CLI tools');
     console.log('  4. stigmergy deploy               # Deploy hooks for CLI integration');
-    
+
     console.log('');
     console.log(
       'For more information, visit: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents',
@@ -397,52 +405,184 @@ async function main() {
     }
     break;
 
-  
-  case 'fibonacci': {
+  case 'call': {
     if (args.length < 2) {
-      console.log('[ERROR] Please provide a number');
-      console.log('Usage: stigmergy fibonacci <n>');
-      console.log('Calculates the nth Fibonacci number or generates a sequence of n Fibonacci numbers');
-      console.log('Examples:');
-      console.log('  stigmergy fibonacci 10     # Calculates the 10th Fibonacci number');
-      console.log('  stigmergy fibonacci seq 10 # Generates the first 10 Fibonacci numbers');
+      console.log('[ERROR] Usage: stigmergy call "<prompt>"');
       process.exit(1);
     }
 
-    const Calculator = require('../calculator');
-    const calc = new Calculator();
+    // Get the prompt (everything after the command)
+    const prompt = args.slice(1).join(' ');
 
+    // Use smart router to determine which tool to use
+    const router = new SmartRouter();
+    await router.initialize(); // Initialize the router first
+    const route = await router.smartRoute(prompt);
+
+    console.log(`[CALL] Routing to ${route.tool}: ${route.prompt}`);
+
+    // Execute the routed command
     try {
-      if (args[1] === 'seq' && args.length >= 3) {
-        // Generate a sequence of Fibonacci numbers
-        const n = parseInt(args[2]);
-        if (isNaN(n)) {
-          console.log('[ERROR] Invalid number provided');
-          process.exit(1);
+      // Get the actual executable path for the tool
+      const toolPath = route.tool;
+
+      // SPECIAL TEST CASE: Simulate a non-existent tool for testing
+      // This is for demonstration purposes only
+      /*
+          if (route.tool === "nonexistenttool") {
+            toolPath = "this_tool_definitely_does_not_exist_12345";
+          }
+          */
+
+      console.log(
+        `[DEBUG] Tool path: ${toolPath}, Prompt: ${route.prompt}`,
+      );
+
+      // For different tools, we need to pass the prompt differently
+      // Use unified parameter handler for better parameter handling
+      let toolArgs = [];
+
+      try {
+        // Get CLI pattern for this tool
+        const cliPattern = await router.analyzer.getCLIPattern(route.tool);
+
+        // Log the CLI pattern to debug command format issues
+        if (process.env.DEBUG === 'true' && cliPattern) {
+          console.log(`[DEBUG] CLI Pattern for ${route.tool}:`, JSON.stringify(cliPattern, null, 2));
         }
 
-        const sequence = calc.fibonacciSequence(n);
-        console.log(`First ${n} Fibonacci numbers:`);
-        console.log(sequence.join(', '));
-      } else {
-        // Calculate a single Fibonacci number
-        const n = parseInt(args[1]);
-        if (isNaN(n)) {
-          console.log('[ERROR] Invalid number provided');
-          process.exit(1);
+        // Use the unified CLI parameter handler
+        const CLIParameterHandler = require('../core/cli_parameter_handler');
+        toolArgs = CLIParameterHandler.generateArguments(
+          route.tool,
+          route.prompt,
+          cliPattern,
+        );
+      } catch (patternError) {
+        // Fallback to original logic if pattern analysis fails
+        if (route.tool === 'claude') {
+          // Claude CLI expects the prompt with -p flag for non-interactive mode
+          toolArgs = ['-p', `"${route.prompt}"`];
+        } else if (route.tool === 'qodercli' || route.tool === 'iflow') {
+          // Qoder CLI and iFlow expect the prompt with -p flag
+          toolArgs = ['-p', `"${route.prompt}"`];
+        } else if (route.tool === 'codex') {
+          // Codex CLI needs 'exec' subcommand for non-interactive mode
+          toolArgs = ['exec', '-p', `"${route.prompt}"`];
+        } else {
+          // For other tools, pass the prompt with -p flag
+          toolArgs = ['-p', `"${route.prompt}"`];
+        }
+      }
+
+      // Use the reliable cross-platform execution function
+      try {
+        // Validate that the tool exists before attempting to execute
+        if (!toolPath || typeof toolPath !== 'string') {
+          throw new Error(`Invalid tool path: ${toolPath}`);
         }
 
-        const result = calc.fibonacci(n);
-        console.log(`F(${n}) = ${result}`);
+        // Special handling for JS files to ensure proper execution
+        if (toolPath.endsWith('.js') || toolPath.endsWith('.cjs')) {
+          // Use safe JS file execution
+          if (process.env.DEBUG === 'true') {
+            console.log(
+              `[EXEC] Safely executing JS file: ${toolPath} ${toolArgs.join(' ')}`,
+            );
+          }
+          const result = await executeJSFile(toolPath, toolArgs, {
+            stdio: 'inherit',
+            shell: true,
+          });
+
+          if (!result.success) {
+            console.log(
+              `[WARN] ${route.tool} exited with code ${result.code}`,
+            );
+          }
+          process.exit(result.code || 0);
+        } else {
+          // Regular command execution
+          if (process.env.DEBUG === 'true') {
+            console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+          }
+          const result = await executeCommand(toolPath, toolArgs, {
+            stdio: 'inherit',
+            shell: true,
+          });
+
+          if (!result.success) {
+            console.log(
+              `[WARN] ${route.tool} exited with code ${result.code}`,
+            );
+          }
+          process.exit(result.code || 0);
+        }
+      } catch (executionError) {
+        // Check for specific errors that might not be actual failures
+        const errorMessage = executionError.error?.message || executionError.message || executionError;
+
+        // For some tools like Claude, they may output to stdout and return non-zero codes
+        // without actually failing - handle these cases more gracefully
+        if (errorMessage.includes('not recognized as an internal or external command') ||
+            errorMessage.includes('command not found') ||
+            errorMessage.includes('ENOENT')) {
+          // This is a genuine error - tool is not installed
+          const cliError = await errorHandler.handleCLIError(
+            route.tool,
+            executionError.error || executionError,
+            toolArgs.join(' '),
+          );
+
+          // Provide clear ANSI English error message
+          console.log('==================================================');
+          console.log('ERROR: Failed to execute AI CLI tool');
+          console.log('==================================================');
+          console.log(`Tool: ${route.tool}`);
+          console.log(`Error: ${cliError.message}`);
+          if (executionError.stderr) {
+            console.log(`Stderr: ${executionError.stderr}`);
+          }
+          console.log('');
+          console.log('Possible solutions:');
+          console.log('1. Check if the AI CLI tool is properly installed');
+          console.log('2. Verify the tool is in your system PATH');
+          console.log('3. Try reinstalling the tool with: stigmergy install');
+          console.log('4. Run stigmergy status to check tool availability');
+          console.log('');
+          console.log('For manual execution, you can run:');
+          console.log(`${toolPath} ${toolArgs.join(' ')}`);
+          console.log('==================================================');
+          process.exit(1);
+        } else {
+          // For other execution errors, try to execute the command directly
+          // which handles cases where the tool executed successfully but returned an error object
+          console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+          const result = await executeCommand(toolPath, toolArgs, {
+            stdio: 'inherit',
+            shell: true,
+          });
+
+          if (!result.success) {
+            console.log(`[WARN] ${route.tool} exited with code ${result.code}`);
+          }
+          process.exit(result.code || 0);
+        }
       }
     } catch (error) {
-      console.log(`[ERROR] ${error.message}`);
+      const cliError = await errorHandler.handleCLIError(
+        route.tool,
+        error,
+        prompt,
+      );
+      console.log(
+        `[ERROR] Failed to execute ${route.tool}:`,
+        cliError.message,
+      );
       process.exit(1);
     }
     break;
   }
-
-  
 
   case 'auto-install':
     // Auto-install mode for npm postinstall - NON-INTERACTIVE
