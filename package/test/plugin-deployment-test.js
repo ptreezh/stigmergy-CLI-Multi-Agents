@@ -10,7 +10,7 @@ const path = require('path');
 const os = require('os');
 const { spawn } = require('child_process');
 
-// CLI Tools Configuration (same as in main_english.js)
+// CLI Tools Configuration (same as in index.js)
 const CLI_TOOLS = {
     claude: {
         name: 'Claude CLI',
@@ -154,11 +154,11 @@ class PluginDeploymentTester {
         
         // Check if tool is installed
         result.installed = await this.isToolInstalled(toolName);
-        console.log(`  Installed: ${result.installed ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Installed: ${result.installed ? 'âœ? : 'âœ?}`);
         
         // Check hooks directory
         result.hooksDir = await this.checkHooksDirectory(toolName);
-        console.log(`  Hooks Dir: ${result.hooksDir.exists ? 'âœ“' : 'âœ—'} (${result.hooksDir.files.length} files)`);
+        console.log(`  Hooks Dir: ${result.hooksDir.exists ? 'âœ? : 'âœ?} (${result.hooksDir.files.length} files)`);
         if (result.hooksDir.exists) {
             console.log(`    Path: ${result.hooksDir.path}`);
             result.hooksDir.files.forEach(file => console.log(`    - ${file}`));
@@ -166,7 +166,7 @@ class PluginDeploymentTester {
         
         // Check Stigmergy assets
         result.assets = await this.checkStigmergyAssets(toolName);
-        console.log(`  Assets: ${result.assets.exists ? 'âœ“' : 'âœ—'} (${result.assets.files.length} files)`);
+        console.log(`  Assets: ${result.assets.exists ? 'âœ? : 'âœ?} (${result.assets.files.length} files)`);
         if (result.assets.exists) {
             console.log(`    Path: ${result.assets.path}`);
             result.assets.files.forEach(file => console.log(`    - ${file}`));
@@ -255,9 +255,9 @@ class PluginDeploymentTester {
             console.log('iFlow config file found');
             
             if (configContent.includes('hooks') || configContent.includes('plugins')) {
-                console.log('âœ“ Hooks/plugins section found in iFlow config');
+                console.log('âœ?Hooks/plugins section found in iFlow config');
             } else {
-                console.log('âœ— No hooks/plugins section found in iFlow config');
+                console.log('âœ?No hooks/plugins section found in iFlow config');
             }
         } catch (error) {
             console.log('iFlow config file not found or not readable');
@@ -281,9 +281,9 @@ class PluginDeploymentTester {
             });
             
             if (output.includes('stigmergy') || output.includes('Stigmergy')) {
-                console.log('âœ“ iFlow can detect Stigmergy hooks');
+                console.log('âœ?iFlow can detect Stigmergy hooks');
             } else {
-                console.log('âœ— iFlow cannot detect Stigmergy hooks');
+                console.log('âœ?iFlow cannot detect Stigmergy hooks');
                 console.log('Output:', output.substring(0, 200) + '...');
             }
         } catch (error) {

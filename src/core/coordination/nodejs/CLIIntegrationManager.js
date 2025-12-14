@@ -7,52 +7,77 @@ const { spawn, spawnSync } = require('child_process');
 class CLIIntegrationManager {
   constructor() {
     this.supportedCLIs = {
-      'claude': {
+      claude: {
         name: 'Claude CLI',
         executable: 'claude',
-        hooks: ['user_prompt_submit', 'tool_use_pre', 'tool_use_post', 'response_generated']
+        hooks: [
+          'user_prompt_submit',
+          'tool_use_pre',
+          'tool_use_post',
+          'response_generated',
+        ],
       },
-      'gemini': {
+      gemini: {
         name: 'Gemini CLI',
         executable: 'gemini',
-        extensions: ['on_user_input', 'on_response_generated', 'on_tool_execution']
+        extensions: [
+          'on_user_input',
+          'on_response_generated',
+          'on_tool_execution',
+        ],
       },
-      'qwencode': {
+      qwencode: {
         name: 'QwenCode CLI',
         executable: 'qwencode',
-        inheritance: ['on_code_generation', 'on_analysis_request', 'on_refactor_request']
+        inheritance: [
+          'on_code_generation',
+          'on_analysis_request',
+          'on_refactor_request',
+        ],
       },
-      'iflow': {
+      iflow: {
         name: 'iFlow CLI',
         executable: 'iflow',
-        workflows: ['on_workflow_start', 'on_stage_complete', 'on_workflow_success']
+        workflows: [
+          'on_workflow_start',
+          'on_stage_complete',
+          'on_workflow_success',
+        ],
       },
-      'qoder': {
+      qoder: {
         name: 'Qoder CLI',
         executable: 'qoder',
-        notifications: ['on_user_notification', 'on_system_alert', 'on_task_completion']
+        notifications: [
+          'on_user_notification',
+          'on_system_alert',
+          'on_task_completion',
+        ],
       },
-      'codebuddy': {
+      codebuddy: {
         name: 'CodeBuddy CLI',
         executable: 'codebuddy',
-        skills: ['on_skill_invocation', 'on_buddy_request', 'on_cross_cli_task']
+        skills: [
+          'on_skill_invocation',
+          'on_buddy_request',
+          'on_cross_cli_task',
+        ],
       },
-      'codex': {
+      codex: {
         name: 'Codex CLI',
         executable: 'codex',
-        slashCommands: ['/x', '/cross-cli', '/delegate']
+        slashCommands: ['/x', '/cross-cli', '/delegate'],
       },
-      'copilot': {
+      copilot: {
         name: 'Copilot CLI',
         executable: 'copilot',
-        mcp: ['cross_cli_execute']
-      }
+        mcp: ['cross_cli_execute'],
+      },
     };
   }
 
   async checkCLIAvailability(cliName) {
     console.log(`[CLI_INTEGRATION] Checking availability of ${cliName}...`);
-    
+
     const cliInfo = this.supportedCLIs[cliName.toLowerCase()];
     if (!cliInfo) {
       return { available: false, error: `Unsupported CLI: ${cliName}` };
@@ -62,45 +87,49 @@ class CLIIntegrationManager {
       // Check if CLI executable is available
       const result = spawnSync(cliInfo.executable, ['--version'], {
         timeout: 5000,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
 
       if (result.status === 0) {
-        const version = result.stdout ? result.stdout.toString().trim() : 'Unknown';
+        const version = result.stdout
+          ? result.stdout.toString().trim()
+          : 'Unknown';
         return {
           available: true,
           version: version,
-          name: cliInfo.name
+          name: cliInfo.name,
         };
       } else {
         return {
           available: false,
           error: `CLI returned non-zero exit code: ${result.status}`,
-          stderr: result.stderr ? result.stderr.toString() : ''
+          stderr: result.stderr ? result.stderr.toString() : '',
         };
       }
     } catch (error) {
       return {
         available: false,
-        error: `Failed to execute CLI: ${error.message}`
+        error: `Failed to execute CLI: ${error.message}`,
       };
     }
   }
 
   async listAvailableCLIs() {
     console.log('[CLI_INTEGRATION] Listing available CLIs...');
-    
+
     const results = {};
     for (const [cliName, cliInfo] of Object.entries(this.supportedCLIs)) {
       results[cliName] = await this.checkCLIAvailability(cliName);
     }
-    
+
     return results;
   }
 
   async getNodeJsIntegrationScript(cliName) {
-    console.log(`[CLI_INTEGRATION] Generating Node.js integration script for ${cliName}...`);
-    
+    console.log(
+      `[CLI_INTEGRATION] Generating Node.js integration script for ${cliName}...`,
+    );
+
     const cliInfo = this.supportedCLIs[cliName.toLowerCase()];
     if (!cliInfo) {
       throw new Error(`Unsupported CLI: ${cliName}`);
@@ -198,24 +227,29 @@ if (require.main === module) {
   }
 
   async deployNodeJsIntegration(cliName, targetDir) {
-    console.log(`[CLI_INTEGRATION] Deploying Node.js integration for ${cliName}...`);
-    
+    console.log(
+      `[CLI_INTEGRATION] Deploying Node.js integration for ${cliName}...`,
+    );
+
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
     const script = await this.getNodeJsIntegrationScript(cliName);
     const scriptPath = path.join(targetDir, `${cliName}_nodejs_integration.js`);
-    
+
     fs.writeFileSync(scriptPath, script);
-    
+
     // Make executable
     try {
       fs.chmodSync(scriptPath, 0o755);
     } catch (error) {
-      console.warn(`[CLI_INTEGRATION] Failed to make script executable:`, error.message);
+      console.warn(
+        '[CLI_INTEGRATION] Failed to make script executable:',
+        error.message,
+      );
     }
-    
+
     return scriptPath;
   }
 
@@ -224,11 +258,13 @@ if (require.main === module) {
     if (!cliInfo) {
       return null;
     }
-    
+
     return {
       name: cliInfo.name,
       executable: cliInfo.executable,
-      features: Object.keys(cliInfo).filter(key => key !== 'name' && key !== 'executable')
+      features: Object.keys(cliInfo).filter(
+        (key) => key !== 'name' && key !== 'executable',
+      ),
     };
   }
 }

@@ -17,7 +17,7 @@ async function testHookFunctionality() {
     // Create an instance of the hook
     const hook = new ClaudeNodeJsHook();
     
-    console.log('âœ“ Hook instantiated successfully\n');
+    console.log('âœ?Hook instantiated successfully\n');
     
     // Test onUserPrompt with regular prompt
     console.log('Testing regular prompt...');

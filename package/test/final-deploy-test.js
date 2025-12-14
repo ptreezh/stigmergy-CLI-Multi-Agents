@@ -20,12 +20,12 @@ class FinalDeployTester {
         
         try {
             // Import the StigmergyInstaller class
-            const { StigmergyInstaller } = require('../src/main_english.js');
+            const StigmergyInstaller = require('../src/core/installer');
             const installer = new StigmergyInstaller();
             
             // Check if deployHooks method exists
             if (typeof installer.deployHooks !== 'function') {
-                console.log('  âœ— deployHooks method not found');
+                console.log('  âœ?deployHooks method not found');
                 this.testResults.push({
                     name: 'DeployHooks Functionality',
                     passed: false,
@@ -40,9 +40,9 @@ class FinalDeployTester {
                                        methodCode.includes('configureTool');
             
             if (hasNewFunctionality) {
-                console.log('  âœ“ deployHooks includes new configuration execution functionality');
+                console.log('  âœ?deployHooks includes new configuration execution functionality');
             } else {
-                console.log('  âœ— deployHooks missing new configuration execution functionality');
+                console.log('  âœ?deployHooks missing new configuration execution functionality');
             }
             
             this.testResults.push({
@@ -55,7 +55,7 @@ class FinalDeployTester {
             
             return hasNewFunctionality;
         } catch (error) {
-            console.log(`  âœ— Failed to test deployHooks functionality: ${error.message}`);
+            console.log(`  âœ?Failed to test deployHooks functionality: ${error.message}`);
             this.testResults.push({
                 name: 'DeployHooks Functionality',
                 passed: false,
@@ -75,7 +75,7 @@ class FinalDeployTester {
             
             // Check if the class exists
             if (typeof PostDeploymentConfigurer === 'function') {
-                console.log('  âœ“ PostDeploymentConfigurer class exists');
+                console.log('  âœ?PostDeploymentConfigurer class exists');
                 
                 // Try to instantiate it
                 const configurer = new PostDeploymentConfigurer();
@@ -85,9 +85,9 @@ class FinalDeployTester {
                                           typeof configurer.checkInstallScript === 'function';
                 
                 if (hasRequiredMethods) {
-                    console.log('  âœ“ PostDeploymentConfigurer has required methods');
+                    console.log('  âœ?PostDeploymentConfigurer has required methods');
                 } else {
-                    console.log('  âœ— PostDeploymentConfigurer missing required methods');
+                    console.log('  âœ?PostDeploymentConfigurer missing required methods');
                 }
                 
                 this.testResults.push({
@@ -100,7 +100,7 @@ class FinalDeployTester {
                 
                 return hasRequiredMethods;
             } else {
-                console.log('  âœ— PostDeploymentConfigurer class not found');
+                console.log('  âœ?PostDeploymentConfigurer class not found');
                 this.testResults.push({
                     name: 'Post-Deployment Config Integration',
                     passed: false,
@@ -109,7 +109,7 @@ class FinalDeployTester {
                 return false;
             }
         } catch (error) {
-            console.log(`  âœ— Failed to test post-deployment config integration: ${error.message}`);
+            console.log(`  âœ?Failed to test post-deployment config integration: ${error.message}`);
             this.testResults.push({
                 name: 'Post-Deployment Config Integration',
                 passed: false,
@@ -135,10 +135,10 @@ class FinalDeployTester {
                 const installScriptPath = path.join(stigmergyAssetsDir, tool, `install_${tool}_integration.py`);
                 try {
                     await fs.access(installScriptPath);
-                    console.log(`  âœ“ ${tool} installation script found: ${installScriptPath}`);
+                    console.log(`  âœ?${tool} installation script found: ${installScriptPath}`);
                     scriptsFound++;
                 } catch (error) {
-                    console.log(`  âœ— ${tool} installation script not found: ${installScriptPath}`);
+                    console.log(`  âœ?${tool} installation script not found: ${installScriptPath}`);
                 }
             }
             
@@ -152,7 +152,7 @@ class FinalDeployTester {
             
             return allScriptsFound;
         } catch (error) {
-            console.log(`  âœ— Failed to check installation script feasibility: ${error.message}`);
+            console.log(`  âœ?Failed to check installation script feasibility: ${error.message}`);
             this.testResults.push({
                 name: 'Installation Script Execution Feasibility',
                 passed: false,
@@ -178,18 +178,18 @@ class FinalDeployTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All tests passed! deployHooks implementation is complete.');
+            console.log('âœ?All tests passed! deployHooks implementation is complete.');
         } else if (passedTests > 0) {
-            console.log('âš  Some tests failed. deployHooks implementation may need adjustments.');
+            console.log('âš?Some tests failed. deployHooks implementation may need adjustments.');
         } else {
-            console.log('âœ— All tests failed. deployHooks implementation is not complete.');
+            console.log('âœ?All tests failed. deployHooks implementation is not complete.');
         }
         
         return {

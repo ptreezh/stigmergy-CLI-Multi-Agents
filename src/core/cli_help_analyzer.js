@@ -50,45 +50,55 @@ class CLIHelpAnalyzer {
     };
   }
 
-  /**
-   * Set CLI tools configuration
-   * @param {Object} cliTools - CLI tools configuration
-   */
-  setCLITools(cliTools) {
-    this.cliTools = cliTools;
-  }
-
-  /**
-   * Initialize the analyzer and ensure config directory exists
-   */
   async initialize() {
     try {
       await fs.mkdir(this.configDir, { recursive: true });
-
       // Initialize persistent config if not exists
       const configExists = await this.fileExists(this.persistentConfig);
       if (!configExists) {
-        await this.savePersistentConfig({
+        const initialConfig = {
           version: '1.0.0',
           lastUpdated: new Date().toISOString(),
           cliPatterns: {},
           failedAttempts: {},
-        });
+        };
+        // Suppress error if file creation fails initially
+        try {
+          await this.savePersistentConfig(initialConfig);
+        } catch (createError) {
+          // Only show error if it's not a permissions issue or similar expected issue
+          if (
+            !createError.message.includes('EACCES') &&
+            !createError.message.includes('EPERM')
+          ) {
+            await errorHandler.logError(
+              createError,
+              'ERROR',
+              'CLIHelpAnalyzer.initialize',
+            );
+          }
+        }
       }
-
       return true;
     } catch (error) {
-      await errorHandler.logError(error, 'ERROR', 'CLIHelpAnalyzer.initialize');
+      // Don't spam error messages on initialization issues
+      // These are often expected on first run
+      if (process.env.DEBUG === 'true') {
+        await errorHandler.logError(
+          error,
+          'ERROR',
+          'CLIHelpAnalyzer.initialize',
+        );
+      }
       return false;
     }
   }
 
   /**
-   * Analyze all configured CLI tools
+   * Analyze all configured CLI tools with optimized error handling
    */
   async analyzeAllCLI() {
     const results = {};
-
     for (const [cliName, _] of Object.entries(this.cliTools)) {
       try {
         if (process.env.DEBUG === 'true') {
@@ -96,15 +106,23 @@ class CLIHelpAnalyzer {
         }
         results[cliName] = await this.analyzeCLI(cliName);
       } catch (error) {
-        await errorHandler.logError(
-          error,
-          'WARN',
-          `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
-        );
+        // Only log important errors, suppress expected file not found errors
+        if (
+          !error.message.includes('ENOENT') &&
+          !error.message.includes('no such file or directory') &&
+          !error.message.includes(
+            'not recognized as an internal or external command',
+          )
+        ) {
+          await errorHandler.logError(
+            error,
+            'WARN',
+            `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
+          );
+        }
         results[cliName] = { success: false, error: error.message };
       }
     }
-
     return results;
   }
 
@@ -116,26 +134,19 @@ class CLIHelpAnalyzer {
     if (!cliConfig) {
       throw new Error(`CLI tool ${cliName} not found in configuration`);
     }
-
     try {
       // Get help information
       const helpInfo = await this.getHelpInfo(cliName, cliConfig);
-
       // Detect CLI type
       const cliType = this.detectCLIType(helpInfo.rawHelp, cliName);
-
       // Extract patterns
-      const patterns = this.extractPatterns(helpInfo.rawHelp, cliType);
-
+      const patterns = this.extractPatterns(helpInfo.rawHelp, cliType, cliName);
       // Analyze command structure
       const commandStructure = this.analyzeCommandStructure(patterns);
-
       // Extract usage examples
       const examples = this.extractUsageExamples(helpInfo.rawHelp, cliType);
-
       // Determine interaction mode
       const interactionMode = this.determineInteractionMode(helpInfo, patterns);
-
       const analysis = {
         success: true,
         cliName,
@@ -148,15 +159,28 @@ class CLIHelpAnalyzer {
         interactionMode,
         timestamp: new Date().toISOString(),
       };
-
       // Cache the analysis
       await this.cacheAnalysis(cliName, analysis);
-
       return analysis;
     } catch (error) {
-      // Record failed attempt
+      // Record failed attempt but suppress error if it's an expected issue
       await this.recordFailedAttempt(cliName, error);
-      throw error;
+      // Only throw if it's not an expected "tool not installed" error
+      if (
+        !error.message.includes(
+          'not recognized as an internal or external command',
+        ) &&
+        !error.message.includes('command not found')
+      ) {
+        throw error;
+      }
+      // For tool not found errors, return minimal analysis instead of throwing
+      return {
+        success: false,
+        cliName,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
     }
   }
 
@@ -164,6 +188,11 @@ class CLIHelpAnalyzer {
    * Get help information using multiple methods
    */
   async getHelpInfo(cliName, cliConfig) {
+    // Special handling for codex to avoid opening files or executing commands
+    if (cliName === 'codex') {
+      return await this.getCodexHelpInfo(cliConfig);
+    }
+
     const helpMethods = [
       ['--help'],
       ['-h'],
@@ -174,11 +203,9 @@ class CLIHelpAnalyzer {
       ['--version'],
       ['-v'],
     ];
-
     let rawHelp = '';
     let version = 'unknown';
     let method = 'unknown';
-
     // Try different help commands
     for (const helpArgs of helpMethods) {
       try {
@@ -187,7 +214,6 @@ class CLIHelpAnalyzer {
           timeout: 15000,
           shell: true,
         });
-
         if (result.status === 0 && result.stdout) {
           rawHelp = result.stdout;
           method = `${cliName} ${helpArgs.join(' ')}`;
@@ -202,7 +228,6 @@ class CLIHelpAnalyzer {
         continue;
       }
     }
-
     // Try to get version separately
     if (cliConfig.version) {
       try {
@@ -212,7 +237,6 @@ class CLIHelpAnalyzer {
           timeout: 10000,
           shell: true,
         });
-
         if (versionResult.status === 0) {
           version = versionResult.stdout.trim() || versionResult.stderr.trim();
         }
@@ -220,12 +244,68 @@ class CLIHelpAnalyzer {
         // Use default version
       }
     }
-
     if (!rawHelp) {
       throw new Error(`Unable to get help information for ${cliName}`);
     }
-
     return { rawHelp, version, method };
+  }
+
+  /**
+   * Get Codex help information by checking file paths instead of executing commands
+   */
+  async getCodexHelpInfo(cliConfig) {
+    try {
+      // Check if codex is likely installed by checking common installation paths
+      const os = require('os');
+      const path = require('path');
+      const fs = require('fs');
+
+      // Common Codex installation paths
+      const possiblePaths = [
+        path.join(os.homedir(), '.codex'),
+        path.join(os.homedir(), '.config', 'codex'),
+        path.join(
+          os.homedir(),
+          'AppData',
+          'Roaming',
+          'npm',
+          'node_modules',
+          'openai-codex-cli',
+        ),
+        path.join('/usr/local/lib/node_modules/openai-codex-cli'),
+        path.join('/usr/lib/node_modules/openai-codex-cli'),
+      ];
+
+      // Check if any of these paths exist
+      let codexInstalled = false;
+      let configPath = '';
+
+      for (const possiblePath of possiblePaths) {
+        if (fs.existsSync(possiblePath)) {
+          codexInstalled = true;
+          configPath = possiblePath;
+          break;
+        }
+      }
+
+      // If Codex is not installed, throw an error without trying to execute commands
+      if (!codexInstalled) {
+        throw new Error('Codex CLI not found in standard installation paths');
+      }
+
+      // If Codex appears to be installed, return minimal help information
+      // without actually executing any commands
+      return {
+        rawHelp:
+          'Codex CLI - OpenAI Codex Command Line Interface\nUsage: codex [options] [prompt]\n\nOptions:\n  --help, -h     Show help\n  --version      Show version\n  --model        Specify model to use\n  --temperature  Set temperature for generation',
+        version: 'unknown',
+        method: 'path-detection',
+      };
+    } catch (error) {
+      throw new Error(
+        `Unable to get help information for codex: ${error.message}`,
+      );
+    }
   }
 
   /**
@@ -234,7 +314,6 @@ class CLIHelpAnalyzer {
   detectCLIType(helpText, cliName) {
     const text = helpText.toLowerCase();
     const name = cliName.toLowerCase();
-
     // Detect based on CLI name
     if (name.includes('claude') || name.includes('anthropic')) {
       return 'anthropic';
@@ -249,7 +328,6 @@ class CLIHelpAnalyzer {
     ) {
       return 'openai';
     }
-
     // Detect based on help content patterns
     if (text.includes('anthropic') || text.includes('claude')) {
       return 'anthropic';
@@ -268,15 +346,33 @@ class CLIHelpAnalyzer {
     ) {
       return 'openai';
     }
-
+    if (
+      text.includes('qwen') ||
+      text.includes('alibaba') ||
+      text.includes('tongyi')
+    ) {
+      return 'alibaba';
+    }
+    if (text.includes('iflow') || text.includes('intelligent')) {
+      return 'iflow';
+    }
+    if (text.includes('copilot') || text.includes('github')) {
+      return 'github';
+    }
+    if (text.includes('codebuddy') || text.includes('buddy')) {
+      return 'codebuddy';
+    }
+    if (text.includes('qoder') || text.includes('code')) {
+      return 'qoder';
+    }
     // Default to generic
     return 'generic';
   }
 
   /**
-   * Extract command patterns from help text
+   * Extract patterns from help text
    */
-  extractPatterns(helpText, cliType) {
+  extractPatterns(helpText, cliType, cliName) {
     const rules = this.patternRules[cliType] || this.patternRules.generic;
     const patterns = {
       commands: [],
@@ -284,246 +380,130 @@ class CLIHelpAnalyzer {
       subcommands: [],
       arguments: [],
       flags: [],
-      // New fields for better parameter handling
       nonInteractiveFlag: null,
       promptFlag: null,
       requiredFlags: [],
       commonPatterns: [],
     };
 
-    // Extract subcommands
-    const subcommandMatches = helpText.match(rules.subcommandPattern);
-    if (subcommandMatches) {
-      patterns.subcommands = subcommandMatches.map((match) => {
-        const parts = match.trim().split(/\s+/);
-        return {
-          name: parts[0],
-          description: parts.slice(1).join(' '),
-          syntax: match.trim(),
-        };
-      });
-    }
-
     // Extract options/flags
-    const optionMatches = helpText.match(rules.optionPattern);
-    if (optionMatches) {
-      patterns.options = [...new Set(optionMatches)];
-      patterns.flags = optionMatches
-        .filter((opt) => opt.startsWith('--'))
-        .map((opt) => opt.replace(/^--/, ''));
-    }
+    const optionMatches = helpText.match(rules.optionPattern) || [];
+    patterns.options = [...new Set(optionMatches)];
 
-    // Extract main commands (first level)
-    const lines = helpText.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
+    // Extract subcommands
+    const subcommandMatches = helpText.match(rules.subcommandPattern) || [];
+    patterns.subcommands = subcommandMatches.map((match) => {
+      const subcommand = match.trim().split(/\s+/)[0];
+      return { name: subcommand, description: match.trim() };
+    });
 
-      // Look for commands that start at beginning of line
-      if (/^[a-z][a-z0-9_-]+\s+.+$/.test(trimmed)) {
-        const parts = trimmed.split(/\s+/);
-        const command = parts[0];
-        const description = parts.slice(1).join(' ');
+    // Try to identify non-interactive flag
+    const nonInteractiveFlags = patterns.options.filter(
+      (option) =>
+        option.includes('non-interactive') ||
+        option.includes('batch') ||
+        option.includes('no-input') ||
+        option.includes('stdin'),
+    );
+    patterns.nonInteractiveFlag =
+      nonInteractiveFlags.length > 0 ? nonInteractiveFlags[0] : null;
 
-        if (!patterns.commands.find((cmd) => cmd.name === command)) {
-          patterns.commands.push({
-            name: command,
-            description,
-            syntax: trimmed,
-          });
-        }
-      }
-    }
+    // Try to identify prompt flag
+    const promptFlags = patterns.options.filter(
+      (option) =>
+        option.includes('prompt') ||
+        option.includes('input') ||
+        option.includes('query') ||
+        option.includes('question'),
+    );
+    patterns.promptFlag = promptFlags.length > 0 ? promptFlags[0] : null;
 
-    // Enhanced pattern extraction for non-interactive mode and prompt handling
-    this.extractEnhancedPatterns(helpText, patterns);
+    // Identify required flags
+    patterns.requiredFlags = patterns.options.filter(
+      (option) =>
+        option.includes('<') || // Angle brackets indicate required parameters
+        option.includes('*'), // Asterisk indicates required
+    );
 
     return patterns;
   }
 
   /**
-   * Extract enhanced patterns for better parameter handling
-   */
-  extractEnhancedPatterns(helpText, patterns) {
-    const text = helpText.toLowerCase();
-
-    // Look for non-interactive mode flags
-    if (
-      text.includes('print') ||
-      text.includes('non-interactive') ||
-      text.includes('output')
-    ) {
-      patterns.nonInteractiveFlag = '--print';
-    }
-
-    // Look for prompt-related flags
-    if (text.includes('prompt') || text.includes('-p ')) {
-      patterns.promptFlag = '-p';
-    }
-
-    // Look for required flags for non-interactive mode
-    if (text.includes('non-interactive') && text.includes('prompt')) {
-      patterns.requiredFlags.push('-p');
-    }
-
-    // Extract common usage patterns from examples
-    const exampleLines = helpText.split('\n');
-    for (const line of exampleLines) {
-      if (
-        line.includes('-p "') ||
-        line.includes('--prompt') ||
-        line.includes(' -p ')
-      ) {
-        patterns.commonPatterns.push(line.trim());
-      }
-    }
-  }
-
-  /**
-   * Analyze command structure and calling patterns
+   * Analyze command structure
    */
   analyzeCommandStructure(patterns) {
     const structure = {
       primaryCommand: '',
-      commandFormat: '',
+      commandFormat: 'cli [args]',
       argumentStyle: '',
       optionStyle: '',
       interactiveMode: false,
       hasSubcommands: patterns.subcommands.length > 0,
       complexity: 'simple',
-      // Fields for better execution
       nonInteractiveSupport: !!patterns.nonInteractiveFlag,
       promptStyle: patterns.promptFlag ? 'flag' : 'argument',
-      executionPattern: '',
-      // Additional fields for CLI parameter handling
+      executionPattern: 'interactive-default',
       nonInteractiveFlag: patterns.nonInteractiveFlag,
       promptFlag: patterns.promptFlag,
       requiredFlags: patterns.requiredFlags,
       commonPatterns: patterns.commonPatterns,
     };
 
-    // Determine complexity based on available commands
-    if (patterns.commands.length > 10 || patterns.subcommands.length > 5) {
+    // Determine complexity
+    if (patterns.subcommands.length > 5) {
       structure.complexity = 'complex';
-    } else if (patterns.commands.length > 3 || patterns.options.length > 10) {
+    } else if (patterns.subcommands.length > 0) {
       structure.complexity = 'moderate';
     }
 
-    // Determine command format based on patterns
-    if (patterns.subcommands.length > 0) {
-      structure.commandFormat = 'cli <subcommand> [options] [args]';
-    } else if (patterns.options.length > 0) {
-      structure.commandFormat = 'cli [options] [args]';
-    } else {
-      structure.commandFormat = 'cli [args]';
-    }
-
-    // Check for interactive mode indicators
-    const hasInteractiveIndicators = patterns.commands.some(
-      (cmd) =>
-        cmd.name.includes('chat') ||
-        cmd.name.includes('interactive') ||
-        cmd.name.includes('shell') ||
-        (cmd.description &&
-          cmd.description.toLowerCase().includes('interactive')),
-    );
-
-    structure.interactiveMode = hasInteractiveIndicators;
-
     // Determine execution pattern
-    if (patterns.nonInteractiveFlag && patterns.promptFlag) {
+    if (patterns.nonInteractiveFlag) {
       structure.executionPattern = 'flag-based';
-    } else if (patterns.nonInteractiveFlag) {
-      structure.executionPattern = 'argument-based';
-    } else {
-      structure.executionPattern = 'interactive-default';
+    } else if (patterns.promptFlag) {
+      structure.executionPattern = 'prompt-flag';
     }
 
     return structure;
   }
 
   /**
-   * Extract usage examples from help text
+   * Extract usage examples
    */
   extractUsageExamples(helpText, cliType) {
     const rules = this.patternRules[cliType] || this.patternRules.generic;
     const examples = [];
+    let match;
 
-    // Find example sections
-    const exampleMatches = helpText.match(rules.examplePattern);
-
-    if (exampleMatches) {
-      for (const match of exampleMatches) {
-        const exampleText = match
-          .replace(/^(example|usage|用法|使用)[:：]\s*/i, '')
-          .trim();
-
-        // Split by lines and extract command examples
-        const lines = exampleText
-          .split('\n')
-          .map((line) => line.trim())
-          .filter(
-            (line) => line && !line.startsWith('#') && !line.startsWith('//'),
-          );
-
-        for (const line of lines) {
-          if (
-            line.includes('$') ||
-            line.includes('>') ||
-            line.startsWith('cli') ||
-            /^[a-z][\w-]*\s/.test(line)
-          ) {
-            // Extract clean command
-            const command = line
-              .replace(/^[>$\s]+/, '')
-              .replace(/^cli\s*/, '')
-              .trim();
-            if (command) {
-              examples.push({
-                command,
-                raw: line,
-                description: '',
-              });
-            }
-          }
-        }
-      }
+    while ((match = rules.examplePattern.exec(helpText)) !== null) {
+      examples.push(match[1].trim());
     }
 
     return examples;
   }
 
   /**
-   * Determine CLI interaction mode
+   * Determine interaction mode
    */
   determineInteractionMode(helpInfo, patterns) {
-    const text = helpInfo.rawHelp.toLowerCase();
+    const helpText = helpInfo.rawHelp.toLowerCase();
 
-    // Check for different interaction modes
-    if (
-      text.includes('chat') ||
-      text.includes('conversation') ||
-      text.includes('interactive')
-    ) {
-      return 'chat';
+    // Check for explicit non-interactive support
+    if (patterns.nonInteractiveFlag) {
+      return 'non-interactive';
     }
 
-    if (
-      text.includes('api') ||
-      text.includes('endpoint') ||
-      text.includes('request')
-    ) {
-      return 'api';
+    // Check for stdin support
+    if (helpText.includes('stdin') || helpText.includes('pipe')) {
+      return 'stdin-support';
     }
 
-    if (patterns.subcommands.length > 0) {
-      return 'subcommand';
+    // Check for batch mode
+    if (helpText.includes('batch') || helpText.includes('script')) {
+      return 'batch-mode';
     }
 
-    if (patterns.options.length > 5) {
-      return 'option';
-    }
-
-    return 'simple';
+    // Default to interactive
+    return 'interactive';
   }
 
   /**
@@ -534,24 +514,21 @@ class CLIHelpAnalyzer {
       const config = await this.loadPersistentConfig();
       config.cliPatterns[cliName] = analysis;
       config.lastUpdated = new Date().toISOString();
-
-      // Remove from failed attempts if it was there
-      delete config.failedAttempts[cliName];
-
       await this.savePersistentConfig(config);
-
-      // Also save last analysis timestamp
-      await fs.writeFile(
-        this.lastAnalysisFile,
-        JSON.stringify({ [cliName]: analysis.timestamp }, null, 2),
-      );
     } catch (error) {
-      console.error(`Failed to cache analysis for ${cliName}:`, error.message);
+      // Don't spam errors for cache issues
+      if (process.env.DEBUG === 'true') {
+        await errorHandler.logError(
+          error,
+          'WARN',
+          'CLIHelpAnalyzer.cacheAnalysis',
+        );
+      }
     }
   }
 
   /**
-   * Get cached analysis if available
+   * Get cached analysis
    */
   async getCachedAnalysis(cliName) {
     try {
@@ -561,33 +538,23 @@ class CLIHelpAnalyzer {
       return null;
     }
   }
-
+  
   /**
-   * Check if cache is expired (24 hours)
+   * Get CLI pattern (wrapper for getCachedAnalysis)
    */
-  isCacheExpired(timestamp) {
-    const cacheTime = new Date(timestamp);
-    const now = new Date();
-    const hoursDiff = (now - cacheTime) / (1000 * 60 * 60);
-    return hoursDiff > 24;
+  async getCLIPattern(cliName) {
+    return await this.getCachedAnalysis(cliName);
   }
 
   /**
-   * Record failed analysis attempt
+   * Check if cache is expired (1 day)
    */
-  async recordFailedAttempt(cliName, error) {
-    try {
-      const config = await this.loadPersistentConfig();
-      config.failedAttempts[cliName] = {
-        error: error.message,
-        timestamp: new Date().toISOString(),
-        attempts: (config.failedAttempts[cliName]?.attempts || 0) + 1,
-      };
-      config.lastUpdated = new Date().toISOString();
-      await this.savePersistentConfig(config);
-    } catch (err) {
-      console.error('Failed to record failed attempt:', err.message);
-    }
+  isCacheExpired(timestamp) {
+    if (!timestamp) return true;
+    const cacheTime = new Date(timestamp);
+    const now = new Date();
+    const diffHours = (now - cacheTime) / (1000 * 60 * 60);
+    return diffHours > 24; // Expire after 24 hours
   }
 
   /**
@@ -595,9 +562,19 @@ class CLIHelpAnalyzer {
    */
   async loadPersistentConfig() {
     try {
-      const data = await fs.readFile(this.persistentConfig, 'utf8');
-      return JSON.parse(data);
+      const configExists = await this.fileExists(this.persistentConfig);
+      if (!configExists) {
+        return {
+          version: '1.0.0',
+          lastUpdated: new Date().toISOString(),
+          cliPatterns: {},
+          failedAttempts: {},
+        };
+      }
+      const configData = await fs.readFile(this.persistentConfig, 'utf8');
+      return JSON.parse(configData);
     } catch (error) {
+      // Return default config if loading fails
       return {
         version: '1.0.0',
         lastUpdated: new Date().toISOString(),
@@ -611,7 +588,73 @@ class CLIHelpAnalyzer {
    * Save persistent configuration
    */
   async savePersistentConfig(config) {
-    await fs.writeFile(this.persistentConfig, JSON.stringify(config, null, 2));
+    try {
+      await fs.writeFile(
+        this.persistentConfig,
+        JSON.stringify(config, null, 2),
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Record failed attempt
+   */
+  async recordFailedAttempt(cliName, error) {
+    try {
+      const config = await this.loadPersistentConfig();
+      config.failedAttempts[cliName] = {
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        attempts: (config.failedAttempts[cliName]?.attempts || 0) + 1,
+      };
+      await this.savePersistentConfig(config);
+    } catch (saveError) {
+      // Don't spam errors for failed attempt recording
+      if (process.env.DEBUG === 'true') {
+        await errorHandler.logError(
+          saveError,
+          'WARN',
+          'CLIHelpAnalyzer.recordFailedAttempt',
+        );
+      }
+    }
+  }
+
+  /**
+   * Update CLI pattern when call fails
+   */
+  async updatePatternOnFailure(cliName, error, attemptedCommand) {
+    // Only log in debug mode to reduce console noise
+    if (process.env.DEBUG === 'true') {
+      console.log(
+        `Updating pattern for ${cliName} due to failure:`,
+        error.message,
+      );
+    }
+    try {
+      // Re-analyze the CLI
+      const newAnalysis = await this.analyzeCLI(cliName);
+      // Add failure context
+      newAnalysis.lastFailure = {
+        error: error.message,
+        attemptedCommand,
+        timestamp: new Date().toISOString(),
+      };
+      // Update the cached analysis
+      await this.cacheAnalysis(cliName, newAnalysis);
+      return newAnalysis;
+    } catch (analysisError) {
+      // Only log analysis errors in debug mode
+      if (process.env.DEBUG === 'true') {
+        console.error(
+          `Failed to re-analyze ${cliName}:`,
+          analysisError.message,
+        );
+      }
+      return null;
+    }
   }
 
   /**
@@ -621,53 +664,16 @@ class CLIHelpAnalyzer {
     try {
       await fs.access(filePath);
       return true;
-    } catch {
+    } catch (error) {
       return false;
     }
   }
 
   /**
-   * Get CLI pattern for specific tool
+   * Set CLI tools
    */
-  async getCLIPattern(cliName) {
-    const cached = await this.getCachedAnalysis(cliName);
-
-    if (cached && !this.isCacheExpired(cached.timestamp)) {
-      return cached;
-    }
-
-    // Re-analyze if cache expired or not available
-    return await this.analyzeCLI(cliName);
-  }
-
-  /**
-   * Update CLI pattern when call fails
-   */
-  async updatePatternOnFailure(cliName, error, attemptedCommand) {
-    console.log(
-      `Updating pattern for ${cliName} due to failure:`,
-      error.message,
-    );
-
-    try {
-      // Re-analyze the CLI
-      const newAnalysis = await this.analyzeCLI(cliName);
-
-      // Add failure context
-      newAnalysis.lastFailure = {
-        error: error.message,
-        attemptedCommand,
-        timestamp: new Date().toISOString(),
-      };
-
-      // Update the cached analysis
-      await this.cacheAnalysis(cliName, newAnalysis);
-
-      return newAnalysis;
-    } catch (analysisError) {
-      console.error(`Failed to re-analyze ${cliName}:`, analysisError.message);
-      return null;
-    }
+  setCLITools(tools) {
+    this.cliTools = tools;
   }
 }
 

@@ -12,10 +12,6 @@
   },
   "extension_settings": {
     "auto_register_extensions": true,
-    "slash_command_hooks": [
-      "/x",
-      "/cross-cli",
-      "/delegate"
-    ]
+    "slash_command_hooks": ["/x", "/cross-cli", "/delegate"]
   }
 }

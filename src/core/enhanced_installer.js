@@ -21,20 +21,20 @@ class EnhancedInstaller {
       dryRun: options.dryRun || false,
       force: options.force || false,
       verbose: options.verbose || false,
-      ...options
+      ...options,
     };
 
     this.baseInstaller = new StigmergyInstaller();
     this.cacheCleaner = new CacheCleaner({
       dryRun: this.options.dryRun,
       force: this.options.force,
-      verbose: this.options.verbose
+      verbose: this.options.verbose,
     });
 
     this.results = {
       cacheCleaning: {},
       installation: {},
-      errors: []
+      errors: [],
     };
   }
 
@@ -48,7 +48,7 @@ class EnhancedInstaller {
       cleanNPM: this.options.cleanOldVersions,
       cleanCLI: false,
       cleanTemp: this.options.cleanTempFiles,
-      ...options
+      ...options,
     };
 
     console.log('🚀 Starting Enhanced Stigmergy Installation...\n');
@@ -78,9 +78,8 @@ class EnhancedInstaller {
       this.printSummary();
 
       return this.results;
-
     } catch (error) {
-      console.error('❌ Enhanced installation failed:', error.message);
+      console.error('�?Enhanced installation failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -107,24 +106,27 @@ class EnhancedInstaller {
         filesRemoved: cacheResults.filesRemoved,
         directoriesRemoved: cacheResults.directoriesRemoved,
         bytesFreed: cacheResults.bytesFreed,
-        errors: cacheResults.errors.length
+        errors: cacheResults.errors.length,
       };
 
-      console.log(`✅ Cache cleaning completed in ${duration}ms`);
-      console.log(`📊 Removed ${cacheResults.filesRemoved} files, freed ${this.formatBytes(cacheResults.bytesFreed)}\n`);
-
+      console.log(`�?Cache cleaning completed in ${duration}ms`);
+      console.log(
+        `📊 Removed ${cacheResults.filesRemoved} files, freed ${this.formatBytes(cacheResults.bytesFreed)}\n`,
+      );
     } catch (error) {
-      console.error('❌ Cache cleaning failed:', error.message);
+      console.error('�?Cache cleaning failed:', error.message);
       this.results.cacheCleaning = {
         success: false,
-        error: error.message
+        error: error.message,
       };
 
       if (!this.options.force) {
         throw new Error(`Cache cleaning failed: ${error.message}`);
       }
 
-      console.log('⚠️  Continuing installation despite cache cleaning errors...\n');
+      console.log(
+        '⚠️  Continuing installation despite cache cleaning errors...\n',
+      );
     }
   }
 
@@ -141,14 +143,17 @@ class EnhancedInstaller {
       // Scan for existing CLI tools
       const scanResult = await this.baseInstaller.scanCLI();
 
-      console.log(`✅ System scan completed`);
-      console.log(`📊 Found ${Object.keys(scanResult.available).length} available CLI tools`);
-      console.log(`📊 Missing ${Object.keys(scanResult.missing).length} CLI tools\n`);
+      console.log('�?System scan completed');
+      console.log(
+        `📊 Found ${Object.keys(scanResult.available).length} available CLI tools`,
+      );
+      console.log(
+        `📊 Missing ${Object.keys(scanResult.missing).length} CLI tools\n`,
+      );
 
       this.results.scan = scanResult;
-
     } catch (error) {
-      console.error('❌ System scan failed:', error.message);
+      console.error('�?System scan failed:', error.message);
       throw error;
     }
   }
@@ -169,7 +174,7 @@ class EnhancedInstaller {
         this.results.installation = {
           success: true,
           installed: [],
-          message: 'No tools needed installation'
+          message: 'No tools needed installation',
         };
         return;
       }
@@ -179,22 +184,21 @@ class EnhancedInstaller {
       // Install missing tools
       const installResult = await this.baseInstaller.installTools(
         missingTools,
-        this.results.scan.missing
+        this.results.scan.missing,
       );
 
       this.results.installation = {
         success: true,
         installed: missingTools,
-        result: installResult
+        result: installResult,
       };
 
-      console.log(`✅ Installation completed`);
-
+      console.log('�?Installation completed');
     } catch (error) {
-      console.error('❌ Installation failed:', error.message);
+      console.error('�?Installation failed:', error.message);
       this.results.installation = {
         success: false,
-        error: error.message
+        error: error.message,
       };
       throw error;
     }
@@ -204,7 +208,7 @@ class EnhancedInstaller {
    * Post-installation verification
    */
   async verifyInstallation() {
-    console.log('\n✅ Post-installation Verification...');
+    console.log('\n�?Post-installation Verification...');
 
     try {
       // Verify installation was successful
@@ -213,7 +217,7 @@ class EnhancedInstaller {
       const verificationResults = {
         beforeCount: Object.keys(this.results.scan.available).length,
         afterCount: Object.keys(postScan.available).length,
-        newlyInstalled: []
+        newlyInstalled: [],
       };
 
       // Find newly installed tools
@@ -227,16 +231,19 @@ class EnhancedInstaller {
 
       console.log(`📊 CLI tools before: ${verificationResults.beforeCount}`);
       console.log(`📊 CLI tools after: ${verificationResults.afterCount}`);
-      console.log(`📊 Newly installed: ${verificationResults.newlyInstalled.length}`);
+      console.log(
+        `📊 Newly installed: ${verificationResults.newlyInstalled.length}`,
+      );
 
       if (verificationResults.newlyInstalled.length > 0) {
-        console.log(`✅ Successfully installed: ${verificationResults.newlyInstalled.join(', ')}`);
+        console.log(
+          `�?Successfully installed: ${verificationResults.newlyInstalled.join(', ')}`,
+        );
       }
 
-      console.log('✅ Installation verification completed\n');
-
+      console.log('�?Installation verification completed\n');
     } catch (error) {
-      console.error('❌ Verification failed:', error.message);
+      console.error('�?Verification failed:', error.message);
       this.results.errors.push(`Verification: ${error.message}`);
     }
   }
@@ -252,21 +259,23 @@ class EnhancedInstaller {
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0]);
 
     if (majorVersion < 14) {
-      throw new Error(`Node.js version ${nodeVersion} is not supported. Please use Node.js 14 or higher.`);
+      throw new Error(
+        `Node.js version ${nodeVersion} is not supported. Please use Node.js 14 or higher.`,
+      );
     }
 
-    console.log(`  ✅ Node.js: ${nodeVersion}`);
+    console.log(`  �?Node.js: ${nodeVersion}`);
 
     // Check npm availability
     try {
       const { spawnSync } = require('child_process');
       const npmResult = spawnSync('npm', ['--version'], {
         encoding: 'utf8',
-        shell: true
+        shell: true,
       });
 
       if (npmResult.status === 0) {
-        console.log(`  ✅ npm: ${npmResult.stdout.trim()}`);
+        console.log(`  �?npm: ${npmResult.stdout.trim()}`);
       } else {
         throw new Error('npm is not available');
       }
@@ -278,12 +287,12 @@ class EnhancedInstaller {
     const homeDir = os.homedir();
     try {
       const stats = fs.statSync(homeDir);
-      console.log(`  ✅ Home directory accessible: ${homeDir}`);
+      console.log(`  �?Home directory accessible: ${homeDir}`);
     } catch (error) {
       throw new Error(`Cannot access home directory: ${homeDir}`);
     }
 
-    console.log('✅ System requirements check passed\n');
+    console.log('�?System requirements check passed\n');
   }
 
   /**
@@ -296,7 +305,7 @@ class EnhancedInstaller {
       cacheCleaning: {},
       installation: {},
       estimatedTime: 0,
-      estimatedSpace: 0
+      estimatedSpace: 0,
     };
 
     try {
@@ -307,7 +316,7 @@ class EnhancedInstaller {
         plan.cacheCleaning.stigmergyCache = {
           path: stigmergyDir,
           size: cacheSize,
-          wouldClean: this.options.cleanBeforeInstall
+          wouldClean: this.options.cleanBeforeInstall,
         };
         plan.estimatedSpace += cacheSize;
       }
@@ -319,25 +328,30 @@ class EnhancedInstaller {
       plan.installation = {
         missingTools: missingTools,
         toolCount: missingTools.length,
-        tools: missingTools.map(tool => ({
+        tools: missingTools.map((tool) => ({
           name: scanResult.missing[tool].name,
-          installCommand: scanResult.missing[tool].install
-        }))
+          installCommand: scanResult.missing[tool].install,
+        })),
       };
 
       // Estimate time (very rough estimate)
       plan.estimatedTime = missingTools.length * 30000; // 30 seconds per tool
 
-      console.log(`📊 Installation Plan Summary:`);
-      console.log(`  🧹 Cache cleaning: ${this.options.cleanBeforeInstall ? 'Yes' : 'No'}`);
+      console.log('📊 Installation Plan Summary:');
+      console.log(
+        `  🧹 Cache cleaning: ${this.options.cleanBeforeInstall ? 'Yes' : 'No'}`,
+      );
       console.log(`  📦 Tools to install: ${missingTools.length}`);
-      console.log(`  ⏱️  Estimated time: ${Math.ceil(plan.estimatedTime / 1000)} seconds`);
-      console.log(`  💾 Estimated space: ${this.formatBytes(plan.estimatedSpace)}`);
+      console.log(
+        `  ⏱️  Estimated time: ${Math.ceil(plan.estimatedTime / 1000)} seconds`,
+      );
+      console.log(
+        `  💾 Estimated space: ${this.formatBytes(plan.estimatedSpace)}`,
+      );
 
       return plan;
-
     } catch (error) {
-      console.error('❌ Failed to create installation plan:', error.message);
+      console.error('�?Failed to create installation plan:', error.message);
       throw error;
     }
   }
@@ -346,7 +360,7 @@ class EnhancedInstaller {
    * Quick cache clean only
    */
   async quickCacheClean() {
-    console.log('⚡ Quick Cache Clean Only...\n');
+    console.log('�?Quick Cache Clean Only...\n');
 
     try {
       const results = await this.cacheCleaner.cleanAllCaches({
@@ -354,16 +368,17 @@ class EnhancedInstaller {
         cleanNPX: true,
         cleanNPM: false,
         cleanCLI: false,
-        cleanTemp: true
+        cleanTemp: true,
       });
 
-      console.log(`✅ Quick cache clean completed`);
-      console.log(`📊 Removed ${results.filesRemoved} files, freed ${this.formatBytes(results.bytesFreed)}`);
+      console.log('�?Quick cache clean completed');
+      console.log(
+        `📊 Removed ${results.filesRemoved} files, freed ${this.formatBytes(results.bytesFreed)}`,
+      );
 
       return results;
-
     } catch (error) {
-      console.error('❌ Quick cache clean failed:', error.message);
+      console.error('�?Quick cache clean failed:', error.message);
       throw error;
     }
   }
@@ -402,12 +417,12 @@ class EnhancedInstaller {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   printSummary() {
     console.log('\n📊 ENHANCED INSTALLATION SUMMARY:');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
     if (this.options.dryRun) {
       console.log('🔍 DRY RUN MODE - No actual changes were made');
@@ -415,36 +430,44 @@ class EnhancedInstaller {
 
     // Cache cleaning summary
     if (this.results.cacheCleaning.success) {
-      console.log(`🧹 Cache Cleaning: ✅`);
+      console.log('🧹 Cache Cleaning: �?);
       console.log(`   Duration: ${this.results.cacheCleaning.duration}ms`);
-      console.log(`   Files removed: ${this.results.cacheCleaning.filesRemoved}`);
-      console.log(`   Space freed: ${this.formatBytes(this.results.cacheCleaning.bytesFreed)}`);
+      console.log(
+        `   Files removed: ${this.results.cacheCleaning.filesRemoved}`,
+      );
+      console.log(
+        `   Space freed: ${this.formatBytes(this.results.cacheCleaning.bytesFreed)}`,
+      );
     } else if (this.results.cacheCleaning.error) {
-      console.log(`🧹 Cache Cleaning: ❌ ${this.results.cacheCleaning.error}`);
+      console.log(`🧹 Cache Cleaning: �?${this.results.cacheCleaning.error}`);
     }
 
     // Installation summary
     if (this.results.installation.success) {
-      console.log(`📦 Installation: ✅`);
+      console.log('📦 Installation: �?);
       if (this.results.installation.installed.length > 0) {
-        console.log(`   Installed: ${this.results.installation.installed.join(', ')}`);
+        console.log(
+          `   Installed: ${this.results.installation.installed.join(', ')}`,
+        );
       } else {
         console.log(`   Message: ${this.results.installation.message}`);
       }
     } else if (this.results.installation.error) {
-      console.log(`📦 Installation: ❌ ${this.results.installation.error}`);
+      console.log(`📦 Installation: �?${this.results.installation.error}`);
     }
 
     // Verification summary
     if (this.results.verification) {
-      console.log(`✅ Verification: ✅`);
-      console.log(`   Newly installed: ${this.results.verification.newlyInstalled.length} tools`);
+      console.log('�?Verification: �?);
+      console.log(
+        `   Newly installed: ${this.results.verification.newlyInstalled.length} tools`,
+      );
     }
 
     // Errors
     if (this.results.errors.length > 0) {
-      console.log(`\n❌ Errors encountered: ${this.results.errors.length}`);
-      this.results.errors.forEach(error => {
+      console.log(`\n�?Errors encountered: ${this.results.errors.length}`);
+      this.results.errors.forEach((error) => {
         console.log(`   - ${error}`);
       });
     }

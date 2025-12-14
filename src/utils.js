@@ -678,6 +678,12 @@ async function executeCommand(command, args = [], options = {}) {
 
       const child = spawn(command, args, opts);
 
+      // Add debug logging for Windows command execution
+      if (process.platform === 'win32' && process.env.DEBUG === 'true') {
+        console.log(`[DEBUG] Spawned process with command: ${command}`);
+        console.log(`[DEBUG] Spawned process with args: ${JSON.stringify(args)}`);
+      }
+
       let stdout = '';
       let stderr = '';
 

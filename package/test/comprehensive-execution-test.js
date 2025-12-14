@@ -57,7 +57,7 @@ class ComprehensiveExecutionTest {
             
             return allPassed;
         } catch (error) {
-            console.log(`  âœ— Failed to test shell execution reliability: ${error.message}`);
+            console.log(`  âœ?Failed to test shell execution reliability: ${error.message}`);
             this.testResults.push({
                 name: 'Shell Execution Reliability',
                 passed: false,
@@ -114,7 +114,7 @@ class ComprehensiveExecutionTest {
             
             return fallbackEffective;
         } catch (error) {
-            console.log(`  âœ— Failed to test fallback mechanism: ${error.message}`);
+            console.log(`  âœ?Failed to test fallback mechanism: ${error.message}`);
             this.testResults.push({
                 name: 'Fallback Mechanism Effectiveness',
                 passed: false,
@@ -164,7 +164,7 @@ class ComprehensiveExecutionTest {
             
             return bothTestsPassed;
         } catch (error) {
-            console.log(`  âœ— Failed to test timeout and error handling: ${error.message}`);
+            console.log(`  âœ?Failed to test timeout and error handling: ${error.message}`);
             this.testResults.push({
                 name: 'Timeout and Error Handling',
                 passed: false,
@@ -230,7 +230,7 @@ class ComprehensiveExecutionTest {
             
             return platformCompatible;
         } catch (error) {
-            console.log(`  âœ— Failed to test cross-platform compatibility: ${error.message}`);
+            console.log(`  âœ?Failed to test cross-platform compatibility: ${error.message}`);
             this.testResults.push({
                 name: 'Cross-Platform Compatibility',
                 passed: false,
@@ -286,7 +286,7 @@ class ComprehensiveExecutionTest {
             
             return envHandlingGood;
         } catch (error) {
-            console.log(`  âœ— Failed to test environment variable handling: ${error.message}`);
+            console.log(`  âœ?Failed to test environment variable handling: ${error.message}`);
             this.testResults.push({
                 name: 'Environment Variable Handling',
                 passed: false,
@@ -351,7 +351,7 @@ class ComprehensiveExecutionTest {
             
             return installationWouldWork;
         } catch (error) {
-            console.log(`  âœ— Failed to simulate real installation scenario: ${error.message}`);
+            console.log(`  âœ?Failed to simulate real installation scenario: ${error.message}`);
             this.testResults.push({
                 name: 'Real Installation Scenario',
                 passed: false,
@@ -380,7 +380,7 @@ class ComprehensiveExecutionTest {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
@@ -389,14 +389,14 @@ class ComprehensiveExecutionTest {
         
         if (passedTests === totalTests) {
             console.log('ðŸŽ‰ ALL TESTS PASSED!');
-            console.log('âœ… The improved execution mechanisms WILL guarantee correct command execution!');
-            console.log('âœ… Shell strengthening and fallback measures are working perfectly!');
+            console.log('âœ?The improved execution mechanisms WILL guarantee correct command execution!');
+            console.log('âœ?Shell strengthening and fallback measures are working perfectly!');
         } else if (passedTests >= totalTests * 0.8) {
-            console.log('âœ… MOST TESTS PASSED!');
-            console.log('âœ… The improvements significantly increase execution reliability!');
+            console.log('âœ?MOST TESTS PASSED!');
+            console.log('âœ?The improvements significantly increase execution reliability!');
         } else {
-            console.log('âš  SOME TESTS FAILED!');
-            console.log('âš  Further improvements may be needed.');
+            console.log('âš?SOME TESTS FAILED!');
+            console.log('âš?Further improvements may be needed.');
         }
         
         return {

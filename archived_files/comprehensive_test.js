@@ -16,9 +16,9 @@ async function verifyCompleteFunctionality() {
     console.log('1. Testing CLI import...');
     try {
       const stigmergy = require('./src/index.js');
-      console.log('‚úì CLI imported successfully');
+      console.log('‚ú?CLI imported successfully');
     } catch (importError) {
-      console.log('‚úó CLI import failed:', importError.message);
+      console.log('‚ú?CLI import failed:', importError.message);
       throw importError;
     }
     
@@ -26,23 +26,23 @@ async function verifyCompleteFunctionality() {
     console.log('\n2. Testing component accessibility...');
     const { MemoryManager, StigmergyInstaller, maxOfTwo, isAuthenticated, main } = require('./src/index.js');
     
-    if (MemoryManager) console.log('‚úì MemoryManager accessible');
+    if (MemoryManager) console.log('‚ú?MemoryManager accessible');
     else throw new Error('MemoryManager not accessible');
     
-    if (StigmergyInstaller) console.log('‚úì StigmergyInstaller accessible');
+    if (StigmergyInstaller) console.log('‚ú?StigmergyInstaller accessible');
     else throw new Error('StigmergyInstaller not accessible');
     
-    if (typeof maxOfTwo === 'function') console.log('‚úì maxOfTwo function accessible');
+    if (typeof maxOfTwo === 'function') console.log('‚ú?maxOfTwo function accessible');
     else throw new Error('maxOfTwo function not accessible');
     
-    if (typeof isAuthenticated === 'function') console.log('‚úì isAuthenticated function accessible');
+    if (typeof isAuthenticated === 'function') console.log('‚ú?isAuthenticated function accessible');
     else throw new Error('isAuthenticated function not accessible');
     
     // 3. Test helper functions
     console.log('\n3. Testing helper functions...');
     const result = maxOfTwo(5, 3);
     if (result === 5) {
-      console.log('‚úì maxOfTwo function works correctly');
+      console.log('‚ú?maxOfTwo function works correctly');
     } else {
       throw new Error('maxOfTwo function returned incorrect result');
     }
@@ -54,7 +54,7 @@ async function verifyCompleteFunctionality() {
     const requiredCommands = ['version', 'errors', 'setup', 'status', 'scan', 'install', 'deploy', 'call', 'auto-install'];
     for (const command of requiredCommands) {
       if (routerContent.includes(`case '${command}'`)) {
-        console.log(`‚úì Command '${command}' recognized`);
+        console.log(`‚ú?Command '${command}' recognized`);
       } else {
         throw new Error(`Command '${command}' not recognized`);
       }
@@ -63,7 +63,7 @@ async function verifyCompleteFunctionality() {
     // 5. Test that auto-install functionality exists
     console.log('\n5. Testing auto-install functionality...');
     if (routerContent.includes('case \'auto-install\'') && routerContent.includes('deployHooks')) {
-      console.log('‚úì Auto-install functionality exists');
+      console.log('‚ú?Auto-install functionality exists');
     } else {
       throw new Error('Auto-install functionality missing');
     }
@@ -73,13 +73,13 @@ async function verifyCompleteFunctionality() {
     const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
     
     if (packageJson.main === 'src/index.js') {
-      console.log('‚úì package.json main entry correct');
+      console.log('‚ú?package.json main entry correct');
     } else {
       throw new Error('package.json main entry incorrect');
     }
     
     if (packageJson.scripts.postinstall === 'node src/index.js auto-install') {
-      console.log('‚úì package.json postinstall script correct');
+      console.log('‚ú?package.json postinstall script correct');
     } else {
       throw new Error('package.json postinstall script incorrect');
     }
@@ -89,7 +89,7 @@ async function verifyCompleteFunctionality() {
     const requiredDirs = ['src/core', 'src/utils', 'src/cli'];
     for (const dir of requiredDirs) {
       if (fs.existsSync(dir)) {
-        console.log(`‚úì Directory '${dir}' exists`);
+        console.log(`‚ú?Directory '${dir}' exists`);
       } else {
         throw new Error(`Directory '${dir}' missing`);
       }
@@ -107,7 +107,7 @@ async function verifyCompleteFunctionality() {
     
     for (const file of requiredFiles) {
       if (fs.existsSync(file)) {
-        console.log(`‚úì File '${file}' exists`);
+        console.log(`‚ú?File '${file}' exists`);
       } else {
         throw new Error(`File '${file}' missing`);
       }
@@ -120,7 +120,7 @@ async function verifyCompleteFunctionality() {
     });
     
     if (syntaxCheck.status === 0) {
-      console.log('‚úì CLI passes syntax check');
+      console.log('‚ú?CLI passes syntax check');
     } else {
       console.log('STDERR:', syntaxCheck.stderr.toString());
       throw new Error('CLI syntax check failed');
@@ -133,7 +133,7 @@ async function verifyCompleteFunctionality() {
     });
     
     if (helpResult.status === 0 || helpResult.status === 1) { // Help might exit with code 1
-      console.log('‚úì Help command executes without errors');
+      console.log('‚ú?Help command executes without errors');
     } else {
       console.log('STDERR:', helpResult.stderr.toString());
       throw new Error('Help command failed');
@@ -143,7 +143,7 @@ async function verifyCompleteFunctionality() {
     console.log('üéâ The Stigmergy CLI is fully functional!');
     
   } catch (error) {
-    console.error('\n‚ùå VERIFICATION FAILED:', error.message);
+    console.error('\n‚ù?VERIFICATION FAILED:', error.message);
     process.exit(1);
   }
 }

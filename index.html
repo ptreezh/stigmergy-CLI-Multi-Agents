@@ -609,7 +609,7 @@
                 一键把普通上网本升级为全球顶级AI赋能的强大生产力平台，没有阻碍AI协同的UI界面，自然语言指示AI操作电脑完成各种项目协同
             </p>
             <p class="hero-subtitle" style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.9;">
-                基于仿生学原理实现AI工具间的智能协同与无缝集成
+                基于共享背景实现AI工具间的间接协作与技能扩展
             </p>
             <div class="hero-cta">
                 <button class="btn-primary" onclick="startDeployment()">
@@ -641,16 +641,16 @@
                     <div class="feature-icon">🤝</div>
                     <h3 class="feature-title">智能协作</h3>
                     <p class="feature-description">
-                        基于Stigmergy仿生学原理，实现AI工具间的间接通信和协同工作，
-                        支持跨工具数据流转、上下文共享和链式调用
+                        基于共享背景的间接协作机制，通过项目规则、记忆文档、任务看板和会话历史，
+                        实现AI工具间的智能协同，无需直接通信即可完成复杂任务
                     </p>
                 </div>
                 <div class="feature-card fade-in-up">
                     <div class="feature-icon">🔄</div>
                     <h3 class="feature-title">工作流编排</h3>
                     <p class="feature-description">
-                        支持复杂AI工作流的编排和自动化执行，通过可视化流程设计器构建
-                        多步骤、多工具的协作任务序列
+                        基于文档的项目状态记忆和任务状态看板，通过持续更新的项目文档，
+                        实现多工具协作任务的自动执行和状态同步
                     </p>
                 </div>
                 <div class="feature-card fade-in-up">
@@ -671,10 +671,10 @@
                 </div>
                 <div class="feature-card fade-in-up">
                     <div class="feature-icon">🔌</div>
-                    <h3 class="feature-title">插件生态</h3>
+                    <h3 class="feature-title">技能扩展</h3>
                     <p class="feature-description">
-                        开放的插件架构，支持第三方工具集成和自定义扩展，
-                        丰富的API接口满足各种定制化需求
+                        支持Claude技能扩展到多个CLI工具，通过stigmergy-skills包实现自然语言技能识别，
+                        自动调用合适的AI工具完成翻译、分析、生成等任务
                     </p>
                 </div>
             </div>
@@ -955,7 +955,9 @@
         // Terminal simulation
         const terminalCommands = [
             { command: 'npm install -g stigmergy', output: ['正在安装Stigmergy CLI...', '下载依赖包...', '安装完成!'] },
-            { command: 'stigmergy setup', output: ['开始初始化系统...', '扫描AI工具...', '配置协作钩子...', '部署完成!'] },
+            { command: 'stigmergy scan', output: ['扫描系统环境...', '检测已安装的AI工具...', '分析依赖关系...', '扫描完成!'] },
+            { command: 'stigmergy install', output: ['开始安装缺失的工具...', 'Claude CLI: 已安装', 'Qwen CLI: 安装中...', 'CodeBuddy CLI: 已安装', '安装完成!'] },
+            { command: 'stigmergy deploy', output: ['部署协作钩子...', '配置共享背景...', '建立间接协作机制...', '部署完成!'] },
             { command: 'stigmergy status', output: ['Claude: 运行正常', 'Qwen: 运行正常', 'CodeBuddy: 运行正常', 'iFlow: 运行正常'] }
         ];
 

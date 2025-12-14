@@ -77,7 +77,7 @@ async function testToolSelectionIntegration() {
 
     for (const testCase of testCases) {
         console.log(`${testCase.name}`);
-        console.log(`Command: node package/src/main.js ${testCase.args.join(' ')}`);
+        console.log(`Command: node package/src/index.js ${testCase.args.join(' ')}`);
 
         try {
             const result = await runCommand(testCase.args);
@@ -97,7 +97,7 @@ async function testToolSelectionIntegration() {
             if (testCase.shouldContain) {
                 for (const expected of testCase.shouldContain) {
                     if (!result.stdout.includes(expected)) {
-                        console.log(`‚ùå Missing expected output: "${expected}"`);
+                        console.log(`‚ù?Missing expected output: "${expected}"`);
                         success = false;
                     }
                 }
@@ -107,7 +107,7 @@ async function testToolSelectionIntegration() {
             if (testCase.shouldNotContain) {
                 for (const unexpected of testCase.shouldNotContain) {
                     if (result.stdout.includes(unexpected)) {
-                        console.log(`‚ùå Found unexpected output: "${unexpected}"`);
+                        console.log(`‚ù?Found unexpected output: "${unexpected}"`);
                         success = false;
                     }
                 }
@@ -115,19 +115,19 @@ async function testToolSelectionIntegration() {
 
             // Check exit code
             if (result.code !== 0) {
-                console.log(`‚ùå Command failed with exit code ${result.code}`);
+                console.log(`‚ù?Command failed with exit code ${result.code}`);
                 success = false;
             }
 
             if (success) {
-                console.log(`‚úÖ PASSED`);
+                console.log(`‚ú?PASSED`);
                 passed++;
             } else {
-                console.log(`‚ùå FAILED`);
+                console.log(`‚ù?FAILED`);
             }
 
         } catch (error) {
-            console.log(`‚ùå ERROR: ${error.message}`);
+            console.log(`‚ù?ERROR: ${error.message}`);
         }
 
         console.log('');
@@ -140,7 +140,7 @@ async function testToolSelectionIntegration() {
 
     if (passed === total) {
         console.log('üéâ All tool selection tests passed!');
-        console.log('‚úÖ Tool selection logic has been successfully fixed!');
+        console.log('‚ú?Tool selection logic has been successfully fixed!');
     } else {
         console.log('‚ö†Ô∏è  Some tests failed. Tool selection still needs work.');
     }

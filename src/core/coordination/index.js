@@ -12,5 +12,5 @@ module.exports = {
   // Existing exports...
   NodeJsCoordinationLayer,
   HookDeploymentManager,
-  CLIIntegrationManager
+  CLIIntegrationManager,
 };

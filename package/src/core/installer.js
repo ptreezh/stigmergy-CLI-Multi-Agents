@@ -18,14 +18,88 @@ class StigmergyInstaller {
     const tool = this.router.tools[toolName];
     if (!tool) return false;
 
-    // Try multiple ways to check if CLI is available
+    // First, check if tool is properly configured
+    if (!tool.version && !tool.install) {
+      console.log(`[DEBUG] Tool ${toolName} has no version/install info, skipping check`);
+      return false;
+    }
+
+    // First try to find the executable using which/where command (more reliable)
+    try {
+      const whichCmd = process.platform === 'win32' ? 'where' : 'which';
+      const whichResult = spawnSync(whichCmd, [toolName], {
+        encoding: 'utf8',
+        timeout: 3000,
+        stdio: ['pipe', 'pipe', 'pipe'], // Use pipes to avoid file opening
+        shell: true,
+      });
+
+      if (whichResult.status === 0 && whichResult.stdout.trim()) {
+        // Found executable, now test it safely
+        const testArgs = ['--help'];
+        const testOptions = {
+          encoding: 'utf8',
+          timeout: 5000,
+          stdio: ['pipe', 'pipe', 'pipe'], // Don't inherit from parent to avoid opening UI
+          shell: true,
+        };
+
+        // Additional protection for codex
+        if (toolName === 'codex') {
+          testOptions.shell = false;
+          testOptions.windowsHide = true;
+          testOptions.detached = false;
+        }
+
+        const testResult = spawnSync(toolName, testArgs, testOptions);
+
+        // If command runs successfully or at least returns something (not command not found)
+        if (testResult.status === 0 || testResult.status === 1) {
+          return true;
+        }
+      }
+    } catch (error) {
+      // which/where command probably failed, continue with other checks
+      console.log(`[DEBUG] which/where check failed for ${toolName}: ${error.message}`);
+    }
+
+    // Special handling for codex to avoid opening files
+    if (toolName === 'codex') {
+      // For codex, only try --help and --version with extra precautions
+      const codexChecks = [
+        { args: ['--help'], expected: 0 },
+        { args: ['--version'], expected: 0 },
+      ];
+
+      for (const check of codexChecks) {
+        try {
+          const result = spawnSync(toolName, check.args, {
+            encoding: 'utf8',
+            timeout: 3000,
+            stdio: ['pipe', 'pipe', 'pipe'], // Ensure all IO is piped
+            shell: false, // Don't use shell to avoid extra window opening
+            windowsHide: true, // Hide console window on Windows
+            detached: false, // Don't detach process
+          });
+
+          if (result.status === 0 || result.status === 1) {
+            return true;
+          }
+        } catch (error) {
+          // Continue to next check
+        }
+      }
+      return false; // If all codex checks fail
+    }
+
+    // Fallback: Try multiple ways to check if CLI is available but more safely
     const checks = [
-      // Method 1: Try version command
-      { args: ['--version'], expected: 0 },
-      // Method 2: Try help command
+      // Method 1: Try help command (most common and safe)
       { args: ['--help'], expected: 0 },
-      // Method 3: Try help command with -h
+      // Method 2: Try help command with -h
       { args: ['-h'], expected: 0 },
+      // Method 3: Try version command
+      { args: ['--version'], expected: 0 },
       // Method 4: Try just the command (help case)
       { args: [], expected: 0 },
     ];
@@ -35,19 +109,21 @@ class StigmergyInstaller {
         const result = spawnSync(toolName, check.args, {
           encoding: 'utf8',
           timeout: 5000,
+          stdio: ['pipe', 'pipe', 'pipe'], // Use pipe instead of inherit to avoid opening files
           shell: true,
         });
 
         // Check if command executed successfully or at least didn't fail with "command not found"
         if (
           result.status === check.expected ||
-          (result.status !== 127 && result.status !== 9009)
+          (result.status !== 127 && result.status !== 9009 && result.status !== 1) // Also avoid status 1 (general error)
         ) {
           // 127 = command not found on Unix, 9009 = command not found on Windows
           return true;
         }
       } catch (error) {
         // Continue to next check method
+        console.log(`[DEBUG] checkCLI error for ${toolName}: ${error.message}`);
         continue;
       }
     }
@@ -386,7 +462,7 @@ See [STIGMERGY.md](STIGMERGY.md) for interaction history and collaboration recor
     console.log('='.repeat(60));
     console.log('');
     console.log('Next steps:');
-    console.log('  ✅ Use `stigmergy --help` for available commands');
+    console.log('  �?Use `stigmergy --help` for available commands');
     console.log('');
     console.log('Happy coding with Stigmergy! 🚀');
     console.log('');

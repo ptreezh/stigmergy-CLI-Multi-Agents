@@ -21,7 +21,7 @@ async function demo() {
   const initialized = await coordinationLayer.initialize();
   
   if (initialized) {
-    console.log('‚úÖ Coordination layer initialized successfully\n');
+    console.log('‚ú?Coordination layer initialized successfully\n');
     
     // Execute a cross-CLI task
     console.log('Executing cross-CLI task...');
@@ -36,12 +36,12 @@ async function demo() {
     console.log('\nSystem status:');
     const status = await coordinationLayer.getSystemStatus();
     console.log('- Implementation:', status.implementation);
-    console.log('- Health:', status.health.healthy ? '‚úÖ Healthy' : '‚ùå Unhealthy');
+    console.log('- Health:', status.health.healthy ? '‚ú?Healthy' : '‚ù?Unhealthy');
     console.log('- Cross-CLI calls:', status.statistics.counters.cross_cli_calls);
     
     console.log('\n');
   } else {
-    console.log('‚ùå Failed to initialize coordination layer\n');
+    console.log('‚ù?Failed to initialize coordination layer\n');
   }
 
   // Demonstrate Hook Deployment Manager
@@ -55,7 +55,7 @@ async function demo() {
   const hookDeployed = await hookManager.deployHooksForCLI('claude');
   
   if (hookDeployed) {
-    console.log('‚úÖ Hooks deployed successfully\n');
+    console.log('‚ú?Hooks deployed successfully\n');
     
     // List deployed hooks
     const deployedHooks = await hookManager.listDeployedHooks();
@@ -66,7 +66,7 @@ async function demo() {
     
     console.log('\n');
   } else {
-    console.log('‚ùå Failed to deploy hooks\n');
+    console.log('‚ù?Failed to deploy hooks\n');
   }
 
   // Demonstrate CLI Integration Manager

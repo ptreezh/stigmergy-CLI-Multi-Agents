@@ -1,13 +1,12 @@
 /**
  * TDD: Cross-CLI Executor Unit Tests
- * 测试驱动开发 - 先写测试，再写实现
- * 使用ANSI编码，无Unicode字符，Node.js优先
+ * 测试驱动开�?- 先写测试，再写实�? * 使用ANSI编码，无Unicode字符，Node.js优先
  */
 
 const assert = require('assert');
 const EventEmitter = require('events');
 
-// 测试目标类 - 尚未实现
+// 测试目标�?- 尚未实现
 class CrossCLIExecutor extends EventEmitter {
     constructor() {
         super();
@@ -137,10 +136,8 @@ describe('Cross-CLI Executor Unit Tests - ANSI Encoding', () => {
 
     describe('Cross-CLI Execution', () => {
         it('should execute simple claude to gemini translation', async () => {
-            // Mock实际调用，因为真实CLI可能未安装
-            const result = await executor.executeCrossCLI('claude', 'gemini', 'translate "hello world" to chinese', {
-                dryRun: true, // 干运行模式
-                timeout: 5000
+            // Mock实际调用，因为真实CLI可能未安�?            const result = await executor.executeCrossCLI('claude', 'gemini', 'translate "hello world" to chinese', {
+                dryRun: true, // 干运行模�?                timeout: 5000
             });
 
             assert.strictEqual(result.success, true);
@@ -207,8 +204,7 @@ describe('Cross-CLI Executor Unit Tests - ANSI Encoding', () => {
             }
 
             const history = executor.getExecutionHistory();
-            assert.ok(history.length <= 100); // 应该有历史大小限制
-        });
+            assert.ok(history.length <= 100); // 应该有历史大小限�?        });
     });
 
     describe('Active Execution Tracking', () => {
@@ -217,8 +213,7 @@ describe('Cross-CLI Executor Unit Tests - ANSI Encoding', () => {
                 timeout: 5000
             });
 
-            // 立即检查活跃执行
-            const activeExecutions = executor.getActiveExecutions();
+            // 立即检查活跃执�?            const activeExecutions = executor.getActiveExecutions();
             assert.ok(activeExecutions.length > 0);
 
             const execution = activeExecutions[0];
@@ -285,7 +280,7 @@ describe('Cross-CLI Executor Unit Tests - ANSI Encoding', () => {
 
             assert.strictEqual(results.length, 3);
             assert.ok(results.every(r => r.success));
-            assert.ok(elapsed < 10000); // 应该在10秒内完成并发执行
+            assert.ok(elapsed < 10000); // 应该�?0秒内完成并发执行
         });
 
         it('should handle memory usage efficiently', async () => {

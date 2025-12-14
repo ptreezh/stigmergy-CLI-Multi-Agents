@@ -19,7 +19,7 @@ class CacheCleaner {
       preserveRecent: options.preserveRecent || 24 * 60 * 60 * 1000, // 24 hours
       batchSize: options.batchSize || 50,
       parallel: options.parallel || true,
-      ...options
+      ...options,
     };
 
     this.homeDir = os.homedir();
@@ -28,7 +28,7 @@ class CacheCleaner {
       directoriesRemoved: 0,
       bytesFreed: 0,
       errors: [],
-      skipped: []
+      skipped: [],
     };
   }
 
@@ -42,7 +42,7 @@ class CacheCleaner {
       cleanNPM: true,
       cleanCLI: true,
       cleanTemp: true,
-      ...options
+      ...options,
     };
 
     console.log('🧹 Starting Comprehensive Cache Cleaning...\n');
@@ -81,9 +81,8 @@ class CacheCleaner {
       this.printSummary();
 
       return this.results;
-
     } catch (error) {
-      console.error('❌ Cache cleaning failed:', error.message);
+      console.error('�?Cache cleaning failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -113,7 +112,7 @@ class CacheCleaner {
       path.join(stigmergyDir, 'cache'),
       path.join(stigmergyDir, 'logs'),
       path.join(stigmergyDir, 'temp'),
-      path.join(stigmergyDir, '.tmp')
+      path.join(stigmergyDir, '.tmp'),
     ];
 
     for (const cachePath of cachePaths) {
@@ -122,7 +121,7 @@ class CacheCleaner {
       }
     }
 
-    console.log('✅ Stigmergy cache cleaning completed');
+    console.log('�?Stigmergy cache cleaning completed');
   }
 
   /**
@@ -147,7 +146,7 @@ class CacheCleaner {
     }
 
     const removed = await this.batchRemoveFiles(recentFiles);
-    console.log(`    ✅ Removed ${removed} files from ${type} directory`);
+    console.log(`    �?Removed ${removed} files from ${type} directory`);
   }
 
   /**
@@ -185,7 +184,7 @@ class CacheCleaner {
       }
     }
 
-    console.log(`  ✅ Removed ${removed} NPX cache entries`);
+    console.log(`  �?Removed ${removed} NPX cache entries`);
     if (failed.length > 0) {
       console.log(`  ⚠️  Failed to remove ${failed.length} entries`);
     }
@@ -207,18 +206,17 @@ class CacheCleaner {
       const result = spawnSync('npm', ['cache', 'clean', '--force'], {
         encoding: 'utf8',
         shell: true,
-        stdio: this.options.verbose ? 'inherit' : 'pipe'
+        stdio: this.options.verbose ? 'inherit' : 'pipe',
       });
 
       if (result.status === 0) {
-        console.log('  ✅ NPM cache cleaned successfully');
+        console.log('  �?NPM cache cleaned successfully');
       } else {
         console.log('  ⚠️  NPM cache clean failed, trying manual cleanup');
         await this.manualNPMCacheClean();
       }
-
     } catch (error) {
-      console.error(`  ❌ Failed to clean NPM cache: ${error.message}`);
+      console.error(`  �?Failed to clean NPM cache: ${error.message}`);
       this.results.errors.push(`NPM cache: ${error.message}`);
     }
   }
@@ -229,7 +227,7 @@ class CacheCleaner {
   async manualNPMCacheClean() {
     const npmCacheDirs = [
       path.join(this.homeDir, '.npm', '_cacache'),
-      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_cacache')
+      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_cacache'),
     ];
 
     for (const cacheDir of npmCacheDirs) {
@@ -247,8 +245,15 @@ class CacheCleaner {
     console.log('⚙️  Cleaning CLI configurations...');
 
     const supportedCLIs = [
-      'claude', 'gemini', 'qwen', 'iflow', 'qodercli',
-      'codebuddy', 'codex', 'copilot', 'qwencode'
+      'claude',
+      'gemini',
+      'qwen',
+      'iflow',
+      'qodercli',
+      'codebuddy',
+      'codex',
+      'copilot',
+      'qwencode',
     ];
 
     let totalCleaned = 0;
@@ -277,12 +282,12 @@ class CacheCleaner {
       totalCleaned += removed;
 
       if (removed > 0) {
-        console.log(`    ✅ Cleaned ${removed} files from ${cli}`);
+        console.log(`    �?Cleaned ${removed} files from ${cli}`);
       }
     }
 
     if (totalCleaned > 0) {
-      console.log(`  ✅ Cleaned ${totalCleaned} CLI configuration files`);
+      console.log(`  �?Cleaned ${totalCleaned} CLI configuration files`);
     }
   }
 
@@ -290,12 +295,12 @@ class CacheCleaner {
    * Clean temporary files
    */
   async cleanTemporaryFiles() {
-    console.log('🗑️  Cleaning temporary files...');
+    console.log('🗑�? Cleaning temporary files...');
 
     const tempDirs = [
       os.tmpdir(),
       path.join(this.homeDir, 'AppData', 'Local', 'Temp'),
-      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_tmp')
+      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_tmp'),
     ];
 
     let totalRemoved = 0;
@@ -311,7 +316,9 @@ class CacheCleaner {
         continue;
       }
 
-      console.log(`  📂 ${path.basename(tempDir)}: ${tempFiles.length} temporary files`);
+      console.log(
+        `  📂 ${path.basename(tempDir)}: ${tempFiles.length} temporary files`,
+      );
 
       if (this.options.dryRun) {
         this.logFiles(tempFiles.slice(0, 5), '    🔍 ');
@@ -325,12 +332,14 @@ class CacheCleaner {
       totalRemoved += removed;
 
       if (removed > 0) {
-        console.log(`    ✅ Removed ${removed} files from ${path.basename(tempDir)}`);
+        console.log(
+          `    �?Removed ${removed} files from ${path.basename(tempDir)}`,
+        );
       }
     }
 
     if (totalRemoved > 0) {
-      console.log(`  ✅ Removed ${totalRemoved} temporary files`);
+      console.log(`  �?Removed ${totalRemoved} temporary files`);
     }
   }
 
@@ -341,7 +350,7 @@ class CacheCleaner {
     const {
       preservePatterns = [],
       removePatterns = [],
-      preserveRecent = this.options.preserveRecent
+      preserveRecent = this.options.preserveRecent,
     } = options;
 
     console.log(`🎯 Selective cleaning: ${targetDirectory}`);
@@ -356,13 +365,13 @@ class CacheCleaner {
 
     for (const file of allFiles) {
       // Check preserve patterns
-      const shouldPreserve = preservePatterns.some(pattern =>
-        this.matchPattern(file, pattern)
-      ) || this.isRecentFile(file, preserveRecent);
+      const shouldPreserve =
+        preservePatterns.some((pattern) => this.matchPattern(file, pattern)) ||
+        this.isRecentFile(file, preserveRecent);
 
       // Check remove patterns
-      const shouldRemove = removePatterns.some(pattern =>
-        this.matchPattern(file, pattern)
+      const shouldRemove = removePatterns.some((pattern) =>
+        this.matchPattern(file, pattern),
       );
 
       if (shouldRemove && !shouldPreserve) {
@@ -378,7 +387,7 @@ class CacheCleaner {
     }
 
     const removed = await this.batchRemoveFiles(filesToRemove);
-    console.log(`  ✅ Selectively removed ${removed} files`);
+    console.log(`  �?Selectively removed ${removed} files`);
   }
 
   /**
@@ -388,18 +397,22 @@ class CacheCleaner {
     const {
       batchSize = this.options.batchSize,
       parallel = this.options.parallel,
-      maxConcurrency = 4
+      maxConcurrency = 4,
     } = options;
 
-    console.log(`⚡ Performance cleaning: ${targetDirectory}`);
+    console.log(`�?Performance cleaning: ${targetDirectory}`);
 
     const files = await this.scanDirectory(targetDirectory);
     const recentFiles = this.filterRecentFiles(files);
 
-    console.log(`  📊 Processing ${recentFiles.length} files in batches of ${batchSize}`);
+    console.log(
+      `  📊 Processing ${recentFiles.length} files in batches of ${batchSize}`,
+    );
 
     if (this.options.dryRun) {
-      console.log(`  🔍 Would process in ${Math.ceil(recentFiles.length / batchSize)} batches`);
+      console.log(
+        `  🔍 Would process in ${Math.ceil(recentFiles.length / batchSize)} batches`,
+      );
       return;
     }
 
@@ -415,7 +428,7 @@ class CacheCleaner {
       }
     }
 
-    console.log(`  ✅ Performance cleaned ${removed} files`);
+    console.log(`  �?Performance cleaned ${removed} files`);
     return removed;
   }
 
@@ -533,7 +546,9 @@ class CacheCleaner {
   }
 
   filterRecentFiles(files) {
-    return files.filter(file => !this.isRecentFile(file, this.options.preserveRecent));
+    return files.filter(
+      (file) => !this.isRecentFile(file, this.options.preserveRecent),
+    );
   }
 
   isRecentFile(filePath, maxAge) {
@@ -556,7 +571,7 @@ class CacheCleaner {
         const fullPath = path.join(dirPath, file.name);
 
         if (file.isDirectory()) {
-          stigmergyFiles.push(...await this.findStigmergyFiles(fullPath));
+          stigmergyFiles.push(...(await this.findStigmergyFiles(fullPath)));
         } else if (this.isStigmergyFile(file.name)) {
           stigmergyFiles.push(fullPath);
         }
@@ -576,12 +591,12 @@ class CacheCleaner {
       'integration',
       'cache',
       '.tmp',
-      'temp'
+      'temp',
     ];
 
     const lowerFileName = fileName.toLowerCase();
-    return stigmergyPatterns.some(pattern =>
-      lowerFileName.includes(pattern.toLowerCase())
+    return stigmergyPatterns.some((pattern) =>
+      lowerFileName.includes(pattern.toLowerCase()),
     );
   }
 
@@ -590,7 +605,7 @@ class CacheCleaner {
     const possibleNPXBases = [
       path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_npx'),
       path.join(this.homeDir, '.npm', '_npx'),
-      path.join(os.tmpdir(), 'npm-cache', '_npx')
+      path.join(os.tmpdir(), 'npm-cache', '_npx'),
     ];
 
     for (const npxCacheBase of possibleNPXBases) {
@@ -603,7 +618,11 @@ class CacheCleaner {
 
         for (const entry of entries) {
           const entryPath = path.join(npxCacheBase, entry);
-          const stigmergyPath = path.join(entryPath, 'node_modules', 'stigmergy');
+          const stigmergyPath = path.join(
+            entryPath,
+            'node_modules',
+            'stigmergy',
+          );
 
           if (fs.existsSync(stigmergyPath)) {
             cacheDirs.push(entryPath);
@@ -624,9 +643,11 @@ class CacheCleaner {
       const files = fs.readdirSync(tempDir, { withFileTypes: true });
 
       for (const file of files) {
-        if (this.isStigmergyFile(file.name) ||
-            file.name.startsWith('stigmergy-') ||
-            file.name.includes('stigmergy')) {
+        if (
+          this.isStigmergyFile(file.name) ||
+          file.name.startsWith('stigmergy-') ||
+          file.name.includes('stigmergy')
+        ) {
           const fullPath = path.join(tempDir, file.name);
           tempFiles.push(fullPath);
         }
@@ -647,9 +668,11 @@ class CacheCleaner {
       const files = await this.scanDirectory(dirPath);
       const removed = await this.batchRemoveFiles(files);
 
-      console.log(`    🧹 Cleaned ${removed} files from ${path.basename(dirPath)}`);
+      console.log(
+        `    🧹 Cleaned ${removed} files from ${path.basename(dirPath)}`,
+      );
     } catch (error) {
-      console.error(`    ❌ Failed to clean ${dirPath}: ${error.message}`);
+      console.error(`    �?Failed to clean ${dirPath}: ${error.message}`);
       this.results.errors.push(`Clean error ${dirPath}: ${error.message}`);
     }
   }
@@ -658,9 +681,7 @@ class CacheCleaner {
     const fileName = path.basename(filePath);
 
     // Simple glob pattern matching
-    const regexPattern = pattern
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.');
+    const regexPattern = pattern.replace(/\*/g, '.*').replace(/\?/g, '.');
 
     const regex = new RegExp(regexPattern, 'i');
     return regex.test(fileName);
@@ -696,11 +717,11 @@ class CacheCleaner {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   logFiles(files, prefix = '') {
-    files.slice(0, 10).forEach(file => {
+    files.slice(0, 10).forEach((file) => {
       console.log(`${prefix}${path.basename(file)}`);
     });
 
@@ -711,33 +732,35 @@ class CacheCleaner {
 
   printSummary() {
     console.log('\n📊 CACHE CLEANING SUMMARY:');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
     if (this.options.dryRun) {
       console.log('🔍 DRY RUN MODE - No files were actually deleted');
     } else {
       console.log(`📁 Directories removed: ${this.results.directoriesRemoved}`);
       console.log(`📄 Files removed: ${this.results.filesRemoved}`);
-      console.log(`💾 Space freed: ${this.formatBytes(this.results.bytesFreed)}`);
+      console.log(
+        `💾 Space freed: ${this.formatBytes(this.results.bytesFreed)}`,
+      );
     }
 
     if (this.results.skipped.length > 0) {
       console.log(`⏭️  Items skipped: ${this.results.skipped.length}`);
       if (this.options.verbose) {
-        this.results.skipped.forEach(item => {
+        this.results.skipped.forEach((item) => {
           console.log(`    ${item}`);
         });
       }
     }
 
     if (this.results.errors.length > 0) {
-      console.log(`❌ Errors: ${this.results.errors.length}`);
-      this.results.errors.forEach(error => {
+      console.log(`�?Errors: ${this.results.errors.length}`);
+      this.results.errors.forEach((error) => {
         console.log(`    ${error}`);
       });
     }
 
-    console.log('\n✅ Cache cleaning completed!');
+    console.log('\n�?Cache cleaning completed!');
   }
 }
 

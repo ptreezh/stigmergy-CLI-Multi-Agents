@@ -60,6 +60,11 @@ class CLIParameterHandler {
       toolArgs = this.getToolSpecificArguments(toolName, prompt);
     }
 
+    // Add debug logging to trace parameter generation
+    console.log(`[DEBUG] Parameter generation for ${toolName}:`);
+    console.log(`[DEBUG] Prompt: ${prompt}`);
+    console.log(`[DEBUG] Generated args: ${JSON.stringify(toolArgs)}`);
+    
     return toolArgs;
   }
 

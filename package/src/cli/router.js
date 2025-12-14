@@ -164,14 +164,14 @@ async function main() {
       console.log('=====================================');
 
       if (Object.keys(available).length > 0) {
-        console.log('\nâœ… Available Tools:');
+        console.log('\nâœ?Available Tools:');
         for (const [toolName, toolInfo] of Object.entries(available)) {
           console.log(`  - ${toolInfo.name} (${toolName})`);
         }
       }
 
       if (Object.keys(missing).length > 0) {
-        console.log('\nâŒ Missing Tools:');
+        console.log('\nâ?Missing Tools:');
         for (const [toolName, toolInfo] of Object.entries(missing)) {
           console.log(`  - ${toolInfo.name} (${toolName})`);
           console.log(`    Install command: ${toolInfo.install}`);
@@ -344,8 +344,8 @@ async function main() {
 
         if (Object.keys(autoAvailable).length > 0) {
           for (const [toolName, toolInfo] of Object.entries(autoAvailable)) {
-            const status = toolInfo.installed ? 'âœ“ Installed' : 'âœ— Not Installed';
-            console.log(`  âœ“ ${toolInfo.name} (${toolName}) - ${status}`);
+            const status = toolInfo.installed ? 'âœ?Installed' : 'âœ?Not Installed';
+            console.log(`  âœ?${toolInfo.name} (${toolName}) - ${status}`);
             if (toolInfo.path) {
               console.log(`    Path: ${toolInfo.path}`);
             }
@@ -360,7 +360,7 @@ async function main() {
         if (Object.keys(autoMissing).length > 0) {
           console.log(`\n[MISSING] ${Object.keys(autoMissing).length} tools not found:`);
           for (const [toolName, toolInfo] of Object.entries(autoMissing)) {
-            console.log(`  âœ— ${toolInfo.name} (${toolName})`);
+            console.log(`  âœ?${toolInfo.name} (${toolName})`);
             console.log(`    Install with: ${toolInfo.installCommand}`);
           }
           console.log('\n[INFO] You can install missing tools with: stigmergy install');

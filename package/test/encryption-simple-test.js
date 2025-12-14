@@ -12,10 +12,10 @@ console.log('Test 1: Key generation');
 let secretKey;
 try {
   secretKey = generateKey();
-  console.log('âœ“ Generated 32-byte key');
-  console.log('âœ“ Key type:', typeof secretKey);
+  console.log('âœ?Generated 32-byte key');
+  console.log('âœ?Key type:', typeof secretKey);
 } catch (error) {
-  console.error('âœ— Key generation failed:', error.message);
+  console.error('âœ?Key generation failed:', error.message);
   process.exit(1);
 }
 
@@ -25,10 +25,10 @@ let encryptedObj;
 try {
   const plaintext = 'Hello, World!';
   encryptedObj = encryptData(plaintext, secretKey);
-  console.log('âœ“ String encryption successful');
-  console.log('âœ“ Encrypted object has required properties');
+  console.log('âœ?String encryption successful');
+  console.log('âœ?Encrypted object has required properties');
 } catch (error) {
-  console.error('âœ— String encryption failed:', error.message);
+  console.error('âœ?String encryption failed:', error.message);
   process.exit(1);
 }
 
@@ -36,10 +36,10 @@ try {
 console.log('\nTest 3: Data decryption');
 try {
   const decrypted = decryptData(encryptedObj, secretKey);
-  console.log('âœ“ Data decryption successful');
-  console.log('âœ“ Decrypted data matches original');
+  console.log('âœ?Data decryption successful');
+  console.log('âœ?Decrypted data matches original');
 } catch (error) {
-  console.error('âœ— Data decryption failed:', error.message);
+  console.error('âœ?Data decryption failed:', error.message);
   process.exit(1);
 }
 
@@ -51,13 +51,13 @@ try {
   const decrypted = decryptData(encrypted, secretKey);
   
   if (originalData === decrypted) {
-    console.log('âœ“ Data integrity maintained');
+    console.log('âœ?Data integrity maintained');
   } else {
-    console.error('âœ— Data integrity check failed');
+    console.error('âœ?Data integrity check failed');
     process.exit(1);
   }
 } catch (error) {
-  console.error('âœ— Data integrity test failed:', error.message);
+  console.error('âœ?Data integrity test failed:', error.message);
   process.exit(1);
 }
 
@@ -69,13 +69,13 @@ try {
   const decrypted = decryptData(encrypted, secretKey);
   
   if (unicodeData === decrypted) {
-    console.log('âœ“ Unicode data handled correctly');
+    console.log('âœ?Unicode data handled correctly');
   } else {
-    console.error('âœ— Unicode test failed');
+    console.error('âœ?Unicode test failed');
     process.exit(1);
   }
 } catch (error) {
-  console.error('âœ— Unicode test failed:', error.message);
+  console.error('âœ?Unicode test failed:', error.message);
   process.exit(1);
 }
 
@@ -83,26 +83,26 @@ try {
 console.log('\nTest 6: Error handling');
 try {
   encryptData('', secretKey);
-  console.error('âœ— Empty data validation failed');
+  console.error('âœ?Empty data validation failed');
   process.exit(1);
 } catch (error) {
   if (error.message === 'Data to encrypt cannot be empty') {
-    console.log('âœ“ Empty data validation works');
+    console.log('âœ?Empty data validation works');
   } else {
-    console.error('âœ— Unexpected error for empty data:', error.message);
+    console.error('âœ?Unexpected error for empty data:', error.message);
     process.exit(1);
   }
 }
 
 try {
   encryptData('test data', null);
-  console.error('âœ— Missing key validation failed');
+  console.error('âœ?Missing key validation failed');
   process.exit(1);
 } catch (error) {
   if (error.message === 'Secret key is required') {
-    console.log('âœ“ Missing key validation works');
+    console.log('âœ?Missing key validation works');
   } else {
-    console.error('âœ— Unexpected error for missing key:', error.message);
+    console.error('âœ?Unexpected error for missing key:', error.message);
     process.exit(1);
   }
 }

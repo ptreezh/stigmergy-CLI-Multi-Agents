@@ -14,7 +14,7 @@ console.log(`Subtraction: 10 - 4 = ${calc.subtract(10, 4)}`);
 console.log(`Multiplication: 6 * 7 = ${calc.multiply(6, 7)}`);
 console.log(`Division: 15 / 3 = ${calc.divide(15, 3)}`);
 console.log(`Power: 2^8 = ${calc.power(2, 8)}`);
-console.log(`Square Root: âˆš64 = ${calc.sqrt(64)}`);
+console.log(`Square Root: âˆ?4 = ${calc.sqrt(64)}`);
 console.log(`Factorial: 5! = ${calc.factorial(5)}`);
 console.log(`Percentage: 25 is what percent of 200 = ${calc.percentage(25, 200)}%`);
 
@@ -37,7 +37,7 @@ const result2 = calc.chain(2)
   .sqrt()
   .equals();
 
-console.log(`âˆš(((2^3) + 1) * 2) = ${result2}`);
+console.log(`âˆ?((2^3) + 1) * 2) = ${result2}`);
 
 // Getting intermediate values
 console.log('\n=== Intermediate Values ===');

@@ -39,7 +39,7 @@ async function runTests() {
     // Test 3: Safety check in main script
     totalTests++;
     try {
-        const mainScript = await fs.readFile(path.join(__dirname, '..', 'src', 'main_english.js'), 'utf8');
+        const mainScript = await fs.readFile(path.join(__dirname, '..', 'src', 'index.js'), 'utf8');
         if (mainScript.includes('safetyCheck')) {
             console.log('[PASS] Test 3: Safety check implemented in main script');
             passedTests++;

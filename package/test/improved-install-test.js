@@ -61,7 +61,7 @@ class ImprovedInstallTester {
             
             return npmAvailable;
         } catch (error) {
-            console.log(`  âœ— Failed to check npm availability: ${error.message}`);
+            console.log(`  âœ?Failed to check npm availability: ${error.message}`);
             this.testResults.push({
                 name: 'npm Availability',
                 passed: false,
@@ -132,7 +132,7 @@ class ImprovedInstallTester {
             
             return worksWithoutShell || worksWithShell || worksWithCmd;
         } catch (error) {
-            console.log(`  âœ— Failed to test installation with shell options: ${error.message}`);
+            console.log(`  âœ?Failed to test installation with shell options: ${error.message}`);
             this.testResults.push({
                 name: 'Qoder Installation Shell Options',
                 passed: false,
@@ -220,7 +220,7 @@ class ImprovedInstallTester {
             
             return bothWork;
         } catch (error) {
-            console.log(`  âœ— Failed to test spawn behavior: ${error.message}`);
+            console.log(`  âœ?Failed to test spawn behavior: ${error.message}`);
             this.testResults.push({
                 name: 'Spawn vs SpawnSync',
                 passed: false,
@@ -235,7 +235,7 @@ class ImprovedInstallTester {
         console.log('\n[TEST 4] Verifying current installation implementation...');
         
         try {
-            // Simulate the current implementation from main_english.js
+            // Simulate the current implementation from index.js
             const toolInfo = {
                 name: 'Qoder CLI',
                 install: 'npm install -g @qoder-ai/qodercli'
@@ -247,7 +247,7 @@ class ImprovedInstallTester {
             const installCmd = toolInfo.install.split(' ');
             console.log(`  Command parts: ${JSON.stringify(installCmd)}`);
             
-            // Current implementation (similar to lines 512-518 in main_english.js)
+            // Current implementation (similar to lines 512-518 in index.js)
             console.log('  Testing current implementation approach...');
             const result = spawnSync(installCmd[0], installCmd.slice(1), {
                 encoding: 'utf8',
@@ -292,7 +292,7 @@ class ImprovedInstallTester {
             
             return result.status === 0 || resultWithShell.status === 0;
         } catch (error) {
-            console.log(`  âœ— Failed to test current implementation: ${error.message}`);
+            console.log(`  âœ?Failed to test current implementation: ${error.message}`);
             this.testResults.push({
                 name: 'Current Installation Implementation',
                 passed: false,
@@ -319,18 +319,18 @@ class ImprovedInstallTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All improved installation tests passed!');
+            console.log('âœ?All improved installation tests passed!');
         } else if (passedTests > 0) {
-            console.log('âš  Some improved installation tests passed.');
+            console.log('âš?Some improved installation tests passed.');
         } else {
-            console.log('âœ— All improved installation tests failed.');
+            console.log('âœ?All improved installation tests failed.');
         }
         
         return {

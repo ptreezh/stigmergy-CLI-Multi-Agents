@@ -18,7 +18,7 @@ function testTranslationSkillDetection() {
 
     const testCases = [
         {
-            input: "请帮我把这段中文翻译成英文",
+            input: "请帮我把这段中文翻译成英�?,
             expectedSkill: 'translation',
             expectedParams: { to: 'en', text: '这段中文' },
             description: 'Chinese to English translation'
@@ -30,7 +30,7 @@ function testTranslationSkillDetection() {
             description: 'English to Spanish translation'
         },
         {
-            input: "能把这段说明翻译成日语吗？",
+            input: "能把这段说明翻译成日语吗�?,
             expectedSkill: 'translation',
             expectedParams: { to: 'ja', text: '这段说明' },
             description: 'Chinese to Japanese translation'
@@ -47,7 +47,7 @@ function testCodeAnalysisSkillDetection() {
 
     const testCases = [
         {
-            input: "请分析这个React组件的安全性",
+            input: "请分析这个React组件的安全�?,
             expectedSkill: 'code-analysis',
             expectedParams: { focus: 'security', file: 'React组件' },
             description: 'React component security analysis'
@@ -82,7 +82,7 @@ function testCodeGenerationSkillDetection() {
             description: 'Python login code generation'
         },
         {
-            input: "帮我写一个React的用户认证组件",
+            input: "帮我写一个React的用户认证组�?,
             expectedSkill: 'code-generation',
             expectedParams: { requirement: '用户认证组件', framework: 'react' },
             description: 'React authentication component'
@@ -105,7 +105,7 @@ function testDocumentationSkillDetection() {
             description: 'API documentation generation'
         },
         {
-            input: "帮我把这个函数写个注释",
+            input: "帮我把这个函数写个注�?,
             expectedSkill: 'documentation',
             expectedParams: { target: '函数', format: 'comments' },
             description: 'Function comments generation'
@@ -125,17 +125,17 @@ function testNaturalLanguageParser() {
         const NaturalLanguageParser = require('../package/src/natural-language/nl-parser.cjs');
         const parser = new NaturalLanguageParser();
 
-        const testInput = "请帮我把这段代码翻译成英文";
+        const testInput = "请帮我把这段代码翻译成英�?;
         const result = parser.parse(testInput);
 
         assert(result.skill === 'translation', 'Should detect translation skill');
         assert(result.parameters.to === 'en', 'Should detect target language');
         assert(result.parameters.text, 'Should extract text to translate');
 
-        console.log('✅ Natural language parser test passed');
+        console.log('�?Natural language parser test passed');
         return true;
     } catch (error) {
-        console.log(`❌ Natural language parser test failed: ${error.message}`);
+        console.log(`�?Natural language parser test failed: ${error.message}`);
         return false;
     }
 }
@@ -171,7 +171,7 @@ function testSkillMappingAccuracy() {
                 "生成代码",
                 "write a function",
                 "create a component",
-                "实现一个功能"
+                "实现一个功�?
             ],
             expectedSkill: 'code-generation',
             description: 'Generation keyword variations'
@@ -188,7 +188,7 @@ function testContextAwareParameterExtraction() {
 
     const extractionTests = [
         {
-            input: "把这个React组件的性能优化一下",
+            input: "把这个React组件的性能优化一�?,
             expectedParams: {
                 framework: 'react',
                 focus: 'performance',
@@ -270,7 +270,7 @@ function runTests() {
     accuracyTests.forEach(test => {
         console.log(`   ${test.description}:`);
         test.inputs.forEach(input => {
-            console.log(`     - "${input}" → should map to ${test.expectedSkill}`);
+            console.log(`     - "${input}" �?should map to ${test.expectedSkill}`);
         });
         console.log('');
     });

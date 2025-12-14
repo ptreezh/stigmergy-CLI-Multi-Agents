@@ -27,7 +27,7 @@ class PostInstallTester {
             
             // Check if postinstall script exists
             if (!packageJson.scripts || !packageJson.scripts.postinstall) {
-                console.log('  âœ— postinstall script not found in package.json');
+                console.log('  âœ?postinstall script not found in package.json');
                 this.testResults.push({
                     name: 'Postinstall Script Configuration',
                     passed: false,
@@ -41,12 +41,12 @@ class PostInstallTester {
             
             // Check if it calls the auto-install command
             const hasAutoInstall = postinstallScript.includes('auto-install');
-            const hasMainScript = postinstallScript.includes('src/main_english.js');
+            const hasMainScript = postinstallScript.includes('src/index.js');
             
             if (hasAutoInstall && hasMainScript) {
-                console.log('  âœ“ postinstall script correctly configured for auto-install');
+                console.log('  âœ?postinstall script correctly configured for auto-install');
             } else {
-                console.log('  âœ— postinstall script missing auto-install configuration');
+                console.log('  âœ?postinstall script missing auto-install configuration');
             }
             
             this.testResults.push({
@@ -59,7 +59,7 @@ class PostInstallTester {
             
             return hasAutoInstall && hasMainScript;
         } catch (error) {
-            console.log(`  âœ— Failed to check postinstall script: ${error.message}`);
+            console.log(`  âœ?Failed to check postinstall script: ${error.message}`);
             this.testResults.push({
                 name: 'Postinstall Script Configuration',
                 passed: false,
@@ -75,7 +75,7 @@ class PostInstallTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Check if auto-install case exists
@@ -83,9 +83,9 @@ class PostInstallTester {
                                     mainScript.includes('case "auto-install":');
             
             if (hasAutoInstallCase) {
-                console.log('  âœ“ auto-install command implemented');
+                console.log('  âœ?auto-install command implemented');
             } else {
-                console.log('  âœ— auto-install command not implemented');
+                console.log('  âœ?auto-install command not implemented');
             }
             
             // Check if it includes error handling
@@ -101,7 +101,7 @@ class PostInstallTester {
             
             return hasAutoInstallCase;
         } catch (error) {
-            console.log(`  âœ— Failed to check auto-install command: ${error.message}`);
+            console.log(`  âœ?Failed to check auto-install command: ${error.message}`);
             this.testResults.push({
                 name: 'Auto-Install Command Implementation',
                 passed: false,
@@ -117,7 +117,7 @@ class PostInstallTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Check if auto-install includes user guidance
@@ -127,9 +127,9 @@ class PostInstallTester {
                                   mainScript.includes('stigmergy setup');
             
             if (hasUserGuidance) {
-                console.log('  âœ“ User guidance messages found in auto-install');
+                console.log('  âœ?User guidance messages found in auto-install');
             } else {
-                console.log('  âœ— User guidance messages not found in auto-install');
+                console.log('  âœ?User guidance messages not found in auto-install');
             }
             
             // Check if it handles missing tools gracefully
@@ -138,9 +138,9 @@ class PostInstallTester {
                                           mainScript.includes('autoMissing');
             
             if (hasMissingToolsHandling) {
-                console.log('  âœ“ Missing tools handling found in auto-install');
+                console.log('  âœ?Missing tools handling found in auto-install');
             } else {
-                console.log('  âœ— Missing tools handling not found in auto-install');
+                console.log('  âœ?Missing tools handling not found in auto-install');
             }
             
             // Check if it shows success message
@@ -155,7 +155,7 @@ class PostInstallTester {
             
             return hasUserGuidance && hasMissingToolsHandling && hasSuccessMessage;
         } catch (error) {
-            console.log(`  âœ— Failed to check graceful degradation: ${error.message}`);
+            console.log(`  âœ?Failed to check graceful degradation: ${error.message}`);
             this.testResults.push({
                 name: 'Graceful Degradation and Guidance',
                 passed: false,
@@ -171,7 +171,7 @@ class PostInstallTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Check if main function has error handling
@@ -179,9 +179,9 @@ class PostInstallTester {
                                        mainScript.includes('try {') && mainScript.includes('catch');
             
             if (hasMainErrorHandling) {
-                console.log('  âœ“ Main function has error handling');
+                console.log('  âœ?Main function has error handling');
             } else {
-                console.log('  âœ— Main function missing error handling');
+                console.log('  âœ?Main function missing error handling');
             }
             
             // Check if auto-install has specific error handling
@@ -199,7 +199,7 @@ class PostInstallTester {
             
             return hasMainErrorHandling;
         } catch (error) {
-            console.log(`  âœ— Failed to check error handling: ${error.message}`);
+            console.log(`  âœ?Failed to check error handling: ${error.message}`);
             this.testResults.push({
                 name: 'Error Handling',
                 passed: false,
@@ -226,18 +226,18 @@ class PostInstallTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All postinstall tests passed! Package should work correctly.');
+            console.log('âœ?All postinstall tests passed! Package should work correctly.');
         } else if (passedTests > 0) {
-            console.log('âš  Some postinstall tests failed. Package may need improvements.');
+            console.log('âš?Some postinstall tests failed. Package may need improvements.');
         } else {
-            console.log('âœ— All postinstall tests failed. Package needs significant improvements.');
+            console.log('âœ?All postinstall tests failed. Package needs significant improvements.');
         }
         
         return {

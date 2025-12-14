@@ -6,8 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// 导入我们的实现
-const CLIScanner = require('../src/core/cli-scanner');
+// 导入我们的实�?const CLIScanner = require('../src/core/cli-scanner');
 const CrossCLIExecutor = require('../src/core/cross-cli-executor');
 
 // ANSI安全输出
@@ -69,8 +68,7 @@ async function runRealTests() {
 
     const runner = new RealTestRunner();
 
-    // 1. CLI扫描器测试
-    safeLog('\n--- CLI Scanner Tests ---');
+    // 1. CLI扫描器测�?    safeLog('\n--- CLI Scanner Tests ---');
 
     await runner.test('Scanner initialization', () => {
         const scanner = new CLIScanner();
@@ -150,8 +148,7 @@ async function runRealTests() {
         }
     });
 
-    // 2. 跨CLI执行器测试
-    safeLog('\n--- Cross-CLI Executor Tests ---');
+    // 2. 跨CLI执行器测�?    safeLog('\n--- Cross-CLI Executor Tests ---');
 
     await runner.test('Executor initialization', () => {
         const executor = new CrossCLIExecutor();
@@ -196,8 +193,7 @@ async function runRealTests() {
             throw new Error('Should have thrown timeout error');
         } catch (error) {
             const elapsed = Date.now() - startTime;
-            if (elapsed > 10000) { // 10秒安全边界
-                throw new Error('Timeout should have occurred quickly');
+            if (elapsed > 10000) { // 10秒安全边�?                throw new Error('Timeout should have occurred quickly');
             }
         }
     });
@@ -269,8 +265,7 @@ async function runRealTests() {
         }
     });
 
-    // 4. 性能和内存测试
-    safeLog('\n--- Performance Tests ---');
+    // 4. 性能和内存测�?    safeLog('\n--- Performance Tests ---');
 
     await runner.test('Concurrent command execution', async () => {
         const executor = new CrossCLIExecutor();
@@ -291,8 +286,7 @@ async function runRealTests() {
         if (!results.every(r => r.success)) {
             throw new Error('All commands should succeed');
         }
-        if (elapsed > 15000) { // 15秒安全边界
-            throw new Error('Should complete within reasonable time');
+        if (elapsed > 15000) { // 15秒安全边�?            throw new Error('Should complete within reasonable time');
         }
     });
 
@@ -343,8 +337,7 @@ async function runRealTests() {
         });
     }
 
-    // 6. 错误处理和边界条件测试
-    safeLog('\n--- Error Handling Tests ---');
+    // 6. 错误处理和边界条件测�?    safeLog('\n--- Error Handling Tests ---');
 
     await runner.test('Invalid input handling', async () => {
         const executor = new CrossCLIExecutor();
@@ -364,8 +357,7 @@ async function runRealTests() {
         const executor = new CrossCLIExecutor();
         const initialStats = executor.getStats();
 
-        // 执行一些命令
-        await executor.executeCommand('node', ['--version']);
+        // 执行一些命�?        await executor.executeCommand('node', ['--version']);
         await executor.executeCommand('non-existent-command', []);
 
         const finalStats = executor.getStats();
@@ -408,8 +400,7 @@ async function runRealTests() {
     return runner.results;
 }
 
-// 主执行函数
-async function main() {
+// 主执行函�?async function main() {
     try {
         const results = await runRealTests();
 
@@ -427,8 +418,7 @@ async function main() {
     }
 }
 
-// 如果直接运行此文件
-if (require.main === module) {
+// 如果直接运行此文�?if (require.main === module) {
     main();
 }
 

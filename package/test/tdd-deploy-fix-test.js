@@ -55,7 +55,7 @@ class TDDDeployFixTester {
             // Clean up
             await fs.rm(testDir, { recursive: true, force: true });
             
-            console.log('  âœ“ Directory creation works correctly');
+            console.log('  âœ?Directory creation works correctly');
             
             this.testResults.push({
                 name: 'Directory Creation',
@@ -65,7 +65,7 @@ class TDDDeployFixTester {
             
             return true;
         } catch (error) {
-            console.log(`  âœ— Directory creation failed: ${error.message}`);
+            console.log(`  âœ?Directory creation failed: ${error.message}`);
             
             this.testResults.push({
                 name: 'Directory Creation',
@@ -128,7 +128,7 @@ class TDDDeployFixTester {
             let allFilesCopied = true;
             for (const expectedFile of expectedFiles) {
                 if (!dstFiles.includes(expectedFile)) {
-                    console.log(`  âœ— Missing file: ${expectedFile}`);
+                    console.log(`  âœ?Missing file: ${expectedFile}`);
                     allFilesCopied = false;
                 }
             }
@@ -136,7 +136,7 @@ class TDDDeployFixTester {
             // Check subdirectory contents
             const subDirFiles = await fs.readdir(path.join(dstDir, 'subdir'));
             if (!subDirFiles.includes('subfile.txt')) {
-                console.log('  âœ— Subdirectory file not copied');
+                console.log('  âœ?Subdirectory file not copied');
                 allFilesCopied = false;
             }
             
@@ -145,7 +145,7 @@ class TDDDeployFixTester {
             await fs.rm(dstDir, { recursive: true, force: true });
             
             if (allFilesCopied) {
-                console.log('  âœ“ File copying works correctly');
+                console.log('  âœ?File copying works correctly');
             }
             
             this.testResults.push({
@@ -156,7 +156,7 @@ class TDDDeployFixTester {
             
             return allFilesCopied;
         } catch (error) {
-            console.log(`  âœ— File copying failed: ${error.message}`);
+            console.log(`  âœ?File copying failed: ${error.message}`);
             
             this.testResults.push({
                 name: 'File Copying',
@@ -191,7 +191,7 @@ class TDDDeployFixTester {
                 }, 5000);
             });
             
-            console.log(`  Python available: ${pythonAvailable ? 'âœ“' : 'âœ—'}`);
+            console.log(`  Python available: ${pythonAvailable ? 'âœ? : 'âœ?}`);
             
             this.testResults.push({
                 name: 'Installation Script Execution',
@@ -201,7 +201,7 @@ class TDDDeployFixTester {
             
             return pythonAvailable;
         } catch (error) {
-            console.log(`  âœ— Installation script execution check failed: ${error.message}`);
+            console.log(`  âœ?Installation script execution check failed: ${error.message}`);
             
             this.testResults.push({
                 name: 'Installation Script Execution',
@@ -241,7 +241,7 @@ plugins:
             await fs.rm(tempConfigDir, { recursive: true, force: true });
             
             if (fileExists) {
-                console.log('  âœ“ Configuration file creation works correctly');
+                console.log('  âœ?Configuration file creation works correctly');
             }
             
             this.testResults.push({
@@ -252,7 +252,7 @@ plugins:
             
             return fileExists;
         } catch (error) {
-            console.log(`  âœ— Configuration file creation failed: ${error.message}`);
+            console.log(`  âœ?Configuration file creation failed: ${error.message}`);
             
             this.testResults.push({
                 name: 'Configuration File Creation',
@@ -281,18 +281,18 @@ plugins:
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All implementation tests passed! Ready to implement deployHooks fix.');
+            console.log('âœ?All implementation tests passed! Ready to implement deployHooks fix.');
         } else if (passedTests > 0) {
-            console.log('âš  Some implementation tests failed. Implementation may need adjustments.');
+            console.log('âš?Some implementation tests failed. Implementation may need adjustments.');
         } else {
-            console.log('âœ— All implementation tests failed. Implementation not ready.');
+            console.log('âœ?All implementation tests failed. Implementation not ready.');
         }
         
         return {

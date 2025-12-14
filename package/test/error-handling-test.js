@@ -20,13 +20,13 @@ class ErrorHandlingTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Extract auto-install section
             const autoInstallStart = mainScript.indexOf('case \'auto-install\':');
             if (autoInstallStart === -1) {
-                console.log('  âœ— auto-install case not found');
+                console.log('  âœ?auto-install case not found');
                 this.testResults.push({
                     name: 'Auto-Install Try-Catch Blocks',
                     passed: false,
@@ -53,9 +53,9 @@ class ErrorHandlingTester {
             const hasCatchBlock = autoInstallSection.includes('catch');
             
             if (hasTryBlock && hasCatchBlock) {
-                console.log('  âœ“ try-catch blocks found in auto-install section');
+                console.log('  âœ?try-catch blocks found in auto-install section');
             } else {
-                console.log(`  âš  try-catch blocks: try=${hasTryBlock}, catch=${hasCatchBlock}`);
+                console.log(`  âš?try-catch blocks: try=${hasTryBlock}, catch=${hasCatchBlock}`);
             }
             
             this.testResults.push({
@@ -66,7 +66,7 @@ class ErrorHandlingTester {
             
             return hasTryBlock && hasCatchBlock;
         } catch (error) {
-            console.log(`  âœ— Failed to check try-catch blocks: ${error.message}`);
+            console.log(`  âœ?Failed to check try-catch blocks: ${error.message}`);
             this.testResults.push({
                 name: 'Auto-Install Try-Catch Blocks',
                 passed: false,
@@ -82,13 +82,13 @@ class ErrorHandlingTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Extract auto-install section
             const autoInstallStart = mainScript.indexOf('case \'auto-install\':');
             if (autoInstallStart === -1) {
-                console.log('  âœ— auto-install case not found');
+                console.log('  âœ?auto-install case not found');
                 this.testResults.push({
                     name: 'Individual Step Error Handling',
                     passed: false,
@@ -151,7 +151,7 @@ class ErrorHandlingTester {
             
             return adequateErrorHandling;
         } catch (error) {
-            console.log(`  âœ— Failed to check individual step error handling: ${error.message}`);
+            console.log(`  âœ?Failed to check individual step error handling: ${error.message}`);
             this.testResults.push({
                 name: 'Individual Step Error Handling',
                 passed: false,
@@ -167,13 +167,13 @@ class ErrorHandlingTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Extract auto-install section
             const autoInstallStart = mainScript.indexOf('case \'auto-install\':');
             if (autoInstallStart === -1) {
-                console.log('  âœ— auto-install case not found');
+                console.log('  âœ?auto-install case not found');
                 this.testResults.push({
                     name: 'Error Messages and Guidance',
                     passed: false,
@@ -219,7 +219,7 @@ class ErrorHandlingTester {
             
             return adequateMessaging;
         } catch (error) {
-            console.log(`  âœ— Failed to check error messages and guidance: ${error.message}`);
+            console.log(`  âœ?Failed to check error messages and guidance: ${error.message}`);
             this.testResults.push({
                 name: 'Error Messages and Guidance',
                 passed: false,
@@ -235,7 +235,7 @@ class ErrorHandlingTester {
         
         try {
             // Read main script
-            const mainScriptPath = path.join(__dirname, '..', 'src', 'main_english.js');
+            const mainScriptPath = path.join(__dirname, '..', 'src', 'index.js');
             const mainScript = await fs.readFile(mainScriptPath, 'utf8');
             
             // Check main function error handling
@@ -243,7 +243,7 @@ class ErrorHandlingTester {
             const mainFunctionEnd = mainScript.indexOf('\n}', mainFunctionStart);
             
             if (mainFunctionStart === -1 || mainFunctionEnd === -1) {
-                console.log('  âœ— Main function not found');
+                console.log('  âœ?Main function not found');
                 this.testResults.push({
                     name: 'Main Function Error Handling',
                     passed: false,
@@ -271,7 +271,7 @@ class ErrorHandlingTester {
             
             return adequateMainErrorHandling;
         } catch (error) {
-            console.log(`  âœ— Failed to check main function error handling: ${error.message}`);
+            console.log(`  âœ?Failed to check main function error handling: ${error.message}`);
             this.testResults.push({
                 name: 'Main Function Error Handling',
                 passed: false,
@@ -298,18 +298,18 @@ class ErrorHandlingTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âš  PARTIAL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âš?PARTIAL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All error handling tests passed! Auto-install should handle errors gracefully.');
+            console.log('âœ?All error handling tests passed! Auto-install should handle errors gracefully.');
         } else if (passedTests > 0) {
-            console.log('âš  Some error handling tests partially passed. Auto-install has basic error handling.');
+            console.log('âš?Some error handling tests partially passed. Auto-install has basic error handling.');
         } else {
-            console.log('âœ— All error handling tests failed. Auto-install may not handle errors gracefully.');
+            console.log('âœ?All error handling tests failed. Auto-install may not handle errors gracefully.');
         }
         
         return {

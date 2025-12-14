@@ -47,14 +47,14 @@ class PythonPluginsTest {
             });
 
             if (result.status === 0) {
-                console.log(`  âœ… Python available: ${result.stdout.trim()}`);
+                console.log(`  âœ?Python available: ${result.stdout.trim()}`);
                 this.testResults.push({
                     name: 'Python Availability',
                     passed: true,
                     details: result.stdout.trim()
                 });
             } else {
-                console.log(`  âŒ Python not available: ${result.stderr}`);
+                console.log(`  â?Python not available: ${result.stderr}`);
                 this.testResults.push({
                     name: 'Python Availability',
                     passed: false,
@@ -62,7 +62,7 @@ class PythonPluginsTest {
                 });
             }
         } catch (error) {
-            console.log(`  âŒ Python test failed: ${error.message}`);
+            console.log(`  â?Python test failed: ${error.message}`);
             this.testResults.push({
                 name: 'Python Availability',
                 passed: false,
@@ -78,7 +78,7 @@ class PythonPluginsTest {
 
         try {
             if (!fs.existsSync(this.stigmergyAssetsDir)) {
-                console.log(`  âŒ Assets directory not found: ${this.stigmergyAssetsDir}`);
+                console.log(`  â?Assets directory not found: ${this.stigmergyAssetsDir}`);
                 this.testResults.push({
                     name: 'Adapter Directories',
                     passed: false,
@@ -88,7 +88,7 @@ class PythonPluginsTest {
             }
 
             const adapterDirs = fs.readdirSync(this.stigmergyAssetsDir);
-            console.log(`  âœ… Found ${adapterDirs.length} adapter directories:`);
+            console.log(`  âœ?Found ${adapterDirs.length} adapter directories:`);
             adapterDirs.forEach(dir => console.log(`    - ${dir}`));
 
             this.testResults.push({
@@ -97,7 +97,7 @@ class PythonPluginsTest {
                 details: `Found ${adapterDirs.length} adapter directories`
             });
         } catch (error) {
-            console.log(`  âŒ Adapter directories test failed: ${error.message}`);
+            console.log(`  â?Adapter directories test failed: ${error.message}`);
             this.testResults.push({
                 name: 'Adapter Directories',
                 passed: false,
@@ -132,7 +132,7 @@ class PythonPluginsTest {
                         });
                         
                         if (result.status === 0 || result.stderr.includes('usage:') || result.stdout.includes('usage:')) {
-                            console.log(`    âœ… ${dir} script works`);
+                            console.log(`    âœ?${dir} script works`);
                             workingScripts++;
                         } else {
                             console.log(`    âš ï¸  ${dir} script has issues`);
@@ -150,7 +150,7 @@ class PythonPluginsTest {
                 details: `Found ${scriptCount} scripts, ${workingScripts} working`
             });
         } catch (error) {
-            console.log(`  âŒ Installation scripts test failed: ${error.message}`);
+            console.log(`  â?Installation scripts test failed: ${error.message}`);
             this.testResults.push({
                 name: 'Installation Scripts',
                 passed: false,
@@ -184,7 +184,7 @@ class PythonPluginsTest {
                     });
                     
                     if (result.status === 0) {
-                        console.log(`    âœ… ${adapter} adapter functional`);
+                        console.log(`    âœ?${adapter} adapter functional`);
                         workingAdapters++;
                     } else {
                         // Try alternative command
@@ -194,7 +194,7 @@ class PythonPluginsTest {
                         });
                         
                         if (helpResult.status === 0) {
-                            console.log(`    âœ… ${adapter} adapter accessible (help works)`);
+                            console.log(`    âœ?${adapter} adapter accessible (help works)`);
                             workingAdapters++;
                         } else {
                             console.log(`    âš ï¸  ${adapter} adapter has issues`);
@@ -226,19 +226,19 @@ class PythonPluginsTest {
         console.log(`ğŸ“Š TEST RESULTS: ${passedTests}/${totalTests} tests passed\n`);
 
         if (passedTests === totalTests) {
-            console.log('âœ… ALL PYTHON PLUGIN TESTS PASSED');
+            console.log('âœ?ALL PYTHON PLUGIN TESTS PASSED');
             console.log('ğŸ‰ Python plugins are fully functional and ready for use!\n');
         } else if (passedTests > 0) {
             console.log('âš ï¸  SOME PYTHON PLUGIN TESTS PASSED');
             console.log('ğŸ”§ Python plugins have partial functionality\n');
         } else {
-            console.log('âŒ NO PYTHON PLUGIN TESTS PASSED');
+            console.log('â?NO PYTHON PLUGIN TESTS PASSED');
             console.log('ğŸš¨ Python plugins require attention\n');
         }
 
         console.log('ğŸ“‹ DETAILED RESULTS:');
         this.testResults.forEach((test, index) => {
-            const status = test.passed ? 'âœ…' : 'âŒ';
+            const status = test.passed ? 'âœ? : 'â?;
             console.log(`${index + 1}. ${status} ${test.name}: ${test.details}`);
         });
 

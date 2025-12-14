@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Enhanced Main.js 功能对齐测试 - TDD驱动开发
- * 基于main.js完整功能，测试enhanced版本的对齐情况
- */
+ * Enhanced Main.js 功能对齐测试 - TDD驱动开�? * 基于main.js完整功能，测试enhanced版本的对齐情�? */
 
 const { strict: assert } = require('assert');
 const { spawn } = require('child_process');
@@ -19,7 +17,7 @@ class EnhancedMainAlignTest {
 
     // TDD测试：命令行参数支持
     async testCommandLineArguments() {
-        console.log('🧪 测试命令行参数支持...');
+        console.log('🧪 测试命令行参数支�?..');
 
         const requiredCommands = [
             'init', 'status', 'scan', 'deploy',
@@ -38,7 +36,7 @@ class EnhancedMainAlignTest {
 
     // TDD测试：项目初始化功能
     async testProjectInitialization() {
-        console.log('🧪 测试项目初始化功能...');
+        console.log('🧪 测试项目初始化功�?..');
 
         const testProjectDir = path.join(process.cwd(), 'test-project-temp');
 
@@ -46,8 +44,7 @@ class EnhancedMainAlignTest {
             // 创建测试目录
             await fs.mkdir(testProjectDir, { recursive: true });
 
-            // 测试初始化
-            const result = await this.runCommand(this.enhancedJsPath, ['init', testProjectDir]);
+            // 测试初始�?            const result = await this.runCommand(this.enhancedJsPath, ['init', testProjectDir]);
 
             // 验证配置文件生成
             const configPath = path.join(testProjectDir, '.stigmergy-project', 'stigmergy-config.json');
@@ -68,30 +65,28 @@ class EnhancedMainAlignTest {
             await fs.rm(testProjectDir, { recursive: true, force: true });
 
         } catch (error) {
-            this.addTest('项目初始化功能', false, error.message);
+            this.addTest('项目初始化功�?, false, error.message);
         }
     }
 
-    // TDD测试：状态检查功能
-    async testStatusCheck() {
-        console.log('🧪 测试状态检查功能...');
+    // TDD测试：状态检查功�?    async testStatusCheck() {
+        console.log('🧪 测试状态检查功�?..');
 
         try {
             const result = await this.runCommand(this.enhancedJsPath, ['status']);
             const hasStatusOutput = result.stdout.includes('全局配置') ||
                                    result.stdout.includes('项目配置') ||
-                                   result.stdout.includes('可用适配器');
+                                   result.stdout.includes('可用适配�?);
 
             this.addTest('状态检查：命令执行', result.exitCode === 0);
             this.addTest('状态检查：输出格式正确', hasStatusOutput);
 
         } catch (error) {
-            this.addTest('状态检查功能', false, error.message);
+            this.addTest('状态检查功�?, false, error.message);
         }
     }
 
-    // TDD测试：配置验证功能
-    async testConfigurationValidation() {
+    // TDD测试：配置验证功�?    async testConfigurationValidation() {
         console.log('🧪 测试配置验证功能...');
 
         try {
@@ -101,7 +96,7 @@ class EnhancedMainAlignTest {
             // 测试全局验证
             const globalResult = await this.runCommand(this.enhancedJsPath, ['validate', 'global']);
 
-            this.addTest('配置验证：项目验证', projectResult.exitCode === 0);
+            this.addTest('配置验证：项目验�?, projectResult.exitCode === 0);
             this.addTest('配置验证：全局验证', globalResult.exitCode === 0);
 
         } catch (error) {
@@ -109,23 +104,20 @@ class EnhancedMainAlignTest {
         }
     }
 
-    // TDD测试：适配器管理功能
-    async testAdapterManager() {
-        console.log('🧪 测试适配器管理功能...');
+    // TDD测试：适配器管理功�?    async testAdapterManager() {
+        console.log('🧪 测试适配器管理功�?..');
 
         try {
-            // 测试适配器加载
-            const result = await this.runCommand(this.enhancedJsPath, ['deploy']);
+            // 测试适配器加�?            const result = await this.runCommand(this.enhancedJsPath, ['deploy']);
 
             this.addTest('适配器管理：部署功能', result.exitCode === 0);
 
         } catch (error) {
-            this.addTest('适配器管理功能', false, error.message);
+            this.addTest('适配器管理功�?, false, error.message);
         }
     }
 
-    // TDD测试：工具扫描功能
-    async testToolScanning() {
+    // TDD测试：工具扫描功�?    async testToolScanning() {
         console.log('🧪 测试工具扫描功能...');
 
         try {
@@ -138,31 +130,29 @@ class EnhancedMainAlignTest {
             const hasInstallationPrompt = result.stdout.includes('安装') ||
                                          result.stdout.includes('缺失');
 
-            this.addTest('工具扫描：命令执行', result.exitCode === 0);
-            this.addTest('工具扫描：工具列表显示', hasToolList);
-            this.addTest('工具扫描：安装提示', hasInstallationPrompt);
+            this.addTest('工具扫描：命令执�?, result.exitCode === 0);
+            this.addTest('工具扫描：工具列表显�?, hasToolList);
+            this.addTest('工具扫描：安装提�?, hasInstallationPrompt);
 
         } catch (error) {
             this.addTest('工具扫描功能', false, error.message);
         }
     }
 
-    // TDD测试：缓存清理功能
-    async testCacheCleaning() {
+    // TDD测试：缓存清理功�?    async testCacheCleaning() {
         console.log('🧪 测试缓存清理功能...');
 
         try {
             const result = await this.runCommand(this.enhancedJsPath, ['clean']);
 
-            this.addTest('缓存清理：命令执行', result.exitCode === 0);
+            this.addTest('缓存清理：命令执�?, result.exitCode === 0);
 
         } catch (error) {
             this.addTest('缓存清理功能', false, error.message);
         }
     }
 
-    // 运行命令的辅助方法
-    async runCommand(scriptPath, args = [], options = {}) {
+    // 运行命令的辅助方�?    async runCommand(scriptPath, args = [], options = {}) {
         return new Promise((resolve) => {
             const child = spawn('node', [scriptPath, ...args], {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -189,10 +179,8 @@ class EnhancedMainAlignTest {
                 });
             });
 
-            // 处理交互式命令 - 发送输入
-            if (args.includes('scan')) {
-                // 对于scan命令，发送"N"来跳过安装
-                setTimeout(() => {
+            // 处理交互式命�?- 发送输�?            if (args.includes('scan')) {
+                // 对于scan命令，发�?N"来跳过安�?                setTimeout(() => {
                     child.stdin.write('N\n');
                     child.stdin.end();
                 }, 3000);
@@ -210,8 +198,7 @@ class EnhancedMainAlignTest {
         });
     }
 
-    // 检查文件是否存在
-    async fileExists(filePath) {
+    // 检查文件是否存�?    async fileExists(filePath) {
         try {
             await fs.access(filePath);
             return true;
@@ -228,7 +215,7 @@ class EnhancedMainAlignTest {
             error: error
         });
 
-        const status = passed ? '✅' : '❌';
+        const status = passed ? '�? : '�?;
         console.log(`  ${status} ${testName}`);
         if (error) {
             console.log(`    错误: ${error}`);
@@ -246,10 +233,10 @@ class EnhancedMainAlignTest {
         console.log(`总测试数: ${totalTests}`);
         console.log(`通过: ${passedTests} ✅`);
         console.log(`失败: ${failedTests} ❌`);
-        console.log(`通过率: ${((passedTests / totalTests) * 100).toFixed(1)}%`);
+        console.log(`通过�? ${((passedTests / totalTests) * 100).toFixed(1)}%`);
 
         if (failedTests > 0) {
-            console.log('\n❌ 失败的测试:');
+            console.log('\n�?失败的测�?');
             this.testResults
                 .filter(r => !r.passed)
                 .forEach(r => {
@@ -265,8 +252,7 @@ class EnhancedMainAlignTest {
         };
     }
 
-    // 运行所有测试
-    async runAllTests() {
+    // 运行所有测�?    async runAllTests() {
         console.log('🚀 开始Enhanced Main.js功能对齐测试');
         console.log('='.repeat(50));
 
@@ -282,8 +268,7 @@ class EnhancedMainAlignTest {
     }
 }
 
-// 如果直接运行此文件
-if (require.main === module) {
+// 如果直接运行此文�?if (require.main === module) {
     const tester = new EnhancedMainAlignTest();
     tester.runAllTests()
         .then(report => {

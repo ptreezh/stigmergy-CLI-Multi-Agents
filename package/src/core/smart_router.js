@@ -21,7 +21,6 @@ class SmartRouter {
       'explain',
       'analyze',
       'translate',
-      'code',
       'article',
     ];
     this.defaultTool = 'claude';
@@ -45,11 +44,38 @@ class SmartRouter {
 
   /**
    * Perform smart routing based on user input and CLI patterns
+   * Prioritizes exact tool name matches over keyword matches
    */
   async smartRoute(userInput) {
     const input = userInput.trim();
+    const inputLower = input.toLowerCase();
 
-    // First try to detect tool-specific keywords
+    // First, check for exact tool name matches (higher priority)
+    for (const [toolName, _] of Object.entries(this.tools)) {
+      try {
+        // Validate tool configuration
+        validateCLITool(toolName);
+
+        if (inputLower.includes(toolName)) {
+          // Extract clean parameters when the tool name itself is mentioned
+          const cleanInput = input
+            .replace(new RegExp(`.*${toolName}\\s*`, 'gi'), '')
+            .replace(/^(use|please|help|using|with)\s*/i, '')
+            .trim();
+          return { tool: toolName, prompt: cleanInput };
+        }
+      } catch (error) {
+        await errorHandler.logError(
+          error,
+          'WARN',
+          `SmartRouter.smartRoute.${toolName}`,
+        );
+        // Continue with next tool
+        continue;
+      }
+    }
+
+    // Then check for keyword matches (lower priority)
     for (const [toolName, _] of Object.entries(this.tools)) {
       try {
         // Validate tool configuration
@@ -72,7 +98,9 @@ class SmartRouter {
         // Check if input contains any of the tool's keywords or subcommands
         const keywords = this.extractKeywords(toolName, cliPattern);
         for (const keyword of keywords) {
-          if (input.toLowerCase().includes(keyword.toLowerCase())) {
+          // Skip the tool name itself since we already checked for exact matches
+          if (keyword.toLowerCase() !== toolName.toLowerCase() &&
+              inputLower.includes(keyword.toLowerCase())) {
             // Extract clean parameters
             const cleanInput = input
               .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
@@ -111,10 +139,10 @@ class SmartRouter {
       gemini: ['gemini', 'google'],
       qwen: ['qwen', 'alibaba', 'tongyi'],
       iflow: ['iflow', 'workflow', 'intelligent'],
-      qodercli: ['qoder', 'code'],
+      qodercli: ['qoder', 'code'],  // 'code' is specifically for qodercli only
       codebuddy: ['codebuddy', 'buddy', 'assistant'],
       copilot: ['copilot', 'github', 'gh'],
-      codex: ['codex', 'openai', 'gpt'],
+      codex: ['codex', 'openai', 'gpt'],  // Remove 'code' from here to avoid conflicts
     };
 
     if (toolSpecificKeywords[toolName]) {

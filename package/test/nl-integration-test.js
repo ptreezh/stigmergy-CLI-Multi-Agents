@@ -17,12 +17,12 @@ async function testNaturalLanguageIntegration() {
 
         // Test 1: Basic natural language processing
         console.log('Test 1: Basic natural language processing');
-        const result1 = await integration.processNaturalLanguageInput("请帮我把这段中文翻译成英文", "claude");
+        const result1 = await integration.processNaturalLanguageInput("请帮我把这段中文翻译成英�?, "claude");
 
         assert(result1.success === true, 'Should successfully process translation request');
         assert(result1.skill === 'translation', 'Should detect translation skill');
         assert(result1.parameters.to === 'en', 'Should detect target language');
-        console.log('✅ Basic natural language processing test passed');
+        console.log('�?Basic natural language processing test passed');
 
         // Test 2: Multi-language support
         console.log('Test 2: Multi-language support');
@@ -31,7 +31,7 @@ async function testNaturalLanguageIntegration() {
         assert(result2.success === true, 'Should process English input');
         assert(result2.skill === 'code-analysis', 'Should detect code analysis skill');
         assert(result2.parameters.focus === 'security', 'Should detect security focus');
-        console.log('✅ Multi-language support test passed');
+        console.log('�?Multi-language support test passed');
 
         // Test 3: Skill detection confidence
         console.log('Test 3: Skill detection confidence');
@@ -39,7 +39,7 @@ async function testNaturalLanguageIntegration() {
 
         assert(result3.confidence > 5, 'Should have high confidence for clear patterns');
         assert(result3.parameters.language === 'python', 'Should extract programming language');
-        console.log('✅ Skill detection confidence test passed');
+        console.log('�?Skill detection confidence test passed');
 
         // Test 4: Hook response creation
         console.log('Test 4: Hook response creation');
@@ -48,7 +48,7 @@ async function testNaturalLanguageIntegration() {
         assert(hookResponse.shouldIntercept === true, 'Should intercept skill requests');
         assert(hookResponse.skill === 'translation', 'Should identify correct skill');
         assert(hookResponse.options.includes('execute_skill'), 'Should provide execution option');
-        console.log('✅ Hook response creation test passed');
+        console.log('�?Hook response creation test passed');
 
         // Test 5: CLI command processing
         console.log('Test 5: CLI command processing');
@@ -56,7 +56,7 @@ async function testNaturalLanguageIntegration() {
 
         assert(cliResult.success === true, 'Should process CLI command successfully');
         assert(cliResult.skill === 'code-analysis', 'Should detect skill from CLI args');
-        console.log('✅ CLI command processing test passed');
+        console.log('�?CLI command processing test passed');
 
         // Test 6: Help message generation
         console.log('Test 6: Help message generation');
@@ -64,13 +64,13 @@ async function testNaturalLanguageIntegration() {
 
         assert(helpMessage.includes('Natural Language Skills'), 'Should include integration info');
         assert(helpMessage.includes('translate'), 'Should include translation examples');
-        console.log('✅ Help message generation test passed');
+        console.log('�?Help message generation test passed');
 
-        console.log('✅ Natural language integration test passed');
+        console.log('�?Natural language integration test passed');
         return true;
 
     } catch (error) {
-        console.log(`❌ Natural language integration test failed: ${error.message}`);
+        console.log(`�?Natural language integration test failed: ${error.message}`);
         return false;
     }
 }
@@ -86,7 +86,7 @@ async function testEndToEndScenarios() {
         const scenarios = [
             {
                 name: 'Chinese to English Translation',
-                input: '请帮我把这段API文档翻译成英文',
+                input: '请帮我把这段API文档翻译成英�?,
                 expectedSkill: 'translation',
                 expectedParams: { to: 'en', text: '这段API文档' }
             },
@@ -113,10 +113,10 @@ async function testEndToEndScenarios() {
 
             if (result.success &&
                 result.skill === scenario.expectedSkill) {
-                console.log(`✅ Passed: Detected ${result.skill} with confidence ${result.confidence}`);
+                console.log(`�?Passed: Detected ${result.skill} with confidence ${result.confidence}`);
                 passed++;
             } else {
-                console.log(`❌ Failed: Expected ${scenario.expectedSkill}, got ${result.skill || 'none'}`);
+                console.log(`�?Failed: Expected ${scenario.expectedSkill}, got ${result.skill || 'none'}`);
             }
         }
 
@@ -124,7 +124,7 @@ async function testEndToEndScenarios() {
         return passed === scenarios.length;
 
     } catch (error) {
-        console.log(`❌ End-to-end scenarios test failed: ${error.message}`);
+        console.log(`�?End-to-end scenarios test failed: ${error.message}`);
         return false;
     }
 }
@@ -157,7 +157,7 @@ async function runTests() {
 
     if (passed === total) {
         console.log('🎉 All integration tests passed!');
-        console.log('✅ Natural language skills integration is ready for CLI tools!');
+        console.log('�?Natural language skills integration is ready for CLI tools!');
     } else {
         console.log('⚠️  Some integration tests failed. Review implementation.');
     }

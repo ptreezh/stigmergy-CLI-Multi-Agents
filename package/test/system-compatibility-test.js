@@ -89,13 +89,13 @@ class SystemCompatibilityTest {
                 }
 
                 if (result.status === 0) {
-                    console.log(`  âœ… ${tool.name}: Available`);
+                    console.log(`  âœ?${tool.name}: Available`);
                     availableTools++;
                 } else {
-                    console.log(`  âŒ ${tool.name}: Not found`);
+                    console.log(`  â?${tool.name}: Not found`);
                 }
             } catch (error) {
-                console.log(`  â“ ${tool.name}: Check failed - ${error.message}`);
+                console.log(`  â?${tool.name}: Check failed - ${error.message}`);
             }
         }
 
@@ -140,13 +140,13 @@ class SystemCompatibilityTest {
                     file.includes('skill-forced-eval') || file.includes('hook')
                 );
                 if (hookFiles.length > 0) {
-                    console.log(`  âœ… ${hookDir}: ${hookFiles.length} hook files found`);
+                    console.log(`  âœ?${hookDir}: ${hookFiles.length} hook files found`);
                     installedHooks++;
                 } else {
                     console.log(`  âš ï¸  ${hookDir}: No hook files found`);
                 }
             } else {
-                console.log(`  âŒ ${hookDir}: Directory does not exist`);
+                console.log(`  â?${hookDir}: Directory does not exist`);
             }
         }
 
@@ -156,7 +156,7 @@ class SystemCompatibilityTest {
         try {
             const testHook = path.join(os.homedir(), '.claude', 'hooks', 'skill-forced-eval-hook.sh');
             if (fs.existsSync(testHook)) {
-                console.log('  âœ… Hook files are executable');
+                console.log('  âœ?Hook files are executable');
                 console.log('  âš ï¸  Note: Hooks are in simulation mode, not real AI tool integration');
                 this.issues.push({
                     severity: 'LOW',
@@ -166,7 +166,7 @@ class SystemCompatibilityTest {
                 });
             }
         } catch (error) {
-            console.log(`  âŒ Hook execution test failed: ${error.message}`);
+            console.log(`  â?Hook execution test failed: ${error.message}`);
         }
 
         if (installedHooks > 0) {
@@ -192,12 +192,12 @@ class SystemCompatibilityTest {
             });
 
             if (skillsResult.status === 0) {
-                console.log('  âœ… Skills list command works');
+                console.log('  âœ?Skills list command works');
                 const output = skillsResult.stdout;
                 const skillCount = (output.match(/ðŸ“.*?\(/g) || []).length;
-                console.log(`  âœ… Skills listed: ${skillCount} skills found`);
+                console.log(`  âœ?Skills listed: ${skillCount} skills found`);
             } else {
-                console.log('  âŒ Skills list command failed');
+                console.log('  â?Skills list command failed');
             }
 
             // Test skills execution
@@ -209,13 +209,13 @@ class SystemCompatibilityTest {
             });
 
             if (execResult.status === 0) {
-                console.log('  âœ… Skills execution works (simulation mode)');
+                console.log('  âœ?Skills execution works (simulation mode)');
                 this.capabilities.push({
                     category: 'SKILLS_SYSTEM',
                     description: 'Skills system functional with 6 built-in skills'
                 });
             } else {
-                console.log('  âŒ Skills execution failed');
+                console.log('  â?Skills execution failed');
                 this.issues.push({
                     severity: 'HIGH',
                     category: 'BUG',
@@ -225,7 +225,7 @@ class SystemCompatibilityTest {
             }
 
         } catch (error) {
-            console.log(`  âŒ Skills system test failed: ${error.message}`);
+            console.log(`  â?Skills system test failed: ${error.message}`);
             this.issues.push({
                 severity: 'HIGH',
                 category: 'ERROR',
@@ -245,7 +245,7 @@ class SystemCompatibilityTest {
         // Check file encoding
         const skillsFiles = [
             'package/src/skills/skills-manager.js',
-            'package/src/main.js',
+            'package/src/index.js',
             'hooks/install-hooks.js'
         ];
 
@@ -258,7 +258,7 @@ class SystemCompatibilityTest {
                     console.log(`  âš ï¸  ${file}: Contains non-ANSI characters`);
                     encodingIssues++;
                 } else {
-                    console.log(`  âœ… ${file}: Pure ANSI encoding`);
+                    console.log(`  âœ?${file}: Pure ANSI encoding`);
                 }
             }
         }
@@ -282,7 +282,7 @@ class SystemCompatibilityTest {
             const skillsManagerPath = path.join(this.projectRoot, 'src', 'skills', 'skills-manager.js');
             if (fs.existsSync(skillsManagerPath)) {
                 require(skillsManagerPath);
-                console.log('  âœ… ES6 modules work correctly');
+                console.log('  âœ?ES6 modules work correctly');
             } else {
                 console.log('  âš ï¸  Skills manager module not found at expected location');
                 this.issues.push({
@@ -293,7 +293,7 @@ class SystemCompatibilityTest {
                 });
             }
         } catch (error) {
-            console.log(`  âŒ ES6 module import failed: ${error.message}`);
+            console.log(`  â?ES6 module import failed: ${error.message}`);
             this.issues.push({
                 severity: 'HIGH',
                 category: 'COMPATIBILITY',
@@ -311,21 +311,21 @@ class SystemCompatibilityTest {
         console.log('Scenario 1: Code Review Workflow');
         console.log('  User: "Please review this React component for security issues"');
         console.log('  Expected: Hook should detect code-analysis need');
-        console.log('  Current: âŒ Hook system not integrated with real AI tools');
+        console.log('  Current: â?Hook system not integrated with real AI tools');
         console.log('');
 
         // Scenario 2: Translation workflow
         console.log('Scenario 2: Translation Workflow');
         console.log('  User: "Translate this comment to English"');
         console.log('  Expected: Should trigger translation skill suggestion');
-        console.log('  Current: âŒ No real AI tool integration for automatic triggering');
+        console.log('  Current: â?No real AI tool integration for automatic triggering');
         console.log('');
 
         // Scenario 3: Skills marketplace
         console.log('Scenario 3: Skills Marketplace');
         console.log('  Action: Install new skill from community repository');
         console.log('  Expected: Should load external skills');
-        console.log('  Current: âœ… External skill loading simulation works');
+        console.log('  Current: âœ?External skill loading simulation works');
         console.log('');
 
         this.issues.push({
@@ -355,9 +355,9 @@ class SystemCompatibilityTest {
 
         // Capabilities
         if (this.capabilities.length > 0) {
-            console.log('âœ… WORKING FEATURES:');
+            console.log('âœ?WORKING FEATURES:');
             this.capabilities.forEach(cap => {
-                console.log(`  â€¢ ${cap.category}: ${cap.description}`);
+                console.log(`  â€?${cap.category}: ${cap.description}`);
             });
         }
 
@@ -365,7 +365,7 @@ class SystemCompatibilityTest {
 
         // Issues
         if (this.issues.length > 0) {
-            console.log('âŒ IDENTIFIED ISSUES:');
+            console.log('â?IDENTIFIED ISSUES:');
             console.log('');
 
             // Group by severity
@@ -376,7 +376,7 @@ class SystemCompatibilityTest {
             if (highSeverity.length > 0) {
                 console.log('ðŸ”´ HIGH SEVERITY:');
                 highSeverity.forEach(issue => {
-                    console.log(`   â€¢ ${issue.description} (${issue.component})`);
+                    console.log(`   â€?${issue.description} (${issue.component})`);
                 });
                 console.log('');
             }
@@ -384,7 +384,7 @@ class SystemCompatibilityTest {
             if (mediumSeverity.length > 0) {
                 console.log('ðŸŸ¡ MEDIUM SEVERITY:');
                 mediumSeverity.forEach(issue => {
-                    console.log(`   â€¢ ${issue.description} (${issue.component})`);
+                    console.log(`   â€?${issue.description} (${issue.component})`);
                     if (issue.impact) {
                         console.log(`     Impact: ${issue.impact}`);
                     }
@@ -395,7 +395,7 @@ class SystemCompatibilityTest {
             if (lowSeverity.length > 0) {
                 console.log('ðŸŸ¡ LOW SEVERITY:');
                 lowSeverity.forEach(issue => {
-                    console.log(`   â€¢ ${issue.description} (${issue.component})`);
+                    console.log(`   â€?${issue.description} (${issue.component})`);
                     if (issue.recommendation) {
                         console.log(`     Recommendation: ${issue.recommendation}`);
                     }
@@ -415,7 +415,7 @@ class SystemCompatibilityTest {
         const totalIssues = this.issues.length;
 
         if (criticalIssues.length > 0) {
-            console.log(`âŒ SYSTEM NOT READY FOR PRODUCTION`);
+            console.log(`â?SYSTEM NOT READY FOR PRODUCTION`);
             console.log(`   ${criticalIssues.length} critical issues must be resolved`);
             console.log(`   System requires fixes before deployment`);
         } else if (totalIssues > 3) {
@@ -423,7 +423,7 @@ class SystemCompatibilityTest {
             console.log(`   ${totalIssues} issues found, but system is functional`);
             console.log(`   Consider addressing issues for better experience`);
         } else {
-            console.log('âœ… SYSTEM READY FOR TESTING');
+            console.log('âœ?SYSTEM READY FOR TESTING');
             console.log(`   ${totalIssues} minor issues found, system is functional`);
             console.log(`   Suitable for development and demonstration`);
         }
@@ -444,17 +444,17 @@ class SystemCompatibilityTest {
         }
 
         console.log('2. ENHANCE USER EXPERIENCE:');
-        console.log('   â€¢ Fix tool selection logic in handleSkillsCommand');
-        console.log('   â€¢ Integrate hooks with real AI tool execution');
-        console.log('   â€¢ Add automatic skill triggering for common patterns');
-        console.log('   â€¢ Implement real AI tool calling (remove simulation mode)');
+        console.log('   â€?Fix tool selection logic in handleSkillsCommand');
+        console.log('   â€?Integrate hooks with real AI tool execution');
+        console.log('   â€?Add automatic skill triggering for common patterns');
+        console.log('   â€?Implement real AI tool calling (remove simulation mode)');
         console.log('');
 
         console.log('3. EXPAND THIRD-PARTY INTEGRATION:');
-        console.log('   â€¢ Implement actual GitHub repository cloning for skills');
-        console.log('   â€¢ Add skill validation and security checking');
-        console.log('   â€¢ Create skill marketplace with rating system');
-        console.log('   â€¢ Support skill version management and updates');
+        console.log('   â€?Implement actual GitHub repository cloning for skills');
+        console.log('   â€?Add skill validation and security checking');
+        console.log('   â€?Create skill marketplace with rating system');
+        console.log('   â€?Support skill version management and updates');
     }
 }
 

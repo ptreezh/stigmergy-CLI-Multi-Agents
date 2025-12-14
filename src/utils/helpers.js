@@ -31,5 +31,5 @@ function isAuthenticated() {
 
 module.exports = {
   maxOfTwo,
-  isAuthenticated
+  isAuthenticated,
 };

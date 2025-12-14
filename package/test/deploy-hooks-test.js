@@ -41,12 +41,12 @@ class DeployHooksTester {
                     
                     for (const expectedFile of files) {
                         if (!dirFiles.includes(expectedFile)) {
-                            console.log(`  âœ— Missing file: ${expectedFile} in ${tool}`);
+                            console.log(`  âœ?Missing file: ${expectedFile} in ${tool}`);
                             allFilesExist = false;
                         }
                     }
                 } catch (error) {
-                    console.log(`  âœ— Cannot access ${tool} adapter directory: ${error.message}`);
+                    console.log(`  âœ?Cannot access ${tool} adapter directory: ${error.message}`);
                     allFilesExist = false;
                 }
             }
@@ -59,7 +59,7 @@ class DeployHooksTester {
             
             return allFilesExist;
         } catch (error) {
-            console.log(`  âœ— Failed to check adapter files: ${error.message}`);
+            console.log(`  âœ?Failed to check adapter files: ${error.message}`);
             this.testResults.push({
                 name: 'Adapter File Copy',
                 passed: false,
@@ -77,7 +77,7 @@ class DeployHooksTester {
             // Check if post-deployment config script exists
             const postDeployScript = path.join(__dirname, '..', 'scripts', 'post-deployment-config.js');
             await fs.access(postDeployScript);
-            console.log('  âœ“ Post-deployment config script exists');
+            console.log('  âœ?Post-deployment config script exists');
             
             // Try to import and test the PostDeploymentConfigurer
             const { PostDeploymentConfigurer } = require('../scripts/post-deployment-config.js');
@@ -85,7 +85,7 @@ class DeployHooksTester {
             
             // Test checking install script for a tool
             const scriptCheck = await configurer.checkInstallScript('iflow');
-            console.log(`  iFlow install script check: ${scriptCheck.exists ? 'âœ“ Found' : 'âœ— Not found'}`);
+            console.log(`  iFlow install script check: ${scriptCheck.exists ? 'âœ?Found' : 'âœ?Not found'}`);
             console.log(`  Script path: ${scriptCheck.path}`);
             
             this.testResults.push({
@@ -96,7 +96,7 @@ class DeployHooksTester {
             
             return scriptCheck.exists;
         } catch (error) {
-            console.log(`  âœ— Failed to test installation script execution: ${error.message}`);
+            console.log(`  âœ?Failed to test installation script execution: ${error.message}`);
             this.testResults.push({
                 name: 'Installation Script Execution',
                 passed: false,
@@ -122,10 +122,10 @@ class DeployHooksTester {
             for (const configPath of configPaths) {
                 try {
                     await fs.access(configPath);
-                    console.log(`  âœ“ Configuration found: ${configPath}`);
+                    console.log(`  âœ?Configuration found: ${configPath}`);
                     configsFound++;
                 } catch (error) {
-                    console.log(`  âœ— Configuration not found: ${configPath}`);
+                    console.log(`  âœ?Configuration not found: ${configPath}`);
                 }
             }
             
@@ -138,7 +138,7 @@ class DeployHooksTester {
             
             return passed;
         } catch (error) {
-            console.log(`  âœ— Failed to check hook configurations: ${error.message}`);
+            console.log(`  âœ?Failed to check hook configurations: ${error.message}`);
             this.testResults.push({
                 name: 'Hook Configuration Creation',
                 passed: false,
@@ -154,12 +154,12 @@ class DeployHooksTester {
         
         try {
             // Try to import and test the deployHooks function
-            const { StigmergyInstaller } = require('../src/main_english.js');
+            const StigmergyInstaller = require('../src/core/installer');
             const installer = new StigmergyInstaller();
             
             // Check if deployHooks method exists
             if (typeof installer.deployHooks === 'function') {
-                console.log('  âœ“ deployHooks method exists');
+                console.log('  âœ?deployHooks method exists');
                 
                 this.testResults.push({
                     name: 'DeployHooks Integration',
@@ -169,7 +169,7 @@ class DeployHooksTester {
                 
                 return true;
             } else {
-                console.log('  âœ— deployHooks method not found');
+                console.log('  âœ?deployHooks method not found');
                 
                 this.testResults.push({
                     name: 'DeployHooks Integration',
@@ -180,7 +180,7 @@ class DeployHooksTester {
                 return false;
             }
         } catch (error) {
-            console.log(`  âœ— Failed to test deployHooks integration: ${error.message}`);
+            console.log(`  âœ?Failed to test deployHooks integration: ${error.message}`);
             this.testResults.push({
                 name: 'DeployHooks Integration',
                 passed: false,
@@ -207,18 +207,18 @@ class DeployHooksTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All tests passed! deployHooks functionality is working correctly.');
+            console.log('âœ?All tests passed! deployHooks functionality is working correctly.');
         } else if (passedTests > 0) {
-            console.log('âš  Some tests failed. deployHooks functionality needs improvement.');
+            console.log('âš?Some tests failed. deployHooks functionality needs improvement.');
         } else {
-            console.log('âœ— All tests failed. deployHooks functionality is not working.');
+            console.log('âœ?All tests failed. deployHooks functionality is not working.');
         }
         
         return {

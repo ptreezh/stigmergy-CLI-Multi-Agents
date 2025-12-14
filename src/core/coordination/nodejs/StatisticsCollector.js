@@ -16,11 +16,11 @@ class StatisticsCollector {
       cross_cli_calls: 0,
       successful_calls: 0,
       failed_calls: 0,
-      adapter_loads: 0
+      adapter_loads: 0,
     };
     this.timings = {
       execution_times: [],
-      last_reset: Date.now()
+      last_reset: Date.now(),
     };
   }
 
@@ -41,7 +41,7 @@ class StatisticsCollector {
       calls: this.counters.cross_cli_calls,
       successRate: this.calculateSuccessRate(),
       averageExecutionTime: this.calculateAverageExecutionTime(),
-      uptime: Date.now() - this.startTime
+      uptime: Date.now() - this.startTime,
     };
   }
 
@@ -50,9 +50,9 @@ class StatisticsCollector {
       counters: this.counters,
       timings: {
         ...this.timings,
-        averageExecutionTime: this.calculateAverageExecutionTime()
+        averageExecutionTime: this.calculateAverageExecutionTime(),
       },
-      uptime: Date.now() - this.startTime
+      uptime: Date.now() - this.startTime,
     };
   }
 

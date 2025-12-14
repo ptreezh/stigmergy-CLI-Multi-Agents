@@ -17,12 +17,12 @@ try {
   const sum = calc.add(5, 3);
   console.log(`calc.add(5, 3) = ${sum}`);
   if (sum === 8) {
-    console.log("‚úÖ Addition test passed");
+    console.log("‚ú?Addition test passed");
   } else {
-    console.log("‚ùå Addition test failed");
+    console.log("‚ù?Addition test failed");
   }
 } catch (error) {
-  console.log("‚ùå Addition test failed with error:", error.message);
+  console.log("‚ù?Addition test failed with error:", error.message);
 }
 
 // Test subtraction
@@ -31,12 +31,12 @@ try {
   const difference = calc.subtract(10, 4);
   console.log(`calc.subtract(10, 4) = ${difference}`);
   if (difference === 6) {
-    console.log("‚úÖ Subtraction test passed");
+    console.log("‚ú?Subtraction test passed");
   } else {
-    console.log("‚ùå Subtraction test failed");
+    console.log("‚ù?Subtraction test failed");
   }
 } catch (error) {
-  console.log("‚ùå Subtraction test failed with error:", error.message);
+  console.log("‚ù?Subtraction test failed with error:", error.message);
 }
 
 // Test multiplication
@@ -45,12 +45,12 @@ try {
   const product = calc.multiply(6, 7);
   console.log(`calc.multiply(6, 7) = ${product}`);
   if (product === 42) {
-    console.log("‚úÖ Multiplication test passed");
+    console.log("‚ú?Multiplication test passed");
   } else {
-    console.log("‚ùå Multiplication test failed");
+    console.log("‚ù?Multiplication test failed");
   }
 } catch (error) {
-  console.log("‚ùå Multiplication test failed with error:", error.message);
+  console.log("‚ù?Multiplication test failed with error:", error.message);
 }
 
 // Test division
@@ -59,21 +59,21 @@ try {
   const quotient = calc.divide(15, 3);
   console.log(`calc.divide(15, 3) = ${quotient}`);
   if (quotient === 5) {
-    console.log("‚úÖ Division test passed");
+    console.log("‚ú?Division test passed");
   } else {
-    console.log("‚ùå Division test failed");
+    console.log("‚ù?Division test failed");
   }
 } catch (error) {
-  console.log("‚ùå Division test failed with error:", error.message);
+  console.log("‚ù?Division test failed with error:", error.message);
 }
 
 // Test division by zero
 console.log("\n1.5 Testing division by zero:");
 try {
   calc.divide(10, 0);
-  console.log("‚ùå Division by zero test failed - should have thrown an error");
+  console.log("‚ù?Division by zero test failed - should have thrown an error");
 } catch (error) {
-  console.log("‚úÖ Division by zero correctly threw error:", error.message);
+  console.log("‚ú?Division by zero correctly threw error:", error.message);
 }
 
 // Test power function
@@ -82,12 +82,12 @@ try {
   const powerResult = calc.power(2, 3);
   console.log(`calc.power(2, 3) = ${powerResult}`);
   if (powerResult === 8) {
-    console.log("‚úÖ Power test passed");
+    console.log("‚ú?Power test passed");
   } else {
-    console.log("‚ùå Power test failed");
+    console.log("‚ù?Power test failed");
   }
 } catch (error) {
-  console.log("‚ùå Power test failed with error:", error.message);
+  console.log("‚ù?Power test failed with error:", error.message);
 }
 
 // Test square root
@@ -96,21 +96,21 @@ try {
   const sqrtResult = calc.sqrt(16);
   console.log(`calc.sqrt(16) = ${sqrtResult}`);
   if (sqrtResult === 4) {
-    console.log("‚úÖ Square root test passed");
+    console.log("‚ú?Square root test passed");
   } else {
-    console.log("‚ùå Square root test failed");
+    console.log("‚ù?Square root test failed");
   }
 } catch (error) {
-  console.log("‚ùå Square root test failed with error:", error.message);
+  console.log("‚ù?Square root test failed with error:", error.message);
 }
 
 // Test square root of negative number
 console.log("\n1.8 Testing square root of negative number:");
 try {
   calc.sqrt(-4);
-  console.log("‚ùå Square root of negative number test failed - should have thrown an error");
+  console.log("‚ù?Square root of negative number test failed - should have thrown an error");
 } catch (error) {
-  console.log("‚úÖ Square root of negative number correctly threw error:", error.message);
+  console.log("‚ú?Square root of negative number correctly threw error:", error.message);
 }
 
 // Test factorial
@@ -119,12 +119,12 @@ try {
   const factorialResult = calc.factorial(5);
   console.log(`calc.factorial(5) = ${factorialResult}`);
   if (factorialResult === 120) {
-    console.log("‚úÖ Factorial test passed");
+    console.log("‚ú?Factorial test passed");
   } else {
-    console.log("‚ùå Factorial test failed");
+    console.log("‚ù?Factorial test failed");
   }
 } catch (error) {
-  console.log("‚ùå Factorial test failed with error:", error.message);
+  console.log("‚ù?Factorial test failed with error:", error.message);
 }
 
 // Test factorial of 0
@@ -133,21 +133,21 @@ try {
   const factorialZero = calc.factorial(0);
   console.log(`calc.factorial(0) = ${factorialZero}`);
   if (factorialZero === 1) {
-    console.log("‚úÖ Factorial of 0 test passed");
+    console.log("‚ú?Factorial of 0 test passed");
   } else {
-    console.log("‚ùå Factorial of 0 test failed");
+    console.log("‚ù?Factorial of 0 test failed");
   }
 } catch (error) {
-  console.log("‚ùå Factorial of 0 test failed with error:", error.message);
+  console.log("‚ù?Factorial of 0 test failed with error:", error.message);
 }
 
 // Test factorial of negative number
 console.log("\n1.11 Testing factorial of negative number:");
 try {
   calc.factorial(-5);
-  console.log("‚ùå Factorial of negative number test failed - should have thrown an error");
+  console.log("‚ù?Factorial of negative number test failed - should have thrown an error");
 } catch (error) {
-  console.log("‚úÖ Factorial of negative number correctly threw error:", error.message);
+  console.log("‚ú?Factorial of negative number correctly threw error:", error.message);
 }
 
 // Test percentage
@@ -156,21 +156,21 @@ try {
   const percentageResult = calc.percentage(25, 100);
   console.log(`calc.percentage(25, 100) = ${percentageResult}%`);
   if (percentageResult === 25) {
-    console.log("‚úÖ Percentage test passed");
+    console.log("‚ú?Percentage test passed");
   } else {
-    console.log("‚ùå Percentage test failed");
+    console.log("‚ù?Percentage test failed");
   }
 } catch (error) {
-  console.log("‚ùå Percentage test failed with error:", error.message);
+  console.log("‚ù?Percentage test failed with error:", error.message);
 }
 
 // Test percentage with zero as whole
 console.log("\n1.13 Testing percentage with zero as whole:");
 try {
   calc.percentage(50, 0);
-  console.log("‚ùå Percentage with zero as whole test failed - should have thrown an error");
+  console.log("‚ù?Percentage with zero as whole test failed - should have thrown an error");
 } catch (error) {
-  console.log("‚úÖ Percentage with zero as whole correctly threw error:", error.message);
+  console.log("‚ú?Percentage with zero as whole correctly threw error:", error.message);
 }
 
 // Test calculation chain
@@ -182,20 +182,20 @@ try {
   console.log(`calc.chain(10).add(5).multiply(2).subtract(4).divide(2).equals() = ${chainResult}`);
   // ((10 + 5) * 2 - 4) / 2 = (30 - 4) / 2 = 26 / 2 = 13
   if (chainResult === 13) {
-    console.log("‚úÖ Chain operations test passed");
+    console.log("‚ú?Chain operations test passed");
   } else {
-    console.log("‚ùå Chain operations test failed");
+    console.log("‚ù?Chain operations test failed");
   }
 } catch (error) {
-  console.log("‚ùå Chain operations test failed with error:", error.message);
+  console.log("‚ù?Chain operations test failed with error:", error.message);
 }
 
 console.log("\n2.2 Testing chain division by zero:");
 try {
   calc.chain(10).divide(0);
-  console.log("‚ùå Chain division by zero test failed - should have thrown an error");
+  console.log("‚ù?Chain division by zero test failed - should have thrown an error");
 } catch (error) {
-  console.log("‚úÖ Chain division by zero correctly threw error:", error.message);
+  console.log("‚ú?Chain division by zero correctly threw error:", error.message);
 }
 
 console.log("\n2.3 Testing chain value method:");
@@ -204,12 +204,12 @@ try {
   const currentValue = chain.value();
   console.log(`calc.chain(5).add(3).value() = ${currentValue}`);
   if (currentValue === 8) {
-    console.log("‚úÖ Chain value method test passed");
+    console.log("‚ú?Chain value method test passed");
   } else {
-    console.log("‚ùå Chain value method test failed");
+    console.log("‚ù?Chain value method test failed");
   }
 } catch (error) {
-  console.log("‚ùå Chain value method test failed with error:", error.message);
+  console.log("‚ù?Chain value method test failed with error:", error.message);
 }
 
-console.log("\n‚úÖ All Calculator tests completed!");
+console.log("\n‚ú?All Calculator tests completed!");

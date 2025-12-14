@@ -17,7 +17,7 @@ class EnhancedUninstaller {
       force: options.force || false,
       verbose: options.verbose || false,
       preserveUserConfigs: options.preserveUserConfigs || false,
-      ...options
+      ...options,
     };
 
     this.homeDir = os.homedir();
@@ -25,15 +25,22 @@ class EnhancedUninstaller {
     this.stigmergyTestDir = path.join(this.homeDir, '.stigmergy-test');
 
     this.supportedCLIs = [
-      'claude', 'gemini', 'qwen', 'iflow', 'qodercli',
-      'codebuddy', 'codex', 'copilot', 'qwencode'
+      'claude',
+      'gemini',
+      'qwen',
+      'iflow',
+      'qodercli',
+      'codebuddy',
+      'codex',
+      'copilot',
+      'qwencode',
     ];
 
     this.results = {
       filesRemoved: 0,
       directoriesRemoved: 0,
       errors: [],
-      skipped: []
+      skipped: [],
     };
   }
 
@@ -41,7 +48,7 @@ class EnhancedUninstaller {
    * Perform complete uninstallation
    */
   async completeUninstall() {
-    console.log('ðŸ—‘ï¸  Starting Enhanced Stigmergy Uninstall...\n');
+    console.log('ðŸ—‘ï¸? Starting Enhanced Stigmergy Uninstall...\n');
 
     if (this.options.dryRun) {
       console.log('ðŸ” DRY RUN MODE - No files will be deleted\n');
@@ -72,9 +79,8 @@ class EnhancedUninstaller {
       this.printSummary();
 
       return this.results;
-
     } catch (error) {
-      console.error('âŒ Uninstall failed:', error.message);
+      console.error('â?Uninstall failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -91,7 +97,7 @@ class EnhancedUninstaller {
       files: [],
       globalPackages: [],
       cliConfigurations: [],
-      estimatedSize: 0
+      estimatedSize: 0,
     };
 
     // Scan Stigmergy directory
@@ -111,7 +117,7 @@ class EnhancedUninstaller {
         const stigmergyFiles = await this.findStigmergyFiles(cliConfig);
         plan.cliConfigurations.push({
           cli,
-          files: stigmergyFiles
+          files: stigmergyFiles,
         });
       }
     }
@@ -120,7 +126,7 @@ class EnhancedUninstaller {
     plan.estimatedSize = await this.calculateDirectorySize([
       this.stigmergyDir,
       this.stigmergyTestDir,
-      ...plan.cliConfigurations.flatMap(c => c.files)
+      ...plan.cliConfigurations.flatMap((c) => c.files),
     ]);
 
     return plan;
@@ -147,11 +153,13 @@ class EnhancedUninstaller {
 
     try {
       await this.removeDirectory(this.stigmergyDir);
-      console.log(`  âœ… Removed ${files.length} files and directories`);
+      console.log(`  âœ?Removed ${files.length} files and directories`);
       this.results.filesRemoved += files.length;
       this.results.directoriesRemoved++;
     } catch (error) {
-      console.error(`  âŒ Failed to remove Stigmergy directory: ${error.message}`);
+      console.error(
+        `  â?Failed to remove Stigmergy directory: ${error.message}`,
+      );
       this.results.errors.push(`Stigmergy directory: ${error.message}`);
     }
   }
@@ -174,10 +182,10 @@ class EnhancedUninstaller {
 
     try {
       await this.removeDirectory(this.stigmergyTestDir);
-      console.log('  âœ… Removed test directory');
+      console.log('  âœ?Removed test directory');
       this.results.directoriesRemoved++;
     } catch (error) {
-      console.error(`  âŒ Failed to remove test directory: ${error.message}`);
+      console.error(`  â?Failed to remove test directory: ${error.message}`);
       this.results.errors.push(`Test directory: ${error.message}`);
     }
   }
@@ -215,15 +223,15 @@ class EnhancedUninstaller {
           await this.removeFile(file);
           totalCleaned++;
         }
-        console.log(`    âœ… Cleaned ${stigmergyFiles.length} files`);
+        console.log(`    âœ?Cleaned ${stigmergyFiles.length} files`);
       } catch (error) {
-        console.error(`    âŒ Failed to clean ${cli}: ${error.message}`);
+        console.error(`    â?Failed to clean ${cli}: ${error.message}`);
         this.results.errors.push(`${cli} config: ${error.message}`);
       }
     }
 
     if (!this.options.dryRun && totalCleaned > 0) {
-      console.log(`  âœ… Cleaned ${totalCleaned} CLI configuration files`);
+      console.log(`  âœ?Cleaned ${totalCleaned} CLI configuration files`);
       this.results.filesRemoved += totalCleaned;
     }
   }
@@ -241,7 +249,9 @@ class EnhancedUninstaller {
       return;
     }
 
-    console.log(`  ðŸ“¦ Found ${npxCacheDirs.length} Stigmergy entries in NPX cache`);
+    console.log(
+      `  ðŸ“¦ Found ${npxCacheDirs.length} Stigmergy entries in NPX cache`,
+    );
 
     if (this.options.dryRun) {
       this.logFiles(npxCacheDirs, '  ðŸ” ');
@@ -254,13 +264,13 @@ class EnhancedUninstaller {
         await this.removeDirectory(cacheDir);
         removed++;
       } catch (error) {
-        console.error(`    âŒ Failed to remove ${cacheDir}: ${error.message}`);
+        console.error(`    â?Failed to remove ${cacheDir}: ${error.message}`);
         this.results.errors.push(`NPX cache: ${error.message}`);
       }
     }
 
     if (removed > 0) {
-      console.log(`  âœ… Removed ${removed} NPX cache entries`);
+      console.log(`  âœ?Removed ${removed} NPX cache entries`);
       this.results.directoriesRemoved += removed;
     }
   }
@@ -269,11 +279,11 @@ class EnhancedUninstaller {
    * Clean temporary files
    */
   async cleanTemporaryFiles() {
-    console.log('ðŸ—‘ï¸  Cleaning temporary files...');
+    console.log('ðŸ—‘ï¸? Cleaning temporary files...');
 
     const tempDirs = [
       path.join(os.tmpdir()),
-      path.join(this.homeDir, 'AppData', 'Local', 'Temp')
+      path.join(this.homeDir, 'AppData', 'Local', 'Temp'),
     ];
 
     let totalRemoved = 0;
@@ -297,17 +307,18 @@ class EnhancedUninstaller {
         }
 
         if (tempFiles.length > 0) {
-          console.log(`  âœ… ${path.basename(tempDir)}: removed ${tempFiles.length} files`);
+          console.log(
+            `  âœ?${path.basename(tempDir)}: removed ${tempFiles.length} files`,
+          );
         }
-
       } catch (error) {
-        console.error(`  âŒ Failed to clean ${tempDir}: ${error.message}`);
+        console.error(`  â?Failed to clean ${tempDir}: ${error.message}`);
         this.results.errors.push(`Temp files: ${error.message}`);
       }
     }
 
     if (!this.options.dryRun && totalRemoved > 0) {
-      console.log(`  âœ… Removed ${totalRemoved} temporary files`);
+      console.log(`  âœ?Removed ${totalRemoved} temporary files`);
       this.results.filesRemoved += totalRemoved;
     }
   }
@@ -318,16 +329,13 @@ class EnhancedUninstaller {
   async uninstallGlobalPackages() {
     console.log('ðŸŒ Uninstalling global packages...');
 
-    const globalPackages = [
-      'stigmergy-cli',
-      'stigmergy'
-    ];
+    const globalPackages = ['stigmergy-cli', 'stigmergy'];
 
     for (const pkg of globalPackages) {
       try {
         const result = spawnSync('npm', ['list', '-g', pkg], {
           encoding: 'utf8',
-          shell: true
+          shell: true,
         });
 
         if (result.status === 0 && result.stdout.includes(pkg)) {
@@ -341,17 +349,17 @@ class EnhancedUninstaller {
           const uninstallResult = spawnSync('npm', ['uninstall', '-g', pkg], {
             encoding: 'utf8',
             shell: true,
-            stdio: 'inherit'
+            stdio: 'inherit',
           });
 
           if (uninstallResult.status === 0) {
-            console.log(`    âœ… Uninstalled: ${pkg}`);
+            console.log(`    âœ?Uninstalled: ${pkg}`);
           } else {
             console.log(`    âš ï¸  Failed to uninstall: ${pkg}`);
           }
         }
       } catch (error) {
-        console.error(`  âŒ Error checking ${pkg}: ${error.message}`);
+        console.error(`  â?Error checking ${pkg}: ${error.message}`);
       }
     }
   }
@@ -412,7 +420,7 @@ class EnhancedUninstaller {
         const stat = fs.statSync(fullPath);
 
         if (stat.isDirectory()) {
-          files.push(...await this.getAllFiles(fullPath));
+          files.push(...(await this.getAllFiles(fullPath)));
           files.push(fullPath);
         } else {
           files.push(fullPath);
@@ -437,7 +445,7 @@ class EnhancedUninstaller {
         const fullPath = path.join(dirPath, file.name);
 
         if (file.isDirectory()) {
-          stigmergyFiles.push(...await this.findStigmergyFiles(fullPath));
+          stigmergyFiles.push(...(await this.findStigmergyFiles(fullPath)));
         } else if (this.isStigmergyFile(file.name)) {
           stigmergyFiles.push(fullPath);
         }
@@ -455,24 +463,30 @@ class EnhancedUninstaller {
       'cross-cli',
       'hook',
       'integration',
-      '.stigmergy'
+      '.stigmergy',
     ];
 
     const lowerFileName = fileName.toLowerCase();
-    return stigmergyPatterns.some(pattern =>
-      lowerFileName.includes(pattern.toLowerCase())
+    return stigmergyPatterns.some((pattern) =>
+      lowerFileName.includes(pattern.toLowerCase()),
     );
   }
 
   async findNPXCacheDirectories() {
     const cacheDirs = [];
-    const npxCacheBase = path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_npx');
+    const npxCacheBase = path.join(
+      this.homeDir,
+      'AppData',
+      'Local',
+      'npm-cache',
+      '_npx',
+    );
 
     if (!fs.existsSync(npxCacheBase)) {
       // Try alternative locations
       const alternatives = [
         path.join(this.homeDir, '.npm', '_npx'),
-        path.join(os.tmpdir(), 'npm-cache', '_npx')
+        path.join(os.tmpdir(), 'npm-cache', '_npx'),
       ];
 
       for (const alt of alternatives) {
@@ -489,7 +503,11 @@ class EnhancedUninstaller {
 
         for (const entry of entries) {
           const entryPath = path.join(npxCacheBase, entry);
-          const stigmergyPath = path.join(entryPath, 'node_modules', 'stigmergy');
+          const stigmergyPath = path.join(
+            entryPath,
+            'node_modules',
+            'stigmergy',
+          );
 
           if (fs.existsSync(stigmergyPath)) {
             cacheDirs.push(entryPath);
@@ -510,9 +528,11 @@ class EnhancedUninstaller {
       const files = fs.readdirSync(tempDir, { withFileTypes: true });
 
       for (const file of files) {
-        if (this.isStigmergyFile(file.name) ||
-            file.name.startsWith('stigmergy-') ||
-            file.name.includes('stigmergy')) {
+        if (
+          this.isStigmergyFile(file.name) ||
+          file.name.startsWith('stigmergy-') ||
+          file.name.includes('stigmergy')
+        ) {
           const fullPath = path.join(tempDir, file.name);
 
           if (file.isDirectory()) {
@@ -575,18 +595,18 @@ class EnhancedUninstaller {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   logFiles(files, prefix = '') {
-    files.forEach(file => {
+    files.forEach((file) => {
       console.log(`${prefix}${path.basename(file)}`);
     });
   }
 
   printSummary() {
     console.log('\nðŸ“Š UNINSTALL SUMMARY:');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
     if (this.options.dryRun) {
       console.log('ðŸ” DRY RUN MODE - No files were actually deleted');
@@ -598,20 +618,20 @@ class EnhancedUninstaller {
     if (this.results.skipped.length > 0) {
       console.log(`â­ï¸  Items skipped: ${this.results.skipped.length}`);
       if (this.options.verbose) {
-        this.results.skipped.forEach(item => {
+        this.results.skipped.forEach((item) => {
           console.log(`    ${item}`);
         });
       }
     }
 
     if (this.results.errors.length > 0) {
-      console.log(`âŒ Errors: ${this.results.errors.length}`);
-      this.results.errors.forEach(error => {
+      console.log(`â?Errors: ${this.results.errors.length}`);
+      this.results.errors.forEach((error) => {
         console.log(`    ${error}`);
       });
     }
 
-    console.log('\nâœ… Enhanced uninstall completed!');
+    console.log('\nâœ?Enhanced uninstall completed!');
   }
 }
 

@@ -60,7 +60,7 @@
   
   <!-- Title -->
   <text x="600" y="40" text-anchor="middle" font-size="28" font-weight="bold" fill="#1f2937">Stigmergy 工作流程</text>
-  <text x="600" y="65" text-anchor="middle" font-size="16" fill="#6b7280">AI工具协作的完整生命周期</text>
+  <text x="600" y="65" text-anchor="middle" font-size="16" fill="#6b7280">基于共享背景的AI工具间接协作流程</text>
   
   <!-- Workflow Steps -->
   <g id="workflow-steps">
@@ -90,43 +90,43 @@
       <text x="390" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 配置初始化</text>
     </g>
     
-    <!-- Step 3: Hook Deployment -->
+    <!-- Step 3: Context Setup -->
     <g id="step3">
       <circle cx="630" cy="200" r="60" fill="url(#stepGradient3)" filter="url(#shadow)"/>
-      <text x="630" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">钩子部署</text>
-      <text x="630" y="210" text-anchor="middle" font-size="12" fill="white">Hook</text>
-      <text x="630" y="225" text-anchor="middle" font-size="12" fill="white">Deployment</text>
+      <text x="630" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">背景建立</text>
+      <text x="630" y="210" text-anchor="middle" font-size="12" fill="white">Shared</text>
+      <text x="630" y="225" text-anchor="middle" font-size="12" fill="white">Context</text>
       
       <rect x="570" y="280" width="120" height="60" rx="5" fill="white" stroke="#10b981" stroke-width="2"/>
-      <text x="630" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 协作钩子</text>
-      <text x="630" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 通信协议</text>
-      <text x="630" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 事件监听</text>
+      <text x="630" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 项目规则文档</text>
+      <text x="630" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 记忆系统</text>
+      <text x="630" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 任务看板</text>
     </g>
     
-    <!-- Step 4: Collaboration -->
+    <!-- Step 4: Indirect Collaboration -->
     <g id="step4">
       <circle cx="870" cy="200" r="60" fill="url(#stepGradient4)" filter="url(#shadow)"/>
-      <text x="870" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">智能协作</text>
-      <text x="870" y="210" text-anchor="middle" font-size="12" fill="white">AI</text>
+      <text x="870" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">间接协作</text>
+      <text x="870" y="210" text-anchor="middle" font-size="12" fill="white">Indirect</text>
       <text x="870" y="225" text-anchor="middle" font-size="12" fill="white">Collaboration</text>
       
       <rect x="810" y="280" width="120" height="60" rx="5" fill="white" stroke="#06b6d4" stroke-width="2"/>
-      <text x="870" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 跨工具调用</text>
-      <text x="870" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 上下文共享</text>
-      <text x="870" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 结果聚合</text>
+      <text x="870" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 读取共享背景</text>
+      <text x="870" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 更新任务状态</text>
+      <text x="870" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 记录协作历史</text>
     </g>
     
-    <!-- Step 5: Monitoring -->
+    <!-- Step 5: Progress Tracking -->
     <g id="step5">
       <circle cx="1050" cy="200" r="60" fill="url(#stepGradient5)" filter="url(#shadow)"/>
-      <text x="1050" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">监控优化</text>
-      <text x="1050" y="210" text-anchor="middle" font-size="12" fill="white">Monitoring</text>
-      <text x="1050" y="225" text-anchor="middle" font-size="12" fill="white">&amp; Analytics</text>
+      <text x="1050" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="white">进度跟踪</text>
+      <text x="1050" y="210" text-anchor="middle" font-size="12" fill="white">Progress</text>
+      <text x="1050" y="225" text-anchor="middle" font-size="12" fill="white">Tracking</text>
       
       <rect x="990" y="280" width="120" height="60" rx="5" fill="white" stroke="#f59e0b" stroke-width="2"/>
-      <text x="1050" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 性能监控</text>
-      <text x="1050" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 错误追踪</text>
-      <text x="1050" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 智能优化</text>
+      <text x="1050" y="300" text-anchor="middle" font-size="11" fill="#1f2937">• 任务状态查看</text>
+      <text x="1050" y="315" text-anchor="middle" font-size="11" fill="#1f2937">• 会话历史管理</text>
+      <text x="1050" y="330" text-anchor="middle" font-size="11" fill="#1f2937">• 协作效果评估</text>
     </g>
   </g>
   
@@ -138,53 +138,63 @@
     <path d="M 930 200 L 990 200" stroke="#06b6d4" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
   </g>
   
-  <!-- Pheromone Trails (Stigmergy Concept) -->
-  <g id="pheromone-trails" opacity="0.6">
-    <circle cx="150" cy="400" r="4" fill="#3b82f6">
-      <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="390" cy="400" r="4" fill="#8b5cf6">
-      <animate attributeName="r" values="4;8;4" dur="2s" begin="0.4s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.4s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="630" cy="400" r="4" fill="#10b981">
-      <animate attributeName="r" values="4;8;4" dur="2s" begin="0.8s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.8s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="870" cy="400" r="4" fill="#06b6d4">
-      <animate attributeName="r" values="4;8;4" dur="2s" begin="1.2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.2s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="1050" cy="400" r="4" fill="#f59e0b">
-      <animate attributeName="r" values="4;8;4" dur="2s" begin="1.6s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.6s" repeatCount="indefinite"/>
-    </circle>
+  <!-- Shared Context Visualization -->
+  <g id="shared-context-viz" opacity="0.6">
+    <!-- Document icons representing shared context -->
+    <rect x="120" y="400" width="60" height="80" rx="3" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <text x="150" y="420" text-anchor="middle" font-size="10" fill="#6b7280">项目规则</text>
+    <text x="150" y="435" text-anchor="middle" font-size="8" fill="#9ca3af">README</text>
+    <text x="150" y="450" text-anchor="middle" font-size="8" fill="#9ca3af">配置</text>
+    <text x="150" y="465" text-anchor="middle" font-size="8" fill="#9ca3af">规范</text>
     
-    <!-- Connecting trails -->
-    <path d="M 150 400 Q 270 420 390 400" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
-    <path d="M 390 400 Q 510 420 630 400" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
-    <path d="M 630 400 Q 750 420 870 400" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
-    <path d="M 870 400 Q 960 420 1050 400" stroke="#06b6d4" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <rect x="360" y="400" width="60" height="80" rx="3" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <text x="390" y="420" text-anchor="middle" font-size="10" fill="#6b7280">记忆系统</text>
+    <text x="390" y="435" text-anchor="middle" font-size="8" fill="#9ca3af">上下文</text>
+    <text x="390" y="450" text-anchor="middle" font-size="8" fill="#9ca3af">历史</text>
+    <text x="390" y="465" text-anchor="middle" font-size="8" fill="#9ca3af">经验</text>
+    
+    <rect x="600" y="400" width="60" height="80" rx="3" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <text x="630" y="420" text-anchor="middle" font-size="10" fill="#6b7280">项目看板</text>
+    <text x="630" y="435" text-anchor="middle" font-size="8" fill="#9ca3af">任务</text>
+    <text x="630" y="450" text-anchor="middle" font-size="8" fill="#9ca3af">进度</text>
+    <text x="630" y="465" text-anchor="middle" font-size="8" fill="#9ca3af">状态</text>
+    
+    <rect x="840" y="400" width="60" height="80" rx="3" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <text x="870" y="420" text-anchor="middle" font-size="10" fill="#6b7280">会话历史</text>
+    <text x="870" y="435" text-anchor="middle" font-size="8" fill="#9ca3af">对话</text>
+    <text x="870" y="450" text-anchor="middle" font-size="8" fill="#9ca3af">决策</text>
+    <text x="870" y="465" text-anchor="middle" font-size="8" fill="#9ca3af">结果</text>
+    
+    <rect x="1020" y="400" width="60" height="80" rx="3" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <text x="1050" y="420" text-anchor="middle" font-size="10" fill="#6b7280">协作日志</text>
+    <text x="1050" y="435" text-anchor="middle" font-size="8" fill="#9ca3af">记录</text>
+    <text x="1050" y="450" text-anchor="middle" font-size="8" fill="#9ca3af">追踪</text>
+    <text x="1050" y="465" text-anchor="middle" font-size="8" fill="#9ca3af">反馈</text>
+    
+    <!-- Connecting lines showing indirect collaboration -->
+    <path d="M 180 440 Q 270 460 360 440" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 420 440 Q 510 460 600 440" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 660 440 Q 750 460 840 440" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
+    <path d="M 900 440 Q 960 460 1020 440" stroke="#06b6d4" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.5"/>
   </g>
   
-  <!-- Central Coordination Box -->
-  <g id="coordination-box">
+  <!-- Central Collaboration Mechanism -->
+  <g id="collaboration-mechanism">
     <rect x="450" y="470" width="300" height="80" rx="10" fill="#f3f4f6" stroke="#6b7280" stroke-width="2" stroke-dasharray="8,4"/>
-    <text x="600" y="500" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">Stigmergy 协调机制</text>
-    <text x="600" y="520" text-anchor="middle" font-size="12" fill="#6b7280">基于信息素的间接通信</text>
-    <text x="600" y="535" text-anchor="middle" font-size="12" fill="#6b7280">自组织协作网络</text>
+    <text x="600" y="500" text-anchor="middle" font-size="14" font-weight="bold" fill="#1f2937">间接协作机制</text>
+    <text x="600" y="520" text-anchor="middle" font-size="12" fill="#6b7280">基于共享背景的文档协作</text>
+    <text x="600" y="535" text-anchor="middle" font-size="12" fill="#6b7280">无需直接通信的智能协同</text>
   </g>
   
-  <!-- Ant Icons (representing Stigmergy) -->
-  <g id="ant-icons">
-    <text x="600" y="540" text-anchor="middle" font-size="24" opacity="0.3">🐜</text>
+  <!-- Document Icons (representing Shared Context) -->
+  <g id="doc-icons">
+    <text x="600" y="540" text-anchor="middle" font-size="24" opacity="0.3">📄</text>
   </g>
   
   <!-- Feedback Loop -->
   <g id="feedback-loop">
     <path d="M 1050 140 Q 600 80 150 140" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="8,3" marker-end="url(#arrowhead)" opacity="0.4"/>
-    <text x="600" y="100" text-anchor="middle" font-size="12" fill="#ef4444" opacity="0.6">持续反馈优化</text>
+    <text x="600" y="100" text-anchor="middle" font-size="12" fill="#ef4444" opacity="0.6">持续改进与反馈</text>
   </g>
   
   <!-- Command Examples -->
@@ -196,18 +206,21 @@
     <text x="90" y="515" font-size="10" fill="#6b7280"># 扫描系统环境，检测已安装的AI工具</text>
     
     <text x="350" y="500" font-family="monospace" font-size="11" fill="#8b5cf6">stigmergy install</text>
-    <text x="350" y="515" font-size="10" fill="#6b7280"># 批量安装缺失的AI CLI工具</text>
+    <text x="350" y="515" font-size="10" fill="#6b7280"># 交互式安装缺失的AI CLI工具</text>
     
     <text x="600" y="500" font-family="monospace" font-size="11" fill="#10b981">stigmergy deploy</text>
-    <text x="600" y="515" font-size="10" fill="#6b7280"># 部署协作钩子，建立工具间通信</text>
+    <text x="600" y="515" font-size="10" fill="#6b7280"># 部署钩子到所有工具，建立跨工具通信</text>
     
-    <text x="850" y="500" font-family="monospace" font-size="11" fill="#06b6d4">stigmergy call "task"</text>
-    <text x="850" y="515" font-size="10" fill="#6b7280"># 调用AI工具执行协作任务</text>
+    <text x="850" y="500" font-family="monospace" font-size="11" fill="#06b6d4">stigmergy clean</text>
+    <text x="850" y="515" font-size="10" fill="#6b7280"># 清理临时文件和缓存，释放磁盘空间</text>
     
     <text x="90" y="545" font-family="monospace" font-size="11" fill="#f59e0b">stigmergy status</text>
     <text x="90" y="560" font-size="10" fill="#6b7280"># 查看系统状态和工具运行情况</text>
     
-    <text x="350" y="545" font-family="monospace" font-size="11" fill="#ef4444">stigmergy monitor</text>
-    <text x="350" y="560" font-size="10" fill="#6b7280"># 实时监控性能和协作效果</text>
+    <text x="350" y="545" font-family="monospace" font-size="11" fill="#ef4444">stigmergy setup</text>
+    <text x="350" y="560" font-size="10" fill="#6b7280"># 完整设置流程(扫描+安装+部署)</text>
+    
+    <text x="600" y="545" font-family="monospace" font-size="11" fill="#8b5cf6">stigmergy diagnostic (d)</text>
+    <text x="600" y="560" font-size="10" fill="#6b7280"># 显示系统诊断信息和建议</text>
   </g>
 </svg>

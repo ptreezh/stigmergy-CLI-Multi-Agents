@@ -14,23 +14,33 @@ class NodeJsCoordinationLayer {
 
   async initialize(options = {}) {
     try {
-      console.log('[NODEJS_COORDINATION] Initializing Node.js coordination layer...');
-      
+      console.log(
+        '[NODEJS_COORDINATION] Initializing Node.js coordination layer...',
+      );
+
       // Initialize components
       await this.adapterManager.initialize();
       await this.communication.initialize();
       this.statistics.initialize();
-      
+
       // Perform health check
       const health = await this.healthChecker.checkHealth();
       if (!health.healthy) {
-        console.warn('[NODEJS_COORDINATION] Health check issues detected:', health);
+        console.warn(
+          '[NODEJS_COORDINATION] Health check issues detected:',
+          health,
+        );
       }
-      
-      console.log('[NODEJS_COORDINATION] Node.js coordination layer initialized successfully');
+
+      console.log(
+        '[NODEJS_COORDINATION] Node.js coordination layer initialized successfully',
+      );
       return true;
     } catch (error) {
-      console.error('[NODEJS_COORDINATION] Failed to initialize Node.js coordination layer:', error);
+      console.error(
+        '[NODEJS_COORDINATION] Failed to initialize Node.js coordination layer:',
+        error,
+      );
       return false;
     }
   }
@@ -40,13 +50,21 @@ class NodeJsCoordinationLayer {
     const startTime = Date.now();
 
     try {
-      const result = await this.communication.executeTask(sourceCLI, targetCLI, task, context);
+      const result = await this.communication.executeTask(
+        sourceCLI,
+        targetCLI,
+        task,
+        context,
+      );
       this.statistics.recordExecutionTime(Date.now() - startTime);
       this.statistics.incrementCounter('successful_calls');
       return result;
     } catch (error) {
       this.statistics.incrementCounter('failed_calls');
-      console.error(`[NODEJS_COORDINATION] Cross-CLI task execution failed:`, error);
+      console.error(
+        '[NODEJS_COORDINATION] Cross-CLI task execution failed:',
+        error,
+      );
       throw error;
     }
   }
@@ -60,7 +78,7 @@ class NodeJsCoordinationLayer {
       implementation: 'nodejs',
       health: await this.healthChecker.checkHealth(),
       statistics: this.statistics.getAllStats(),
-      adapters: await this.adapterManager.listAdapters()
+      adapters: await this.adapterManager.listAdapters(),
     };
   }
 

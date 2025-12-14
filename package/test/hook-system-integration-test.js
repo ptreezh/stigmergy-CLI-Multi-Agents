@@ -26,7 +26,7 @@ function testHookInstallation() {
     for (const hookDir of hookDirectories) {
         const exists = fs.existsSync(hookDir);
         results.push({ directory: hookDir, exists });
-        console.log(`${exists ? '✅' : '❌'} ${hookDir}: ${exists ? 'Found' : 'Missing'}`);
+        console.log(`${exists ? '�? : '�?} ${hookDir}: ${exists ? 'Found' : 'Missing'}`);
     }
 
     const installedCount = results.filter(r => r.exists).length;
@@ -54,10 +54,10 @@ function testHookContentVerification() {
                 content.toLowerCase().includes(keyword.toLowerCase())
             );
 
-            console.log(`${hasRequiredContent ? '✅' : '❌'} ${hookFile.path}: ${hasRequiredContent ? 'Valid' : 'Invalid content'}`);
+            console.log(`${hasRequiredContent ? '�? : '�?} ${hookFile.path}: ${hasRequiredContent ? 'Valid' : 'Invalid content'}`);
             if (hasRequiredContent) validHooks++;
         } else {
-            console.log(`❌ ${hookFile.path}: File not found`);
+            console.log(`�?${hookFile.path}: File not found`);
         }
     }
 
@@ -78,7 +78,7 @@ function testHookExecution() {
         const testScenarios = [
             {
                 tool: 'claude',
-                input: '请分析这个React组件的安全性',
+                input: '请分析这个React组件的安全�?,
                 expectedSkill: 'code-analysis'
             },
             {
@@ -96,13 +96,13 @@ function testHookExecution() {
                 const result = hookManager.processHookInput(scenario.tool, scenario.input);
 
                 if (result.detected && result.skill === scenario.expectedSkill) {
-                    console.log(`✅ Hook correctly detected ${result.skill}`);
+                    console.log(`�?Hook correctly detected ${result.skill}`);
                     passed++;
                 } else {
-                    console.log(`❌ Hook failed to detect skill (expected: ${scenario.expectedSkill})`);
+                    console.log(`�?Hook failed to detect skill (expected: ${scenario.expectedSkill})`);
                 }
             } catch (error) {
-                console.log(`❌ Hook execution error: ${error.message}`);
+                console.log(`�?Hook execution error: ${error.message}`);
             }
         }
 
@@ -110,7 +110,7 @@ function testHookExecution() {
         return passed === testScenarios.length;
 
     } catch (error) {
-        console.log(`❌ Hook execution test failed: ${error.message}`);
+        console.log(`�?Hook execution test failed: ${error.message}`);
         return false;
     }
 }
@@ -121,7 +121,7 @@ function testCharacterEncoding() {
     console.log('----------------------------------------');
 
     const filesToCheck = [
-        'package/src/main.js',
+        'package/src/index.js',
         'package/src/skills/skills-manager.js',
         'package/src/natural-language/nl-parser.cjs',
         'hooks/install-hooks.js'
@@ -138,10 +138,10 @@ function testCharacterEncoding() {
             const hasNonAnsi = /[^\x00-\x7F]/.test(content);
 
             if (!hasNonAnsi) {
-                console.log(`✅ ${file}: Pure ANSI encoding`);
+                console.log(`�?${file}: Pure ANSI encoding`);
                 pureAnsiFiles++;
             } else {
-                console.log(`❌ ${file}: Contains non-ANSI characters`);
+                console.log(`�?${file}: Contains non-ANSI characters`);
                 problematicFiles.push(file);
             }
         } else {
@@ -188,13 +188,13 @@ async function testRealAIToolCalling() {
                 const result = await executor.executeCommand(test.tool, test.command);
 
                 if (result.success === test.expectedSuccess) {
-                    console.log(`✅ ${test.tool} execution successful`);
+                    console.log(`�?${test.tool} execution successful`);
                     successful++;
                 } else {
-                    console.log(`❌ ${test.tool} execution failed (expected: ${test.expectedSuccess})`);
+                    console.log(`�?${test.tool} execution failed (expected: ${test.expectedSuccess})`);
                 }
             } catch (error) {
-                console.log(`❌ ${test.tool} execution error: ${error.message}`);
+                console.log(`�?${test.tool} execution error: ${error.message}`);
             }
         }
 
@@ -202,7 +202,7 @@ async function testRealAIToolCalling() {
         return successful === testCalls.length;
 
     } catch (error) {
-        console.log(`❌ Real AI tool calling test failed: ${error.message}`);
+        console.log(`�?Real AI tool calling test failed: ${error.message}`);
         return false;
     }
 }
@@ -217,7 +217,7 @@ function testCrossPlatformCompatibility() {
 
     // Test file paths work on current platform
     const testPaths = [
-        'package/src/main.js',
+        'package/src/index.js',
         'package/src/skills/skills-manager.cjs',
         '.claude/settings.json'
     ];
@@ -227,7 +227,7 @@ function testCrossPlatformCompatibility() {
         const normalizedPath = path.normalize(testPath);
         const works = fs.existsSync(normalizedPath) || !fs.existsSync(testPath);
 
-        console.log(`${works ? '✅' : '❌'} ${testPath}: ${works ? 'Valid' : 'Invalid path'}`);
+        console.log(`${works ? '�? : '�?} ${testPath}: ${works ? 'Valid' : 'Invalid path'}`);
         if (works) validPaths++;
     }
 
@@ -281,9 +281,9 @@ async function runTests() {
         console.log('🎉 All tests passed! System is fully integrated and production-ready!');
     } else {
         console.log('⚠️  Some tests failed. Implementation needed for:');
-        console.log('   • Hook System Integration (Medium Priority)');
-        console.log('   • Character Encoding Internationalization (Low Priority)');
-        console.log('   • Real AI Tool Calling (Medium Priority)');
+        console.log('   �?Hook System Integration (Medium Priority)');
+        console.log('   �?Character Encoding Internationalization (Low Priority)');
+        console.log('   �?Real AI Tool Calling (Medium Priority)');
     }
 
     return passed === total;

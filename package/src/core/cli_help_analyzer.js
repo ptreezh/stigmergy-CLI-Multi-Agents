@@ -125,7 +125,7 @@ class CLIHelpAnalyzer {
       const cliType = this.detectCLIType(helpInfo.rawHelp, cliName);
 
       // Extract patterns
-      const patterns = this.extractPatterns(helpInfo.rawHelp, cliType);
+      const patterns = this.extractPatterns(helpInfo.rawHelp, cliType, cliName);
 
       // Analyze command structure
       const commandStructure = this.analyzeCommandStructure(patterns);
@@ -276,7 +276,7 @@ class CLIHelpAnalyzer {
   /**
    * Extract command patterns from help text
    */
-  extractPatterns(helpText, cliType) {
+  extractPatterns(helpText, cliType, toolName = null) {
     const rules = this.patternRules[cliType] || this.patternRules.generic;
     const patterns = {
       commands: [],
@@ -294,14 +294,27 @@ class CLIHelpAnalyzer {
     // Extract subcommands
     const subcommandMatches = helpText.match(rules.subcommandPattern);
     if (subcommandMatches) {
-      patterns.subcommands = subcommandMatches.map((match) => {
-        const parts = match.trim().split(/\s+/);
-        return {
-          name: parts[0],
-          description: parts.slice(1).join(' '),
-          syntax: match.trim(),
-        };
-      });
+      const commonArgumentNames = ['prompt', 'input', 'file', 'directory', 'path', 'target', 'command', 'args', 'options'];
+      patterns.subcommands = subcommandMatches
+        .map((match) => {
+          const parts = match.trim().split(/\s+/);
+          return {
+            name: parts[0],
+            description: parts.slice(1).join(' '),
+            syntax: match.trim(),
+          };
+        })
+        .filter(subcommand => {
+          // Skip common argument names that are not actual commands
+          if (commonArgumentNames.includes(subcommand.name.toLowerCase())) {
+            return false;
+          }
+          // Skip if the subcommand name is the same as the current tool name
+          if (toolName && subcommand.name.toLowerCase() === toolName.toLowerCase()) {
+            return false;
+          }
+          return true;
+        });
     }
 
     // Extract options/flags
@@ -323,6 +336,19 @@ class CLIHelpAnalyzer {
         const parts = trimmed.split(/\s+/);
         const command = parts[0];
         const description = parts.slice(1).join(' ');
+
+        // Filter out common argument names like 'prompt', 'input', etc.
+        const commonArgumentNames = ['prompt', 'input', 'file', 'directory', 'path', 'target', 'command', 'args', 'options'];
+
+        // Skip common argument names that are not actual commands
+        if (commonArgumentNames.includes(command.toLowerCase())) {
+          continue;
+        }
+
+        // Skip if the command name is the same as the current tool name
+        if (toolName && command.toLowerCase() === toolName.toLowerCase()) {
+          continue;
+        }
 
         if (!patterns.commands.find((cmd) => cmd.name === command)) {
           patterns.commands.push({

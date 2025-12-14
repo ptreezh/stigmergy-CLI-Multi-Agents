@@ -7,7 +7,7 @@ async function testClaudeCLIIntegration() {
   // Test 1: Simple code generation
   console.log('--- Test 1: Simple code generation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "claude write a simple Python function to add two numbers"', 45000);
+    const result = await executeCommand('node src/index.js call "claude write a simple Python function to add two numbers"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -37,7 +37,7 @@ async function testClaudeCLIIntegration() {
   // Test 2: Complex algorithm implementation
   console.log('\n--- Test 2: Complex algorithm implementation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "claude implement a binary search algorithm in Python with proper error handling"', 60000);
+    const result = await executeCommand('node src/index.js call "claude implement a binary search algorithm in Python with proper error handling"', 60000);
     
     const passed = result.success && 
                    result.stdout.length > 200 && 
@@ -67,7 +67,7 @@ async function testClaudeCLIIntegration() {
   // Test 3: Code analysis and review
   console.log('\n--- Test 3: Code analysis and review ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "claude analyze this Python code for potential security vulnerabilities: def login(user, password): if user == \"admin\" and password == \"123456\": return True"', 45000);
+    const result = await executeCommand('node src/index.js call "claude analyze this Python code for potential security vulnerabilities: def login(user, password): if user == \"admin\" and password == \"123456\": return True"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -96,7 +96,7 @@ async function testClaudeCLIIntegration() {
   // Test 4: Documentation generation
   console.log('\n--- Test 4: Documentation generation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "claude generate documentation for a Python function that sorts arrays"', 45000);
+    const result = await executeCommand('node src/index.js call "claude generate documentation for a Python function that sorts arrays"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 

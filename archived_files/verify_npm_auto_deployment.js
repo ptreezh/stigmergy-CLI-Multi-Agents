@@ -18,33 +18,33 @@ async function testNpmInstallAutoDeployment() {
     const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
     
     if (packageJson.scripts && packageJson.scripts.postinstall) {
-      console.log(`‚úì postinstall script found: ${packageJson.scripts.postinstall}`);
+      console.log(`‚ú?postinstall script found: ${packageJson.scripts.postinstall}`);
       
       // Check if it calls auto-install
       if (packageJson.scripts.postinstall.includes('auto-install')) {
-        console.log('‚úì postinstall script calls auto-install command');
+        console.log('‚ú?postinstall script calls auto-install command');
       } else {
         console.log('‚ö†Ô∏è  postinstall script does not call auto-install');
       }
     } else {
-      console.log('‚úó No postinstall script found in package.json');
+      console.log('‚ú?No postinstall script found in package.json');
     }
     
-    // Check if main_english.js has auto-install command
-    console.log('\n2. Checking main_english.js for auto-install command...');
-    const mainContent = fs.readFileSync('./src/main_english.js', 'utf8');
+    // Check if index.js has auto-install command
+    console.log('\n2. Checking index.js for auto-install command...');
+    const mainContent = fs.readFileSync('./src/index.js', 'utf8');
     
     if (mainContent.includes('case \'auto-install\'')) {
-      console.log('‚úì auto-install command handler found in main_english.js');
+      console.log('‚ú?auto-install command handler found in index.js');
       
       // Look for hook deployment in auto-install
       if (mainContent.includes('deployHooks')) {
-        console.log('‚úì Hook deployment found in auto-install process');
+        console.log('‚ú?Hook deployment found in auto-install process');
       } else {
         console.log('‚ö†Ô∏è  Hook deployment not found in auto-install process');
       }
     } else {
-      console.log('‚úó auto-install command handler not found in main_english.js');
+      console.log('‚ú?auto-install command handler not found in index.js');
     }
     
     // Simulate what happens during npm install -g
@@ -54,26 +54,26 @@ async function testNpmInstallAutoDeployment() {
     const autoInstallSection = mainContent.split('case \'auto-install\':')[1].split('break;')[0];
     
     if (autoInstallSection.includes('deployHooks')) {
-      console.log('‚úì Auto-install process includes hook deployment');
+      console.log('‚ú?Auto-install process includes hook deployment');
       
       // Check what tools it would deploy to
       if (autoInstallSection.includes('autoAvailable')) {
-        console.log('‚úì Auto-install deploys hooks to available CLI tools');
+        console.log('‚ú?Auto-install deploys hooks to available CLI tools');
       }
       
       if (autoInstallSection.includes('downloadRequiredAssets')) {
-        console.log('‚úì Auto-install downloads required assets');
+        console.log('‚ú?Auto-install downloads required assets');
       }
       
       if (autoInstallSection.includes('initializeConfig')) {
-        console.log('‚úì Auto-install initializes configuration');
+        console.log('‚ú?Auto-install initializes configuration');
       }
       
       if (autoInstallSection.includes('deployProjectDocumentation')) {
-        console.log('‚úì Auto-install deploys project documentation');
+        console.log('‚ú?Auto-install deploys project documentation');
       }
     } else {
-      console.log('‚úó Auto-install process does not include hook deployment');
+      console.log('‚ú?Auto-install process does not include hook deployment');
     }
     
     // Check if coordination layer would be used
@@ -81,7 +81,7 @@ async function testNpmInstallAutoDeployment() {
     
     // Look for imports or references to coordination layer
     if (mainContent.includes('./core/coordination/nodejs')) {
-      console.log('‚úì Node.js coordination layer referenced in main script');
+      console.log('‚ú?Node.js coordination layer referenced in main script');
     } else {
       console.log('‚ÑπÔ∏è  Node.js coordination layer not directly referenced in main script');
       console.log('   (This is expected as it may be used indirectly)');
@@ -90,22 +90,22 @@ async function testNpmInstallAutoDeployment() {
     // Summary
     console.log('\n=== Auto-Deployment Analysis Summary ===');
     console.log('Package Configuration:');
-    console.log('  ‚úì package.json has postinstall script: npm run postinstall');
-    console.log('  ‚úì postinstall script calls: node src/main_english.js auto-install');
+    console.log('  ‚ú?package.json has postinstall script: npm run postinstall');
+    console.log('  ‚ú?postinstall script calls: node src/index.js auto-install');
     
     console.log('\nAuto-Install Process:');
-    console.log('  ‚úì main_english.js has auto-install command handler');
-    console.log('  ‚úì Downloads required assets');
-    console.log('  ‚úì Scans for available CLI tools');
-    console.log('  ‚úì Deploys hooks to available CLI tools');
-    console.log('  ‚úì Initializes configuration');
-    console.log('  ‚úì Deploys project documentation');
+    console.log('  ‚ú?index.js has auto-install command handler');
+    console.log('  ‚ú?Downloads required assets');
+    console.log('  ‚ú?Scans for available CLI tools');
+    console.log('  ‚ú?Deploys hooks to available CLI tools');
+    console.log('  ‚ú?Initializes configuration');
+    console.log('  ‚ú?Deploys project documentation');
     
     console.log('\nConclusion:');
-    console.log('‚úì YES - npm install -g will automatically deploy adapters');
-    console.log('‚úì The deployment is performed by Node.js scripts');
-    console.log('‚úì Both hooks and integration components are deployed');
-    console.log('‚úì Configuration is automatically initialized');
+    console.log('‚ú?YES - npm install -g will automatically deploy adapters');
+    console.log('‚ú?The deployment is performed by Node.js scripts');
+    console.log('‚ú?Both hooks and integration components are deployed');
+    console.log('‚ú?Configuration is automatically initialized');
     
     console.log('\nNote: The auto-install is NON-INTERACTIVE and only deploys');
     console.log('      to CLI tools that are already installed on the system.');

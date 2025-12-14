@@ -45,10 +45,10 @@ function testModuleImport() {
         assert(typeof manager.executeSkill === 'function', 'Manager should have executeSkill method');
         assert(typeof manager.buildCommand === 'function', 'Manager should have buildCommand method');
 
-        console.log('‚úÖ Module import test passed');
+        console.log('‚ú?Module import test passed');
         return true;
     } catch (error) {
-        console.log(`‚ùå Module import test failed: ${error.message}`);
+        console.log(`‚ù?Module import test failed: ${error.message}`);
         return false;
     }
 }
@@ -81,10 +81,10 @@ function testSkillsRegistryLoading() {
             assert(skill.template, `Skill ${skillId} should have a template`);
         }
 
-        console.log(`‚úÖ Skills registry test passed - ${Object.keys(registry).length} skills loaded`);
+        console.log(`‚ú?Skills registry test passed - ${Object.keys(registry).length} skills loaded`);
         return true;
     } catch (error) {
-        console.log(`‚ùå Skills registry test failed: ${error.message}`);
+        console.log(`‚ù?Skills registry test failed: ${error.message}`);
         return false;
     }
 }
@@ -112,10 +112,10 @@ async function testSkillsExecution() {
         assert(result.command.includes('claude'), 'Command should include tool name');
         assert(result.result.success, 'Execution should succeed');
 
-        console.log('‚úÖ Skills execution test passed');
+        console.log('‚ú?Skills execution test passed');
         return true;
     } catch (error) {
-        console.log(`‚ùå Skills execution test failed: ${error.message}`);
+        console.log(`‚ù?Skills execution test failed: ${error.message}`);
         return false;
     }
 }

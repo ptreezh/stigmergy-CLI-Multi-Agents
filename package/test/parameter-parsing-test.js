@@ -109,12 +109,12 @@ function testParameterParsing() {
             const toolMatch = result.tool === testCase.expected.tool;
 
             if (paramsMatch && toolMatch) {
-                console.log(`‚úÖ PASSED`);
+                console.log(`‚ú?PASSED`);
                 console.log(`   Parameters: ${JSON.stringify(result.parameters)}`);
                 console.log(`   Tool: ${result.tool}`);
                 passed++;
             } else {
-                console.log(`‚ùå FAILED`);
+                console.log(`‚ù?FAILED`);
                 console.log(`   Expected: ${JSON.stringify(testCase.expected)}`);
                 console.log(`   Got: ${JSON.stringify(result)}`);
 
@@ -126,7 +126,7 @@ function testParameterParsing() {
                 }
             }
         } catch (error) {
-            console.log(`‚ùå ERROR: ${error.message}`);
+            console.log(`‚ù?ERROR: ${error.message}`);
         }
     }
 

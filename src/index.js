@@ -15,7 +15,7 @@ const main = require('./cli/router');
 
 // Run the main application
 if (require.main === module) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error('[FATAL] Unhandled error in Stigmergy CLI:', error);
     process.exit(1);
   });
@@ -26,5 +26,5 @@ module.exports = {
   StigmergyInstaller,
   maxOfTwo,
   isAuthenticated,
-  main
+  main,
 };

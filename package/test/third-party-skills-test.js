@@ -147,10 +147,10 @@ class ThirdPartySkillsTest {
                     const missingFields = requiredFields.filter(field => !skill[field]);
 
                     if (missingFields.length > 0) {
-                        console.log(`  ‚ùå Skill ${skill.id} missing fields: ${missingFields.join(', ')}`);
+                        console.log(`  ‚ù?Skill ${skill.id} missing fields: ${missingFields.join(', ')}`);
                         compatibilityIssues++;
                     } else {
-                        console.log(`  ‚úÖ Skill ${skill.id} format compatible`);
+                        console.log(`  ‚ú?Skill ${skill.id} format compatible`);
                     }
 
                     // Check parameter format
@@ -213,7 +213,7 @@ class ThirdPartySkillsTest {
             }
 
             console.log(`  - Generated command: ${command}`);
-            console.log(`  ‚úÖ External skill execution simulation successful`);
+            console.log(`  ‚ú?External skill execution simulation successful`);
 
             this.addTestResult('External Skill Execution', true, `Successfully simulated execution of ${externalSkill.name}`);
 
@@ -257,11 +257,11 @@ class ThirdPartySkillsTest {
 
             console.log('');
             console.log('Marketplace integration capabilities:');
-            console.log('  ‚úÖ Remote skill loading');
-            console.log('  ‚úÖ Skill validation and security checking');
-            console.log('  ‚úÖ Version management');
-            console.log('  ‚úÖ Dependency resolution');
-            console.log('  ‚úÖ Community rating system');
+            console.log('  ‚ú?Remote skill loading');
+            console.log('  ‚ú?Skill validation and security checking');
+            console.log('  ‚ú?Version management');
+            console.log('  ‚ú?Dependency resolution');
+            console.log('  ‚ú?Community rating system');
 
             this.addTestResult('Skill Marketplace', true, 'Marketplace concept is fully implementable');
 

@@ -20,7 +20,7 @@ async function testHookDeploymentScripts() {
     const deploymentManager = new HookDeploymentManager();
     await deploymentManager.initialize();
     
-    console.log('âœ“ HookDeploymentManager initialized successfully\n');
+    console.log('âœ?HookDeploymentManager initialized successfully\n');
     
     // Test deploying hooks for each supported CLI individually
     const supportedCLIs = deploymentManager.supportedCLIs;
@@ -32,7 +32,7 @@ async function testHookDeploymentScripts() {
       const result = await deploymentManager.deployHooksForCLI(cliName);
       
       if (result) {
-        console.log(`âœ“ Hooks deployment initiated successfully for ${cliName}`);
+        console.log(`âœ?Hooks deployment initiated successfully for ${cliName}`);
         
         // Check if deployment files were created
         const cliHookDir = path.join(deploymentManager.deploymentDir, cliName);
@@ -40,26 +40,26 @@ async function testHookDeploymentScripts() {
         const configPath = path.join(cliHookDir, 'config.json');
         
         if (fs.existsSync(hookScriptPath)) {
-          console.log(`âœ“ Hook script created for ${cliName}: ${hookScriptPath}`);
+          console.log(`âœ?Hook script created for ${cliName}: ${hookScriptPath}`);
         } else {
-          console.log(`âœ— Hook script NOT created for ${cliName}`);
+          console.log(`âœ?Hook script NOT created for ${cliName}`);
         }
         
         if (fs.existsSync(configPath)) {
-          console.log(`âœ“ Config file created for ${cliName}: ${configPath}`);
+          console.log(`âœ?Config file created for ${cliName}: ${configPath}`);
         } else {
-          console.log(`âœ— Config file NOT created for ${cliName}`);
+          console.log(`âœ?Config file NOT created for ${cliName}`);
         }
         
         // Validate deployment
         const validation = await deploymentManager.validateHookDeployment(cliName);
         if (validation.valid) {
-          console.log(`âœ“ Hook deployment validated for ${cliName}`);
+          console.log(`âœ?Hook deployment validated for ${cliName}`);
         } else {
-          console.log(`âœ— Hook deployment validation failed for ${cliName}: ${validation.error}`);
+          console.log(`âœ?Hook deployment validation failed for ${cliName}: ${validation.error}`);
         }
       } else {
-        console.log(`âœ— Failed to deploy hooks for ${cliName}`);
+        console.log(`âœ?Failed to deploy hooks for ${cliName}`);
       }
       
       console.log(); // Empty line for readability

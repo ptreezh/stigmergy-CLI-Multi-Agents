@@ -34,7 +34,7 @@ class NaturalLanguageParser:
         self.en_patterns = [
             r'use\s+(\w+)\s+to\s+([^.\n!?]*)',
             r'call\s+(\w+)\s+to\s+([^.\n!?]*)',
-            r'ask\s+(\w+)\s+for\s+([^.\n!?]*)'
+            r'ask\s+(\w+)\s+to\s+([^.\n!?]*)'
         ]
 
     def detect_cross_cli_call(self, text: str) -> bool:

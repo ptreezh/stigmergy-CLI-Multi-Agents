@@ -7,7 +7,7 @@ async function testOtherCLIIntegration() {
   // Test 1: Qwen CLI - Java code generation
   console.log('--- Test 1: Qwen CLI - Java code generation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "qwen generate a simple Java method to calculate area of rectangle"', 45000);
+    const result = await executeCommand('node src/index.js call "qwen generate a simple Java method to calculate area of rectangle"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -38,7 +38,7 @@ async function testOtherCLIIntegration() {
   // Test 2: Gemini CLI - JavaScript function
   console.log('\n--- Test 2: Gemini CLI - JavaScript function ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "gemini create a basic JavaScript function for string reversal"', 45000);
+    const result = await executeCommand('node src/index.js call "gemini create a basic JavaScript function for string reversal"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 50 && 
@@ -68,7 +68,7 @@ async function testOtherCLIIntegration() {
   // Test 3: iFlow CLI - Algorithm implementation
   console.log('\n--- Test 3: iFlow CLI - Algorithm implementation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "iflow write a basic function to check if a number is even"', 45000);
+    const result = await executeCommand('node src/index.js call "iflow write a basic function to check if a number is even"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 50 && 
@@ -98,7 +98,7 @@ async function testOtherCLIIntegration() {
   // Test 4: CodeBuddy CLI - Code analysis
   console.log('\n--- Test 4: CodeBuddy CLI - Code analysis ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "codebuddy analyze this code for potential memory leaks: let arr = []; for(let i=0; i<1000000; i++) { arr.push(new Object()); }"', 45000);
+    const result = await executeCommand('node src/index.js call "codebuddy analyze this code for potential memory leaks: let arr = []; for(let i=0; i<1000000; i++) { arr.push(new Object()); }"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 50 && 

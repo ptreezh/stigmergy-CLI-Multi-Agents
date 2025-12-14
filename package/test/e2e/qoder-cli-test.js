@@ -7,7 +7,7 @@ async function testQoderCLIIntegration() {
   // Test 1: Function implementation
   console.log('--- Test 1: Function implementation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "qodercli write a simple function to find maximum of two numbers"', 45000);
+    const result = await executeCommand('node src/index.js call "qodercli write a simple function to find maximum of two numbers"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -37,7 +37,7 @@ async function testQoderCLIIntegration() {
   // Test 2: Code refactoring
   console.log('\n--- Test 2: Code refactoring ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "qodercli refactor this JavaScript function to be more readable: function calc(a,b,c){if(c==\"add\")return a+b;if(c==\"sub\")return a-b;if(c==\"mul\")return a*b;}', 60000);
+    const result = await executeCommand('node src/index.js call "qodercli refactor this JavaScript function to be more readable: function calc(a,b,c){if(c==\"add\")return a+b;if(c==\"sub\")return a-b;if(c==\"mul\")return a*b;}', 60000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -67,7 +67,7 @@ async function testQoderCLIIntegration() {
   // Test 3: Test generation
   console.log('\n--- Test 3: Test generation ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "qodercli generate unit tests for this function: function multiply(a, b) { return a * b; }"', 45000);
+    const result = await executeCommand('node src/index.js call "qodercli generate unit tests for this function: function multiply(a, b) { return a * b; }"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 
@@ -96,7 +96,7 @@ async function testQoderCLIIntegration() {
   // Test 4: Project structure analysis
   console.log('\n--- Test 4: Project structure analysis ---');
   try {
-    const result = await executeCommand('node src/main_english.js call "qodercli analyze the project structure in this directory and suggest improvements"', 45000);
+    const result = await executeCommand('node src/index.js call "qodercli analyze the project structure in this directory and suggest improvements"', 45000);
     
     const passed = result.success && 
                    result.stdout.length > 100 && 

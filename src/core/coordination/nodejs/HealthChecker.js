@@ -3,16 +3,12 @@ const os = require('os');
 
 class HealthChecker {
   constructor() {
-    this.checks = [
-      'AdapterAvailability',
-      'SystemResources',
-      'DiskSpace'
-    ];
+    this.checks = ['AdapterAvailability', 'SystemResources', 'DiskSpace'];
   }
 
   async checkHealth() {
     console.log('[HEALTH_CHECKER] Performing health check...');
-    
+
     const results = {};
     let overallHealthy = true;
 
@@ -22,7 +18,10 @@ class HealthChecker {
         if (typeof this[methodName] === 'function') {
           results[check.toLowerCase()] = await this[methodName]();
         } else {
-          results[check.toLowerCase()] = { healthy: false, error: `Method ${methodName} not found` };
+          results[check.toLowerCase()] = {
+            healthy: false,
+            error: `Method ${methodName} not found`,
+          };
           overallHealthy = false;
         }
       } catch (error) {
@@ -34,7 +33,7 @@ class HealthChecker {
     return {
       healthy: overallHealthy,
       timestamp: new Date().toISOString(),
-      checks: results
+      checks: results,
     };
   }
 
@@ -42,7 +41,7 @@ class HealthChecker {
     // In a real implementation, this would check actual adapter availability
     return {
       healthy: true,
-      unavailableAdapters: []
+      unavailableAdapters: [],
     };
   }
 
@@ -51,16 +50,16 @@ class HealthChecker {
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
     const usedMemPercent = ((totalMem - freeMem) / totalMem) * 100;
-    
+
     return {
       healthy: usedMemPercent < 90, // Healthy if less than 90% memory used
       memory: {
         used: totalMem - freeMem,
         free: freeMem,
         total: totalMem,
-        percent: usedMemPercent
+        percent: usedMemPercent,
       },
-      cpu: os.cpus().length
+      cpu: os.cpus().length,
     };
   }
 
@@ -69,7 +68,7 @@ class HealthChecker {
     // This is a simplified check
     return {
       healthy: true,
-      message: 'Disk space check not implemented in Node.js layer'
+      message: 'Disk space check not implemented in Node.js layer',
     };
   }
 }

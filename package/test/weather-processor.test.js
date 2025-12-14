@@ -81,9 +81,9 @@ try {
     forecastTempMax: result4.forecasts[0].temperature.max + "¬∞C"
   });
 
-  console.log("\n‚úÖ All tests passed!");
+  console.log("\n‚ú?All tests passed!");
 } catch (error) {
-  console.error("‚ùå Test failed:", error.message);
+  console.error("‚ù?Test failed:", error.message);
 }
 
 // Test error cases
@@ -91,14 +91,14 @@ console.log("\n5. Testing error handling:");
 
 try {
   processWeatherData(null);
-  console.log("‚ùå Should have thrown an error for null input");
+  console.log("‚ù?Should have thrown an error for null input");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for null input:", error.message);
+  console.log("‚ú?Correctly threw error for null input:", error.message);
 }
 
 try {
   processWeatherData({}, { unit: 'invalid' });
-  console.log("‚ùå Should have thrown an error for invalid unit");
+  console.log("‚ù?Should have thrown an error for invalid unit");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for invalid unit:", error.message);
+  console.log("‚ú?Correctly threw error for invalid unit:", error.message);
 }

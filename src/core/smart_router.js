@@ -21,10 +21,11 @@ class SmartRouter {
       'explain',
       'analyze',
       'translate',
-      'code',
       'article',
     ];
     this.defaultTool = 'claude';
+    // Track recently failed tools to avoid repeated analysis attempts
+    this.recentFailures = new Map();
   }
 
   /**
@@ -45,34 +46,78 @@ class SmartRouter {
 
   /**
    * Perform smart routing based on user input and CLI patterns
+   * Optimized to reduce unnecessary error messages and improve performance
+   * Prioritizes exact tool name matches over keyword matches
    */
   async smartRoute(userInput) {
     const input = userInput.trim();
+    const inputLower = input.toLowerCase();
 
-    // First try to detect tool-specific keywords
+    // First, check for exact tool name matches (higher priority)
     for (const [toolName, _] of Object.entries(this.tools)) {
       try {
         // Validate tool configuration
         validateCLITool(toolName);
 
-        // Get CLI pattern for this tool
-        let cliPattern = await this.analyzer.getCLIPattern(toolName);
-
-        // If we don't have a pattern, try to analyze the CLI
-        if (!cliPattern) {
-          try {
-            cliPattern = await this.analyzer.analyzeCLI(toolName);
-          } catch (error) {
-            console.warn(`Failed to analyze ${toolName}:`, error.message);
-            // Continue with next tool
-            continue;
-          }
+        if (inputLower.includes(toolName)) {
+          // Extract clean parameters when the tool name itself is mentioned
+          const cleanInput = input
+            .replace(new RegExp(`.*${toolName}\\s*`, 'gi'), '')
+            .replace(/^(use|please|help|using|with)\s*/i, '')
+            .trim();
+          return { tool: toolName, prompt: cleanInput };
         }
+      } catch (error) {
+        // Only log error if it's a real issue, not just a missing pattern
+        if (
+          error.message &&
+          !error.message.includes('no such file or directory')
+        ) {
+          await errorHandler.logError(
+            error,
+            'WARN',
+            `SmartRouter.smartRoute.${toolName}`,
+          );
+        }
+        // Continue with next tool
+        continue;
+      }
+    }
+
+    // Then check for keyword matches (lower priority)
+    // Only analyze tools that are likely to match to reduce overhead
+    const potentialMatches = [];
+    for (const [toolName, _] of Object.entries(this.tools)) {
+      // Quick check: if the input is very short, only analyze a few key tools
+      if (input.length < 20) {
+        // For short inputs, only analyze commonly used tools
+        const commonTools = ['claude', 'gemini', 'qwen'];
+        if (!commonTools.includes(toolName)) {
+          continue;
+        }
+      }
+
+      // Add tool to potential matches for detailed analysis
+      potentialMatches.push(toolName);
+    }
+
+    // Analyze potential matches
+    for (const toolName of potentialMatches) {
+      try {
+        // Validate tool configuration
+        validateCLITool(toolName);
+
+        // Get CLI pattern for this tool - with optimized caching
+        let cliPattern = await this.getOptimizedCLIPattern(toolName);
 
         // Check if input contains any of the tool's keywords or subcommands
         const keywords = this.extractKeywords(toolName, cliPattern);
         for (const keyword of keywords) {
-          if (input.toLowerCase().includes(keyword.toLowerCase())) {
+          // Skip the tool name itself since we already checked for exact matches
+          if (
+            keyword.toLowerCase() !== toolName.toLowerCase() &&
+            inputLower.includes(keyword.toLowerCase())
+          ) {
             // Extract clean parameters
             const cleanInput = input
               .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
@@ -82,11 +127,17 @@ class SmartRouter {
           }
         }
       } catch (error) {
-        await errorHandler.logError(
-          error,
-          'WARN',
-          `SmartRouter.smartRoute.${toolName}`,
-        );
+        // Only log error if it's a real issue, not just a missing pattern
+        if (
+          error.message &&
+          !error.message.includes('no such file or directory')
+        ) {
+          await errorHandler.logError(
+            error,
+            'WARN',
+            `SmartRouter.smartRoute.${toolName}`,
+          );
+        }
         // Continue with next tool
         continue;
       }
@@ -97,6 +148,58 @@ class SmartRouter {
       .replace(/^(use|please|help|using|with)\s*/i, '')
       .trim();
     return { tool: this.defaultTool, prompt: cleanInput };
+  }
+
+  /**
+   * Get CLI pattern with optimized error handling to reduce noise
+   */
+  async getOptimizedCLIPattern(toolName) {
+    try {
+      // Quick check for missing tools to avoid unnecessary analysis
+      const config = await this.analyzer.loadPersistentConfig();
+      const failedAttempt = config.failedAttempts[toolName];
+
+      // If there was a recent failure (less than 1 hour ago), skip analysis entirely
+      if (failedAttempt && this.isRecentFailure(failedAttempt.timestamp)) {
+        if (process.env.DEBUG === 'true') {
+          console.log(
+            `[INFO] Skipping analysis for ${toolName} due to recent failure`,
+          );
+        }
+        // Return cached analysis if available, otherwise null
+        const cached = await this.analyzer.getCachedAnalysis(toolName);
+        return cached || null;
+      }
+
+      const cached = await this.analyzer.getCachedAnalysis(toolName);
+
+      if (cached && !this.analyzer.isCacheExpired(cached.timestamp)) {
+        return cached;
+      }
+
+      // Analyze CLI if no cache or failure is old
+      return await this.analyzer.analyzeCLI(toolName);
+    } catch (error) {
+      // Only log serious errors, suppress file not found errors
+      if (
+        error.message &&
+        !error.message.includes('ENOENT') &&
+        !error.message.includes('no such file or directory')
+      ) {
+        console.warn(`[WARN] Unable to get help information for ${toolName}`);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Check if failure timestamp is recent (less than 1 hour)
+   */
+  isRecentFailure(timestamp) {
+    const failureTime = new Date(timestamp);
+    const now = new Date();
+    const hoursDiff = (now - failureTime) / (1000 * 60 * 60);
+    return hoursDiff < 1; // Recent if less than 1 hour
   }
 
   /**
@@ -111,10 +214,10 @@ class SmartRouter {
       gemini: ['gemini', 'google'],
       qwen: ['qwen', 'alibaba', 'tongyi'],
       iflow: ['iflow', 'workflow', 'intelligent'],
-      qodercli: ['qoder', 'code'],
+      qodercli: ['qoder', 'code'], // 'code' is specifically for qodercli only
       codebuddy: ['codebuddy', 'buddy', 'assistant'],
       copilot: ['copilot', 'github', 'gh'],
-      codex: ['codex', 'openai', 'gpt'],
+      codex: ['codex', 'openai', 'gpt'], // Remove 'code' from here to avoid conflicts
     };
 
     if (toolSpecificKeywords[toolName]) {

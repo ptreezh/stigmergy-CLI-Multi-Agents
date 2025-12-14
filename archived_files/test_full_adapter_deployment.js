@@ -22,9 +22,9 @@ async function testFullAdapterDeployment() {
     const integrationManager = new CLIIntegrationManager();
     
     await hookManager.initialize();
-    console.log('‚úì HookDeploymentManager initialized successfully');
+    console.log('‚ú?HookDeploymentManager initialized successfully');
     
-    console.log('‚úì CLIIntegrationManager initialized successfully\n');
+    console.log('‚ú?CLIIntegrationManager initialized successfully\n');
     
     // Test deploying full adapters for each supported CLI
     const supportedCLIs = hookManager.supportedCLIs;
@@ -37,16 +37,16 @@ async function testFullAdapterDeployment() {
       const hookResult = await hookManager.deployHooksForCLI(cliName);
       
       if (hookResult) {
-        console.log(`‚úì Hooks deployed successfully for ${cliName}`);
+        console.log(`‚ú?Hooks deployed successfully for ${cliName}`);
       } else {
-        console.log(`‚úó Failed to deploy hooks for ${cliName}`);
+        console.log(`‚ú?Failed to deploy hooks for ${cliName}`);
       }
       
       // 2. Generate and deploy integration script
       console.log('2. Generating integration script...');
       try {
         const integrationScript = await integrationManager.getNodeJsIntegrationScript(cliName);
-        console.log(`‚úì Integration script generated for ${cliName} (${integrationScript.length} characters)`);
+        console.log(`‚ú?Integration script generated for ${cliName} (${integrationScript.length} characters)`);
         
         // Save the integration script
         const integrationDir = path.join(os.homedir(), '.stigmergy', 'integrations', cliName);
@@ -56,24 +56,24 @@ async function testFullAdapterDeployment() {
         
         const scriptPath = path.join(integrationDir, `${cliName}_integration.js`);
         fs.writeFileSync(scriptPath, integrationScript);
-        console.log(`‚úì Integration script saved to ${scriptPath}`);
+        console.log(`‚ú?Integration script saved to ${scriptPath}`);
         
         // Make executable
         try {
           fs.chmodSync(scriptPath, 0o755);
-          console.log(`‚úì Made integration script executable`);
+          console.log(`‚ú?Made integration script executable`);
         } catch (chmodError) {
           console.log(`‚ö†Ô∏è  Failed to make integration script executable: ${chmodError.message}`);
         }
       } catch (error) {
-        console.log(`‚úó Failed to generate integration script for ${cliName}: ${error.message}`);
+        console.log(`‚ú?Failed to generate integration script for ${cliName}: ${error.message}`);
       }
       
       // 3. Check CLI availability
       console.log('3. Checking CLI availability...');
       const availability = await integrationManager.checkCLIAvailability(cliName);
       if (availability.available) {
-        console.log(`‚úì ${cliName} is available (Version: ${availability.version})`);
+        console.log(`‚ú?${cliName} is available (Version: ${availability.version})`);
       } else {
         console.log(`‚ö†Ô∏è  ${cliName} is not available: ${availability.error}`);
       }
@@ -82,9 +82,9 @@ async function testFullAdapterDeployment() {
       console.log('4. Getting supported features...');
       const features = await integrationManager.getSupportedFeatures(cliName);
       if (features) {
-        console.log(`‚úì Supported features for ${cliName}: ${features.features.join(', ')}`);
+        console.log(`‚ú?Supported features for ${cliName}: ${features.features.join(', ')}`);
       } else {
-        console.log(`‚úó Failed to get supported features for ${cliName}`);
+        console.log(`‚ú?Failed to get supported features for ${cliName}`);
       }
       
       console.log(); // Empty line for readability
@@ -92,10 +92,10 @@ async function testFullAdapterDeployment() {
     
     // Summary
     console.log('--- Deployment Summary ---');
-    console.log('‚úì Hook deployment manager tested for all CLIs');
-    console.log('‚úì Integration script generation tested for all CLIs');
-    console.log('‚úì CLI availability checking tested for all CLIs');
-    console.log('‚úì Feature detection tested for all CLIs');
+    console.log('‚ú?Hook deployment manager tested for all CLIs');
+    console.log('‚ú?Integration script generation tested for all CLIs');
+    console.log('‚ú?CLI availability checking tested for all CLIs');
+    console.log('‚ú?Feature detection tested for all CLIs');
     
     console.log('\n=== Full adapter deployment test completed ===');
     

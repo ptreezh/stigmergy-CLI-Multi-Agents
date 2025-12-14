@@ -1,13 +1,12 @@
 /**
  * TDD: CLI Scanner Unit Tests
- * 测试驱动开发 - 先写测试，再写实现
- * 使用ANSI编码，无Unicode字符
+ * 测试驱动开�?- 先写测试，再写实�? * 使用ANSI编码，无Unicode字符
  */
 
 const assert = require('assert');
 const path = require('path');
 
-// 测试目标类 - 尚未实现
+// 测试目标�?- 尚未实现
 class CLIScanner {
     constructor() {
         this.scanResults = new Map();
@@ -35,7 +34,7 @@ describe('CLI Scanner Unit Tests - ANSI Encoding, Node.js First', () => {
 
     describe('Basic CLI Detection', () => {
         it('should detect node command is available', async () => {
-            // 测试最基础的情况 - node命令应该可用
+            // 测试最基础的情�?- node命令应该可用
             const result = await scanner.scanForCLI('node');
 
             assert.strictEqual(result.cliName, 'node');
@@ -121,8 +120,7 @@ describe('CLI Scanner Unit Tests - ANSI Encoding, Node.js First', () => {
             assert.ok(results.has('node'));
             assert.ok(results.has('npm'));
 
-            // node和npm都应该可用
-            assert.strictEqual(results.get('node').available, true);
+            // node和npm都应该可�?            assert.strictEqual(results.get('node').available, true);
             assert.strictEqual(results.get('npm').available, true);
         });
 
@@ -169,8 +167,7 @@ describe('CLI Scanner Unit Tests - ANSI Encoding, Node.js First', () => {
                 await scanner.scanForCLI('sleep-command-that-does-not-exist', { timeout: timeoutMs });
             } catch (error) {
                 const elapsed = Date.now() - startTime;
-                assert.ok(elapsed < timeoutMs + 1000); // 允许一些误差
-                assert.ok(error.message.includes('timeout') || error.message.includes('not found'));
+                assert.ok(elapsed < timeoutMs + 1000); // 允许一些误�?                assert.ok(error.message.includes('timeout') || error.message.includes('not found'));
             }
         });
     });
@@ -200,26 +197,23 @@ describe('CLI Scanner Unit Tests - ANSI Encoding, Node.js First', () => {
             const results = await scanner.detectInstalledCLIs(tools);
 
             const elapsed = Date.now() - startTime;
-            assert.ok(elapsed < 5000); // 应该在5秒内完成
+            assert.ok(elapsed < 5000); // 应该�?秒内完成
             assert.strictEqual(results.size, tools.length);
         });
 
         it('should cache scan results', async () => {
             const cliName = 'node';
 
-            // 第一次扫描
-            const startTime1 = Date.now();
+            // 第一次扫�?            const startTime1 = Date.now();
             const result1 = await scanner.scanForCLI(cliName);
             const time1 = Date.now() - startTime1;
 
-            // 第二次扫描（应该使用缓存）
-            const startTime2 = Date.now();
+            // 第二次扫描（应该使用缓存�?            const startTime2 = Date.now();
             const result2 = await scanner.scanForCLI(cliName);
             const time2 = Date.now() - startTime2;
 
             assert.deepStrictEqual(result1, result2);
-            assert.ok(time2 <= time1); // 缓存应该更快或相等
-        });
+            assert.ok(time2 <= time1); // 缓存应该更快或相�?        });
     });
 });
 
@@ -227,8 +221,7 @@ describe('CLI Scanner Unit Tests - ANSI Encoding, Node.js First', () => {
 if (require.main === module) {
     console.log('Running CLI Scanner Unit Tests...');
 
-    // 简单的测试运行器
-    const testMethods = [
+    // 简单的测试运行�?    const testMethods = [
         'should detect node command is available',
         'should detect npm command is available',
         'should handle non-existent CLI gracefully',

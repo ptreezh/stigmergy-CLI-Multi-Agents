@@ -18,8 +18,8 @@ class FinalInstallTest {
         console.log('[TEST 1] Verifying improved installation code implementation...');
         
         try {
-            // Read the main_english.js file
-            const mainFilePath = path.join(__dirname, '..', 'src', 'main_english.js');
+            // Read the index.js file
+            const mainFilePath = path.join(__dirname, '..', 'src', 'index.js');
             const mainContent = await fs.readFile(mainFilePath, 'utf8');
             
             // Check for key improvements
@@ -43,7 +43,7 @@ class FinalInstallTest {
             
             return allImprovementsImplemented;
         } catch (error) {
-            console.log(`  âœ— Failed to check improved installation code: ${error.message}`);
+            console.log(`  âœ?Failed to check improved installation code: ${error.message}`);
             this.testResults.push({
                 name: 'Improved Installation Code',
                 passed: false,
@@ -58,8 +58,8 @@ class FinalInstallTest {
         console.log('\n[TEST 2] Verifying installation command format...');
         
         try {
-            // Read the main_english.js file
-            const mainFilePath = path.join(__dirname, '..', 'src', 'main_english.js');
+            // Read the index.js file
+            const mainFilePath = path.join(__dirname, '..', 'src', 'index.js');
             const mainContent = await fs.readFile(mainFilePath, 'utf8');
             
             // Check for Qoder CLI installation command
@@ -79,7 +79,7 @@ class FinalInstallTest {
             
             return correctFormat;
         } catch (error) {
-            console.log(`  âœ— Failed to check installation command format: ${error.message}`);
+            console.log(`  âœ?Failed to check installation command format: ${error.message}`);
             this.testResults.push({
                 name: 'Installation Command Format',
                 passed: false,
@@ -94,8 +94,8 @@ class FinalInstallTest {
         console.log('\n[TEST 3] Verifying error handling improvements...');
         
         try {
-            // Read the main_english.js file
-            const mainFilePath = path.join(__dirname, '..', 'src', 'main_english.js');
+            // Read the index.js file
+            const mainFilePath = path.join(__dirname, '..', 'src', 'index.js');
             const mainContent = await fs.readFile(mainFilePath, 'utf8');
             
             // Check for improved error handling
@@ -117,7 +117,7 @@ class FinalInstallTest {
             
             return goodErrorHandling;
         } catch (error) {
-            console.log(`  âœ— Failed to check error handling improvements: ${error.message}`);
+            console.log(`  âœ?Failed to check error handling improvements: ${error.message}`);
             this.testResults.push({
                 name: 'Error Handling Improvements',
                 passed: false,
@@ -132,8 +132,8 @@ class FinalInstallTest {
         console.log('\n[TEST 4] Verifying timeout and environment settings...');
         
         try {
-            // Read the main_english.js file
-            const mainFilePath = path.join(__dirname, '..', 'src', 'main_english.js');
+            // Read the index.js file
+            const mainFilePath = path.join(__dirname, '..', 'src', 'index.js');
             const mainContent = await fs.readFile(mainFilePath, 'utf8');
             
             // Check for timeout and environment settings
@@ -155,7 +155,7 @@ class FinalInstallTest {
             
             return correctSettings;
         } catch (error) {
-            console.log(`  âœ— Failed to check timeout and environment settings: ${error.message}`);
+            console.log(`  âœ?Failed to check timeout and environment settings: ${error.message}`);
             this.testResults.push({
                 name: 'Timeout and Environment Settings',
                 passed: false,
@@ -182,19 +182,19 @@ class FinalInstallTest {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All final implementation tests passed!');
-            console.log('âœ“ Installation implementation has been successfully improved!');
+            console.log('âœ?All final implementation tests passed!');
+            console.log('âœ?Installation implementation has been successfully improved!');
         } else if (passedTests > 0) {
-            console.log('âš  Some final implementation tests passed.');
+            console.log('âš?Some final implementation tests passed.');
         } else {
-            console.log('âœ— All final implementation tests failed.');
+            console.log('âœ?All final implementation tests failed.');
         }
         
         return {

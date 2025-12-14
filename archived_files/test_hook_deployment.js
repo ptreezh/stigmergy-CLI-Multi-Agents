@@ -20,7 +20,7 @@ async function testHookDeployment() {
     const deploymentManager = new HookDeploymentManager();
     await deploymentManager.initialize();
     
-    console.log('âœ“ HookDeploymentManager initialized successfully\n');
+    console.log('âœ?HookDeploymentManager initialized successfully\n');
     
     // Test deploying hooks for each supported CLI
     const supportedCLIs = deploymentManager.supportedCLIs;
@@ -32,17 +32,17 @@ async function testHookDeployment() {
       const result = await deploymentManager.deployHooksForCLI(cliName);
       
       if (result) {
-        console.log(`âœ“ Hooks deployed successfully for ${cliName}`);
+        console.log(`âœ?Hooks deployed successfully for ${cliName}`);
         
         // Validate deployment
         const validation = await deploymentManager.validateHookDeployment(cliName);
         if (validation.valid) {
-          console.log(`âœ“ Hook deployment validated for ${cliName}`);
+          console.log(`âœ?Hook deployment validated for ${cliName}`);
         } else {
-          console.log(`âœ— Hook deployment validation failed for ${cliName}: ${validation.error}`);
+          console.log(`âœ?Hook deployment validation failed for ${cliName}: ${validation.error}`);
         }
       } else {
-        console.log(`âœ— Failed to deploy hooks for ${cliName}`);
+        console.log(`âœ?Failed to deploy hooks for ${cliName}`);
       }
       
       console.log(); // Empty line for readability

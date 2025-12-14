@@ -41,7 +41,7 @@ class InstallCommandTester {
             
             return isValidNpmCommand && hasValidPackageName;
         } catch (error) {
-            console.log(`  âœ— Failed to check install command format: ${error.message}`);
+            console.log(`  âœ?Failed to check install command format: ${error.message}`);
             this.testResults.push({
                 name: 'Qoder Install Command Format',
                 passed: false,
@@ -86,7 +86,7 @@ class InstallCommandTester {
             
             return npmAvailable;
         } catch (error) {
-            console.log(`  âœ— Failed to check execution environment: ${error.message}`);
+            console.log(`  âœ?Failed to check execution environment: ${error.message}`);
             this.testResults.push({
                 name: 'Command Execution Environment',
                 passed: false,
@@ -137,7 +137,7 @@ class InstallCommandTester {
                                       installTest.stderr.includes('ENOENT') ||
                                       installTest.stderr.includes('not found');
                 if (hasWindowsError) {
-                    console.log('  âš  Potential Windows spawn error detected');
+                    console.log('  âš?Potential Windows spawn error detected');
                 }
             }
             
@@ -152,7 +152,7 @@ class InstallCommandTester {
             
             return commandStarted;
         } catch (error) {
-            console.log(`  âœ— Failed to test installation command execution: ${error.message}`);
+            console.log(`  âœ?Failed to test installation command execution: ${error.message}`);
             this.testResults.push({
                 name: 'Installation Command Execution',
                 passed: false,
@@ -171,7 +171,7 @@ class InstallCommandTester {
             console.log(`  Platform: ${process.platform} (Windows: ${isWindows})`);
             
             if (!isWindows) {
-                console.log('  âœ“ Not on Windows, skipping Windows-specific tests');
+                console.log('  âœ?Not on Windows, skipping Windows-specific tests');
                 this.testResults.push({
                     name: 'Windows Shell Issues',
                     passed: true,
@@ -217,7 +217,7 @@ class InstallCommandTester {
             
             return cmdWorks && psWorks;
         } catch (error) {
-            console.log(`  âœ— Failed to check Windows shell issues: ${error.message}`);
+            console.log(`  âœ?Failed to check Windows shell issues: ${error.message}`);
             this.testResults.push({
                 name: 'Windows Shell Issues',
                 passed: false,
@@ -299,7 +299,7 @@ class InstallCommandTester {
             
             return bothWork;
         } catch (error) {
-            console.log(`  âœ— Failed to test spawn behavior: ${error.message}`);
+            console.log(`  âœ?Failed to test spawn behavior: ${error.message}`);
             this.testResults.push({
                 name: 'Spawn Behavior',
                 passed: false,
@@ -327,18 +327,18 @@ class InstallCommandTester {
         
         let passedTests = 0;
         this.testResults.forEach(result => {
-            console.log(`${result.name}: ${result.passed ? 'âœ“ PASS' : 'âœ— FAIL'} - ${result.details}`);
+            console.log(`${result.name}: ${result.passed ? 'âœ?PASS' : 'âœ?FAIL'} - ${result.details}`);
             if (result.passed) passedTests++;
         });
         
         console.log(`\nOverall Result: ${passedTests}/${this.testResults.length} tests passed`);
         
         if (passedTests === this.testResults.length) {
-            console.log('âœ“ All installation command tests passed!');
+            console.log('âœ?All installation command tests passed!');
         } else if (passedTests > 0) {
-            console.log('âš  Some installation command tests failed.');
+            console.log('âš?Some installation command tests failed.');
         } else {
-            console.log('âœ— All installation command tests failed.');
+            console.log('âœ?All installation command tests failed.');
         }
         
         return {

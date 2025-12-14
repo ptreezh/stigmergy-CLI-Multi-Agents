@@ -44,17 +44,17 @@ try {
   const percentageResult = calc.percentage(25, 100);
   console.log(`calc.percentage(25, 100) = ${percentageResult}%`);
   
-  console.log("\n‚úÖ Basic operations tests passed!");
+  console.log("\n‚ú?Basic operations tests passed!");
 
   // Test calculation chain
   console.log("\n2. Testing calculation chain:");
   const chainResult = calc.chain(10).add(5).multiply(2).subtract(4).divide(2).equals();
   console.log(`calc.chain(10).add(5).multiply(2).subtract(4).divide(2).equals() = ${chainResult}`);
-  console.log("‚úÖ Chain operations test passed!");
+  console.log("‚ú?Chain operations test passed!");
   
-  console.log("\n‚úÖ All tests passed!");
+  console.log("\n‚ú?All tests passed!");
 } catch (error) {
-  console.error("‚ùå Test failed:", error.message);
+  console.error("‚ù?Test failed:", error.message);
 }
 
 // Test error cases
@@ -62,35 +62,35 @@ console.log("\n3. Testing error handling:");
 
 try {
   calc.divide(10, 0);
-  console.log("‚ùå Should have thrown an error for division by zero");
+  console.log("‚ù?Should have thrown an error for division by zero");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for division by zero:", error.message);
+  console.log("‚ú?Correctly threw error for division by zero:", error.message);
 }
 
 try {
   calc.sqrt(-4);
-  console.log("‚ùå Should have thrown an error for square root of negative number");
+  console.log("‚ù?Should have thrown an error for square root of negative number");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for square root of negative number:", error.message);
+  console.log("‚ú?Correctly threw error for square root of negative number:", error.message);
 }
 
 try {
   calc.factorial(-5);
-  console.log("‚ùå Should have thrown an error for factorial of negative number");
+  console.log("‚ù?Should have thrown an error for factorial of negative number");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for factorial of negative number:", error.message);
+  console.log("‚ú?Correctly threw error for factorial of negative number:", error.message);
 }
 
 try {
   calc.percentage(50, 0);
-  console.log("‚ùå Should have thrown an error for percentage with zero as whole");
+  console.log("‚ù?Should have thrown an error for percentage with zero as whole");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for percentage with zero as whole:", error.message);
+  console.log("‚ú?Correctly threw error for percentage with zero as whole:", error.message);
 }
 
 try {
   calc.chain(10).divide(0);
-  console.log("‚ùå Should have thrown an error for chain division by zero");
+  console.log("‚ù?Should have thrown an error for chain division by zero");
 } catch (error) {
-  console.log("‚úÖ Correctly threw error for chain division by zero:", error.message);
+  console.log("‚ú?Correctly threw error for chain division by zero:", error.message);
 }

@@ -187,5 +187,5 @@ if (require.main === module) {
         console.log('Chain division by zero error:', error.message);
     }
     
-    console.log('\nâœ… All Calculator tests completed!');
+    console.log('\nâœ?All Calculator tests completed!');
 }

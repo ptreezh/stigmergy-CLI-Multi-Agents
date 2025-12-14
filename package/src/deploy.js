@@ -9,7 +9,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 // Import the main Stigmergy installer
-const { StigmergyInstaller } = require('./main_english.js');
+const StigmergyInstaller = require('./core/installer');
 
 // Set up global error handlers using our error handler module
 const { setupGlobalErrorHandlers } = require('./core/error_handler');

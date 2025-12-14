@@ -194,8 +194,8 @@ class PostDeploymentConfigurer {
         const totalCount = results.length;
         
         results.forEach(result => {
-            const status = result.runSuccess ? '‚úì SUCCESS' : 
-                          result.scriptExists ? '‚úó FAILED' : ' SKIP';
+            const status = result.runSuccess ? '‚ú?SUCCESS' : 
+                          result.scriptExists ? '‚ú?FAILED' : ' SKIP';
             console.log(`${result.toolNameDisplay}: ${status}`);
         });
         
@@ -204,9 +204,9 @@ class PostDeploymentConfigurer {
         if (successCount === totalCount) {
             console.log('üéâ All tools configured successfully!');
         } else if (successCount > 0) {
-            console.log('‚ö† Some tools configured, some failed or skipped.');
+            console.log('‚ö?Some tools configured, some failed or skipped.');
         } else {
-            console.log('‚ùå No tools configured successfully.');
+            console.log('‚ù?No tools configured successfully.');
         }
         
         return results;
@@ -269,9 +269,9 @@ async function runPostDeploymentConfiguration() {
             pythonCheck.on('close', resolve);
             pythonCheck.on('error', reject);
         });
-        console.log('‚úì Python is available');
+        console.log('‚ú?Python is available');
     } catch (error) {
-        console.log('‚úó Python is not available. Installation scripts require Python.');
+        console.log('‚ú?Python is not available. Installation scripts require Python.');
         console.log('  Please install Python 3.8+ and try again.');
         process.exit(1);
     }

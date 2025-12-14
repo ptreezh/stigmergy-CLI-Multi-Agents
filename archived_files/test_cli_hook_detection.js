@@ -52,7 +52,7 @@ async function testCLICrossCLIDetection() {
       
       const hook = hooks[testCase.cli];
       if (!hook) {
-        console.log(`âœ— Hook for ${testCase.cli} not found`);
+        console.log(`âœ?Hook for ${testCase.cli} not found`);
         continue;
       }
       
@@ -60,18 +60,18 @@ async function testCLICrossCLIDetection() {
       const result = await hook.onUserPrompt(testCase.prompt, {});
       
       if (result && result.includes('Simulated cross-CLI call')) {
-        console.log(`âœ“ ${testCase.cli} hook correctly detected cross-CLI request`);
+        console.log(`âœ?${testCase.cli} hook correctly detected cross-CLI request`);
         console.log(`  Prompt: "${testCase.prompt}"`);
         console.log(`  Result: "${result}"`);
         
         // Check if the correct target CLI was detected
         if (result.includes(testCase.expectedTarget)) {
-          console.log(`âœ“ ${testCase.cli} hook correctly identified target CLI: ${testCase.expectedTarget}`);
+          console.log(`âœ?${testCase.cli} hook correctly identified target CLI: ${testCase.expectedTarget}`);
         } else {
-          console.log(`âœ— ${testCase.cli} hook identified wrong target CLI`);
+          console.log(`âœ?${testCase.cli} hook identified wrong target CLI`);
         }
       } else {
-        console.log(`âœ— ${testCase.cli} hook failed to detect cross-CLI request`);
+        console.log(`âœ?${testCase.cli} hook failed to detect cross-CLI request`);
         console.log(`  Prompt: "${testCase.prompt}"`);
         console.log(`  Result: "${result}"`);
       }
@@ -92,9 +92,9 @@ async function testCLICrossCLIDetection() {
       const result = await hook.onUserPrompt(testCase.prompt, {});
       
       if (result === null) {
-        console.log(`âœ“ ${testCase.cli} hook correctly ignored non-cross-CLI prompt: "${testCase.prompt}"`);
+        console.log(`âœ?${testCase.cli} hook correctly ignored non-cross-CLI prompt: "${testCase.prompt}"`);
       } else {
-        console.log(`âœ— ${testCase.cli} hook incorrectly processed non-cross-CLI prompt: "${testCase.prompt}"`);
+        console.log(`âœ?${testCase.cli} hook incorrectly processed non-cross-CLI prompt: "${testCase.prompt}"`);
       }
     }
     

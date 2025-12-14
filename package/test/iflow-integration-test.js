@@ -181,12 +181,12 @@ class IFlowIntegrationTester {
         // Test 1: Check iFlow configuration
         console.log('\n[Test 1] Checking iFlow configuration...');
         const configExists = await this.checkIFlowConfig();
-        console.log(`  Config directory exists: ${configExists ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Config directory exists: ${configExists ? 'âœ? : 'âœ?}`);
         
         // Test 2: Check iFlow hooks directory
         console.log('\n[Test 2] Checking iFlow hooks directory...');
         const hooksInfo = await this.checkIFlowHooks();
-        console.log(`  Hooks directory exists: ${hooksInfo.exists ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Hooks directory exists: ${hooksInfo.exists ? 'âœ? : 'âœ?}`);
         console.log(`  Total files: ${hooksInfo.files.length}`);
         console.log(`  Stigmergy-related files: ${hooksInfo.stigmergyFiles.length}`);
         if (hooksInfo.stigmergyFiles.length > 0) {
@@ -197,13 +197,13 @@ class IFlowIntegrationTester {
         // Test 3: Check hooks configuration
         console.log('\n[Test 3] Checking hooks configuration...');
         const hooksConfig = await this.checkIFlowHooksConfig();
-        console.log(`  Config file exists: ${hooksConfig.exists ? 'âœ“' : 'âœ—'}`);
-        console.log(`  Has hooks section: ${hooksConfig.hasHooksSection ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Config file exists: ${hooksConfig.exists ? 'âœ? : 'âœ?}`);
+        console.log(`  Has hooks section: ${hooksConfig.hasHooksSection ? 'âœ? : 'âœ?}`);
         
         // Test 4: Test iFlow hooks command
         console.log('\n[Test 4] Testing iFlow hooks command...');
         const hooksCommandResult = await this.testIFlowHooksCommand();
-        console.log(`  Command success: ${hooksCommandResult.success ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Command success: ${hooksCommandResult.success ? 'âœ? : 'âœ?}`);
         console.log(`  Exit code: ${hooksCommandResult.code}`);
         if (hooksCommandResult.output) {
             const preview = hooksCommandResult.output.substring(0, 200);
@@ -211,16 +211,16 @@ class IFlowIntegrationTester {
             
             // Check if Stigmergy is mentioned in output
             if (hooksCommandResult.output.toLowerCase().includes('stigmergy')) {
-                console.log('  âœ“ Stigmergy detected in hooks output');
+                console.log('  âœ?Stigmergy detected in hooks output');
             } else {
-                console.log('  âœ— Stigmergy not detected in hooks output');
+                console.log('  âœ?Stigmergy not detected in hooks output');
             }
         }
         
         // Test 5: Test iFlow plugin command
         console.log('\n[Test 5] Testing iFlow plugin command...');
         const pluginCommandResult = await this.testIFlowPluginCommand();
-        console.log(`  Command success: ${pluginCommandResult.success ? 'âœ“' : 'âœ—'}`);
+        console.log(`  Command success: ${pluginCommandResult.success ? 'âœ? : 'âœ?}`);
         console.log(`  Exit code: ${pluginCommandResult.code}`);
         if (pluginCommandResult.output) {
             const preview = pluginCommandResult.output.substring(0, 200);
@@ -228,9 +228,9 @@ class IFlowIntegrationTester {
             
             // Check if Stigmergy is mentioned in output
             if (pluginCommandResult.output.toLowerCase().includes('stigmergy')) {
-                console.log('  âœ“ Stigmergy detected in plugins output');
+                console.log('  âœ?Stigmergy detected in plugins output');
             } else {
-                console.log('  âœ— Stigmergy not detected in plugins output');
+                console.log('  âœ?Stigmergy not detected in plugins output');
             }
         }
         
@@ -250,7 +250,7 @@ class IFlowIntegrationTester {
         };
         
         Object.entries(results).forEach(([test, result]) => {
-            console.log(`${test}: ${result ? 'âœ“ PASS' : 'âœ— FAIL'}`);
+            console.log(`${test}: ${result ? 'âœ?PASS' : 'âœ?FAIL'}`);
         });
         
         const passedTests = Object.values(results).filter(Boolean).length;
@@ -259,11 +259,11 @@ class IFlowIntegrationTester {
         console.log(`\nOverall Result: ${passedTests}/${totalTests} tests passed`);
         
         if (passedTests === totalTests) {
-            console.log('âœ“ iFlow Stigmergy integration is working correctly!');
+            console.log('âœ?iFlow Stigmergy integration is working correctly!');
         } else if (passedTests > 0) {
-            console.log('âš  iFlow Stigmergy integration is partially working.');
+            console.log('âš?iFlow Stigmergy integration is partially working.');
         } else {
-            console.log('âœ— iFlow Stigmergy integration is not working.');
+            console.log('âœ?iFlow Stigmergy integration is not working.');
         }
         
         return results;

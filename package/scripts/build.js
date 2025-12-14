@@ -22,7 +22,7 @@ console.log(`Building version ${pkg.version} of ${pkg.name}`);
 
 // Verify required files exist
 const requiredFiles = [
-    'src/main_english.js',
+    'src/index.js',
     'package.json',
     'README.md',
     'LICENSE'
@@ -35,13 +35,13 @@ for (const file of requiredFiles) {
     }
 }
 
-console.log('‚úÖ All required files are present');
+console.log('‚ú?All required files are present');
 
 // Check dependencies
 console.log('\nChecking dependencies...');
 try {
     execSync('npm list inquirer', { stdio: 'pipe' });
-    console.log('‚úÖ Inquirer dependency is available');
+    console.log('‚ú?Inquirer dependency is available');
 } catch (error) {
     console.log('‚ö†Ô∏è  Inquirer may not be installed locally, but it should be available in production');
 }
@@ -49,10 +49,10 @@ try {
 // Run basic syntax check
 console.log('\nRunning syntax checks...');
 try {
-    execSync('node -c src/main_english.js', { stdio: 'inherit' });
-    console.log('‚úÖ Main file syntax is valid');
+    execSync('node -c src/index.js', { stdio: 'inherit' });
+    console.log('‚ú?Main file syntax is valid');
 } catch (error) {
-    console.error('‚ùå Syntax error in main file:', error.message);
+    console.error('‚ù?Syntax error in main file:', error.message);
     process.exit(1);
 }
 

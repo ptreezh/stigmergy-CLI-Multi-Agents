@@ -83,6 +83,8 @@ async function main() {
     console.log('  clean (c)       Clean temporary files and caches');
     console.log('  diagnostic (d)  Show system diagnostic information');
     console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
+    console.log('  <tool> "<prompt>" Directly route to specific AI CLI tool');
+    console.log('    Supported tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex');
     console.log('');
 
     console.log('[QUICK START] Getting Started:');
@@ -889,9 +891,246 @@ async function main() {
   }
 
   default:
-    console.log(`[ERROR] Unknown command: ${command}`);
-    console.log('[INFO] Run "stigmergy --help" for usage information');
-    process.exit(1);
+    // Check if the command matches a direct CLI tool name
+    if (CLI_TOOLS[command]) {
+      const toolName = command;
+      const toolInfo = CLI_TOOLS[toolName];
+      
+      // Get the prompt (everything after the tool name)
+      const prompt = args.slice(1).join(' ');
+      
+      if (!prompt) {
+        console.log(`[ERROR] Usage: stigmergy ${toolName} "<prompt>"`);
+        process.exit(1);
+      }
+      
+      console.log(`[DIRECT] Routing to ${toolInfo.name}: ${prompt}`);
+      
+      // Use smart router to handle the execution
+      const router = new SmartRouter();
+      await router.initialize();
+      
+      // Create a route object similar to what smartRoute would return
+      const route = {
+        tool: toolName,
+        prompt: prompt
+      };
+      
+      // Execute the routed command (reusing the call command logic)
+      try {
+        // Get the actual executable path for the tool
+        const toolPath = toolName;
+        
+        console.log(`[DEBUG] Tool path: ${toolPath}, Prompt: ${route.prompt}`);
+        
+        // For different tools, we need to pass the prompt differently
+        // Use unified parameter handler for better parameter handling
+        let toolArgs = [];
+        
+        try {
+          // Get CLI pattern for this tool
+          console.log(`[DEBUG] Attempting to get CLI pattern for: ${route.tool}`);
+          const cliPattern = await router.analyzer.getCLIPattern(route.tool);
+          console.log(`[DEBUG] Got CLI pattern: ${JSON.stringify(cliPattern)}`);
+          
+          // Log the CLI pattern to debug command format issues
+          if (process.env.DEBUG === 'true' && cliPattern) {
+            console.log(
+              `[DEBUG] CLI Pattern for ${route.tool}:`,
+              JSON.stringify(cliPattern, null, 2),
+            );
+          }
+          
+          // Use the unified CLI parameter handler
+          const CLIParameterHandler = require('../core/cli_parameter_handler');
+          toolArgs = CLIParameterHandler.generateArguments(
+            route.tool,
+            route.prompt,
+            cliPattern,
+          );
+          
+          // Add debug logging for the final arguments
+          console.log(`[DEBUG] Final toolArgs: ${JSON.stringify(toolArgs)}`);
+        } catch (patternError) {
+          // Fallback to original logic if pattern analysis fails
+          console.log(`[DEBUG] Pattern analysis failed, using fallback logic: ${patternError.message}`);
+          if (route.tool === 'claude') {
+            // Claude CLI expects the prompt with -p flag for non-interactive mode
+            toolArgs = ['-p', `"${route.prompt}"`];
+          } else if (route.tool === 'qodercli' || route.tool === 'iflow') {
+            // Qoder CLI and iFlow expect the prompt with -p flag
+            toolArgs = ['-p', `"${route.prompt}"`];
+          } else if (route.tool === 'codex') {
+            // Codex CLI needs 'exec' subcommand for non-interactive mode
+            toolArgs = ['exec', '-p', `"${route.prompt}"`];
+          } else {
+            // For other tools, pass the prompt with -p flag
+            toolArgs = ['-p', `"${route.prompt}"`];
+          }
+          
+          // Add debug logging for the fallback arguments
+          console.log(`[DEBUG] Fallback toolArgs: ${JSON.stringify(toolArgs)}`);
+        }
+        
+        // Use the reliable cross-platform execution function
+        try {
+          // Validate that the tool exists before attempting to execute
+          if (!toolPath || typeof toolPath !== 'string') {
+            throw new Error(`Invalid tool path: ${toolPath}`);
+          }
+          
+          // Special handling for JS files to ensure proper execution
+          if (toolPath.endsWith('.js') || toolPath.endsWith('.cjs')) {
+            // Use safe JS file execution
+            if (process.env.DEBUG === 'true') {
+              console.log(
+                `[EXEC] Safely executing JS file: ${toolPath} ${toolArgs.join(' ')}`,
+              );
+            }
+            const result = await executeJSFile(toolPath, toolArgs, {
+              stdio: 'inherit',
+              shell: true,
+            });
+            
+            if (!result.success) {
+              console.log(
+                `[WARN] ${route.tool} exited with code ${result.code}`,
+              );
+            }
+            process.exit(result.code || 0);
+          } else {
+            // Regular command execution
+            if (process.env.DEBUG === 'true') {
+              console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+            }
+            console.log(`[DEBUG] About to execute: ${toolPath} with args: ${JSON.stringify(toolArgs)}`);
+            
+            // Special handling for Windows to construct the command properly
+            let execCommand = toolPath;
+            let execArgs = toolArgs;
+            if (process.platform === 'win32') {
+              // On Windows, we construct the full command line and pass it as a single string
+              if (toolArgs.length > 0) {
+                // For Windows, we need to properly quote the entire command line
+                const argsString = toolArgs.map(arg => {
+                  // If arg contains spaces and is not already quoted, quote it
+                  if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                    return `"${arg}"`;
+                  }
+                  return arg;
+                }).join(' ');
+                execCommand = `${toolPath} ${argsString}`;
+                execArgs = [];
+                console.log(`[DEBUG] Windows full command: ${execCommand}`);
+              }
+            }
+            
+            // Special handling for Claude on Windows to bypass the wrapper script
+            if (process.platform === 'win32' && route.tool === 'claude') {
+              // Use the direct path to avoid the wrapper script that interferes with parameter passing
+              execCommand = 'C:\\npm_global\\claude';
+              if (toolArgs.length > 0) {
+                const argsString = toolArgs.map(arg => {
+                  if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                    return `"${arg}"`;
+                  }
+                  return arg;
+                }).join(' ');
+                execCommand = `${execCommand} ${argsString}`;
+                execArgs = [];
+                console.log(`[DEBUG] Windows direct Claude command: ${execCommand}`);
+              }
+            }
+            
+            const result = await executeCommand(execCommand, execArgs, {
+              stdio: 'inherit',
+              shell: true,
+            });
+            
+            if (!result.success) {
+              console.log(
+                `[WARN] ${route.tool} exited with code ${result.code}`,
+              );
+            }
+            process.exit(result.code || 0);
+          }
+        } catch (executionError) {
+          // Check for specific errors that might not be actual failures
+          const errorMessage =
+              executionError.error?.message ||
+              executionError.message ||
+              executionError;
+          
+          // For some tools like Claude, they may output to stdout and return non-zero codes
+          // without actually failing - handle these cases more gracefully
+          if (
+            errorMessage.includes(
+              'not recognized as an internal or external command',
+            ) ||
+              errorMessage.includes('command not found') ||
+              errorMessage.includes('ENOENT')
+          ) {
+            // This is a genuine error - tool is not installed
+            const cliError = await errorHandler.handleCLIError(
+              route.tool,
+              executionError.error || executionError,
+              toolArgs.join(' '),
+            );
+            
+            // Provide clear ANSI English error message
+            console.log('==================================================');
+            console.log('ERROR: Failed to execute AI CLI tool');
+            console.log('==================================================');
+            console.log(`Tool: ${route.tool}`);
+            console.log(`Error: ${cliError.message}`);
+            if (executionError.stderr) {
+              console.log(`Stderr: ${executionError.stderr}`);
+            }
+            console.log('');
+            console.log('Possible solutions:');
+            console.log('1. Check if the AI CLI tool is properly installed');
+            console.log('2. Verify the tool is in your system PATH');
+            console.log('3. Try reinstalling the tool with: stigmergy install');
+            console.log('4. Run stigmergy status to check tool availability');
+            console.log('');
+            console.log('For manual execution, you can run:');
+            console.log(`${toolPath} ${toolArgs.join(' ')}`);
+            console.log('==================================================');
+            process.exit(1);
+          } else {
+            // For other execution errors, try to execute the command directly
+            // which handles cases where the tool executed successfully but returned an error object
+            console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+            const result = await executeCommand(toolPath, toolArgs, {
+              stdio: 'inherit',
+              shell: true,
+            });
+            
+            if (!result.success) {
+              console.log(
+                `[WARN] ${route.tool} exited with code ${result.code}`,
+              );
+            }
+            process.exit(result.code || 0);
+          }
+        }
+      } catch (error) {
+        const cliError = await errorHandler.handleCLIError(
+          route.tool,
+          error,
+          prompt,
+        );
+        console.log(
+          `[ERROR] Failed to execute ${route.tool}:`,
+          cliError.message,
+        );
+        process.exit(1);
+      }
+    } else {
+      console.log(`[ERROR] Unknown command: ${command}`);
+      console.log('[INFO] Run "stigmergy --help" for usage information');
+      process.exit(1);
+    }
   }
 }
 

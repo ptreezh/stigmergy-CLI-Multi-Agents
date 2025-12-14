@@ -52,13 +52,13 @@ async function testAdapterImports() {
       // Check if file exists
       const filePath = path.join(PROJECT_ROOT, adapter.import);
       if (fs.existsSync(filePath)) {
-        console.log(`  ‚úÖ ${adapter.name} adapter file exists`);
+        console.log(`  ‚ú?${adapter.name} adapter file exists`);
         passed++;
       } else {
-        console.log(`  ‚ùå ${adapter.name} adapter file not found: ${filePath}`);
+        console.log(`  ‚ù?${adapter.name} adapter file not found: ${filePath}`);
       }
     } catch (error) {
-      console.log(`  ‚ùå ${adapter.name} adapter check failed: ${error.message}`);
+      console.log(`  ‚ù?${adapter.name} adapter check failed: ${error.message}`);
     }
   }
   
@@ -112,11 +112,11 @@ except Exception as e:
       console.log(`  Result: ${successCount}/3 adapters loaded successfully\n`);
       return successCount >= 2; // Expect at least 2 to work
     } else {
-      console.log('  ‚ùå Adapter registry test failed:', result.error);
+      console.log('  ‚ù?Adapter registry test failed:', result.error);
       return false;
     }
   } catch (error) {
-    console.log('  ‚ùå Adapter registry test error:', error.message);
+    console.log('  ‚ù?Adapter registry test error:', error.message);
     return false;
   }
 }
@@ -174,7 +174,7 @@ asyncio.run(test_adapters())
     if (result.success) {
       console.log('  Adapter functionality test output:');
       console.log(result.output);
-      console.log('  ‚úÖ Adapter functionality test completed\n');
+      console.log('  ‚ú?Adapter functionality test completed\n');
       return true;
     } else {
       console.log('  ‚ö†Ô∏è  Adapter functionality test had issues:', result.error);
@@ -195,21 +195,21 @@ async function testCLIIntegration() {
   const stigmergyCheck = runCommand('npm list stigmergy-cli', { timeout: 5000 });
   
   if (stigmergyCheck.success || stigmergyCheck.output.includes('stigmergy')) {
-    console.log('  ‚úÖ Stigmergy CLI is available');
+    console.log('  ‚ú?Stigmergy CLI is available');
   } else {
     console.log('  ‚ÑπÔ∏è  Stigmergy CLI not installed globally (this is OK for local testing)');
   }
   
   // Check if main entry point exists
-  const mainPath = path.join(PROJECT_ROOT, 'src', 'main_english.js');
+  const mainPath = path.join(PROJECT_ROOT, 'src', 'index.js');
   if (fs.existsSync(mainPath)) {
-    console.log('  ‚úÖ Main entry point exists');
+    console.log('  ‚ú?Main entry point exists');
   } else {
-    console.log('  ‚ùå Main entry point not found');
+    console.log('  ‚ù?Main entry point not found');
     return false;
   }
   
-  console.log('  ‚úÖ CLI integration check completed\n');
+  console.log('  ‚ú?CLI integration check completed\n');
   return true;
 }
 
@@ -241,10 +241,10 @@ async function runAllTests() {
     console.log('üéâ All tests passed! Remaining adapters are working correctly.');
     process.exit(0);
   } else if (passed >= total * 0.75) {
-    console.log('‚úÖ Most tests passed! Remaining adapters are mostly functional.');
+    console.log('‚ú?Most tests passed! Remaining adapters are mostly functional.');
     process.exit(0);
   } else {
-    console.log('‚ùå Some tests failed. Please check the output above.');
+    console.log('‚ù?Some tests failed. Please check the output above.');
     process.exit(1);
   }
 }

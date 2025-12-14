@@ -23,8 +23,8 @@ class NPMPublisher {
         const timestamp = new Date().toISOString();
         const prefix = {
             'info': '📦 ',
-            'success': '✅ ',
-            'error': '❌ ',
+            'success': '�?',
+            'error': '�?',
             'warning': '⚠️ '
         }[type] || '📦 ';
 
@@ -42,21 +42,19 @@ class NPMPublisher {
     }
 
     async checkRequirements() {
-        this.log('检查发布要求...', 'info');
+        this.log('检查发布要�?..', 'info');
 
         const pkg = await this.readPackage();
 
-        // 检查必要字段
-        const required = ['name', 'version', 'description', 'main', 'bin', 'repository'];
+        // 检查必要字�?        const required = ['name', 'version', 'description', 'main', 'bin', 'repository'];
         for (const field of required) {
             if (!pkg[field]) {
                 throw new Error(`缺少必要字段: ${field}`);
             }
         }
 
-        // 检查版本格式
-        if (!/^\d+\.\d+\.\d+$/.test(pkg.version)) {
-            throw new Error(`版本格式不正确: ${pkg.version}`);
+        // 检查版本格�?        if (!/^\d+\.\d+\.\d+$/.test(pkg.version)) {
+            throw new Error(`版本格式不正�? ${pkg.version}`);
         }
 
         // 检查仓库URL
@@ -71,15 +69,14 @@ class NPMPublisher {
         this.log('构建项目...', 'info');
 
         try {
-            // 清理之前的构建
-            execSync('rm -rf dist', { cwd: this.rootDir });
+            // 清理之前的构�?            execSync('rm -rf dist', { cwd: this.rootDir });
 
             // 创建dist目录
             execSync('mkdir -p dist', { cwd: this.rootDir });
 
             // 复制必要文件
             const filesToCopy = [
-                'src/main.js',
+                'src/index.js',
                 'src/adapters/',
                 'src/templates/',
                 'package.json',
@@ -104,16 +101,16 @@ class NPMPublisher {
             const publishConfig = {
                 ...publishPackage,
                 files: [
-                    'src/main.js',
+                    'src/index.js',
                     'src/adapters/**',
                     'src/templates/**',
                     'bin/**',
                     'README.md',
                     'LICENSE'
                 ],
-                main: 'src/main.js',
+                main: 'src/index.js',
                 bin: {
-                    'stigmergy-cli': 'src/main.js'
+                    'stigmergy-cli': 'src/index.js'
                 }
             };
 
@@ -149,14 +146,13 @@ class NPMPublisher {
             // 检查是否已登录npm
             try {
                 execSync('npm whoami', { stdio: 'pipe' });
-                this.log('npm登录状态: 已登录', 'success');
+                this.log('npm登录状�? 已登�?, 'success');
             } catch {
                 this.log('请先登录npm: npm login', 'warning');
                 throw new Error('需要先登录npm');
             }
 
-            // 检查包名是否可用
-            const pkg = await this.readPackage();
+            // 检查包名是否可�?            const pkg = await this.readPackage();
             try {
                 execSync(`npm view ${pkg.name}`, { stdio: 'pipe' });
                 this.log(`包名 ${pkg.name} 已存在，将覆盖发布`, 'warning');
@@ -168,13 +164,13 @@ class NPMPublisher {
             const publishCmd = dryRun ? 'npm publish --dry-run' : 'npm publish --access public';
 
             if (dryRun) {
-                this.log('模拟发布中...', 'info');
+                this.log('模拟发布�?..', 'info');
                 execSync(publishCmd, { cwd: join(this.rootDir, 'dist'), stdio: 'inherit' });
                 this.log('模拟发布完成', 'success');
             } else {
                 this.log('发布到npm...', 'info');
                 execSync(publishCmd, { cwd: join(this.rootDir, 'dist'), stdio: 'inherit' });
-                this.log('发布成功！', 'success');
+                this.log('发布成功�?, 'success');
             }
 
         } catch (error) {
@@ -204,9 +200,7 @@ class NPMPublisher {
 选项:
   --dry-run     模拟发布，不实际上传到npm
   --patch       更新补丁版本 (默认)
-  --minor       更新次版本
-  --major       更新主版本
-  --help, -h   显示帮助信息
+  --minor       更新次版�?  --major       更新主版�?  --help, -h   显示帮助信息
 
 示例:
   node scripts/publish.js              # 发布到npm
@@ -215,10 +209,9 @@ class NPMPublisher {
   node scripts/publish.js --help           # 显示帮助
 
 工作流程:
-  1. 检查发布要求
-  2. 运行测试
+  1. 检查发布要�?  2. 运行测试
   3. 构建项目
-  4. 更新版本 (可选)
+  4. 更新版本 (可�?
   5. 发布到npm
         `);
     }
@@ -235,8 +228,7 @@ async function main() {
     }
 
     try {
-        // 检查发布要求
-        await publisher.checkRequirements();
+        // 检查发布要�?        await publisher.checkRequirements();
 
         // 运行测试
         await publisher.runTests();
