@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.9] - 2025-12-15
+
+### Added
+- Added GLM4.5 as a contributor to the project
+- Enhanced web interface with both English and Chinese versions
+- Improved cross-CLI communication documentation
+- Added comprehensive .gitignore with patterns for test files and temporary files
+
+### Changed
+- Updated package name from 'stigmergy' to 'stigmergy-cli' for clarity
+- Updated contributor list to include all AI systems (Claude, Qwen, iFlow, QoderCLI, GLM4.5)
+- Removed unnecessary authentication modules (auth.js, auth_command.js)
+- Simplified isAuthenticated function to return true by default
+- Updated installation process to use enhanced installer
+
 ## [1.2.1] - 2025-12-12
 
 ### Added
