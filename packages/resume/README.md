@@ -5,46 +5,51 @@ ResumeSession 是一个强大的工具，允许在不同 AI CLI 工具之间共�
 ## 🚀 功能特性
 
 - ✅ **自动 CLI 扫描** - 自动检测本地安装的 AI CLI 工具
-- ✅ **交互式配置** - 通过友好的界面选择要集成的 CLI 工具
 - ✅ **项目感知** - 只显示当前项目相关的会话历史
 - ✅ **时间排序** - 按时间从近到远排序，最新的会话优先显示
 - ✅ **跨 CLI 搜索** - 在所有支持的 CLI 工具中搜索会话内容
-- ✅ **上下文恢复** - 一键恢复之前的讨论上下文，无缝继续工作
-- ✅ **无干扰扫描** - 扫描时不会启动任何CLI工具或界面
+- ✅ **多格式支持** - 支持 JSON 和 JSONL 格式的会话文件
+- ✅ **模板化代码生成** - 使用独立模板文件生成集成代码，易于维护
 
 ## 🛠️ 支持的 CLI 工具
 
-| CLI 工具 | 支持级别 | 状态 |
-|---------|---------|------|
-| 🟢 Claude CLI | Native | ✅ 完全支持 |
-| 🔵 Gemini CLI | Native | ✅ 完全支持 |
-| 🟡 Qwen CLI | Native | ✅ 完全支持 |
-| 🔴 IFlow CLI | Hook-based | ✅ 支持 |
-| 🟣 CodeBuddy CLI | External | ✅ 支持 |
-| 🟠 QoderCLI | External | ✅ 支持 |
-| 🟪 Codex CLI | External | ✅ 支持 |
+| CLI 工具 | 会话路径 | 格式 | 状态 |
+|---------|---------|------|------|
+| 🟢 Claude CLI | `~/.claude/sessions/*.json` | JSON | ✅ 完全支持 |
+| 🔵 Gemini CLI | `~/.gemini/sessions/*.json` | JSON | ✅ 完全支持 |
+| 🟡 Qwen CLI | `~/.qwen/projects/<项目>/chats/*.jsonl` | JSONL | ✅ 完全支持 |
+| 🔴 IFlow CLI | `~/.iflow/projects/<项目>/session-*.jsonl` | JSONL | ✅ 完全支持 |
+| 🟣 CodeBuddy CLI | `~/.codebuddy/history.jsonl` | JSONL | ✅ 完全支持 |
+| 🟠 QoderCLI | `~/.qodercli/projects/<项目>/*.jsonl` | JSONL | ✅ 完全支持 |
+| 🟪 Codex CLI | `~/.codex/sessions/YYYY/MM/DD/*.jsonl` | JSONL | ✅ 完全支持 |
 
 ## 📦 安装
 
 ```bash
-npm install -g resumesession
+npm install @stigmergy/resume
 ```
 
 ## 🎯 快速开始
 
-### 1. 初始化项目
+### 1. 生成集成代码
 
-在您的项目目录中运行：
+使用 CodeGenerator 为指定的 CLI 工具生成集成代码：
 
-```bash
-resumesession init
+```typescript
+import { CodeGenerator } from '@stigmergy/resume';
+
+const generator = new CodeGenerator();
+const config = {
+  version: '1.0.4',
+  enableCrossProjectQuery: true,
+  enableContextRecovery: true
+};
+
+// 为 Qwen CLI 生成集成代码
+await generator.generateIntegration('qwen', '/path/to/project', config);
 ```
 
-ResumeSession 将：
-- 🔍 扫描本地可用的 CLI 工具
-- 🎛️ 让您交互式选择要集成的工具
-- 🔨 自动生成集成代码
-- 📁 创建配置文件
+生成的集成代码将自动部署到对应 CLI 的目录中。
 
 ### 2. 使用 /history 命令
 
@@ -113,37 +118,34 @@ project-folder/
 └── RESUMESESSION.md             # 使用说明
 ```
 
-## 🔧 命令参考
+## 🏛️ 架构设计
 
-### resumesession init
+### 模板文件系统
 
-初始化项目以使用 ResumeSession。
+ResumeSession 使用独立的模板文件来生成集成代码，避免了字符串转义问题：
 
-```bash
-resumesession init [options]
+```
+packages/resume/
+├── templates/                    # 模板文件目录
+│   ├── claude-integration.template.js
+│   ├── gemini-integration.template.js
+│   ├── qwen-integration.template.js
+│   ├── iflow-integration.template.js
+│   ├── codebuddy-integration.template.js
+│   ├── codex-integration.template.js
+│   └── qodercli-integration.template.js
+└── src/
+    └── utils/
+        └── CodeGenerator.ts      # 模板读取和变量替换
 ```
 
-选项：
-- `-f, --force` - 强制重新初始化
+### 核心模块
 
-### resumesession status
-
-查看当前项目的状态。
-
-```bash
-resumesession status
-```
-
-### resumesession scan
-
-扫描系统中可用的 CLI 工具。
-
-```bash
-resumesession scan [options]
-```
-
-选项：
-- `-v, --verbose` - 显示详细信息
+- **SessionScanner** - 扫描和解析各 CLI 的会话文件
+- **SessionFilter** - 按 CLI、时间、关键词过滤会话
+- **HistoryFormatter** - 格式化输出（summary/timeline/detailed/context）
+- **HistoryQuery** - 统一的查询接口
+- **CodeGenerator** - 基于模板生成集成代码
 
 ## 🎮 使用场景
 
@@ -152,10 +154,10 @@ resumesession scan [options]
 # 第一天：在 Claude CLI 中讨论 React 架构
 # 第二天：在 Gemini CLI 中想继续昨天的工作
 
-# 在项目中运行：
+# 在 Gemini CLI 中运行：
 /history --format context
 
-# 结果：自动获取昨天的讨论内容，无缝继续
+# 结果：自动获取昨天在 Claude 中的讨论内容，无缝继续
 ```
 
 ### 场景 2: 项目知识搜索
@@ -166,12 +168,12 @@ resumesession scan [options]
 # 结果：显示所有 CLI 工具中相关的会话
 ```
 
-### 场景 3: 团队协作
+### 场景 3: 查看特定 CLI 的历史
 ```
-# 查看团队成员在不同 CLI 工具中的讨论
-/history --format timeline
+# 只查看 Qwen CLI 的会话记录
+/history --cli qwen --format timeline
 
-# 结果：按时间顺序显示所有相关讨论
+# 结果：按时间顺序显示 Qwen CLI 的所有会话
 ```
 
 ## 🔍 工作原理
