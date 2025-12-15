@@ -13,7 +13,16 @@ Cross-CLI communication is enabled between all supported AI tools:
 - CodeBuddy
 - GitHub Copilot
 - OpenAI Codex
+
+## Project Contributors
+
+This project is made possible through the contribution of various AI systems:
+- Claude (Anthropic)
+- Qwen (Alibaba)
+- iFlow (Intelligent Workflow)
+- QoderCLI
 - GLM4.5 (Zhipu AI)
+- And other AI systems
 
 ## Cross-CLI Collaboration
 

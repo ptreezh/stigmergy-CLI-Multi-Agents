@@ -93,7 +93,8 @@
     "Qwen",
     "iFlow",
     "QoderCLI",
-    "GLM4.5"
+    "GLM4.5",
+    "Other AI Systems"
   ],
   "license": "MIT",
   "engines": {

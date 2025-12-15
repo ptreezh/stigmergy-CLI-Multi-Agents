@@ -27,7 +27,7 @@ stigmergy iflow "翻译这段文字"
 stigmergy iflow "写一个Python函数"
 ```
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ## Configuration
 This tool integrates with Stigmergy through hooks deployed to:

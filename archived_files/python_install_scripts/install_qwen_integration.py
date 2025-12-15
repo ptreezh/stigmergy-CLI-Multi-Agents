@@ -142,7 +142,7 @@ Examples:
 - Run in shell: stigmergy gemini "translate this text"
 - Run in shell: stigmergy qwen "analyze this code"
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ---
 *This document is automatically generated and maintained by Stigmergy CLI*
@@ -167,7 +167,7 @@ Examples:
 - Run in shell: stigmergy gemini "translate this text"
 - Run in shell: stigmergy qwen "analyze this code"
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 """
             with open(qwen_md_path, 'a', encoding='utf-8') as f:
                 f.write(cross_cli_content)

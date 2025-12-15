@@ -46,7 +46,7 @@ stigmergy gemini "translate this text"
 stigmergy qwen "analyze this code"
 ```
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ## Documentation
 
@@ -63,5 +63,6 @@ This project is a collaboration between multiple AI systems:
 - iFlow (Intelligent Workflow)
 - QoderCLI
 - GLM4.5 (Zhipu AI)
+- And other AI systems
 
 Contributions are welcome!
