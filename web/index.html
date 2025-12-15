@@ -3,107 +3,1545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stigmergy - Multi-AI CLI Collaboration System</title>
-    <meta name="description" content="Stigmergy AI Collaboration Platform - Connect and coordinate leading AI CLI tools with natural language commands">
+    <title>Stigmergy AI Collaboration Platform | Multi-CLI Tool Integration System</title>
+    <meta name="description" content="Stigmergy AI Collaboration Platform - Connect and coordinate 8+ leading AI CLI tools (Claude, Gemini, Qwen) with natural language commands. Boost productivity 300%+. Node.js-based, multilingual support.">
+    <meta name="keywords" content="AI collaboration, multi-agent systems, CLI tools, cross-platform AI, Claude integration, Qwen integration, Gemini integration, AI productivity tools, Node.js AI tools">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Stigmergy CLI Team">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://www.socienceAI.com">
+    <meta property="og:title" content="Stigmergy AI Collaboration Platform | Multi-CLI Tool Integration System">
+    <meta property="og:description" content="Connect and coordinate 8+ leading AI CLI tools with natural language commands. Boost productivity 300%+. Node.js-based, multilingual support.">
+    <meta property="og:image" content="assets/architecture.svg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="http://www.socienceAI.com">
+    <meta property="twitter:title" content="Stigmergy AI Collaboration Platform | Multi-CLI Tool Integration System">
+    <meta property="twitter:description" content="Connect and coordinate 8+ leading AI CLI tools with natural language commands. Boost productivity 300%+. Node.js-based, multilingual support.">
+    <meta property="twitter:image" content="assets/architecture.svg">
+    
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Stigmergy CLI",
+      "description": "A multi-agent AI collaboration system that enables seamless communication between popular AI CLI tools",
+      "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Windows, macOS, Linux",
+      "softwareVersion": "1.2.6",
+      "author": {
+        "@type": "Organization",
+        "name": "Stigmergy CLI Team"
+      },
+      "softwareHelp": {
+        "@type": "CreativeWork",
+        "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/wiki"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="data:font/woff2;base64," as="font" type="font/woff2" crossorigin>
+
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #0f172a;
+            --gray: #334155;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 800px;
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #2563eb;
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-        }
-        .subtitle {
-            font-size: 1.2rem;
-            color: #4b5563;
-            margin-bottom: 30px;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
+            color: var(--dark);
+            background: var(--white);
+            overflow-x: hidden;
         }
-        .cta-button {
-            display: inline-block;
-            background: #2563eb;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin: 10px;
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 1000;
             transition: all 0.3s ease;
         }
-        .cta-button:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .links {
-            margin-top: 30px;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
         }
-        .links a {
-            color: #2563eb;
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--gray);
             text-decoration: none;
-            margin: 0 15px;
             font-weight: 500;
+            transition: color 0.3s ease;
         }
-        .links a:hover {
-            text-decoration: underline;
+
+        .nav-links a:hover {
+            color: var(--primary);
         }
+
+        .nav-cta {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23000" opacity="0.03"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--light);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+
+        /* Features Section */
         .features {
-            margin-top: 40px;
-            text-align: left;
-            max-width: 600px;
+            padding: 5rem 2rem;
+            background: var(--white);
         }
-        .feature {
-            margin: 15px 0;
-            padding: 10px 0;
-            border-bottom: 1px solid #e5e7eb;
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .feature:last-child {
-            border-bottom: none;
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--dark);
         }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid var(--light);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+
+        .feature-description {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Workflow Section */
+    .workflow {
+        padding: 5rem 2rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    .workflow-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .workflow-diagram {
+        background: var(--white);
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        margin: 2rem 0;
+    }
+
+    /* Architecture Section */
+        .architecture {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .architecture-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .architecture-diagram {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            margin: 2rem 0;
+        }
+
+        .diagram-svg {
+            width: 100%;
+            height: auto;
+            max-height: 600px;
+        }
+
+        /* Tools Section */
+        .tools {
+            padding: 5rem 2rem;
+            background: var(--white);
+        }
+
+        .tools-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border: 1px solid var(--light);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tool-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .tool-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .tool-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--success);
+            color: var(--white);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 0.5rem;
+        }
+
+        /* Terminal Section */
+        .terminal {
+            padding: 5rem 2rem;
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .terminal-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .terminal-window {
+            background: #1e1e1e;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .terminal-header {
+            background: #2d2d2d;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-button.close { background: #ff5f57; }
+        .terminal-button.minimize { background: #ffbd2e; }
+        .terminal-button.maximize { background: #28ca42; }
+
+        .terminal-title {
+            margin-left: 1rem;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .terminal-content {
+            padding: 1.5rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .terminal-line {
+            margin: 0.5rem 0;
+        }
+
+        .terminal-prompt {
+            color: #0f0;
+        }
+
+        .terminal-command {
+            color: #fff;
+        }
+
+        .terminal-output {
+            color: #0ff;
+        }
+
+        .terminal-success {
+            color: #0f0;
+        }
+
+        .terminal-error {
+            color: #f00;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 2rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid,
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .diagram-svg {
+                font-size: 0.8rem;
+            }
+        }
+    /* Principles Section */
+    .principles {
+        padding: 5rem 2rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+
+    .principles-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .principles-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .principle-item {
+        display: flex;
+        align-items: flex-start;
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .principle-item:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .principle-number {
+        width: 50px;
+        height: 50px;
+        background: var(--gradient);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.25rem;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .principle-text h3 {
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    .principle-text p {
+        color: var(--gray);
+        line-height: 1.6;
+    }
+
+    /* User Steps Section */
+    .user-steps {
+        padding: 5rem 2rem;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    }
+
+    .user-steps-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .steps-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 3rem 0;
+    }
+
+    .step-item {
+        background: var(--white);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        width: 200px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .step-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+
+    .step-content h3 {
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .step-code {
+        background: var(--dark);
+        color: var(--white);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+        margin: 0.75rem 0;
+    }
+
+    .step-content p {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    .step-arrow {
+        font-size: 2rem;
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .steps-note {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 0.5rem;
+    }
+
+    .steps-note code {
+        background: var(--dark);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .steps-diagram {
+            flex-direction: column;
+        }
+
+        .step-arrow {
+            transform: rotate(90deg);
+        }
+
+        .principle-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .principle-number {
+            margin: 0 auto 1rem;
+        }
+    }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Stigmergy AI Collaboration Platform</h1>
-        <p class="subtitle">
-            Connect and coordinate multiple AI CLI tools (Claude, Qwen, Gemini, iFlow, QoderCLI, GLM4.5, and more) with natural language commands.
-            Boost productivity 300%+ through intelligent task routing and seamless cross-CLI collaboration.
-        </p>
-
-        <a href="index_optimized.html" class="cta-button">View Full Platform Page</a>
-
-        <div class="features">
-            <div class="feature">✅ Cross-CLI Communication</div>
-            <div class="feature">✅ Natural Language Commands</div>
-            <div class="feature">✅ One-Command Deployment</div>
-            <div class="feature">✅ Multi-Agent Intelligence</div>
-            <div class="feature">✅ Node.js-Based Implementation</div>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="http://www.socienceAI.com" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #2563eb;">
+                <img src="http://www.socienceAI.com/logo.png" alt="SocienceAI Logo" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <span style="font-weight: 700; font-size: 1.2rem;">SocienceAI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="http://www.socienceAI.com">首页</a></li>
+                <li><a href="http://www.socienceai.com/Tech/">赋能工具</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#principles">Principles</a></li>
+                <li><a href="#user-steps">Guide</a></li>
+                <li><a href="#workflow">Workflow</a></li>
+                <li><a href="#tools">AI Tools</a></li>
+                <li><a href="#terminal">Install</a></li>
+                <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank">GitHub</a></li>
+                <li><a href="index-cn.html" style="background: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">中</a></li>
+            </ul>
+            <a href="#terminal" class="nav-cta">Deploy Now</a>
         </div>
+    </nav>
 
-        <div class="links">
-            <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank">GitHub Repository</a>
-            <a href="index_optimized.html">Detailed Information</a>
-            <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme" target="_blank">Documentation</a>
+    <!-- Hero Section -->
+    <section class="hero" itemscope itemtype="https://schema.org/SoftwareApplication">
+        <div class="hero-container">
+            <h1 class="hero-title" itemprop="name">Stigmergy AI Collaboration Platform</h1>
+            <p class="hero-subtitle" itemprop="description">
+                Connect and coordinate 8+ leading AI CLI tools (Claude, Gemini, Qwen) with natural language commands. 
+                Boost productivity 300%+ through intelligent task routing and seamless cross-CLI collaboration.
+            </p>
+            <p class="hero-subtitle" style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.9;">
+                Based on stigmergy principles - indirect coordination through shared environment
+            </p>
+            <div class="hero-cta">
+                <button class="btn-primary" onclick="startDeployment()">
+                    <span>🚀</span>
+                    Deploy Now
+                </button>
+                <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" class="btn-secondary">
+                    <span>📊</span>
+                    View Source
+                </a>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <h2 class="section-title">Core Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">One-Command Deployment</h3>
+                    <p class="feature-description">
+                        Automated installation and configuration through a single command. The system detects your environment, 
+                        installs missing AI tools, and configures cross-CLI communication with zero manual intervention.
+                    </p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">🤝</div>
+                    <h3 class="feature-title">Smart Collaboration</h3>
+                    <p class="feature-description">
+                        Based on stigmergy principles, AI tools collaborate indirectly through shared context (project files, 
+                        task boards, memory documents) without requiring direct communication channels.
+                    </p>
+                </div>
+                
+                
+                
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">🔌</div>
+                    <h3 class="feature-title">Coming Soon</h3>
+                    <p class="feature-description">
+                        Extend Claude skills to multiple CLI tools through the stigmergy-skills package. Natural language 
+                        commands automatically route to the best-suited AI tool.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="architecture" id="architecture">
+        <div class="architecture-container">
+            <h2 class="section-title">System Architecture</h2>
+            <div class="architecture-diagram">
+                <img src="assets/architecture.svg" alt="Stigmergy system architecture diagram showing multi-agent AI collaboration through shared environment" style="width: 100%; height: auto; border-radius: 8px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; color: #6b7280;">
+                    <p>System architecture diagram loading failed. Please visit the GitHub repository for the complete diagram.</p>
+                    <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" style="color: #3b82f6; text-decoration: none;">Visit GitHub Repository</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Principles Section -->
+    <section class="principles" id="principles">
+        <div class="principles-container">
+            <h2 class="section-title">Implementation Principles</h2>
+            <div class="principles-content">
+                <div class="principle-item">
+                    <div class="principle-number">1</div>
+                    <div class="principle-text">
+                        <h3>Smart Scanning System</h3>
+                        <p>Automatically scans the local system to detect the 8 most popular and powerful AI tools: Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, and Codex.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">2</div>
+                    <div class="principle-text">
+                        <h3>One-Click Install & Deploy</h3>
+                        <p>For missing tools, the system provides one-click installation and deployment options. Simplify installation and setup processes across all supported AI platforms.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">3</div>
+                    <div class="principle-text">
+                        <h3>Smart Adapter System</h3>
+                        <p>Individually analyzes each AI tool's help documentation and plugin mechanisms, generating command templates and parameter configurations to simplify usage and enable natural language intent recognition.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">4</div>
+                    <div class="principle-text">
+                        <h3>Stigmergy Coordination Principle</h3>
+                        <p>Adds intelligent routing to let previously independent AI systems collaborate indirectly based on common project context. Named after the stigmergy principle used by ants for coordinated behavior through environmental cues.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">5</div>
+                    <div class="principle-text">
+                        <h3>Universal Skill Interface</h3>
+                        <p>Implements generic skill extension interfaces for each AI, allowing a single skill extension to work across multiple AI systems, improving code reusability.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">6</div>
+                    <div class="principle-text">
+                        <h3>Shared Session History</h3>
+                        <p>Supports sharing of historical sessions across AI tools, enabling seamless switching between different AI tools for the same task to avoid limitations of single-tool approaches.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">7</div>
+                    <div class="principle-text">
+                        <h3>Skill Package Extensions</h3>
+                        <p>Future support for specialized skill packages in different domains, allowing selection of a main package (with core functionality) plus domain-specific skill packages.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item">
+                    <div class="principle-number">8</div>
+                    <div class="principle-text">
+                        <h3>Simple & User-Friendly</h3>
+                        <p>Easy to use with one-line installation <code>npm install -g stigmergy</code>; technology-transparent with direct stigmergy commands; cross-platform support for Linux, macOS, and Windows.</p>
+                    </div>
+                </div>
+
+                <div class="principle-item" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.3); transform: translateY(-3px);">
+                    <div class="principle-number" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);">9</div>
+                    <div class="principle-text">
+                        <h3 style="color: #d97706; font-weight: 700; font-size: 1.35rem;">AI-Native Development</h3>
+                        <p style="color: #92400e; font-weight: 500;">Zero manual coding, AI-verified. Humans responsible for architecture and testing plans. Most work is comprehensive, repetitive testing involving multi-system coordination and cross-platform compatibility.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Operation Steps Section -->
+    <section class="user-steps" id="user-steps">
+        <div class="user-steps-container">
+            <h2 class="section-title">Getting Started</h2>
+            <div class="steps-diagram">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Install System</h3>
+                        <div class="step-code">npm install -g stigmergy</div>
+                        <p>Install Stigmergy system with automatic environment configuration</p>
+                    </div>
+                </div>
+
+                <div class="step-arrow">→</div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Scan Tools</h3>
+                        <div class="step-code">stigmergy scan</div>
+                        <p>Scan for AI tools already installed on your system</p>
+                    </div>
+                </div>
+
+                <div class="step-arrow">→</div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Install Missing Tools</h3>
+                        <div class="step-code">stigmergy install</div>
+                        <p>Install any missing AI tools with one command</p>
+                    </div>
+                </div>
+
+                <div class="step-arrow">→</div>
+
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Deploy Integration</h3>
+                        <div class="step-code">stigmergy deploy</div>
+                        <p>Deploy hooks and plugin system for all tools</p>
+                    </div>
+                </div>
+
+                <div class="step-arrow">→</div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0;">
+                    <div class="step-item" style="width: 180px;">
+                        <div class="step-number">5a</div>
+                        <div class="step-content">
+                            <h3>In-CLI Calls</h3>
+                            <div class="step-code">use claude to "task"</div>
+                            <p>Call other CLIs from within a CLI</p>
+                        </div>
+                    </div>
+
+                    <div class="step-arrow" style="align-self: center;">+</div>
+
+                    <div class="step-item" style="width: 180px;">
+                        <div class="step-number">5b</div>
+                        <div class="step-content">
+                            <h3>Direct Routing</h3>
+                            <div class="step-code">stigmergy cli "task"</div>
+                            <p>Route to specific CLI</p>
+                        </div>
+                    </div>
+
+                    <div class="step-arrow" style="align-self: center;">+</div>
+
+                    <div class="step-item" style="width: 180px;">
+                        <div class="step-number">5c</div>
+                        <div class="step-content">
+                            <h3>Smart Routing</h3>
+                            <div class="step-code">stigmergy call "task"</div>
+                            <p>Auto-select best CLI</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-arrow" style="margin: 1rem 0;">→</div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; align-items: stretch; flex-wrap: wrap; margin: 1rem 0;">
+                    <div class="step-item" style="width: 220px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);">
+                        <div class="step-number" style="background: #6366f1;">Before</div>
+                        <div class="step-content">
+                            <h3>Original CLI Session</h3>
+                            <div class="step-code">claude> Developing feature...</div>
+                            <p>Save current session history</p>
+                        </div>
+                    </div>
+
+                    <div class="step-arrow" style="align-self: center;">⇄</div>
+
+                    <div class="step-item" style="width: 220px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);">
+                        <div class="step-number" style="background: #22c55e;">After</div>
+                        <div class="step-content">
+                            <h3>New CLI Recovery</h3>
+                            <div class="step-code">gemini> Continue development...</div>
+                            <p>Optionally restore session</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <div class="step-number">6</div>
+                    <h3 style="color: var(--dark); margin-top: 0.5rem;">Session Continuity</h3>
+                    <div class="step-code" style="display: inline-block; margin: 0.5rem 0;">/stigmergy-resume</div>
+                    <p style="color: var(--gray);">Use /stigmergy-resume command in any CLI to restore session history across tools, maintaining task continuity</p>
+                </div>
+            </div>
+
+            <div class="steps-note">
+                <p><strong>Tip:</strong> The system works cross-platform (Linux, macOS, Windows) and supports both <code>stigmergy &lt;tool&gt; &lt;task&gt;</code> format and <code>stigmergy call &lt;task&gt;</code> smart routing.</p>
+            </div>
+        </div>
+    </section>
+
+                    <div class="step-arrow" style="align-self: center;">⇄</div>
+
+                    <div class="step-item" style="width: 220px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);">
+                        <div class="step-number" style="background: #22c55e;">After</div>
+                        <div class="step-content">
+                            <h3>New CLI Recovery</h3>
+                            <div class="step-code">gemini> Continue development...</div>
+                            <p>Optionally restore session</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <div class="step-number">6</div>
+                    <h3 style="color: var(--dark); margin-top: 0.5rem;">Session Continuity</h3>
+                    <div class="step-code" style="display: inline-block; margin: 0.5rem 0;">/stigmergy-resume</div>
+                    <p style="color: var(--gray);">Use /stigmergy-resume command in any CLI to restore session history across tools, maintaining task continuity</p>
+                </div>
+            </div>
+
+            <div class="steps-note">
+                <p><strong>Tip:</strong> The system works cross-platform (Linux, macOS, Windows) and supports both <code>stigmergy &lt;tool&gt; &lt;task&gt;</code> format and <code>stigmergy call &lt;task&gt;</code> smart routing.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="workflow" id="workflow">
+        <div class="workflow-container">
+            <h2 class="section-title">Workflow</h2>
+            <div class="workflow-diagram">
+                <img src="assets/workflow.svg" alt="Stigmergy workflow diagram showing task routing and AI collaboration" style="width: 100%; height: auto; border-radius: 8px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; color: #6b7280;">
+                    <p>Workflow diagram loading failed. Please visit the GitHub repository for the complete diagram.</p>
+                    <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" style="color: #3b82f6; text-decoration: none;">Visit GitHub Repository</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools" id="tools">
+        <div class="tools-container">
+            <h2 class="section-title">Supported AI Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">📝</div>
+                        <div class="tool-name">Claude</div>
+                    </div>
+                    <div class="tool-type">Configurable free model</div>
+                    <div class="tool-description">
+                        Anthropic's AI assistant with powerful code generation, document writing, and complex reasoning capabilities.
+                        Supports multi-turn conversations and long text processing.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🤖</div>
+                        <div class="tool-name">Qwen</div>
+                    </div>
+                    <div class="tool-type">(Free, usage limits, upgrade plans available)</div>
+                    <div class="tool-description">
+                        Alibaba's Qwen optimized for Chinese, with multimodal interaction support.
+                        Excels in Chinese language understanding and cultural context.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">👥</div>
+                        <div class="tool-name">CodeBuddy</div>
+                    </div>
+                    <div class="tool-type">(Free, usage limits, upgrade plans available)</div>
+                    <div class="tool-description">
+                        Intelligent coding companion providing real-time suggestions, error detection, and refactoring optimization.
+                        Supports multiple programming languages and development frameworks.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🌊</div>
+                        <div class="tool-name">iFlow</div>
+                    </div>
+                    <div class="tool-type">Completely free</div>
+                    <div class="tool-description">
+                        Intelligent workflow orchestration engine supporting automation of complex business processes.
+                        Features visual process design and powerful task scheduling capabilities.
+                    </div>
+                    <div class="tool-status">
+                        <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">💻</div>
+                        <div class="tool-name">QoderCLI</div>
+                    </div>
+                    <div class="tool-type">(Free, usage limits, upgrade plans available)</div>
+                    <div class="tool-description">
+                        Professional code assistant with smart completion, syntax analysis, and performance optimization suggestions.
+                        Provides comprehensive development lifecycle support.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🌟</div>
+                        <div class="tool-name">Gemini</div>
+                    </div>
+                    <div class="tool-type">Configurable free model</div>
+                    <div class="tool-description">
+                        Google's multimodal AI assistant supporting text, image, and code understanding.
+                        Excels at multilingual processing and creative tasks.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🧠</div>
+                        <div class="tool-name">Codex</div>
+                    </div>
+                    <div class="tool-type">Configurable free model</div>
+                    <div class="tool-description">
+                        OpenAI's code generation model, a professional programming AI assistant supporting multiple languages.
+                        Outstanding in code understanding and generation.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">🐙</div>
+                        <div class="tool-name">GitHub Copilot</div>
+                    </div>
+                    <div class="tool-type">Requires GitHub subscription</div>
+                    <div class="tool-description">
+                        GitHub's official AI coding assistant with deep IDE integration, providing real-time suggestions,
+                        auto-completion, and intelligent refactoring.
+                    </div>
+                    <div class="tool-status">
+                        <div class="status-indicator"></div>
+                        <span>Operational</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terminal Section -->
+    <section class="terminal" id="terminal">
+        <div class="terminal-container">
+            <h2 class="section-title">Quick Start</h2>
+
+            <!-- Installation Requirements -->
+            <div style="background: #1e293b; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; border: 1px solid #334155;">
+                <h3 style="color: #f8fafc; margin-bottom: 1rem; font-size: 1.2rem;">📋 Installation Requirements</h3>
+                <p style="color: #cbd5e1; margin-bottom: 1.5rem;">
+                    Stigmergy AI Collaboration Platform requires Node.js. Choose the appropriate one-click installation for your OS:
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Windows -->
+                    <div style="background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid #475569;">
+                        <h4 style="color: #3b82f6; margin-bottom: 0.5rem;">🪟 Windows</h4>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; margin-bottom: 0.5rem;">
+                            # Install with domestic mirror
+                            winget install OpenJS.NodeJS --source winget
+                        </div>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0;">
+                            # Or use Taobao mirror
+                            npm config set registry https://registry.npmmirror.com
+                            npm install -g n
+                            n stable
+                        </div>
+                    </div>
+
+                    <!-- macOS -->
+                    <div style="background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid #475569;">
+                        <h4 style="color: #10b981; margin-bottom: 0.5rem;">🍎 macOS</h4>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; margin-bottom: 0.5rem;">
+                            # Install with domestic mirror
+                            brew install node
+                        </div>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0;">
+                            # Configure Taobao mirror
+                            npm config set registry https://registry.npmmirror.com
+                            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+                            nvm install stable
+                        </div>
+                    </div>
+
+                    <!-- Linux -->
+                    <div style="background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid #475569;">
+                        <h4 style="color: #f59e0b; margin-bottom: 0.5rem;">🐧 Linux</h4>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; margin-bottom: 0.5rem;">
+                            # Ubuntu/Debian with domestic mirror
+                            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                            sudo apt-get install -y nodejs
+                        </div>
+                        <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0;">
+                            # Configure Taobao mirror
+                            npm config set registry https://registry.npmmirror.com
+                            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+                            source ~/.bashrc
+                            nvm install stable
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #0f766e; padding: 1rem; border-radius: 8px; border: 1px solid #14b8a6;">
+                    <p style="color: #f0fdf4; margin: 0;">
+                        <strong>💡 Tip:</strong> After installation, verify with <code style="background: #064e3b; padding: 2px 6px; border-radius: 4px;">node --version</code> and <code style="background: #064e3b; padding: 2px 6px; border-radius: 4px;">npm --version</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <div class="terminal-button close"></div>
+                        <div class="terminal-button minimize"></div>
+                        <div class="terminal-button maximize"></div>
+                    </div>
+                    <div class="terminal-title">Stigmergy CLI - Intelligent Deployment Terminal</div>
+                </div>
+                <div class="terminal-content" id="terminal-content">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span>
+                        <span class="terminal-command"> npm install -g stigmergy</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-primary" onclick="runInstallation()">
+                    <span>🚀</span>
+                    Run Installation Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#architecture">Technical Architecture</a></li>
+                    <li><a href="#principles">Implementation Principles</a></li>
+                    <li><a href="#user-steps">Getting Started</a></li>
+                    <li><a href="#workflow">Workflow</a></li>
+                    <li><a href="#tools">Supported Tools</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Documentation</h3>
+                <ul>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/blob/main/README.md" target="_blank">Development Guide</a></li>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/discussions" target="_blank">Best Practices</a></li>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues" target="_blank">Troubleshooting</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Community</h3>
+                <ul>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/discussions" target="_blank">Discussion Forum</a></li>
+                    <li><a href="https://cn.agentpsy.com/blogs/heterogeneous-multi-agent-systems.html" target="_blank">Technical Blog</a></li>
+                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/releases" target="_blank">Release Notes</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <ul>
+                    <li><a href="http://www.socienceai.com/Dao/index.html" target="_blank">Team</a></li>
+                                    <li><a href="http://www.socienceai.com/Dao/index.html" target="_blank">Technology Vision</a></li>
+                                    <li><a href="http://www.socienceai.com/contact.html" target="_blank">Contact</a></li>                    <li><a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/blob/main/LICENSE" target="_blank">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 <a href="http://www.socienceAI.com" target="_blank" style="color: inherit; text-decoration: none;">SocienceAI</a>. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Terminal simulation
+        const terminalCommands = [
+            { command: 'npm install -g stigmergy', output: ['Installing Stigmergy CLI...', 'Downloading dependencies...', 'Installation complete!'] },
+            { command: 'stigmergy scan', output: ['Scanning system environment...', 'Detecting installed AI tools...', 'Analyzing dependencies...', 'Scan complete!'] },
+            { command: 'stigmergy install', output: ['Installing missing tools...', 'Claude CLI: Already installed', 'Qwen CLI: Installing...', 'CodeBuddy CLI: Already installed', 'Installation complete!'] },
+            { command: 'stigmergy deploy', output: ['Deploying collaboration hooks...', 'Configuring shared context...', 'Establishing indirect collaboration...', 'Deployment complete!'] },
+            { command: 'stigmergy status', output: ['Claude: Operational', 'Qwen: Operational', 'CodeBuddy: Operational', 'iFlow: Operational'] },
+            { command: 'stigmergy claude "write a Python function"', output: ['[Claude] Processing task...', 'Generating Python function code...', 'Task completed!'] },
+            { command: 'stigmergy gemini "translate this text"', output: ['[Gemini] Processing task...', 'Translating...', 'Translation completed!'] },
+            { command: 'stigmergy qwen "analyze this code"', output: ['[Qwen] Processing task...', 'Analyzing code...', 'Analysis completed!'] }
+        ];
+
+        function runInstallation() {
+            const terminal = document.getElementById('terminal-content');
+            terminal.innerHTML = '';
+
+            let commandIndex = 0;
+
+            function runNextCommand() {
+                if (commandIndex >= terminalCommands.length) {
+                    setTimeout(() => {
+                        addTerminalLine('', 'success');
+                        addTerminalLine('🎉 Stigmergy AI Collaboration Platform deployment complete!', 'success');
+                        addTerminalLine('Your AI tools are now ready for intelligent collaboration', 'output');
+                    }, 500);
+                    return;
+                }
+
+                const currentCommand = terminalCommands[commandIndex];
+
+                // Add command
+                addTerminalLine(`$ ${currentCommand.command}`, 'command');
+
+                // Simulate processing
+                setTimeout(() => {
+                    currentCommand.output.forEach((line, index) => {
+                        setTimeout(() => {
+                            addTerminalLine(`[INFO] ${line}`, 'output');
+                        }, index * 800);
+                    });
+
+                    setTimeout(() => {
+                        commandIndex++;
+                        addTerminalLine('', 'output');
+                        runNextCommand();
+                    }, currentCommand.output.length * 800 + 1000);
+                }, 1000);
+            }
+
+            runNextCommand();
+        }
+
+        function addTerminalLine(text, type) {
+            const terminal = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+
+            if (type === 'command') {
+                line.innerHTML = `<span class="terminal-prompt">$</span><span class="terminal-command">${text.substring(2)}</span>`;
+            } else if (type === 'success') {
+                line.innerHTML = `<span class="terminal-success">${text}</span>`;
+            } else if (type === 'error') {
+                line.innerHTML = `<span class="terminal-error">${text}</span>`;
+            } else {
+                line.innerHTML = `<span class="terminal-output">${text}</span>`;
+            }
+
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Deployment function
+        function startDeployment() {
+            const button = event.target;
+            button.innerHTML = '<span>🔄</span> Deploying...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.innerHTML = '<span>✅</span> Deployment Complete!';
+                button.style.background = 'var(--success)';
+
+                setTimeout(() => {
+                    alert('🎉 Deployment complete! Stigmergy AI Collaboration Platform is ready. Check the terminal for detailed usage instructions.');
+                    button.innerHTML = '<span>🚀</span> Deploy Now';
+                    button.disabled = false;
+                    button.style.background = '';
+                }, 2000);
+            }, 3000);
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Nav background on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(255, 255, 255, 0.98)';
+                nav.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                nav.style.boxShadow = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
