@@ -1,0 +1,50 @@
+# 源代码（已编译到dist目录）
+src/
+*.ts
+!*.d.ts
+
+# 测试文件
+__tests__/
+*.test.ts
+*.test.js
+
+# 开发配置文件
+tsconfig.json
+jest.config.*
+
+# 备份文件
+*.bak
+
+# 存档文件
+resumesession-archive-*/
+archived_files/
+
+# 文档和配置
+PROJECT_SPEC.json
+IMPLEMENTATION_COMPLETE.md
+REPAIR_SUMMARY.md
+TEST_REPORT.md
+*.md
+!README.md
+
+# 临时文件
+.tmp/
+temp/
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+npm-debug.log*
+
+# 覆盖率报告
+coverage/
+.nyc_output/

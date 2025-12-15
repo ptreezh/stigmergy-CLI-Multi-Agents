@@ -1,0 +1,904 @@
+--- 第1页 ---
+arXiv:2103.00498v1  [cs.LG]  28 Feb 2021Topic Modelling Meets Deep Neural Networks: A Survey
+He Zhao ,Dinh Phung ,Viet Huynh ,Yuan Jin ,Lan Du ,Wray Buntine
+Department of Data Science and Artiﬁcial Intelligence, Mon ash University, Australia
+{ethan.zhao, dinh.phung, viet.huynh, yuan.jin, lan.du, wr ay.buntine }@monash.edu
+Abstract
+Topic modelling has been a successful technique
+for text analysis for almost twenty years. When
+topic modelling met deep neural networks, there
+emerged a new and increasingly popular research
+area, neural topic models , with over a hundred
+models developed and a wide range of applica-
+tions in neural language understanding such as text
+generation, summarisation and language models.
+There is a need to summarise research develop-
+ments and discuss open problems and future direc-
+tions. In this paper, we provide a focused yet com-
+prehensive overview of neural topic models for in-
+terested researchers in the AI community, so as to
+facilitate them to navigate and innovate in this fast-
+growing research area. To the best of our knowl-
+edge, ours is the ﬁrst review focusing on this spe-
+ciﬁc topic.
+1 Introduction
+A powerful technique for text analysis, topic modelling has
+enjoyed success in various applications in machine learnin g,
+natural language processing (NLP), and data mining for al-
+most two decades. A topic model is applied to a collection of
+documents and aims to discover a set of latent topics, each of
+which describes an interpretable semantic concept. Bayesi an
+probabilistic topic models (BPTMs) have been the most pop-
+ular and successful series of models, with latent Dirichlet
+allocation (LDA) the best known representative. A BPTM
+usually speciﬁes a probabilistic generative model that gen er-
+ates the data of a document with a structure of latent vari-
+ables sampled from pre-speciﬁed distributions connected b y
+Bayes’ theorem. Topics are captured by these latent variabl es.
+Like other Bayesian models, the learning of a BPTM is done
+by a (Bayesian) inference process (e.g. variational infere nce
+(VI) and Monte Carlo Markov Chain sampling).
+Despite their success, conventional BPTMs started to show
+signs of fatigue in the era of big data and deep learning: 1)
+Given a speciﬁc BPTM, its inference process usually needs
+to be customised accordingly and the inference complexity
+may grow signiﬁcantly as the model complexity grows. Un-
+fortunately, it is also hard to automate the design of the inf er-
+ence processes. 2)The inference processes for conventionalBPTMs can be hard to scale efﬁciently on large text collec-
+tions or to leverage parallel computing facilities like GPU s.
+3)It is usually inconvenient to integrate BPTMs with other
+deep neural networks (DNNs) for joint training.
+With the recent developments in DNNs and deep genera-
+tive models, there has been an emerging research direction
+which aims to leverage DNNs to boost performance, efﬁ-
+ciency, and usability of topic modelling, named neural topic
+models (NTMs). With appealing ﬂexibility and scalability,
+NTMs have gained a huge research following, with more
+than a hundred models and variants developed to date. More-
+over, NTMs have been used in important NLP tasks including
+text generation, document summarisation, and translation , ar-
+eas to which conventional topic models are harder to apply.
+Therefore, it is important to properly summarise research d e-
+velopments, categorise existing approaches, identify rem ain-
+ing issues, and discuss open problems and future directions .
+To the best of our knowledge, a comprehensive review specif-
+ically focusing on NTMs has not been published. In this pa-
+per, we would like to ﬁll this gap by providing an overview for
+interested researchers who want to develop new NTMs and/or
+to apply NTMs in their domains. The notable contributions of
+our paper can be summarised as follows: 1)We propose a tax-
+onomy of NTMs where we categorise existing models based
+on their backbone framework. 2)We ﬁrst provide an infor-
+mative discussion and overview of the background and eval-
+uation methods for NTMs and conduct a focused yet com-
+prehensive review, offering detailed comparisons of the va ri-
+ants in different categories of NTMs with applications. 3)We
+identify the limitations of existing methods and analyse th e
+possible future research directions for NTMs.
+The rest of this paper is organised as follows. Section 2
+introduces the background, deﬁnitions, and evaluations. S ec-
+tion 3 and 4 review NTMs with various backbone frame-
+works. Section 5 discusses the applications. The current ch al-
+lenges and future directions are discussed in Section 6. Not e
+that given the two page limit of references, we may only keep
+the most relevant papers to NTMs.
+2 Background, Deﬁnition, and Evaluation
+2.1 Background and Deﬁnition
+The most important idea of a topic model is the modelling of
+the three key entities: document ,word , and topic .
+
+--- 第2页 ---
+Notations of Data A topic model works on a corpus (i.e.,
+a collection of documents), where a document, by its nature,
+can be represented as a sequence of words, which can be de-
+noted by a vector of natural numbers, s∈NL, whereLis
+the length of the document and sj∈ {1,···,V}is the in-
+dex in the vocabulary (with the size of V) of the token for
+thejth(j∈ {1,···,L})word. A more common represen-
+tation in topic modelling is the bag-of-words model, which
+represents a document by a vector of word counts, b∈ZV
+≥0,
+wherebvindicates the occurrences of the vocabulary token
+v∈ {1,···,V}in the document. One can readily obtain b
+for a document from its word sequence vector s.
+Notations of Latent Variables A central concept is a topic ,
+which is usually interpreted as a cluster of words, describi ng
+a speciﬁc semantic meaning. A topic is or can be normalised
+into a distribution over the tokens in the vocabulary, named
+word distribution ,t∈∆V, where∆Vis aVdimensional
+simplex and tvindicates the weight or relevance of token v
+under this topic. Usually, a document’s semantic content is
+assumed to be captured or generated by one or more topics
+shared across the corpus. Therefore, a document is com-
+monly associated with a distribution (or a vector that can be
+normalised into a distribution) over K(K≥1) topics, named
+topic distribution ,z∈∆K, wherezkindicates the weight of
+thekthtopic for this document. We further use D,Z, andTto
+denote the corpus with all the document data, the collection s
+of topic distributions of all the documents, and the collect ions
+of word distributions of all the topics, respectively.
+Notations of Architectures and Learning With these no-
+tations, the task for a topic model is to learn the latent vari -
+ables ofTandZfrom the observed data D. More formally,
+a topic model learns a projection parameterised by θfrom
+a document’s data to its topic distribution: z=θ(b)and a
+set of global variables for the word distributions of the top -
+ics:T. In order to learn these parameters, one generates or
+reconstructs a document’s BoW data from its topic distribu-
+tion, which is modelled by another projection parameterise d
+byφ:˜b=φ(z,T). Note that the majority of topic mod-
+els belong to the category of probabilistic generative mode ls,
+wherezandbare latent and observed random variables as-
+sumed to be generated from certain distributions respectiv ely.
+The projection from the latent variables to the observed one s
+is named the generative process, which we further denote as:
+˜b∼pb
+φ(z,T)wherezis sampled from the prior distribution
+z∼pz. While the inverse projection is named the inference
+process, denoted as z∼qz
+θ(b), whereqzis the posterior dis-
+tribution of z. For NTMs, these probabilities are typically
+parameterised by deep neural networks.
+2.2 Evaluation
+It is still challenging to comprehensively evaluate and com -
+pare the performance of topic models including NTMs.
+Based on the nature and applications of topic models, the
+commonly-used metrics are as follows.
+Predictive accuracy It has been common to measure the
+log-likelihood of a model on held-out test documents, i.e.,
+the predictive accuracy. A more popular metric based onlog-likelihood is perplexity, which captures how surprise d
+a model is of new (test) data and is inversely proportional
+to average log-likelihood per word. Although log-likeliho od
+or perplexity gives a straight numerical comparison betwee n
+models, there remain issues: 1)As topic models are not for
+predicting unseen data but learning interpretable topics a nd
+representations of seen data, predictive accuracy does not re-
+ﬂect the main use of topic models. 2)Predictive accuracy
+does not capture topic quality. Predictive accuracy and hum an
+judgement on topic quality are often not correlated [7], and
+even sometimes slightly anti-correlated. 3)The estimation of
+the predictive probability is usually intractable for Baye sian
+models and different papers may apply different sampling or
+approximation techniques. For NTMs, the computation of
+log-likelihood is even more inconsistent, making it harder to
+compare the results across different papers.
+Topic Coherence Experiments show topic coherence (TC)
+computed with the coherence between a topic’s most rep-
+resentative words (e.g, top 10 words) is inline with human
+evaluation of topic interpretability [32]. Various formulations
+have been proposed to compute TC, we refer readers to [49]
+for more details. Most formulations require to compute the
+general coherence between two words, which are estimated
+based on word co-occurrence counts in a reference corpus.
+Regarding TC: 1)The ranking of TC scores may vary un-
+der different formulations. Therefore, it is encouraged to re-
+port TC scores of different formulations or report the avera ge
+score. 2)The choice of the reference corpus can also affect
+the TC scores, due to the change of lexical usage, i.e, the
+shift of word distribution. For example, computing TC for
+a machine learning paper collection with a tweet dataset as
+reference may generate inaccurate results. Popular choice s of
+the reference corpus are the target corpus itself or an exter nal
+corpus such as a large dump of Wikipedia. 3)To exclude less
+interpretable “background” topics, one can select the topi cs
+(e.g., top 50%) with the highest TC and report the average
+score over those selected topics [69]or to vary the proportion
+of the selected topics (e.g, from 10% to 100%) and plot TC
+score at each proportion [70].
+Topic Diversity Topic diversity (TD), as its name implies,
+measures how diverse the discovered topics are. It is prefer -
+able that the topics discovered by a model describe differen t
+semantic topical meanings. Speciﬁcally, [11]deﬁnes topic
+diversity to be the percentage of unique words in the top 25
+words.
+Downstream Application Performance The topic distri-
+butionzof a document learned by a topic model can be used
+as the semantic representation of the document, which can
+be used in document classiﬁcation, clustering, retrieval, vi-
+sualisation, and elsewhere. For document classiﬁcation, o ne
+can train a classiﬁcation model with the topic distribution s
+learned by a topic model as features and report the classiﬁca -
+tion performance to compare different topic models. Docu-
+ment clustering can be conducted by two strategies: 1)Simi-
+lar to classiﬁcation, one can perform a clustering model (e. g.
+K-means with different numbers of clusters) on the topic dis -
+tributions, such as in [70];2)Alternatively, topics can be
+viewed as “soft” clusters of documents. Thus, one can use the
+
+--- 第3页 ---
+most signiﬁcant topic of a document (i.e., the topic with the
+largest weight in the topic distribution) as the cluster ass ign-
+ment, such as in [42]. For document retrieval, we can use the
+distance of the topic distributions of two documents as thei r
+semantic distance and report retrieval accuracy as a metric
+of topic modelling [30]. For qualitative analysis, a popular
+choice is to use visualisation techniques (e.g., t-SNE) on z.
+3 Neural Topic Models with Amortised
+Variational Inference
+The recent success of deep generative models such as varia-
+tional autoencoders (V AEs) and amortised variational infe r-
+ence (A VI) [28; 48 ]has shed light on extending the genera-
+tive process and amortising the inference process of BPTMs,
+which is the most popular framework for NTMs. We name
+this series of models V AE-NTMs. The basic framework of
+a V AE follows the description in Section 2.1, where band
+zare the observed and latent variables respectively and the
+generative and inference processes are modelled by the DNN-
+based decoder and encoder respectively. Following [28;
+48], one can learn a V AE model by maximising the Evidence
+Lower BOund (ELBO) of the marginal likelihood of the
+BoW data bin terms of θ,φ, andT:Ez∼qz[logp(b|z)]−
+KL[qz/bardblpz],where the RHS term is the Kullback-Leiber
+(KL) divergence. To compute/estimate gradients, tricks li ke
+reparameterisations are usually used to back-propagate gr a-
+dients through the expectation in the LHS term and approx-
+imations are applied when the analytical form of the KL di-
+vergence is unavailable.
+To adapt the V AE framework for topic modelling, there are
+two key questions to be answered: 1)Different from other
+applications, the input data of topic modelling has its uniq ue
+properties, i.e., bis a high-dimensional, sparse, count-valued
+vector and sis a variable-length sequential data. How to
+deal with such data is the ﬁrst question for designing a V AE
+topic model. 2)Interpretability of topics is extremely im-
+portant in topic modelling. When it comes to a V AE model,
+how to explicitly or implicitly incorporate the word distri -
+butions of topics (i.e., T) to interpret the latent representa-
+tions or each dimension remains another question. [37]pro-
+poses the ﬁrst answers to the above questions, where the de-
+coder is developed by specifying the data distribution pbas:
+pb:=Multi/parenleftbig
+softmax/parenleftbig
+TTz+c/parenrightbig/parenrightbig
+. Herez∈RKmod-
+els the topic distribution of a document, T∈RK×Vmod-
+els the words distributions of the topics, and c∈RVis the
+bias. That is to say, φ:={c}1andT:={T}. For the en-
+coder which takes bas input and outputs (the samples of) z,
+the paper follows the original V AE: pz:=N(0,diagK(1));
+qz:=N(µ,diagK(σ2)), whereπ=θ0(b),µ=θ1(π), and
+logσ=θ2(π). Here,θ:={θ0,θ1,θ2}, all of which are
+multi-layer perceptrons (MLPs). To better address the abov e
+questions, various conﬁgurations of the prior distributio npz,
+data distribution pb, posterior distribution qz, as well as dif-
+ferent architectures of the decoder φ, encoder θ, word distri-
+butions of the topics T, have been proposed for V AE-NTMs.
+1With a slight abuse of notation, we use θandφto denote the
+projections or the parameters of the projections.Figure 1 shows the taxonomy of V AE-NTMs.
+3.1 Variants of Distributions
+Given the knowledge and experience of BPTMs, z’s prior
+plays an important role in the quality of topics and document
+representations in topic models. Thus, various constructi ons
+of the prior distributions and their corresponding posteri or
+distributions have been proposed for V AE-NTMs, aiming to
+be better alternatives to the normal distributions used in t he
+original models.
+Variants of Prior Distributions for z.Note that the appli-
+cation of Dirichlet is one of the key successes of LDA for
+encouraging topic smoothness and sparsity. For V AE-NTMs,
+one can apply: pz:=Dir(α0)andqz:=Dir(θ(b)). How-
+ever, it is difﬁcult to develop an effective reparameterisa tion
+function (RF) for Dirichlet, making it hard to compute the
+gradient of the expectation in ELBO. Therefore, various ap-
+proximations have been proposed. For example, [52]uses
+the Laplace approximation, where Dirichlet samples are ap-
+proximated by these sampled from a logistic normal distri-
+bution, whose mean and co-variance are speciﬁcally conﬁg-
+ured. Recall that the Dirichlet distribution can be simulat ed
+by normalising gamma variables, which still do not have non-
+central differentiable RF but are easier to approximate. Se v-
+eral works have been proposed in this line, such as using the
+Weibull distribution as the approximation of gamma in [68],
+approximating the cumulative distribution function of gam ma
+with an auxiliary uniform variable in [25], and leveraging the
+proposal function of a rejection sampler of the gamma distri -
+bution as the RF in [4]. Recently, [55]proposes to tackle this
+challenge by using the so-called rounded RF, which approx-
+imates Dirichlet samples by those drawn from the rounded
+posterior distribution. In addition to the above methods th at
+are speciﬁc to topic modelling or V AEs, other general ap-
+proaches for distributions without RF can also be used in
+V AE-NTMs, such as those in [50; 38 ]. Other than Dirichlet,
+[36]introduces a Gaussian softmax (GSM) function in the en-
+coder:qz:=softmax/parenleftbig
+N(µ,diagK(σ2))/parenrightbig
+and[51]proposes
+to use a logistic-normal mixture distribution for the prior of
+z. To further enhance the sparsity in z,[34]introduces to use
+the sparsemax function to replace the softmax in GSM.
+Nonparametric Prior for z.Bayesian Nonparametrics
+such as the Dirichlet processes and Indian Buffet Processes
+have been successfully applied in Bayesian topic modelling ,
+enabling to automatically infer the number of topics (i.e., K).
+As a ﬂexible construction of Dirichlet processes, the stick -
+breaking process (SBP) is able to generate probability vect ors
+with inﬁnite dimensions, which has been used to the prior of
+zin V AE-NTMs. Given z∼SBP(α0), we have z1=v1and
+zk=vk/producttext
+j<k(1−vj)fork >1, wherevk∼Beta(1,α0).
+This procedure can be viewed as iteratively breaking a lengt h-
+one stick into multiple ones and the kthiteration breaks the
+stick at the point of vk. Although not for NTMs, [39]pro-
+poses to use SBP to generate zfor V AEs, where VI is done
+by various approximations to the beta distribution of vkwith
+truncation. [43]adapts this SBP construction for V AE-NTMs
+and also proposes to impose an SBP on the corpus level,
+which serves as the prior for the document-level SBP, form-
+
+--- 第4页 ---
+Frameworks of NTMs
+V AE-NTMs
+(Section 3)
+Variants of
+Priors for Topics
+(Section 3.1)
+[52; 68; 25; 4;
+55; 36; 51; 34 ]Nonparametric
+priors for
+Topics
+(Section 3.1)
+[39; 43;
+36; 62 ]Variants of
+BoW Data
+Distributions
+(Section 3.1)
+[71]Variants
+of Word
+Distributions
+(Section 3.1)
+[26; 11; 13 ]Correlated
+and Structured
+Topics
+(Section 3.2)
+[35; 24;
+68; 14 ]NTMs with
+Meta-data
+(Section 3.3)
+[6; 29;
+60; 2 ]NTMs for
+Short Text
+(Section 3.4)
+[67; 74;
+33; 15;
+63; 21 ]Sequential
+NTMs
+(Section 3.5)
+[40; 66;
+12; 44; 47 ]NTMs with
+Pre-trained
+Language
+Models
+(Section 3.6)
+[3; 54;
+8; 22 ]DocNADE-
+NTMs
+(Section 4.1)
+[30; 18;
+20; 19 ]GAN-NTMs
+(Section 4.2)
+[57; 56; 23 ]GNN-NTMs
+(Section 4.3)
+[74; 65; 73 ]Other
+Frameworks
+(Section 4.4)
+[5; 9;
+45; 16;
+41; 70 ]
+Figure 1: A taxonomy of the papers regarding neural topic mod els
+ing into a hierarchical model. In [36], the break points vk
+are generated from a posterior modelled by a recurrent neu-
+ral network (RNN) with normal noises as input, making the
+model able to automatically infer Kin a truncation-free man-
+ner. Recently, [62]uses the truncated (gamma) negative bi-
+nomial process to generate discrete vectors for z(i.e. each
+entry ofzis equivalently generated by an independent Pois-
+son distribution), which gives the model certain ability to be
+nonparametric.
+Variants of Data Distribution pb.In addition to impos-
+ing different distributions on z,[71]proposes to replace
+the multinomial data distribution used in other NTMs with
+the negative-binomial distribution to capture overdisper sion:
+b∼NB(φ0(z),φ1(z)), where two separate decoders φ0
+andφ1are proposed to generate the two parameters of the
+negative-binomial distribution from z.
+Variants of Word Distributions T.Conventionally, the
+collection of the word distributions of the topics Tis aK×V
+matrix, i.e., T∈RK×VwithKV free parameters to learn. In
+NTMs, it has been popular to factorise the matrix into a prod-
+uct of topic and word embeddings, meaning that the relevance
+between a topic and a word is captured by their distance in the
+embedding space. This construction has been studied in de-
+tails in [26; 11; 13 ].
+3.2 Correlated and Structured Topics
+Topics discovered by conventional topic models like LDA are
+usually independent. An important research direction is to
+explicitly capture topic correlations (e.g. pairwise rela tions
+between topics) or structures (e.g. tree structures of topi cs),
+which has been studied in NTMs as well. Following the
+framework of V AE with Householder ﬂow, which enables to
+drawzfrom the normal posterior with a non-diagonal covari-
+ance matrix, [35]develops a more efﬁcient centralised trans-
+formation ﬂow for NTMs, which is able to discover pairwise
+topic correlations by the covariance matrix. In terms of tre e-
+structured topics, [24]introduces to generate a series of topics
+from the root to the leaf of a topic tree with a doubly-recurre nt
+neural network [1]. When applied in topic modelling, the
+gamma belief network (GBN) can be viewed as a Bayesian
+model that also discovers three-structured topics, whose i n-
+ference is done by Gibbs sampling. [68]introduces the NTM
+counterpart of GBN, which leverages A VI as the inferenceprocess and signiﬁcantly improves the test time of GBN. [14]
+proposes an structured V AE-NTM that discovers topics with
+respect to different aspects, specialising in modelling us er re-
+views.
+3.3 NTMs with Meta-data
+Conventionally, topic models learn from documents in an un-
+supervised way. However, documents are usually associated
+with rich sets of meta-data on both document and word lev-
+els, such as document labels, authorships, and pre-trained
+word embeddings, which can be used to improve topic qual-
+ity or document representation quality for supervised task s
+(e.g., accuracy of predicting document meta-data). [6]pro-
+poses a V AE-NTM that is able to incorporate various kinds
+of meta-data, where the BoW data bof a document and its la-
+bels (e.g., sentiment) are generated with a joint process co ndi-
+tioned on the document’s covariates (e.g., publication yea r) in
+the decoder and the encoder generates zby conditioning on
+all types of data of the document: BoW, covariates, and la-
+bels. Instead of specifying the generative model as a direct ed
+network as in most of topic models, [29]introduces the logis-
+tic LDA model whose generative process can be viewed as an
+undirected graph. In addition to the BoW data, a document’s
+label is also an observed variable in the graph. Following
+a few assumptions of factorisation in the generative proces s,
+the paper manually speciﬁes the complete conditional distr i-
+butions in the graph with the interactions between the laten t
+variables captured by neural networks. The inference is don e
+by the mean-ﬁeld VI and zin the model is further trained to
+be more discriminative for the classiﬁcation of labels. Giv en a
+set of documents with labels, [60]uses a V AE-NTM to model
+a document’s BoW data and an RNN classiﬁer to predict a
+document’s label based on its sequential data in a joint trai n-
+ing process. The paper combines the two models by intro-
+ducing an attention mechanism in the RNN which takes doc-
+uments’ topics into account. [2]proposes to incorporate rela-
+tional graphs (e.g. citation graph) of documents into NTMs,
+where the topic distributions of two document are fed into a
+network with MLPs to predict whether they should be con-
+nected.
+3.4 NTMs for Short Texts
+Texts generated on the internet (e.g., tweets, news headlin es
+and product reviews) can be short, meaning that each indi-
+
+--- 第5页 ---
+vidual document contains insufﬁcient word co-occurrence i n-
+formation. This results in degraded performance for both
+BPTMs and NTMs. To tackle this issue, one can limit a
+model’s capacity and to enhance the contextual information
+of short texts. [67]proposes a combination of an NTM and a
+memory network for short text classiﬁcation in a similar spi rit
+to[60]. The main difference is the memory network instead
+of RNN is responsible for classiﬁcation, which is informed
+by the topic distributions learned by the NTM. To enhance
+the contextual information of short documents, [74]proposes
+an NTM whose encoder is a graph neural network (GNN)
+taking the biterms graph of the words in sampled documents
+as inputs and outputting the topic distribution for the whol e
+corpus. The model also learns a decoder that reconstructs
+the input biterms graph. Despite the novel idea, the model
+might not be able to generate the topic distribution of an in-
+dividual document. To limit a short document to focus on
+several salient topics, [33]introduces to use the Archimedean
+copulas to regularise the discreteness of topic distributi ons for
+short texts. [15]proposes an NTM with reinforced content by
+limiting the number of the active topics for each short docu-
+ment and informing the word distributions of the topics by
+using pretrained word embeddings. [63]introduces an NTM
+with vector quantisation over z, i.e., a document’s topic dis-
+tribution can only be one vector in the learned dictionary in
+the vector quantisation process. In addition to maximising
+the likelihood of the input documents, the paper introduces
+to minimise the likelihood of the negatively-sampled “fake
+documents”. Although not directly addressing the short tex t
+problem for topic modelling, [21]introduces NTMs for mod-
+elling microblog conversations, by leveraging their uniqu e
+meta data and structures.
+3.5 Sequential NTMs
+The ﬂexibility of V AE-NTMs enables to leverage various
+neural network architectures for the encoder and decoder.
+With the help of sequential networks like RNNs, unlike other
+NTMs working with BoW data (i.e., b), sequential NTMs
+(SNTMs) usually take sequences of words of documents (i.e.,
+s) and are able to capture the orders of words, sentences, and
+topics. [40]proposes an SNTM working with s, which sam-
+ples a topic for each sentence of an input document accord-
+ing tozand then generates the word sequence of the sentence
+with an RNN conditioned on the sentence’s topic. Note that z
+is attached to a document and shared across all its sentences .
+In[66], givens, a word’s topic is conditioned on its previ-
+ous word’s and this order dependency is captured by a long
+short-term memory (LSTM) model. At the similar period of
+time, [12]independently proposes an SNTM whose gener-
+ative process is similar to [66], with an additional variable
+modelling stop words and several variants in the inference
+process. Recently, [44]proposes to use an LSTM with at-
+tentions as the encoder taking sas input, where the attention
+incorporates topical information with a context vector tha t is
+constructed by topic embeddings and document embeddings.
+[47]introduces an SNTM that is related to [12], where instead
+of marginalising out the discrete topic assignments, the pa per
+proposes to generate them from an RNN model. This helps
+to avoid using reparameterisation tricks in the variationa l in-ference.
+3.6 NTMs with Pre-trained Language Models
+Recently, pre-trained transformer-based language models
+such as BERT are becoming ubiquitous in NLP. Pre-trained
+on large corpora, such models usually have a ﬁne-grained
+ability to capture aspects of linguistic context, which can be
+partially represented by contextual word embeddings. Thes e
+contextual word embeddings can provide richer context info r-
+mation than BoW or sequential data, which has been recently
+used to assist the training of topic models. Instead of using
+the BoW or sequential data of a document as the input of the
+encoder, [3]proposes to use the document embedding vector
+generated by Sentence-BERT [46]and to keep the remaining
+part of an NTM the same as [52].[54]shows that the clusters
+obtained by performing clustering algorithms (e.g., Kmean s)
+on the contextual word embeddings generated by various
+pre-trained models can be interpreted as topics, similar to
+those discovered by LDA. Having similar ideas with [67;
+60],[8]proposes to combine an NTM with a ﬁne-tuned BERT
+model by concatenating the topic distribution and the learn ed
+BERT embedding of a document as the features for docu-
+ment classiﬁcation. [22]proposes an NTM learned by distill-
+ing knowledge from a pre-trained BERT model. Speciﬁcally,
+given a document, the BERT model generates the predicted
+probability for each word then the paper introduces to aver-
+age those probabilities to generate a pseudo BoW vector for
+the document. An NTM following [6]is used to reconstruct
+both the actual and pseudo BoW data.
+4 NTMs based on Other Frameworks
+Besides V AE-NTMs, there are other frameworks for NTMs
+that also draw research attention.
+4.1 NTMs based on Autoregressive Models
+V AE-NTMs gained popularity after V AEs were invented. Be-
+fore that, NTMs based on the autoregressive framework had
+been studied. Speciﬁcally, [30]proposes an autoregressive
+NTM, named DocNADE, similar to the spirit of RNNs, where
+the predictive probability of a word in a document is condi-
+tioned on its hidden state, which is further conditioned on
+the previous words. A hidden unit can be interpreted as a
+topic and a document’s hidden states capture its topic distr i-
+bution. The learning is done by maximising the likelihood
+of the input documents. Recently, [18]extends DocNADE
+by introducing a structure similar to the bi-directional RN N,
+which allows to model bi-directional dependencies between
+words. [19]combines DocNADE with an LSTM for incorpo-
+rating external knowledge. [20]extends DocNADE into the
+life long learning settings.
+4.2 NTMs based on Generative Adversarial Nets
+Besides V AEs, generative adversarial networks (GANs) are
+another popular series of deep generative models. Recently ,
+there are a few attempts on adapting the GAN framework for
+topic modelling. [57]proposes a GAN generator that takes
+a random sample of the Dirichlet distribution as a topic dis-
+tribution ˜zand generates the word distributions of a “fake”
+
+--- 第6页 ---
+document conditioning on ˜z. A discriminator is introduced
+to distinguish between generated word distributions and re al
+word distributions obtained by normalising the TF-IDF vec-
+tors of real documents. Although the proposed model is able
+to discover interpretable topics, it cannot learn topic dis tribu-
+tions for documents. To address this issue, [56]introduces an
+additional encoder that learns zfor a given document. More-
+over,zis concatenated with the word distribution of a doc-
+ument as a real datum and ˜zis concatenated with the gener-
+ated word distribution as a fake datum. The discriminator is
+designed to distinguish between the real and fake ones. [23]
+further extends the above model with a CycleGAN frame-
+work.
+4.3 NTMs based on Graph Neural Networks
+Instead of viewing a document as a sequence or bag of words,
+one can consider the graph presentations of a corpus of docu-
+ments. This perspective enables leveraging a variety of GNN s
+to discover latent topics. As discussed in Section 3.4, [74]
+views a collection of documents as a biterm word graph.
+While [65; 73 ]model a corpus by a bipartite graph with doc-
+uments and words as two separate parties and connected by
+the occurrences of words in documents. For the former, it di-
+rectly uses the word occurrences of documents as the weights
+of the connections between them and for the latter, it uses
+TF-IDF values instead.
+4.4 NTMs based on Other Frameworks
+In addition to the above frameworks, other kinds of NTMs
+have also been developed. An NTM is developed in [5]that
+takes n-gram embeddings (obtained from word embeddings)
+and a document index as input and then predicts whether an n-
+gram is in the document. [9]proposes an autoencoder model
+for NTMs where the neurons in the hidden layer of the au-
+toencoder compete with each other, focusing them to be spe-
+cialised in recognising speciﬁc data patterns. [45]proposes
+an NTM based on matrix factorisation. [16]proposes a rein-
+forcement learning framework for NTMs, where the encoder
+and decoder of an NTM are kept. In addition, an agent takes
+actions to select the topical-coherent words from a documen t
+and uses the selected words as the input document for the
+encoder. The reward to the agent is the topic coherence of
+the reconstructed document from the decoder. [41]adapts
+the framework of Wasserstein auto-encoders (WAEs), which
+minimises the Wasserstein distance between reconstructed
+documents from the decoder and real documents, similarly to
+V AE-NTMs. [70]recently introduces a NTM based on opti-
+mal transport, which directly minimises the optimal transp ort
+distance between the topic distribution learned by an encod er
+and the word distribution of a document.
+5 Applications of NTMs
+Although just recently developed, NTMs have been actively
+used in various applications. Compared with conventional
+topic models, NTMs have the appealing advantages of ﬂex-
+ibility: 1)NTMs are ﬂexible in representing topic distribu-
+tions of documents and word distributions of topics with ei-
+ther probability vectors or embeddings, and are more easilyincorporated into broader models. 2)The inference process
+of NTMs can usually be formulated as an optimisation pro-
+cess with gradients, which is more conveniently integrated
+with other DNN models for joint training.
+Many DNN models used for language such as RNNs,
+transformers, and attention might not be able to capture lon g-
+range dependency well. On the contrary, working on BoW
+data, NTMs are good at learning global semantic representa-
+tions for long texts, which can serve complementary informa -
+tion to the above models. This leads to a wide range of ap-
+plications of NTMs in NLP such as language models [31; 58;
+64; 17; 27 ], text generation [53; 59 ], and summarisation [10;
+72; 61 ]. Due to the space limit of the references, a detailed
+list of application papers are omitted.
+6 Discussion
+In this paper, we have reviewed neural topic models, the most
+popular research trend of topic modelling in the deep learn-
+ing era. A variety of NTMs based on different frameworks
+have been developed and due to the appealing ﬂexibility, ef-
+fectiveness, and efﬁciency, NTMs show a promising poten-
+tial in a range of applications. In addition to providing an
+overview of existing approaches of NTMs, we would like to
+discuss the following challenges and opportunities. 1) Bet-
+ter evaluation: As stated in Section 2.2, evaluation of topic
+models is challenging. This is mainly because there has not
+been a uniﬁed system of evaluation metrics, making the com-
+parisons across different NTMs harder due to the variety of
+frameworks, architectures and datasets. For example, V AE-
+NTMs calculate perplexity using the ELBO, attached to the
+models with variational inference, which cannot be compare d
+with models without ELBO. Also for topic coherence and
+downstream performance, the evaluation processes, metric s,
+settings usually vary in different papers. As a topic model
+should be evaluated with comprehensive metrics, it could be
+tendentious to only use one kind of metric (e.g., topic co-
+herence), which can reﬂect just one aspect of a model. There-
+fore, uniﬁed platforms and benchmarks for NTMs are needed.
+2) Richer architectures and applications: Compared to
+BPTMs, NTMs offer better ﬂexibility for representing topic
+distributions for documents and word distributions for top ics.
+Particularly, projecting documents, topics, and words int o a
+uniﬁed embedding space transforms the thinking of the re-
+lationships between the three. Given this ﬂexibility, NTMs
+are expected to get integrated with the most recent neural ar -
+chitectures and play a unique role in richer applications. 3)
+More external knowledge: With the development of topic
+models including NTMs, people have not stopped seeking to
+leverage external knowledge to help the learning, from doc-
+ument meta-data to pre-trained word embeddings. Recently-
+proposed pre-trained language models (e.g., BERT) provide
+more advanced, ﬁner-grained, and higher-level representa -
+tions of semantic knowledge (e.g., contextual word embed-
+dings over global embeddings), which can be leveraged in
+NTMs to boost performance. Although the marriage between
+NTMs and language models is still an emerging area, we ex-
+pect to see more developments in this important direction.
+
+--- 第7页 ---
+References
+[1]D. Alvarez-Melis and T. S. Jaakkola. Tree-structured
+decoding with doubly-recurrent neural networks. In
+ICLR , 2017.
+[2]H. Bai, Z. Chen, M. R. Lyu, I. King, and Z. Xu. Neural
+relational topic models for scientiﬁc article analysis. In
+CIKM , 2018.
+[3]F. Bianchi, S. Terragni, and D. Hovy. Pre-training is
+a hot topic: Contextualized document embeddings im-
+prove topic coherence. arXiv , 2020.
+[4]S. Burkhardt and S. Kramer. Decoupling sparsity
+and smoothness in the Dirichlet variational autoencoder
+topic model. JMLR , 2019.
+[5]Z. Cao, S. Li, Y . Liu, W. Li, and H. Ji. A novel neu-
+ral topic model and its supervised extension. In AAAI ,
+2015.
+[6]D. Card, C. Tan, and N. A. Smith. Neural models for
+documents with metadata. In ACL, 2018.
+[7]J. Chang, J. Boyd-Graber, C. Wang, S. Gerrish, and
+D. M. Blei. Reading tea leaves: How humans interpret
+topic models. In NeurIPS , 2009.
+[8]Y . Chaudhary, P. Gupta, K. Saxena, V . Kulkarni, T. Run-
+kler, and H. Sch¨ utze. TopicBERT for energy efﬁcient
+document classiﬁcation. In EMNLP , 2020.
+[9]Y . Chen and M. J. Zaki. KATE: K-competitive autoen-
+coder for text. In SIGKDD , 2017.
+[10]P. Cui, L. Hu, and Y . Liu. Enhancing extractive text
+summarization with topic-aware graph neural networks.
+InCOLING , 2020.
+[11]A. B. Dieng, F. J. Ruiz, and D. M. Blei. Topic modeling
+in embedding spaces. TACL , 2020.
+[12]A. B. Dieng, C. Wang, J. Gao, and J. Paisley. Topi-
+cRNN: A recurrent neural network with long-range se-
+mantic dependency. In ICLR , 2017.
+[13]R. Ding, R. Nallapati, and B. Xiang. Coherence-aware
+neural topic modeling. In EMNLP , 2018.
+[14]B. Esmaeili, H. Huang, B. Wallace, and J.-W. van de
+Meent. Structured neural topic models for reviews. In
+AISTATS , 2019.
+[15]J. Feng, Z. Zhang, C. Ding, Y . Rao, and H. Xie. Context
+reinforced neural topic modeling over short texts. arXiv ,
+2020.
+[16]L. Gui, J. Leng, G. Pergola, R. Xu, and Y . He. Neural
+topic model with reinforcement learning. In EMNLP-
+IJCNLP , 2019.
+[17]D. Guo, B. Chen, R. Lu, and M. Zhou. Recurrent hier-
+archical topic-guided RNN for language generation. In
+ICML , 2020.
+[18]P. Gupta, Y . Chaudhary, F. Buettner, and H. Sch¨ utze.
+Document informed neural autoregressive topic models
+with distributional prior. In AAAI , 2019.[19]P. Gupta, Y . Chaudhary, F. Buettner, and H. Sch¨ utze.
+Texttovec: Deep contextualized neural autoregressive
+topic models of language with distributed compositional
+prior. In ICLR , 2019.
+[20]P. Gupta, Y . Chaudhary, T. Runkler, and H. Schuetze.
+Neural topic modeling with continual lifelong learning.
+InICML , 2020.
+[21]R. He, X. Zhang, D. Jin, L. Wang, J. Dang, and X. Li.
+Interaction-aware topic model for microblog conversa-
+tions through network embedding and user attention. In
+COLING , 2018.
+[22]A. M. Hoyle, P. Goel, and P. Resnik. Improving neural
+topic models using knowledge distillation. In EMNLP ,
+2020.
+[23]X. Hu, R. Wang, D. Zhou, and Y . Xiong. Neural topic
+modeling with cycle-consistent adversarial training. In
+EMNLP , 2020.
+[24]M. Isonuma, J. Mori, D. Bollegala, and I. Sakata. Tree-
+structured neural topic model. In ACL, 2020.
+[25]W. Joo, W. Lee, S. Park, and I.-C. Moon. Dirichlet vari-
+ational autoencoder. Pattern Recognition , 2020.
+[26]N. Jung and H. I. Choi. Continuous semantic topic em-
+bedding model using variational autoencoder. arXiv ,
+2017.
+[27]N. Kawamae. Topic structure-aware neural language
+model: Uniﬁed language model that maintains word and
+topic ordering by their embedded representations. In
+WWW , 2019.
+[28]D. P. Kingma and M. Welling. Auto-encoding varia-
+tional Bayes. In ICLR , 2014.
+[29]I. Korshunova, H. Xiong, M. Fedoryszak, and L. Theis.
+Discriminative topic modeling with logistic LDA. In
+NeurIPS , 2019.
+[30]H. Larochelle and S. Lauly. A neural autoregressive
+topic model. NeurIPS , 2012.
+[31]J. H. Lau, T. Baldwin, and T. Cohn. Topically driven
+neural language model. In ACL, 2017.
+[32]J. H. Lau, D. Newman, and T. Baldwin. Machine read-
+ing tea leaves: Automatically evaluating topic coher-
+ence and topic model quality. In ACL, 2014.
+[33]L. Lin, H. Jiang, and Y . Rao. Copula guided neural topic
+modelling for short texts. In SIGIR , 2020.
+[34]T. Lin, Z. Hu, and X. Guo. Sparsemax and relaxed
+Wasserstein for topic sparsity. In WSDM , 2019.
+[35]L. Liu, H. Huang, Y . Gao, Y . Zhang, and X. Wei. Neural
+variational correlated topic modeling. In WWW , 2019.
+[36]Y . Miao, E. Grefenstette, and P. Blunsom. Discovering
+discrete latent topics with neural variational inference.
+InICML , 2017.
+[37]Y . Miao, L. Yu, and P. Blunsom. Neural variational in-
+ference for text processing. In ICML , 2016.
+
+--- 第8页 ---
+[38]C. Naesseth, F. Ruiz, S. Linderman, and D. Blei. Repa-
+rameterization gradients through acceptance-rejection
+sampling algorithms. In AISTATS , 2017.
+[39]E. Nalisnick and P. Smyth. Stick-breaking variational
+autoencoders. In ICLR , 2017.
+[40]R. Nallapati, I. Melnyk, A. Kumar, and B. Zhou.
+Sengen: Sentence generating neural variational topic
+model. arXiv , 2017.
+[41]F. Nan, R. Ding, R. Nallapati, and B. Xiang. Topic mod-
+eling with Wasserstein autoencoders. In ACL, 2019.
+[42]D. Q. Nguyen, R. Billingsley, L. Du, and M. Johnson.
+Improving topic models with latent feature word repre-
+sentations. TACL , 2015.
+[43]X. Ning, Y . Zheng, Z. Jiang, Y . Wang, H. Yang,
+J. Huang, and P. Zhao. Nonparametric topic modeling
+with neural inference. Neurocomputing , 2020.
+[44]M. Panwar, S. Shailabh, M. Aggarwal, and B. Krishna-
+murthy. TAN-NTM: Topic attention networks for neural
+topic modeling. arXiv , 2020.
+[45]M. Peng, Q. Xie, Y . Zhang, H. Wang, X. J. Zhang,
+J. Huang, and G. Tian. Neural sparse topical coding.
+InACL, 2018.
+[46]N. Reimers and I. Gurevych. Sentence-BERT: Sen-
+tence embeddings using siamese BERT-networks. In
+EMNLP-IJCNLP , 2019.
+[47]M. Rezaee and F. Ferraro. A discrete variational re-
+current topic model without the reparametrization trick.
+NeurIPS , 2020.
+[48]D. J. Rezende, S. Mohamed, and D. Wierstra. Stochas-
+tic backpropagation and approximate inference in deep
+generative models. In ICML , 2014.
+[49]M. R¨ oder, A. Both, and A. Hinneburg. Exploring the
+space of topic coherence measures. In WSDM , 2015.
+[50]F. Ruiz, M. Titsias, and D. Blei. The generalized repa-
+rameterization gradient. NeurIPS , 2016.
+[51]D. Silveira, A. Carvalho, M. Cristo, and M.-F. Moens.
+Topic modeling using variational auto-encoders with
+Gumbel-softmax and logistic-normal mixture distribu-
+tions. In IJCNN , 2018.
+[52]A. Srivastava and C. Sutton. Autoencoding variational
+inference for topic models. In ICLR , 2017.
+[53]H. Tang, M. Li, and B. Jin. A topic augmented text gen-
+eration model: Joint learning of semantics and structural
+features. In EMNLP-IJCNLP , 2019.
+[54]L. Thompson and D. Mimno. Topic modeling with con-
+textualized word representation clusters. arXiv , 2020.
+[55]R. Tian, Y . Mao, and R. Zhang. Learning V AE-
+LDA models with rounded reparameterization trick. In
+EMNLP , 2020.
+[56]R. Wang, X. Hu, D. Zhou, Y . He, Y . Xiong, C. Ye, and
+H. Xu. Neural topic modeling with bidirectional adver-
+sarial training. In ACL, 2020.[57]R. Wang, D. Zhou, and Y . He. ATM: Adversarial-neural
+topic model. Information Processing & Management ,
+2019.
+[58]W. Wang, Z. Gan, W. Wang, D. Shen, J. Huang, W. Ping,
+S. Satheesh, and L. Carin. Topic compositional neural
+language model. In AISTATS , 2018.
+[59]W. Wang, Z. Gan, H. Xu, R. Zhang, G. Wang, D. Shen,
+C. Chen, and L. Carin. Topic-guided variational auto-
+encoder for text generation. In NAACL , pages 166–177,
+2019.
+[60]X. Wang and Y . Yang. Neural topic model with attention
+for supervised learning. In AISTATS , 2020.
+[61]Z. Wang, Z. Duan, H. Zhang, C. Wang, L. Tian,
+B. Chen, and M. Zhou. Friendly topic assistant for trans-
+former based abstractive summarization. In EMNLP ,
+2020.
+[62]J. Wu, Y . Rao, Z. Zhang, H. Xie, Q. Li, F. L. Wang, and
+Z. Chen. Neural mixed counting models for dispersed
+topic discovery. In ACL, 2020.
+[63]X. Wu, C. Li, Y . Zhu, and Y . Miao. Short text topic
+modeling with topic distribution quantization and nega-
+tive sampling decoder. In EMNLP , 2020.
+[64]Y . Xiao, T. Zhao, and W. Y . Wang. Dirichlet variational
+autoencoder for text modeling. arXiv , 2018.
+[65]L. Yang, F. Wu, J. Gu, C. Wang, X. Cao, D. Jin, and
+Y . Guo. Graph attention topic modeling network. In
+WWW , 2020.
+[66]M. Zaheer, A. Ahmed, and A. J. Smola. Latent LSTM
+allocation: Joint clustering and non-linear dynamic
+modeling of sequence data. In ICML , 2017.
+[67]J. Zeng, J. Li, Y . Song, C. Gao, M. R. Lyu, and I. King.
+Topic memory networks for short text classiﬁcation. In
+EMNLP , 2018.
+[68]H. Zhang, B. Chen, D. Guo, and M. Zhou. Whai:
+Weibull hybrid autoencoding inference for deep topic
+modeling. In ICLR , 2018.
+[69]H. Zhao, L. Du, W. Buntine, and M. Zhou. Dirichlet
+belief networks for topic structure learning. In NeurIPS ,
+2018.
+[70]H. Zhao, D. Phung, V . Huynh, T. Le, and W. Buntine.
+Neural topic model via optimal transport. In ICLR ,
+2020.
+[71]H. Zhao, P. Rai, L. Du, W. Buntine, D. Phung, and
+M. Zhou. Variational autoencoders for sparse and
+overdispersed discrete data. In AISTATS , 2020.
+[72]C. Zheng, K. Zhang, H. J. Wang, and L. Fan. Topic-
+aware abstractive text summarization. arXiv , 2020.
+[73]D. Zhou, X. Hu, and R. Wang. Neural topic modeling by
+incorporating document relationship graph. In EMNLP ,
+2020.
+[74]Q. Zhu, Z. Feng, and X. Li. Graphbtm: Graph en-
+hanced autoencoded variational inference for biterm
+topic model. In EMNLP , 2018.

@@ -48,7 +48,7 @@ class EnhancedUninstaller {
    * Perform complete uninstallation
    */
   async completeUninstall() {
-    console.log('ðŸ—‘ï¸? Starting Enhanced Stigmergy Uninstall...\n');
+    console.log('ðŸ—‘ï¿½? Starting Enhanced Stigmergy Uninstall...\n');
 
     if (this.options.dryRun) {
       console.log('ðŸ” DRY RUN MODE - No files will be deleted\n');
@@ -80,7 +80,7 @@ class EnhancedUninstaller {
 
       return this.results;
     } catch (error) {
-      console.error('â?Uninstall failed:', error.message);
+      console.error('ï¿½?Uninstall failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -153,12 +153,12 @@ class EnhancedUninstaller {
 
     try {
       await this.removeDirectory(this.stigmergyDir);
-      console.log(`  âœ?Removed ${files.length} files and directories`);
+      console.log(`  ï¿½?Removed ${files.length} files and directories`);
       this.results.filesRemoved += files.length;
       this.results.directoriesRemoved++;
     } catch (error) {
       console.error(
-        `  â?Failed to remove Stigmergy directory: ${error.message}`,
+        `  ï¿½?Failed to remove Stigmergy directory: ${error.message}`,
       );
       this.results.errors.push(`Stigmergy directory: ${error.message}`);
     }
@@ -182,10 +182,10 @@ class EnhancedUninstaller {
 
     try {
       await this.removeDirectory(this.stigmergyTestDir);
-      console.log('  âœ?Removed test directory');
+      console.log('  ï¿½?Removed test directory');
       this.results.directoriesRemoved++;
     } catch (error) {
-      console.error(`  â?Failed to remove test directory: ${error.message}`);
+      console.error(`  ï¿½?Failed to remove test directory: ${error.message}`);
       this.results.errors.push(`Test directory: ${error.message}`);
     }
   }
@@ -223,15 +223,15 @@ class EnhancedUninstaller {
           await this.removeFile(file);
           totalCleaned++;
         }
-        console.log(`    âœ?Cleaned ${stigmergyFiles.length} files`);
+        console.log(`    ï¿½?Cleaned ${stigmergyFiles.length} files`);
       } catch (error) {
-        console.error(`    â?Failed to clean ${cli}: ${error.message}`);
+        console.error(`    ï¿½?Failed to clean ${cli}: ${error.message}`);
         this.results.errors.push(`${cli} config: ${error.message}`);
       }
     }
 
     if (!this.options.dryRun && totalCleaned > 0) {
-      console.log(`  âœ?Cleaned ${totalCleaned} CLI configuration files`);
+      console.log(`  ï¿½?Cleaned ${totalCleaned} CLI configuration files`);
       this.results.filesRemoved += totalCleaned;
     }
   }
@@ -264,13 +264,13 @@ class EnhancedUninstaller {
         await this.removeDirectory(cacheDir);
         removed++;
       } catch (error) {
-        console.error(`    â?Failed to remove ${cacheDir}: ${error.message}`);
+        console.error(`    ï¿½?Failed to remove ${cacheDir}: ${error.message}`);
         this.results.errors.push(`NPX cache: ${error.message}`);
       }
     }
 
     if (removed > 0) {
-      console.log(`  âœ?Removed ${removed} NPX cache entries`);
+      console.log(`  ï¿½?Removed ${removed} NPX cache entries`);
       this.results.directoriesRemoved += removed;
     }
   }
@@ -279,7 +279,7 @@ class EnhancedUninstaller {
    * Clean temporary files
    */
   async cleanTemporaryFiles() {
-    console.log('ðŸ—‘ï¸? Cleaning temporary files...');
+    console.log('ðŸ—‘ï¿½? Cleaning temporary files...');
 
     const tempDirs = [
       path.join(os.tmpdir()),
@@ -308,17 +308,17 @@ class EnhancedUninstaller {
 
         if (tempFiles.length > 0) {
           console.log(
-            `  âœ?${path.basename(tempDir)}: removed ${tempFiles.length} files`,
+            `  ï¿½?${path.basename(tempDir)}: removed ${tempFiles.length} files`,
           );
         }
       } catch (error) {
-        console.error(`  â?Failed to clean ${tempDir}: ${error.message}`);
+        console.error(`  ï¿½?Failed to clean ${tempDir}: ${error.message}`);
         this.results.errors.push(`Temp files: ${error.message}`);
       }
     }
 
     if (!this.options.dryRun && totalRemoved > 0) {
-      console.log(`  âœ?Removed ${totalRemoved} temporary files`);
+      console.log(`  ï¿½?Removed ${totalRemoved} temporary files`);
       this.results.filesRemoved += totalRemoved;
     }
   }
@@ -353,13 +353,13 @@ class EnhancedUninstaller {
           });
 
           if (uninstallResult.status === 0) {
-            console.log(`    âœ?Uninstalled: ${pkg}`);
+            console.log(`    ï¿½?Uninstalled: ${pkg}`);
           } else {
             console.log(`    âš ï¸  Failed to uninstall: ${pkg}`);
           }
         }
       } catch (error) {
-        console.error(`  â?Error checking ${pkg}: ${error.message}`);
+        console.error(`  ï¿½?Error checking ${pkg}: ${error.message}`);
       }
     }
   }
@@ -625,13 +625,13 @@ class EnhancedUninstaller {
     }
 
     if (this.results.errors.length > 0) {
-      console.log(`â?Errors: ${this.results.errors.length}`);
+      console.log(`ï¿½?Errors: ${this.results.errors.length}`);
       this.results.errors.forEach((error) => {
         console.log(`    ${error}`);
       });
     }
 
-    console.log('\nâœ?Enhanced uninstall completed!');
+    console.log('\nï¿½?Enhanced uninstall completed!');
   }
 }
 

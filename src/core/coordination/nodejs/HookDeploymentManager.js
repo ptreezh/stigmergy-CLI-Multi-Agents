@@ -104,14 +104,217 @@ class HookDeploymentManager {
  */
 const fs = require('fs');
 const path = require('path');
+
+// Embed LanguagePatternManager directly to ensure availability in deployed hooks
+class LanguagePatternManager {
+  constructor() {
+    this.supportedLanguages = {
+      en: { name: 'English', direction: 'ltr' },
+      zh: { name: 'Chinese', direction: 'ltr' },
+      ja: { name: 'Japanese', direction: 'ltr' },
+      ko: { name: 'Korean', direction: 'ltr' },
+      de: { name: 'German', direction: 'ltr' },
+      fr: { name: 'French', direction: 'ltr' },
+      es: { name: 'Spanish', direction: 'ltr' },
+      it: { name: 'Italian', direction: 'ltr' },
+      pt: { name: 'Portuguese', direction: 'ltr' },
+      ru: { name: 'Russian', direction: 'ltr' },
+      ar: { name: 'Arabic', direction: 'rtl' },
+      tr: { name: 'Turkish', direction: 'ltr' }
+    };
+
+    // Define language patterns directly in the hook
+    this.languagePatterns = {
+      // English patterns
+      en: [
+        { name: 'use_tool_for_task', regex: /(?:use|call|ask)\\s+(\\w+)\\s+(?:to|for)\\s+(.+)$/i },
+        { name: 'please_use_tool', regex: /(?:please\\s+)?(?:use|call|ask)\\s+(\\w+)\\s+(.+)$/i },
+        { name: 'tool_please_help', regex: /(\\w+)[,\\s]+(?:please\\s+)?(?:help\\s+me\\s+)?(.+)$/i }
+      ],
+      // Chinese patterns
+      zh: [
+        { name: 'qing_yong_gongneng_bang_wo', regex: /请用(\\w+)\\s*帮我(.+)$/i },
+        { name: 'diaoyong_lai', regex: /调用(\\w+)\\s*来(.+)$/i },
+        { name: 'yong_gongneng_bang_wo', regex: /用(\\w+)\\s*帮我(.+)$/i },
+        { name: 'tool_comma_task', regex: /(\\w+)，(.+)$/i },
+        { name: 'rang_gongneng', regex: /让(\\w+)\\s*(.+)$/i }
+      ],
+      // German patterns
+      de: [
+        { name: 'benutze_tool_um', regex: /benutze\\s+(\\w+)\\s+um\\s+(.+)$/i },
+        { name: 'verwende_tool_fur', regex: /verwende\\s+(\\w+)\\s+für\\s+(.+)$/i },
+        { name: 'rufe_tool_fur_an', regex: /rufe\\s+(\\w+)\\s+für\\s+(.+)\\s+an$/i }
+      ],
+      // French patterns
+      fr: [
+        { name: 'utilise_tool_pour', regex: /utilise\\s+(\\w+)\\s+pour\\s+(.+)$/i },
+        { name: 'emploie_tool_avec', regex: /emploie\\s+(\\w+)\\s+avec\\s+(.+)$/i },
+        { name: 'appelle_tool_pour', regex: /appelle\\s+(\\w+)\\s+pour\\s+(.+)$/i }
+      ],
+      // Spanish patterns
+      es: [
+        { name: 'usa_tool_para', regex: /usa\\s+(\\w+)\\s+para\\s+(.+)$/i },
+        { name: 'utiliza_tool_para', regex: /utiliza\\s+(\\w+)\\s+para\\s+(.+)$/i },
+        { name: 'llama_tool_para', regex: /llama\\s+(\\w+)\\s+para\\s+(.+)$/i }
+      ],
+      // Italian patterns
+      it: [
+        { name: 'usa_tool_per', regex: /usa\\s+(\\w+)\\s+per\\s+(.+)$/i },
+        { name: 'utilizza_tool_per', regex: /utilizza\\s+(\\w+)\\s+per\\s+(.+)$/i },
+        { name: 'chiedi_tool_per', regex: /chiedi\\s+(\\w+)\\s+per\\s+(.+)$/i }
+      ],
+      // Portuguese patterns
+      pt: [
+        { name: 'usa_tool_para_pt', regex: /usa\\s+(\\w+)\\s+para\\s+(.+)$/i },
+        { name: 'utiliza_tool_para_pt', regex: /utiliza\\s+(\\w+)\\s+para\\s+(.+)$/i },
+        { name: 'chama_tool_para', regex: /chama\\s+(\\w+)\\s+para\\s+(.+)$/i }
+      ],
+      // Russian patterns
+      ru: [
+        { name: 'ispolzuy_tool_chtoby', regex: /используй\\s+(\\w+)\\s+чтобы\\s+(.+)$/i },
+        { name: 'primeni_tool_dlya', regex: /примени\\s+(\\w+)\\s+для\\s+(.+)$/i },
+        { name: 'vysovyi_tool_dlya', regex: /вызови\\s+(\\w+)\\s+для\\s+(.+)$/i }
+      ],
+      // Arabic patterns
+      ar: [
+        { name: 'ista5dam_tool_liktabat', regex: /استخدم\\s+(\\w+)\\s+ل(?:كتابة|عمل)\\s+(.+)$/i },
+        { name: 'atssil_b_tool', regex: /اتصل\\s+ب\\s+(\\w+)\\s+(.+)$/i },
+        { name: 'ast5raj_tool', regex: /استخرج\\s+(\\w+)\\s+(.+)$/i }
+      ],
+      // Japanese patterns
+      ja: [
+        { name: 'tool_o_tsukatte', regex: /(\\w+)\\s*を使って\\s*(.+)$/i },
+        { name: 'tool_wo_yatte', regex: /(\\w+)\\s*を\\s*やって\\s*(.+)$/i },
+        { name: 'tool_ni_onegaishimasu', regex: /(\\w+)、\\s*(.+)$/i }
+      ],
+      // Korean patterns
+      ko: [
+        { name: 'tool_sayonghae', regex: /(\\w+)\\s*를\\s*사용해\\s*(.+)$/i },
+        { name: 'tool_sayonghayeyo', regex: /(\\w+)\\s*를\\s*사용하여\\s*(.+)$/i },
+        { name: 'tool_irae', regex: /(\\w+)\\s*을\\s*이용해\\s*(.+)$/i },
+        { name: 'tool_ggumyeon', regex: /(\\w+)\\s*하고\\s*(.+)$/i }
+      ],
+      // Turkish patterns
+      tr: [
+        { name: 'tool_icin_kullan', regex: /(\\w+)'?u\\s*(.+)\\s+için\\s+kullan/i },
+        { name: 'tool_kullan_icin', regex: /(\\w+)\\s*kullan\\s+için\\s*(.+)$/i },
+        { name: 'tool_ile_yap', regex: /(\\w+)\\s*ile\\s*(.+)$/i }
+      ]
+    };
+  }
+
+  getPatterns(languageCode) {
+    return this.languagePatterns[languageCode] || [];
+  }
+
+  getAllPatterns() {
+    return this.languagePatterns;
+  }
+
+  detectLanguage() {
+    // Try to detect language from environment variables
+    const envLang = process.env.LANG || process.env.LANGUAGE || process.env.LC_ALL || process.env.LC_MESSAGES;
+
+    if (envLang) {
+      // Extract language code (e.g., en_US.UTF-8 -> en)
+      const langCode = envLang.split('.')[0].split('_')[0].split('-')[0].toLowerCase();
+      if (this.supportedLanguages[langCode]) {
+        return langCode;
+      }
+    }
+
+    // Try to detect language using Intl API
+    try {
+      if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+        const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+        if (locale) {
+          const langCode = locale.split('-')[0].toLowerCase();
+          if (this.supportedLanguages[langCode]) {
+            return langCode;
+          }
+        }
+      }
+    } catch (error) {
+      // Intl API not available or failed
+    }
+
+    // Default to English
+    return 'en';
+  }
+
+  detectCrossCLIRequest(input, preferredLanguage = null) {
+    // If preferred language is specified, try that first
+    if (preferredLanguage && this.languagePatterns[preferredLanguage]) {
+      const result = this.matchPatterns(input, preferredLanguage);
+      if (result) return result;
+    }
+
+    // Try user's detected language
+    const detectedLanguage = this.detectLanguage();
+    if (detectedLanguage !== preferredLanguage) {
+      const result = this.matchPatterns(input, detectedLanguage);
+      if (result) return result;
+    }
+
+    // Fall back to English
+    if (detectedLanguage !== 'en') {
+      const result = this.matchPatterns(input, 'en');
+      if (result) return result;
+    }
+
+    // Try all languages as last resort
+    for (const languageCode in this.languagePatterns) {
+      if (languageCode !== detectedLanguage && languageCode !== 'en') {
+        const result = this.matchPatterns(input, languageCode);
+        if (result) return result;
+      }
+    }
+
+    return null;
+  }
+
+  matchPatterns(input, languageCode) {
+    const patterns = this.languagePatterns[languageCode];
+    if (!patterns) return null;
+
+    for (const pattern of patterns) {
+      const match = input.match(pattern.regex);
+      if (match && match.length >= 3) {
+        const targetCLI = match[1].toLowerCase();
+        const task = match[2];
+
+        // Validate that the target CLI is supported
+        const supportedCLIs = [
+          'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot'
+        ];
+
+        if (supportedCLIs.includes(targetCLI)) {
+          return {
+            targetCLI: targetCLI,
+            task: task,
+            language: languageCode,
+            patternName: pattern.name
+          };
+        }
+      }
+    }
+
+    return null;
+  }
+}
+
+// Instantiate the LanguagePatternManager
+const embeddedLanguageManager = new LanguagePatternManager();
+
 class ${this.capitalize(cliName)}NodeJsHook {
   constructor() {
     this.cliName = '${cliName}';
     this.hookDir = __dirname;
     this.logFile = path.join(this.hookDir, '${cliName}_hook.log');
+    this.languageManager = embeddedLanguageManager;
   }
   async onUserPrompt(prompt, context) {
-    this.log('INFO', `User prompt received: ${prompt}`);
+    this.log('INFO', \`User prompt received: \${prompt}\`);
     // Check for cross-CLI requests
     const crossCLIRequest = this.detectCrossCLIRequest(prompt);
     if (crossCLIRequest) {
@@ -121,7 +324,7 @@ class ${this.capitalize(cliName)}NodeJsHook {
     return null;
   }
   async onToolUse(toolName, toolArgs, context) {
-    this.log('INFO', `Tool use detected: ${toolName}`);
+    this.log('INFO', \`Tool use detected: \${toolName}\`);
     return null;
   }
   async onResponseGenerated(response, context) {
@@ -129,29 +332,62 @@ class ${this.capitalize(cliName)}NodeJsHook {
     return null;
   }
   detectCrossCLIRequest(prompt) {
-    // Enhanced pattern matching for cross-CLI requests
+    // Use the embedded LanguagePatternManager for enhanced multilingual pattern matching
+    try {
+      // Verify that the languageManager has the required method
+      if (this.languageManager && this.languageManager.detectCrossCLIRequest) {
+        const result = this.languageManager.detectCrossCLIRequest(prompt);
+
+        if (result) {
+          return {
+            targetCLI: result.targetCLI,
+            task: result.task,
+            source: this.cliName,
+            language: result.language,
+            patternName: result.patternName
+          };
+        }
+      }
+    } catch (error) {
+      // If LanguagePatternManager fails, fall back to original pattern matching
+      console.warn('LanguagePatternManager failed, falling back to original patterns:', error.message);
+    }
+
+    // Fallback to original pattern matching for backward compatibility
     const patterns = [
       /(?:use|call|ask)\\s+(\\w+)\\s+(?:to|for)\\s+(.+)$/i,
       /(?:please\\s+)?(?:use|call|ask)\\s+(\\w+)\\s+(.+)$/i,
-      /(\\w+)[,\\s]+(?:please\\s+)?(?:help\\s+me\\s+)?(.+)$/i,
+      /(\\w+)[,\\s]+((?:please\\s+)?(?:help\\s+me\\s+)?(?:.+))$/i,
       /请用(\\w+)\\s*帮我(.+)$/i,
       /调用(\\w+)\\s*来(.+)$/i,
       /用(\\w+)\\s*帮我(.+)$/i,
       /(\\w+)，(.+)$/i,
-      /让(\\w+)\\s*(.+)$/i
+      /让(\\w+)\\s*(.+)$/i,
+      /(?:utiliser|appeler|demander)\\s+(\\w+)\\s+(?:pour|afin de)\\s+(.+)$/i,
+      /(?:usar|llamar|pedir)\\s+(\\w+)\\s+(?:para|para que)\\s+(.+)$/i,
+      /(?:utilizzare|chiedere)\\s+(\\w+)\\s+(?:per|per far)\\s+(.+)$/i,
+      /(?:verwenden|aufrufen|bitten)\\s+(\\w+)\\s+(?:für|um)\\s+(.+)$/i,
+      /(?:使う|呼び出す|頼む)\\s+(\\w+)\\s+(?:ために|で)\\s+(.+)$/i
     ];
-    
+
     for (const pattern of patterns) {
       const match = prompt.match(pattern);
       if (match && match.length >= 3) {
         const targetCLI = match[1].toLowerCase();
-        const task = match[2];
-        
+        let task = match[2];
+
+        // For the specific pattern that includes optional prefixes in the task capture,
+        // no additional processing needed as it's already captured correctly
+        if (pattern.source.includes('(?:please\\\\s+)?(?:help\\\\s+me\\\\s+)?')) {
+          // This is the pattern /(\\w+)[,\\\\s]+((?:please\\\\s+)?(?:help\\\\s+me\\\\s+)?(?:.+))$/i
+          // The task is already captured with the prefixes if they exist
+        }
+
         // Validate that the target CLI is supported
         const supportedCLIs = [
           'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot'
         ];
-        
+
         if (supportedCLIs.includes(targetCLI)) {
           return {
             targetCLI: targetCLI,
@@ -161,91 +397,47 @@ class ${this.capitalize(cliName)}NodeJsHook {
         }
       }
     }
-    
+
     return null;
   }
   async handleCrossCLIRequest(request, context) {
-    this.log('INFO', `Cross-CLI request detected: ${JSON.stringify(request)}`);
-    
+    this.log('INFO', \`Cross-CLI request detected: \${JSON.stringify(request)}\`);
+
     // Validate the request
     if (!request.targetCLI || !request.task) {
       this.log('ERROR', 'Invalid cross-CLI request: missing targetCLI or task');
-      return `[CROSS-CLI] Invalid request: missing targetCLI or task`;
+      return \`[CROSS-CLI] Invalid request: missing targetCLI or task\`;
     }
-    
-    // Check if the target CLI is the same as the source
-    if (request.targetCLI === this.cliName) {
-      this.log('WARN', 'Cross-CLI request to self ignored');
-      return `[CROSS-CLI] Cannot call self (${request.targetCLI})`;
-    }
-    
-    // Communicate with the coordination layer to execute the cross-CLI call
-    try {
-      // Dynamically load the CLCommunication module
-      const modulePath = path.join(__dirname, '..', '..', '..', '..', 'src', 'core', 'coordination', 'nodejs', 'CLCommunication');
-      const CLCommunication = require(modulePath);
-      const communicator = new CLCommunication();
-      
-      const result = await communicator.executeTask(
-        request.source, 
-        request.targetCLI, 
-        request.task, 
-        context
-      );
-      
-      if (result.success) {
-        return `[CROSS-CLI] Response from ${request.targetCLI}: ${result.output}`;
-      } else {
-        return `[CROSS-CLI] Error from ${request.targetCLI}: ${result.error}`;
-      }
-    } catch (error) {
-      this.log('ERROR', `Failed to handle cross-CLI request: ${error.message}`);
-      return `[CROSS-CLI] Failed to execute ${request.targetCLI}: ${error.message}`;
-    }
-  }
-  log(level, message) {
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${level}] [${this.cliName.toUpperCase()}] ${message}\\n`;
-    
-    try {
-      fs.appendFileSync(this.logFile, logEntry);
-    } catch (error) {
-      console.error('Failed to write to log file:', error);
-    }
-  }
-  capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-}
-// Export the hook class
-module.exports = ${this.capitalize(cliName)}NodeJsHook;
-// If run directly, instantiate and test
-if (require.main === module) {
-  const hook = new ${this.capitalize(cliName)}NodeJsHook();
-  console.log('${cliName.toUpperCase()} Node.js Hook initialized');
-}`;
-  }
-    
+
     // Check if the target CLI is the same as the source
     if (request.targetCLI === this.cliName) {
       this.log('WARN', 'Cross-CLI request to self ignored');
       return \`[CROSS-CLI] Cannot call self (\${request.targetCLI})\`;
     }
-    
+
     // Communicate with the coordination layer to execute the cross-CLI call
     try {
-      // Dynamically load the CLCommunication module
-      const modulePath = path.join(__dirname, '..', '..', '..', '..', 'src', 'core', 'coordination', 'nodejs', 'CLCommunication');
-      const CLCommunication = require(modulePath);
+      // Try to load the CLCommunication module
+      let CLCommunication;
+      try {
+        // First, try the standard installation path
+        const modulePath = path.join(__dirname, '..', '..', '..', 'node_modules', 'stigmergy', 'src', 'core', 'coordination', 'nodejs', 'CLCommunication');
+        CLCommunication = require(modulePath);
+      } catch (e) {
+        // If that fails, try alternative paths or gracefully degrade
+        console.warn('CLCommunication module not found, cross-CLI functionality may be limited');
+        return \`[CROSS-CLI] CLCommunication module not found for \${request.targetCLI}\`;
+      }
+
       const communicator = new CLCommunication();
-      
+
       const result = await communicator.executeTask(
-        request.source, 
-        request.targetCLI, 
-        request.task, 
+        request.source,
+        request.targetCLI,
+        request.task,
         context
       );
-      
+
       if (result.success) {
         return \`[CROSS-CLI] Response from \${request.targetCLI}: \${result.output}\`;
       } else {
@@ -256,18 +448,16 @@ if (require.main === module) {
       return \`[CROSS-CLI] Failed to execute \${request.targetCLI}: \${error.message}\`;
     }
   }
-
   log(level, message) {
     const timestamp = new Date().toISOString();
     const logEntry = \`[\${timestamp}] [\${level}] [\${this.cliName.toUpperCase()}] \${message}\\n\`;
-    
+
     try {
       fs.appendFileSync(this.logFile, logEntry);
     } catch (error) {
       console.error('Failed to write to log file:', error);
     }
   }
-
   capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
@@ -280,8 +470,7 @@ module.exports = ${this.capitalize(cliName)}NodeJsHook;
 if (require.main === module) {
   const hook = new ${this.capitalize(cliName)}NodeJsHook();
   console.log('${cliName.toUpperCase()} Node.js Hook initialized');
-}
-`;
+}`;
   }
 
   capitalize(str) {

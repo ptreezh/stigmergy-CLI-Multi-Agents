@@ -1,0 +1,212 @@
+{
+  "browser": {
+    "headless": false,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "timeout": 30000,
+    "args": [
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-features=VizDisplayCompositor",
+      "--disable-dev-shm-usage",
+      "--disable-setuid-sandbox",
+      "--no-sandbox"
+    ]
+  },
+  "session": {
+    "path": "./my-playwright-session",
+    "saveInterval": 30000,
+    "autoCleanup": false
+  },
+  "login": {
+    "timeout": 300000,
+    "loginCheckInterval": 2000,
+    "maxLoginAttempts": 3,
+    "manualLoginTimeout": 300000,
+    "retryDelay": 5000
+  },
+  "verification": {
+    "timeout": 10000,
+    "retryAttempts": 3,
+    "retryDelay": 2000,
+    "verificationWaitTime": 3000
+  },
+  "sites": {
+    "github.com": {
+      "name": "GitHub",
+      "url": "https://github.com",
+      "loginUrl": "https://github.com/login",
+      "loggedInSelectors": [
+        "[data-testid=\"user-menu\"]",
+        ".user-avatar",
+        ".Header-link--profile",
+        "meta[name=\"user-login\"]"
+      ],
+      "notLoggedInSelectors": [
+        "a[href*=\"/login\"]",
+        ".sign-in-form",
+        "[data-testid=\"sign-in\"]"
+      ],
+      "loginUrlPatterns": [
+        "/login",
+        "/signin",
+        "/session"
+      ],
+      "successIndicators": [
+        "meta[name=\"user-login\"]",
+        "[data-testid=\"dashboard\"]"
+      ]
+    },
+    "taobao.com": {
+      "name": "淘宝",
+      "url": "https://www.taobao.com",
+      "loginUrl": "https://login.taobao.com",
+      "loggedInSelectors": [
+        ".site-nav-user",
+        ".user-nick",
+        ".J_UserInfo"
+      ],
+      "notLoggedInSelectors": [
+        ".login-box",
+        ".sign-in",
+        ".J_LoginBox"
+      ],
+      "loginUrlPatterns": [
+        "/login",
+        "/signin",
+        "/member"
+      ]
+    },
+    "jd.com": {
+      "name": "京东",
+      "url": "https://www.jd.com",
+      "loginUrl": "https://passport.jd.com",
+      "loggedInSelectors": [
+        ".nickname",
+        ".user-info",
+        ".J-user-name"
+      ],
+      "notLoggedInSelectors": [
+        ".login-btn",
+        ".sign-in",
+        ".J-login"
+      ],
+      "loginUrlPatterns": [
+        "/passport",
+        "/login"
+      ]
+    },
+    "weibo.com": {
+      "name": "微博",
+      "url": "https://weibo.com",
+      "loginUrl": "https://weibo.com/login.php",
+      "loggedInSelectors": [
+        ".gn_name",
+        ".WB_global_nav .name",
+        ".S_bg2"
+      ],
+      "notLoggedInSelectors": [
+        ".login_form",
+        ".sign_in",
+        ".W_login_form"
+      ],
+      "loginUrlPatterns": [
+        "/login",
+        "/signin"
+      ]
+    },
+    "zhihu.com": {
+      "name": "知乎",
+      "url": "https://www.zhihu.com",
+      "loginUrl": "https://www.zhihu.com/signin",
+      "loggedInSelectors": [
+        ".AppHeader-profile",
+        ".Popover-content img",
+        ".member-info"
+      ],
+      "notLoggedInSelectors": [
+        ".sign-flow-form",
+        ".signin-form",
+        ".Button--primary"
+      ],
+      "loginUrlPatterns": [
+        "/signin",
+        "/login"
+      ]
+    },
+    "bilibili.com": {
+      "name": "哔哩哔哩",
+      "url": "https://www.bilibili.com",
+      "loginUrl": "https://passport.bilibili.com/login",
+      "loggedInSelectors": [
+        ".nav-user-info",
+        ".user-con",
+        ".header-avatar-wrap"
+      ],
+      "notLoggedInSelectors": [
+        ".login-btn",
+        ".sign-in",
+        ".header-login-entry"
+      ],
+      "loginUrlPatterns": [
+        "/login",
+        "/passport"
+      ]
+    },
+    "douyin.com": {
+      "name": "抖音",
+      "url": "https://www.douyin.com",
+      "loginUrl": "https://www.douyin.com/passport/web/login",
+      "loggedInSelectors": [
+        ".webcast-username",
+        ".account-card",
+        ".user-info"
+      ],
+      "notLoggedInSelectors": [
+        ".login-btn",
+        ".login-container"
+      ],
+      "loginUrlPatterns": [
+        "/login",
+        "/passport"
+      ]
+    }
+  },
+  "timeouts": {
+    "pageLoad": 30000,
+    "elementWait": 10000,
+    "navigation": 30000,
+    "response": 30000,
+    "screenshot": 5000
+  },
+  "screenshots": {
+    "enabled": true,
+    "onError": true,
+    "onLogin": true,
+    "onTaskComplete": false,
+    "directory": "./screenshots",
+    "format": "png",
+    "quality": 90
+  },
+  "logging": {
+    "level": "info",
+    "console": true,
+    "file": false,
+    "filename": "./logs/playwright.log"
+  },
+  "security": {
+    "disableWebSecurity": false,
+    "allowInsecure": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "disableJavaScript": false
+  },
+  "performance": {
+    "disableImages": false,
+    "disableCSS": false,
+    "disableWebGL": false,
+    "disableWebRTC": false
+  }
+}

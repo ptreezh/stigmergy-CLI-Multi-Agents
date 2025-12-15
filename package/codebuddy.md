@@ -6,7 +6,7 @@ This document contains configuration and usage information for the CodeBuddy CLI
 ## Basic Information
 - **CLI Name**: codebuddy
 - **Tool Name**: CodeBuddy CLI
-- **Installation Command**: `npm install -g codebuddy-cli`
+- **Installation Command**: `npm install -g @tencent-ai/codebuddy-code`
 - **Version Check**: `codebuddy --version`
 
 ## Usage Patterns

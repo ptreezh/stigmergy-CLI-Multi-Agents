@@ -1,0 +1,200 @@
+{
+  "timestamp": "2025-12-14T08:40:50.463Z",
+  "tests": [
+    {
+      "test": "Package JSON Valid",
+      "status": "PASS",
+      "message": "Version 1.2.6",
+      "timestamp": "2025-12-14T08:40:50.475Z"
+    },
+    {
+      "test": "Dependencies Check",
+      "status": "PASS",
+      "message": "5 dependencies",
+      "timestamp": "2025-12-14T08:40:50.476Z"
+    },
+    {
+      "test": "Core Module src/index.js",
+      "status": "PASS",
+      "message": "Module loads successfully",
+      "timestamp": "2025-12-14T08:40:50.476Z"
+    },
+    {
+      "test": "Core Module src/cli/router.js",
+      "status": "PASS",
+      "message": "Module loads successfully",
+      "timestamp": "2025-12-14T08:40:50.477Z"
+    },
+    {
+      "test": "Core Module src/core/installer.js",
+      "status": "PASS",
+      "message": "Module loads successfully",
+      "timestamp": "2025-12-14T08:40:50.478Z"
+    },
+    {
+      "test": "Core Module src/core/smart_router.js",
+      "status": "PASS",
+      "message": "Module loads successfully",
+      "timestamp": "2025-12-14T08:40:50.479Z"
+    },
+    {
+      "test": "Core Module src/core/error_handler.js",
+      "status": "PASS",
+      "message": "Module loads successfully",
+      "timestamp": "2025-12-14T08:40:50.479Z"
+    },
+    {
+      "test": "CLI Command --help",
+      "status": "PASS",
+      "message": "Command executed successfully",
+      "timestamp": "2025-12-14T08:40:51.907Z"
+    },
+    {
+      "test": "CLI Command version",
+      "status": "PASS",
+      "message": "Command executed successfully",
+      "timestamp": "2025-12-14T08:40:53.288Z"
+    },
+    {
+      "test": "CLI Command status",
+      "status": "PASS",
+      "message": "Command executed successfully",
+      "timestamp": "2025-12-14T08:41:00.738Z"
+    },
+    {
+      "test": "Hook File claude",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.738Z"
+    },
+    {
+      "test": "Hook File gemini",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.739Z"
+    },
+    {
+      "test": "Hook File qwen",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.739Z"
+    },
+    {
+      "test": "Hook File iflow",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.739Z"
+    },
+    {
+      "test": "Hook File qodercli",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.740Z"
+    },
+    {
+      "test": "Hook File codebuddy",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.740Z"
+    },
+    {
+      "test": "Hook File copilot",
+      "status": "PASS",
+      "message": "Hook file exists",
+      "timestamp": "2025-12-14T08:41:00.740Z"
+    },
+    {
+      "test": "CLI Tool claude",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:00.982Z"
+    },
+    {
+      "test": "CLI Tool gemini",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:01.250Z"
+    },
+    {
+      "test": "CLI Tool qwen",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:01.468Z"
+    },
+    {
+      "test": "CLI Tool iflow",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:01.693Z"
+    },
+    {
+      "test": "CLI Tool qodercli",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:01.931Z"
+    },
+    {
+      "test": "CLI Tool codebuddy",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:02.178Z"
+    },
+    {
+      "test": "CLI Tool copilot",
+      "status": "PASS",
+      "message": "Tool is available",
+      "timestamp": "2025-12-14T08:41:02.395Z"
+    },
+    {
+      "test": "CLI Availability Summary",
+      "status": "PASS",
+      "message": "7/7 tools available",
+      "timestamp": "2025-12-14T08:41:02.395Z"
+    },
+    {
+      "test": "Module Export ./src/core/installer",
+      "status": "PASS",
+      "message": "Module loads correctly",
+      "timestamp": "2025-12-14T08:41:03.409Z"
+    },
+    {
+      "test": "Module Export ./src/core/smart_router",
+      "status": "PASS",
+      "message": "Module loads correctly",
+      "timestamp": "2025-12-14T08:41:03.409Z"
+    },
+    {
+      "test": "Module Export ./src/core/memory_manager",
+      "status": "PASS",
+      "message": "Module loads correctly",
+      "timestamp": "2025-12-14T08:41:03.409Z"
+    },
+    {
+      "test": "Config File hooks.json",
+      "status": "PASS",
+      "message": "Valid configuration",
+      "timestamp": "2025-12-14T08:41:03.410Z"
+    },
+    {
+      "test": "Config File hooks.json",
+      "status": "PASS",
+      "message": "Valid configuration",
+      "timestamp": "2025-12-14T08:41:03.411Z"
+    },
+    {
+      "test": "Config File hooks.json",
+      "status": "PASS",
+      "message": "Valid configuration",
+      "timestamp": "2025-12-14T08:41:03.412Z"
+    },
+    {
+      "test": "Hook Configuration Summary",
+      "status": "PASS",
+      "message": "3/3 configs valid",
+      "timestamp": "2025-12-14T08:41:03.412Z"
+    }
+  ],
+  "passed": 32,
+  "failed": 0,
+  "errors": []
+}

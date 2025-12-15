@@ -6,7 +6,7 @@ This document contains configuration and usage information for the iFlow CLI CLI
 ## Basic Information
 - **CLI Name**: iflow
 - **Tool Name**: iFlow CLI
-- **Installation Command**: `npm install -g iflow-cli`
+- **Installation Command**: `npm install -g @iflow-ai/iflow-cli`
 - **Version Check**: `iflow --version`
 
 ## Usage Patterns

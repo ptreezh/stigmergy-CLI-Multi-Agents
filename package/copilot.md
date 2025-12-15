@@ -6,7 +6,7 @@ This document contains configuration and usage information for the GitHub Copilo
 ## Basic Information
 - **CLI Name**: copilot
 - **Tool Name**: GitHub Copilot CLI
-- **Installation Command**: `npm install -g @github/copilot-cli`
+- **Installation Command**: `npm install -g @github/copilot`
 - **Version Check**: `copilot --version`
 
 ## Usage Patterns

@@ -1,0 +1,97 @@
+{
+  "name": "@stigmergy/wikiskill",
+  "version": "1.0.0",
+  "description": "Wiki协同编辑技能 - 支持独立部署和多CLI集成",
+  "main": "src/index.js",
+  "bin": {
+    "wikiskill": "bin/wikiskill"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "build": "node scripts/build.js",
+    "start": "node src/standalone/index.js start",
+    "start:claude": "node src/standalone/index.js start --cli claude",
+    "start:stigmergy": "node src/standalone/index.js start --cli stigmergy",
+    "dev": "node scripts/build.js watch",
+    "clean": "node scripts/build.js clean",
+    "standalone": "node bin/wikiskill",
+    "integrate:stigmergy": "node scripts/integrate-stigmergy.js",
+    "integrate:claude": "node scripts/integrate-claude.js"
+  },
+  "keywords": [
+    "wiki",
+    "collaboration",
+    "tiddlywiki",
+    "cli-skill",
+    "stigmergy",
+    "claude",
+    "standalone"
+  ],
+  "author": "Stigmergy Team",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "open": "^8.4.2",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "chokidar": "^3.5.3",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "eslint": "^8.44.0"
+  },
+  "peerDependencies": {
+    "@stigmergy/cli-core": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@stigmergy/cli-core": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git",
+    "directory": "packages/wikiskill"
+  },
+  "bugs": {
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues"
+  },
+  "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/tree/main/packages/wikiskill#readme",
+  "files": [
+    "src/",
+    "templates/",
+    "bin/",
+    "scripts/",
+    "tests/",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "optionalDependencies": {
+    "anthropic": "^0.25.0"
+  },
+  "config": {
+    "standalone": {
+      "defaultPort": 3000,
+      "defaultHost": "localhost"
+    },
+    "claude": {
+      "model": "claude-3-sonnet-20240229",
+      "maxTokens": 4000
+    },
+    "stigmergy": {
+      "integration": true,
+      "sharedContext": true
+    }
+  }
+}

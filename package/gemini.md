@@ -6,7 +6,7 @@ This document contains configuration and usage information for the Gemini CLI CL
 ## Basic Information
 - **CLI Name**: gemini
 - **Tool Name**: Gemini CLI
-- **Installation Command**: `npm install -g @google/generative-ai-cli`
+- **Installation Command**: `npm install -g @google/gemini-cli`
 - **Version Check**: `gemini --version`
 
 ## Usage Patterns

@@ -6,7 +6,7 @@ This document contains configuration and usage information for the OpenAI Codex 
 ## Basic Information
 - **CLI Name**: codex
 - **Tool Name**: OpenAI Codex CLI
-- **Installation Command**: `npm install -g openai-codex-cli`
+- **Installation Command**: `npm install -g @openai/codex`
 - **Version Check**: `codex --version`
 
 ## Usage Patterns

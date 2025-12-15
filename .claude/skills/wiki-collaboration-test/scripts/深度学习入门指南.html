@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度学习入门指南</title>
+    <meta name="description" content="深度学习入门指南相关的知识库">
+    <meta name="author" content="Wiki Collaborator">
+    <style>/* Wiki样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.wiki-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* 头部样式 */
+.wiki-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.wiki-header h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.wiki-header .meta {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* 导航样式 */
+.wiki-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.search-box input {
+    width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.nav-buttons button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.nav-buttons button:hover {
+    background-color: #0056b3;
+}
+
+/* 目录样式 */
+.wiki-toc {
+    position: sticky;
+    top: 20px;
+    float: right;
+    width: 250px;
+    margin-left: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+
+.wiki-toc h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.wiki-toc ul {
+    list-style: none;
+}
+
+.wiki-toc li {
+    margin-bottom: 5px;
+}
+
+.wiki-toc a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.wiki-toc a:hover {
+    text-decoration: underline;
+}
+
+/* 内容样式 */
+.wiki-content {
+    margin-right: 300px;
+    padding: 20px;
+}
+
+.wiki-content h1,
+.wiki-content h2,
+.wiki-content h3,
+.wiki-content h4,
+.wiki-content h5,
+.wiki-content h6 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.wiki-content h1 { font-size: 2em; }
+.wiki-content h2 { font-size: 1.8em; }
+.wiki-content h3 { font-size: 1.6em; }
+.wiki-content h4 { font-size: 1.4em; }
+.wiki-content h5 { font-size: 1.2em; }
+.wiki-content h6 { font-size: 1em; }
+
+.wiki-content p {
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+.wiki-content ul,
+.wiki-content ol {
+    margin-bottom: 15px;
+    padding-left: 30px;
+}
+
+.wiki-content li {
+    margin-bottom: 5px;
+}
+
+.wiki-content blockquote {
+    margin: 20px 0;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-left: 5px solid #007bff;
+    font-style: italic;
+}
+
+.wiki-content pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    border: 1px solid #e9ecef;
+}
+
+.wiki-content code {
+    background-color: #f8f9fa;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    border: 1px solid #e9ecef;
+}
+
+.wiki-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.wiki-content th,
+.wiki-content td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.wiki-content th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* 页脚样式 */
+.wiki-footer {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #e9ecef;
+    clear: both;
+}
+
+.wiki-footer h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.references {
+    margin-bottom: 30px;
+}
+
+.references ul {
+    list-style-type: none;
+}
+
+.references li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    text-indent: -20px;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+/* 编辑模式 */
+.edit-mode .wiki-content {
+    border: 2px dashed #007bff;
+    outline: none;
+}
+
+.edit-mode .wiki-content:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* 暗色主题 */
+.dark-theme {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.dark-theme .wiki-container {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+.dark-theme .wiki-header h1,
+.dark-theme .wiki-content h1,
+.dark-theme .wiki-content h2,
+.dark-theme .wiki-content h3,
+.dark-theme .wiki-content h4,
+.dark-theme .wiki-content h5,
+.dark-theme .wiki-content h6,
+.dark-theme .wiki-footer h3 {
+    color: #e0e0e0;
+}
+
+.dark-theme .wiki-nav,
+.dark-theme .wiki-toc,
+.dark-theme .wiki-content pre,
+.dark-theme .wiki-content code {
+    background-color: #3d3d3d;
+}
+
+.dark-theme .wiki-content blockquote {
+    background-color: #3d3d3d;
+    border-left-color: #4a9eff;
+}
+
+.dark-theme .search-box input {
+    background-color: #3d3d3d;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .wiki-container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .wiki-nav {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .wiki-toc {
+        float: none;
+        width: 100%;
+        margin: 20px 0;
+    }
+    
+    .wiki-content {
+        margin-right: 0;
+    }
+    
+    .wiki-header h1 {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .wiki-header h1 {
+        font-size: 1.8em;
+    }
+    
+    .nav-buttons {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .nav-buttons button {
+        margin-left: 0;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    body {
+        background-color: white;
+        color: black;
+    }
+    
+    .wiki-container {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .wiki-nav,
+    .wiki-toc,
+    .wiki-footer {
+        display: none;
+    }
+    
+    .wiki-content {
+        margin-right: 0;
+    }
+}</style>
+</head>
+<body>
+    <div class="wiki-container">
+        <header class="wiki-header">
+            <h1>深度学习入门指南</h1>
+            <div class="meta">
+                <span>创建时间: 2025-12-14 16:02:33</span> | 
+                <span>作者: Wiki Collaborator</span> | 
+                <span>最后修改: 2025-12-14 16:02:33</span>
+            </div>
+        </header>
+        
+        <nav class="wiki-nav">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="搜索词条..." />
+            </div>
+            <div class="nav-buttons">
+                <button onclick="toggleEditMode()">编辑模式</button>
+                <button onclick="toggleTheme()">主题切换</button>
+                <button onclick="printWiki()">打印</button>
+            </div>
+        </nav>
+        
+        <aside class="wiki-toc">
+            <h3>目录</h3>
+            <div id="toc-content"><ul><li><a href="#简介">简介</a></li><li><a href="#核心概念">核心概念</a></li><ul><li><a href="#基本定义">基本定义</a></li><li><a href="#关键特性">关键特性</a></li></ul><li><a href="#实践应用">实践应用</a></li></ul></div>
+        </aside>
+        
+        <main class="wiki-content">
+            <h1>简介</h1>
+<div class="section-content">
+<p>深度学习入门指南是一个重要的主题，本文档将详细介绍相关内容。</p>
+</div>
+<h1>核心概念</h1>
+<div class="section-content">
+<p>本节介绍{title}的核心概念和基本原理。</p>
+</div>
+<h2>基本定义</h2>
+<div class="section-content">
+<p>这里是基本定义的详细说明。</p>
+</div>
+<h2>关键特性</h2>
+<div class="section-content">
+<p>这里是关键特性的详细说明。</p>
+</div>
+<h1>实践应用</h1>
+<div class="section-content">
+<p>本节介绍{title}的实际应用场景和案例。</p>
+</div>
+
+        </main>
+        
+        <footer class="wiki-footer">
+            <div class="references">
+                <h3>参考资料</h3>
+                <ul><li>参考资料1</li><li>参考资料2</li></ul>
+            </div>
+            <div class="tags">
+                <h3>标签</h3>
+                <span class="tag">深度学习入门指南</span><span class="tag">知识库</span><span class="tag">技术文档</span>
+            </div>
+        </footer>
+    </div>
+    
+    <script>// Wiki交互功能
+let isEditMode = false;
+let isDarkTheme = false;
+
+// 搜索功能
+function initSearch() {
+    const searchInput = document.getElementById('search-input');
+    const content = document.querySelector('.wiki-content');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const sections = content.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li');
+        
+        sections.forEach(section => {
+            const text = section.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                section.style.backgroundColor = searchTerm ? '#fff3cd' : 'transparent';
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+}
+
+// 编辑模式切换
+function toggleEditMode() {
+    const content = document.querySelector('.wiki-content');
+    const button = event.target;
+    
+    isEditMode = !isEditMode;
+    
+    if (isEditMode) {
+        content.contentEditable = true;
+        content.classList.add('edit-mode');
+        button.textContent = '预览模式';
+        
+        // 添加保存提示
+        if (!document.getElementById('save-hint')) {
+            const hint = document.createElement('div');
+            hint.id = 'save-hint';
+            hint.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                z-index: 1000;
+            `;
+            hint.textContent = '编辑模式已开启，请使用Ctrl+S保存';
+            document.body.appendChild(hint);
+            
+            setTimeout(() => hint.remove(), 3000);
+        }
+    } else {
+        content.contentEditable = false;
+        content.classList.remove('edit-mode');
+        button.textContent = '编辑模式';
+    }
+}
+
+// 主题切换
+function toggleTheme() {
+    const body = document.body;
+    isDarkTheme = !isDarkTheme;
+    
+    if (isDarkTheme) {
+        body.classList.add('dark-theme');
+    } else {
+        body.classList.remove('dark-theme');
+    }
+}
+
+// 打印功能
+function printWiki() {
+    window.print();
+}
+
+// 目录生成
+function generateTOC() {
+    const tocContent = document.getElementById('toc-content');
+    const content = document.querySelector('.wiki-content');
+    const headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    let tocHTML = '<ul>';
+    headings.forEach((heading, index) => {
+        const id = `heading-${index}`;
+        heading.id = id;
+        
+        const level = parseInt(heading.tagName.charAt(1));
+        const indent = (level - 1) * 15;
+        
+        tocHTML += `<li style="margin-left: ${indent}px;">`;
+        tocHTML += `<a href="#${id}">${heading.textContent}</a></li>`;
+    });
+    tocHTML += '</ul>';
+    
+    tocContent.innerHTML = tocHTML;
+}
+
+// 平滑滚动
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+}
+
+// 键盘快捷键
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+E: 切换编辑模式
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            toggleEditMode();
+        }
+        
+        // Ctrl+D: 切换主题
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            toggleTheme();
+        }
+        
+        // Ctrl+P: 打印
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            printWiki();
+        }
+        
+        // Ctrl+F: 聚焦搜索
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            document.getElementById('search-input').focus();
+        }
+    });
+}
+
+// 保存功能（仅提示）
+function initSavePrompt() {
+    document.addEventListener('keydown', function(e) {
+        if (isEditMode && e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            alert('请使用浏览器的保存功能或复制内容到其他编辑器中保存。');
+        }
+    });
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initSearch();
+    generateTOC();
+    initSmoothScroll();
+    initKeyboardShortcuts();
+    initSavePrompt();
+    
+    // 添加加载完成提示
+    console.log('Wiki页面加载完成');
+    console.log('快捷键：');
+    console.log('Ctrl+E: 切换编辑模式');
+    console.log('Ctrl+D: 切换主题');
+    console.log('Ctrl+P: 打印');
+    console.log('Ctrl+F: 搜索');
+});</script>
+</body>
+</html>

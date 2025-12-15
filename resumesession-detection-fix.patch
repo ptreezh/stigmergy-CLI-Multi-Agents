@@ -1,0 +1,165 @@
+--- a/src/utils/CLIScanner.ts
++++ b/src/utils/CLIScanner.ts
+@@ -74,7 +74,8 @@ export class CLIScanner {
+   /**
+    * Scan for available CLI tools in the system
+    */
+-  async scanAvailableCLIs(): Promise<CLIInfo[]> {
++  async scanAvailableCLIs(): Promise<CLIInfo[]> {
++    // Use same logic as scanAllCLIs to return all tools
+     return this.scanAllCLIs().then(clis => clis.filter(cli => cli.available));
+   }
+
+@@ -85,10 +86,18 @@ export class CLIScanner {
+     try {
+       // Try to get version information
+       const version = await this.getCLIVersion(cli.name);
+-      if (version) {
+-        cli.available = true;
+-        cli.version = version;
+-        // Get path information
++
++      // First check if CLI is in PATH
++      const cliPath = await this.getCLIPath(cli.name);
++      if (!cliPath) {
++        cli.available = false;
++        return;
++      }
++
++      if (version) {
++        cli.available = true;
++        cli.version = version;
++      } else {
++        // If version detection fails but path exists, mark as partially available
+         cli.available = true;
+         cli.installedPath = await this.getCLIPath(cli.name);
+         cli.configPath = await this.getCLIConfigPath(cli.name);
+@@ -98,6 +107,10 @@ export class CLIScanner {
+       cli.available = false;
+     }
+   }
++
++  // Get path information after availability check
++  cli.installedPath = cliPath;
++  cli.configPath = await this.getCLIConfigPath(cli.name);
++  cli.sessionsPath = await this.getCLISessionsPath(cli.name);
+   }
+
+   /**
+@@ -126,7 +139,11 @@ export class CLIScanner {
+       }
+
+       // Extract version number
+-      const versionMatch = output.match(/(\d+\.\d+\.\d+)/);
++      const versionMatch = output.match(/(\d+\.\d+\.\d+)/) || output.match(/(\d+\.\d+)/);
++      if (versionMatch) {
++        return versionMatch[1];
++      }
++      // If no version matched but command succeeded, return 'detected'
+       if (output.trim().length > 0) {
+         return 'detected';
+       }
+@@ -175,7 +192,12 @@ export class CLIScanner {
+     };
+     const path = sessionPaths[cliName];
+     // If sessions directory doesn't exist, try to create it
+-    return path && fs.existsSync(path) ? path : undefined;
++    if (path && !fs.existsSync(path)) {
++      try {
++        fs.mkdirSync(path, { recursive: true });
++        return path;
++      } catch (error) {
++        return undefined;
++      }
++    }
++    return path;
+   }
+
+   /**
+
+--- a/src/commands/init.ts
++++ b/src/commands/init.ts
+@@ -34,31 +34,55 @@ export async function initCommand(options: InitOptions): Promise<void> {
+   }
+
+   // Scan available CLI tools
+-  console.log(chalk.blue('🔍 Scanning for available CLI tools...'));
+-  const scanner = CLIScanner.getInstance();
+-  const availableCLIs = await scanner.scanAvailableCLIs();
+-
+-  if (availableCLIs.length === 0) {
+-    console.log(chalk.red('❌ No supported CLI tools found on this system.'));
+-    console.log(chalk.gray('   Please install at least one supported CLI tool:'));
+-    console.log(chalk.gray('   - Claude CLI: npm install -g @anthropic-ai/claude-code'));
+-    console.log(chalk.gray('   - Gemini CLI: npm install -g @google/gemini-cli'));
+-    console.log(chalk.gray('   - And more...'));
+-    return;
+-  }
+-
+-  console.log(chalk.green(`✅ Found ${availableCLIs.length} supported CLI tools:\n`));
++  console.log(chalk.blue('🔍 Scanning for CLI tools...'));
++  const scanner = CLIScanner.getInstance();
++  const allCLIs = await scanner.scanAvailableCLIs();
++
++  if (allCLIs.length === 0) {
++    console.log(chalk.red('❌ No supported CLI tools found on this system.'));
++    return;
++  }
++
++  // Categorize display
++  const availableCLIs = allCLIs.filter(cli => cli.available);
++  const unavailableCLIs = allCLIs.filter(cli => !cli.available);
++
++  console.log(chalk.blue(`\n📋 Found ${allCLIs.length} CLI tools:\n`));
++
++  // Display available CLIs
++  if (availableCLIs.length > 0) {
++    console.log(chalk.green.bold(`✅ Available (${availableCLIs.length}):`));
++    availableCLIs.forEach((cli, index) => {
++      const integration = getIntegrationLevelText(cli.integrationLevel);
++      console.log(`   ${index + 1}. ${chalk.bold(cli.displayName)} ${chalk.green('✅')}`);
++      console.log(`      Version: ${cli.version || 'unknown'}`);
++      console.log(`      Integration: ${integration}`);
++      if (cli.sessionsPath) {
++        console.log(`      Sessions: ${cli.sessionsPath}`);
++      }
++      console.log('');
++    });
++  }
++
++  // Display unavailable CLIs
++  if (unavailableCLIs.length > 0) {
++    console.log(chalk.yellow.bold(`❌ Not Available (${unavailableCLIs.length}):`));
++    unavailableCLIs.forEach((cli, index) => {
++      const integration = getIntegrationLevelText(cli.integrationLevel);
++      console.log(`   ${index + 1}. ${chalk.bold(cli.displayName)} ${chalk.red('❌')}`);
++      console.log(`      Integration: ${integration}`);
++      console.log(`      Tip: Install with npm or check PATH`);
++      console.log('');
++    });
++  }
++
++  if (availableCLIs.length === 0) {
++    console.log(chalk.red('\n❌ No available CLI tools found.'));
++    console.log(chalk.gray('   Please install at least one supported CLI tool:'));
++    console.log(chalk.gray('   - Claude CLI: npm install -g @anthropic-ai/claude-code'));
++    console.log(chalk.gray('   - Gemini CLI: npm install -g @google/gemini-cli'));
++    console.log(chalk.gray('   - And more...'));
++    return;
++  }
+
+   // Display available tools
+-  availableCLIs.forEach((cli, index) => {
+-    const status = cli.available ? chalk.green('✅') : chalk.red('❌');
+-    const integration = getIntegrationLevelText(cli.integrationLevel);
+-    console.log(`   ${index + 1}. ${chalk.bold(cli.displayName)} ${status}`);
+-    console.log(`      Version: ${cli.version || 'unknown'}`);
+-    console.log(`      Integration: ${integration}`);
+-    if (cli.sessionsPath) {
+-      console.log(`      Sessions: ${cli.sessionsPath}`);
+-    }
+-    console.log('');
+-  });
++  // (Display code already handled above)
+
+   // Select CLI tools to integrate

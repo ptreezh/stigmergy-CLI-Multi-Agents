@@ -6,10 +6,38 @@ const os = require('os');
 class AdapterManager {
   constructor() {
     this.adapters = new Map();
+    // Try multiple approaches for the adapters path to handle different installation scenarios
+    const primaryAdapterPath = this.findAdaptersPath();
     this.discoveryPaths = [
-      path.join(__dirname, '..', '..', '..', 'adapters'),
+      primaryAdapterPath,
       path.join(os.homedir(), '.stigmergy', 'adapters'),
     ];
+  }
+
+  /**
+   * Find the adapters path using multiple approaches to handle different installation scenarios
+   */
+  findAdaptersPath() {
+    const possiblePaths = [
+      // Standard path: src/core/coordination/nodejs/../../../adapters => src/adapters
+      path.join(__dirname, '..', '..', '..', 'adapters'),
+      // Fallback path in case of different module resolution
+      path.resolve(__dirname, '..', '..', '..', 'adapters'),
+      // Alternative approach: go to project root and then to adapters
+      path.join(__dirname, '..', '..', '..', '..', 'adapters')
+    ];
+
+    for (const possiblePath of possiblePaths) {
+      if (fs.existsSync(possiblePath)) {
+        console.log(`[DEBUG] AdapterManager found adapters at: ${possiblePath}`);
+        return possiblePath;
+      }
+    }
+
+    // If none of the paths work, use the standard path as fallback (might not exist)
+    const fallbackPath = path.join(__dirname, '..', '..', '..', 'adapters');
+    console.log(`[DEBUG] AdapterManager using fallback adapters path (may not exist): ${fallbackPath}`);
+    return fallbackPath;
   }
 
   async initialize() {

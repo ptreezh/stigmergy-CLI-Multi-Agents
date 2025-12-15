@@ -1,6 +1,6 @@
 /**
  * Stigmergy CLI Upgrade Manager
- * 管理所�?AI CLI 工具的升级和依赖更新
+ * 管理所有AI CLI 工具的升级和依赖更新
  */
 
 const { spawn, spawnSync } = require('child_process');
@@ -24,7 +24,8 @@ class UpgradeManager {
   }
 
   /**
-   * 检�?CLI 工具的当前版本和最新版�?   */
+   * 检查CLI 工具的当前版本和最新版本
+   */
   async checkVersions() {
     const versions = {};
     const errors = [];
@@ -39,12 +40,26 @@ class UpgradeManager {
           toolConfig,
         );
 
-        // 获取最新版�?        const latestVersion = await this.getLatestVersion(toolName, toolConfig);
+        // 获取最新版本
+        let latestVersion;
+        try {
+          latestVersion = await this.getLatestVersion(toolName, toolConfig);
+        } catch (versionError) {
+          console.error(`Error retrieving latest version for ${toolName}:`, versionError.message);
+          latestVersion = 'Unknown';
+        }
+
+        // Only perform semver comparison if both versions are valid semantic versions
+        let needsUpgrade = false;
+        if (currentVersion !== 'Not installed' && latestVersion !== 'Unknown' && 
+            semver.valid(currentVersion) && semver.valid(latestVersion)) {
+          needsUpgrade = semver.gt(latestVersion, currentVersion);
+        }
 
         versions[toolName] = {
           current: currentVersion,
           latest: latestVersion,
-          needsUpgrade: semver.gt(latestVersion, currentVersion),
+          needsUpgrade: needsUpgrade,
           config: toolConfig,
         };
 
@@ -54,7 +69,7 @@ class UpgradeManager {
         );
       } catch (error) {
         errors.push({ tool: toolName, error: error.message });
-        console.log(`�?${toolName}: ${error.message}`);
+        console.log(`❌ ${toolName}: ${error.message}`);
       }
     }
 
@@ -62,7 +77,8 @@ class UpgradeManager {
   }
 
   /**
-   * 获取当前安装的版�?   */
+   * 获取当前安装的版本
+   */
   async getCurrentVersion(toolName, toolConfig) {
     try {
       const result = spawnSync(toolConfig.version, {
@@ -79,7 +95,8 @@ class UpgradeManager {
         throw new Error(`Version command failed: ${result.stderr}`);
       }
 
-      // 从输出中提取版本�?      const versionMatch = result.stdout.match(/(\d+\.\d+\.\d+)/);
+      // 从输出中提取版本
+      const versionMatch = result.stdout.match(/(\d+\.\d+\.\d+)/);
       if (versionMatch) {
         return versionMatch[1];
       }
@@ -91,10 +108,12 @@ class UpgradeManager {
   }
 
   /**
-   * 获取最新可用版�?   */
+   * 获取最新可用版本
+   */
   async getLatestVersion(toolName, toolConfig) {
     try {
-      // �?npm 注册表获取最新版�?      const packageName = this.extractPackageName(toolConfig.install);
+      // 从 npm 注册表获取最新版本
+      const packageName = this.extractPackageName(toolConfig.install);
       if (!packageName) {
         throw new Error('Could not extract package name');
       }
@@ -105,8 +124,13 @@ class UpgradeManager {
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
+      // Check for execution errors
+      if (result.error) {
+        throw new Error(`npm command execution failed: ${result.error.message}`);
+      }
+
       if (result.status !== 0) {
-        throw new Error(`npm view failed: ${result.stderr}`);
+        throw new Error(`npm view failed: ${result.stderr || 'Unknown error'}`);
       }
 
       const latestVersion = result.stdout.trim();
@@ -116,6 +140,8 @@ class UpgradeManager {
 
       throw new Error('No version information available');
     } catch (error) {
+      // Log the actual error for debugging, but return 'Unknown' to prevent crashes
+      console.error(`Error getting latest version for ${toolName}:`, error.message);
       return 'Unknown';
     }
   }
@@ -132,12 +158,13 @@ class UpgradeManager {
   }
 
   /**
-   * 检查过时的依赖和警�?   */
+   * 检查过时的依赖和警告
+   */
   async checkDeprecations() {
     const deprecations = [];
 
     try {
-      // 检�?npm 警告
+      // 检查npm 警告
       const packageJsonPath = path.join(process.cwd(), 'package.json');
       if (await this.fileExists(packageJsonPath)) {
         const packageJson = JSON.parse(
@@ -155,7 +182,7 @@ class UpgradeManager {
         }
       }
 
-      // 检�?ImportProcessor 错误
+      // 检查ImportProcessor 错误
       const importProcessorErrors = await this.checkImportProcessorErrors();
       if (importProcessorErrors.length > 0) {
         deprecations.push({
@@ -200,7 +227,7 @@ class UpgradeManager {
   }
 
   /**
-   * 检�?ImportProcessor 相关错误
+   * 检查ImportProcessor 相关错误
    */
   async checkImportProcessorErrors() {
     const errors = [];
@@ -335,18 +362,18 @@ class UpgradeManager {
 
           if (result.status === 0) {
             results.successful.push(upgrade);
-            console.log(`�?${upgrade.tool} upgraded successfully`);
+            console.log(`✅${upgrade.tool} upgraded successfully`);
           } else {
             results.failed.push({ ...upgrade, error: 'Installation failed' });
-            console.log(`�?${upgrade.tool} upgrade failed`);
+            console.log(`❌${upgrade.tool} upgrade failed`);
           }
         } catch (error) {
           results.failed.push({ ...upgrade, error: error.message });
-          console.log(`�?${upgrade.tool} upgrade failed: ${error.message}`);
+          console.log(`❌${upgrade.tool} upgrade failed: ${error.message}`);
         }
       } else {
         console.log(
-          `🔍 Would upgrade ${upgrade.tool}: ${upgrade.from} �?${upgrade.to}`,
+          `🔍 Would upgrade ${upgrade.tool}: ${upgrade.from} -> ${upgrade.to}`,
         );
         results.successful.push(upgrade);
       }
@@ -406,7 +433,8 @@ class UpgradeManager {
   }
 
   /**
-   * 辅助方法：检查文件是否存�?   */
+   * 辅助方法：检查文件是否存在
+   */
   async fileExists(filePath) {
     try {
       await fs.access(filePath);

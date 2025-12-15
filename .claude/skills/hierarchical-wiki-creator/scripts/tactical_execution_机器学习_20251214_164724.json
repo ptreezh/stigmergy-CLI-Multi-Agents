@@ -1,0 +1,169 @@
+{
+  "topic": "机器学习",
+  "level": "tactical",
+  "timestamp": "2025-12-14T16:47:19.106051",
+  "phases": [
+    {
+      "phase_id": 1,
+      "name": "信息收集",
+      "type": "tactical",
+      "subtasks": [
+        {
+          "task_id": "1.1",
+          "name": "网络搜索",
+          "type": "quantitative",
+          "command": "python scripts/data_collector.py --topic '{topic}' --mode 'search'",
+          "start_time": "2025-12-14T16:47:19.106051",
+          "metrics": {
+            "search_time": 0,
+            "result_count": 0,
+            "success_rate": 0.0,
+            "quality_score": 0.0
+          },
+          "search_results": [],
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 5
+        },
+        {
+          "task_id": "1.2",
+          "name": "文献分析",
+          "type": "qualitative",
+          "command": "python scripts/data_collector.py --topic '{topic}' --mode 'analysis'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {},
+          "error": "未知的定性任务类型",
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        }
+      ],
+      "start_time": "2025-12-14T16:47:19.106051",
+      "metrics": {},
+      "end_time": "2025-12-14T16:47:24.119663",
+      "duration": 5
+    },
+    {
+      "phase_id": 2,
+      "name": "深度分析",
+      "type": "tactical",
+      "subtasks": [
+        {
+          "task_id": "2.1",
+          "name": "专家观点生成",
+          "type": "qualitative",
+          "command": "python scripts/content_generator.py --topic '{topic}' --mode 'insights'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {
+            "generation_time": 0,
+            "insight_count": 4,
+            "confidence": 0.8
+          },
+          "insights": [
+            "{topic}的核心价值在于其创新性和实用性",
+            "从expert角度看，{topic}具有独特的技术优势",
+            "{topic}的发展趋势显示其应用前景广阔",
+            "需要关注{topic}在实际应用中的挑战和限制"
+          ],
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        },
+        {
+          "task_id": "2.2",
+          "name": "深度思考分析",
+          "type": "qualitative",
+          "command": "python scripts/content_generator.py --topic '{topic}' --mode 'deep_analysis'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {
+            "analysis_time": 0,
+            "depth_score": 0.85,
+            "completeness": 0.9
+          },
+          "analysis": "关于{topic}的深度分析：\n\n核心概念：\n{topic}作为一个重要的技术/理论概念，具有以下核心特征：\n1. 理论基础：建立在坚实的理论基础之上\n2. 技术实现：有成熟的实现方案和工具支持\n3. 应用价值：在多个领域展现实际价值\n4. 发展潜力：未来发展空间广阔\n\n技术架构：\n{topic}的技术架构包含多个关键组件：\n- 核心算法/机制\n- 支撑技术/平台\n- 优化方法/策略\n- 评估指标/标准\n\n应用场景：\n{topic}在以下领域有重要应用：\n- 学术研究：理论探索和验证\n- 工业应用：实际产品和服务\n- 技术创新：新方法和工具开发\n- 教育培训：知识传播和技能培养\n\n挑战与机遇：\n当前{topic}面临的主要挑战包括：\n- 技术复杂度和学习曲线\n- 实际应用的门槛和成本\n- 与相关技术的竞争和融合\n- 标准化和规范化需求\n\n未来展望：\n展望未来，{topic}的发展趋势包括：\n- 技术的进一步成熟和简化\n- 应用场景的持续扩展\n- 与其他技术的深度融合\n- 标准化和生态系统的完善\n\n结论：\n{topic}作为一个重要的技术/理论概念，具有广阔的发展前景和实际价值，值得深入研究和应用。",
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        }
+      ],
+      "start_time": "2025-12-14T16:47:24.119663",
+      "metrics": {},
+      "end_time": "2025-12-14T16:47:24.119663",
+      "duration": 0
+    },
+    {
+      "phase_id": 3,
+      "name": "内容生成",
+      "type": "operational",
+      "subtasks": [
+        {
+          "task_id": "3.1",
+          "name": "结构化生成",
+          "type": "quantitative",
+          "command": "python scripts/content_generator.py --topic '{topic}' --mode 'structured'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {},
+          "error": "未知的定量任务类型",
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        },
+        {
+          "task_id": "3.2",
+          "name": "专业撰写",
+          "type": "qualitative",
+          "command": "python scripts/content_generator.py --topic '{topic}' --mode 'professional'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {
+            "writing_time": 0,
+            "word_count": 563,
+            "professional_score": 0.85
+          },
+          "content": "# {topic} - 专业百科\n\n## 概述\n{topic}是一个重要的技术/理论概念，在现代技术体系中发挥着关键作用。它不仅具有深厚的理论基础，也在实际应用中展现出巨大的价值。\n\n## 核心原理\n{topic}的核心原理基于...技术机制，通过...方式实现...功能。其关键特点包括：\n- 特点一：具体描述\n- 特点二：具体描述\n- 特点三：具体描述\n\n## 技术实现\n{topic}的技术实现涉及多个关键环节：\n1. 基础架构设计\n2. 核心算法实现\n3. 系统集成方案\n4. 优化和调整策略\n\n## 应用领域\n{topic}在以下领域有重要应用：\n- 领域一：具体应用描述\n- 领域二：具体应用描述\n- 领域三：具体应用描述\n- 领域四：具体应用描述\n\n## 优势与局限\n{topic}的主要优势：\n- 优势一：具体描述\n- 优势二：具体描述\n- 优势三：具体描述\n\n{topic}的局限性：\n- 局限一：具体描述\n- 局限二：具体描述\n- 局限三：具体描述\n\n## 发展趋势\n展望未来，{topic}的发展趋势包括：\n- 趋势一：具体描述\n- 趋势二：具体描述\n- 趋势三：具体描述\n- 趋势四：具体描述\n\n## 结论\n{topic}作为一个重要的技术/理论概念，具有广阔的发展前景和实际价值，值得深入研究和应用。",
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        }
+      ],
+      "start_time": "2025-12-14T16:47:24.119663",
+      "metrics": {},
+      "end_time": "2025-12-14T16:47:24.119663",
+      "duration": 0
+    },
+    {
+      "phase_id": 4,
+      "name": "质量控制",
+      "type": "operational",
+      "subtasks": [
+        {
+          "task_id": "4.1",
+          "name": "质量评估",
+          "type": "quantitative",
+          "command": "python scripts/quality_controller.py --mode 'assessment'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {},
+          "status": "failed",
+          "error": "'TacticalExecutor' object has no attribute '_execute_assessment_task'",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        },
+        {
+          "task_id": "4.2",
+          "name": "最终优化",
+          "type": "qualitative",
+          "command": "python scripts/quality_controller.py --mode 'optimization'",
+          "start_time": "2025-12-14T16:47:24.119663",
+          "metrics": {},
+          "error": "未知的定性任务类型",
+          "status": "completed",
+          "end_time": "2025-12-14T16:47:24.119663",
+          "duration": 0
+        }
+      ],
+      "start_time": "2025-12-14T16:47:24.119663",
+      "metrics": {},
+      "end_time": "2025-12-14T16:47:24.119663",
+      "duration": 0
+    }
+  ]
+}

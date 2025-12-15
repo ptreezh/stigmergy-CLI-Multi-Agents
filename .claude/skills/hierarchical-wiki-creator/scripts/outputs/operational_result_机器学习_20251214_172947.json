@@ -1,0 +1,487 @@
+{
+  "topic": "机器学习",
+  "timestamp": "2025-12-14T17:29:47.167349",
+  "disclosure_level": 3,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "信息收集与预处理",
+      "status": "completed",
+      "extracted_info": {
+        "topic": "机器学习",
+        "search_results": [
+          {
+            "title": "Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry",
+            "url": "http://arxiv.org/abs/1806.02690v2",
+            "snippet": "A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....",
+            "content": "A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms.",
+            "authors": [
+              "Matthias Rupp",
+              "O. Anatole von Lilienfeld",
+              "Kieron Burke"
+            ],
+            "published": "2018-06-07",
+            "source": "arxiv"
+          },
+          {
+            "title": "Topic Modelling Meets Deep Neural Networks: A Survey",
+            "url": "http://arxiv.org/abs/2103.00498v1",
+            "snippet": "Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, ne...",
+            "content": "Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, neural topic models, with over a hundred models developed and a wide range of applications in neural language understanding such as text generation, summarisation and language models. There is a need to summarise research developments and discuss open problems and future directions. In this paper, we provide a focused yet comprehensive overview of neural topic models for interested researchers in the AI community, so as to facilitate them to navigate and innovate in this fast-growing research area. To the best of our knowledge, ours is the first review focusing on this specific topic.",
+            "authors": [
+              "He Zhao",
+              "Dinh Phung",
+              "Viet Huynh",
+              "Yuan Jin",
+              "Lan Du",
+              "Wray Buntine"
+            ],
+            "published": "2021-02-28",
+            "source": "arxiv"
+          },
+          {
+            "title": "A Bimodal Network Approach to Model Topic Dynamics",
+            "url": "http://arxiv.org/abs/1709.09373v1",
+            "snippet": "This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Al...",
+            "content": "This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Allocation (LDA). The main contribution is the conceptualization of the topic dynamics and its formalization and codification into an algorithm. To benchmark the effectiveness of this approach, we propose three indexes which track the transformation of topics over time, their rate of birth and death, and the novelty of their content. Applying the LDA, we test the algorithm both on a controlled experiment and on a corpus of several thousands of scientific papers over a period of more than 100 years which account for the history of the economic thought.",
+            "authors": [
+              "Luigi Di Caro",
+              "Marco Guerzoni",
+              "Massimiliano Nuccio",
+              "Giovanni Siragusa"
+            ],
+            "published": "2017-09-27",
+            "source": "arxiv"
+          },
+          {
+            "title": "A Topic Model Approach to Multi-Modal Similarity",
+            "url": "http://arxiv.org/abs/1405.6886v1",
+            "snippet": "Calculating similarities between objects defined by many heterogeneous data modalities is an important challenge in many multimedia applications. We use a multi-modal topic model as a basis for defini...",
+            "content": "Calculating similarities between objects defined by many heterogeneous data modalities is an important challenge in many multimedia applications. We use a multi-modal topic model as a basis for defining such a similarity between objects. We propose to compare the resulting similarities from different model realizations using the non-parametric Mantel test. The approach is evaluated on a music dataset.",
+            "authors": [
+              "Rasmus Troelsgård",
+              "Bjørn Sand Jensen",
+              "Lars Kai Hansen"
+            ],
+            "published": "2014-05-27",
+            "source": "arxiv"
+          },
+          {
+            "title": "Evaluating topic coherence measures",
+            "url": "http://arxiv.org/abs/1403.6397v1",
+            "snippet": "Topic models extract representative word sets - called topics - from word counts in documents without requiring any semantic annotations. Topics are not guaranteed to be well interpretable, therefore,...",
+            "content": "Topic models extract representative word sets - called topics - from word counts in documents without requiring any semantic annotations. Topics are not guaranteed to be well interpretable, therefore, coherence measures have been proposed to distinguish between good and bad topics. Studies of topic coherence so far are limited to measures that score pairs of individual words. For the first time, we include coherence measures from scientific philosophy that score pairs of more complex word subsets and apply them to topic scoring.",
+            "authors": [
+              "Frank Rosner",
+              "Alexander Hinneburg",
+              "Michael Röder",
+              "Martin Nettling",
+              "Andreas Both"
+            ],
+            "published": "2014-03-25",
+            "source": "arxiv"
+          }
+        ],
+        "analysis_results": [],
+        "literature_data": []
+      },
+      "processed_data": {
+        "topic_keywords": [
+          "机器学习"
+        ],
+        "search_summary": "找到5个相关搜索结果",
+        "analysis_insights": [
+          "分析洞察1",
+          "分析洞察2"
+        ],
+        "literature_highlights": [
+          "文献亮点1",
+          "文献亮点2"
+        ]
+      },
+      "data_quality_score": 0.8
+    },
+    {
+      "phase": 2,
+      "name": "结构化内容生成",
+      "status": "completed",
+      "content_structure": {
+        "title": "机器学习 - 智能百科",
+        "sections": [
+          {
+            "title": "概述",
+            "type": "introduction",
+            "priority": 1
+          },
+          {
+            "title": "历史发展",
+            "type": "history",
+            "priority": 2
+          },
+          {
+            "title": "核心原理",
+            "type": "principles",
+            "priority": 3
+          },
+          {
+            "title": "技术实现",
+            "type": "implementation",
+            "priority": 4
+          },
+          {
+            "title": "应用领域",
+            "type": "applications",
+            "priority": 5
+          },
+          {
+            "title": "优势与局限",
+            "type": "analysis",
+            "priority": 6
+          },
+          {
+            "title": "发展趋势",
+            "type": "future",
+            "priority": 7
+          },
+          {
+            "title": "参考文献",
+            "type": "references",
+            "priority": 8
+          }
+        ]
+      },
+      "section_outlines": [
+        {
+          "title": "概述",
+          "type": "introduction",
+          "key_points": [
+            "定义",
+            "重要性",
+            "应用范围"
+          ],
+          "estimated_length": 100
+        },
+        {
+          "title": "历史发展",
+          "type": "history",
+          "key_points": [
+            "起源",
+            "发展阶段",
+            "里程碑"
+          ],
+          "estimated_length": 150
+        },
+        {
+          "title": "核心原理",
+          "type": "principles",
+          "key_points": [
+            "基本原理",
+            "工作机制",
+            "理论基础"
+          ],
+          "estimated_length": 200
+        },
+        {
+          "title": "技术实现",
+          "type": "implementation",
+          "key_points": [
+            "技术架构",
+            "实现方法",
+            "性能优化"
+          ],
+          "estimated_length": 250
+        },
+        {
+          "title": "应用领域",
+          "type": "applications",
+          "key_points": [
+            "主要应用",
+            "成功案例",
+            "市场前景"
+          ],
+          "estimated_length": 200
+        },
+        {
+          "title": "优势与局限",
+          "type": "analysis",
+          "key_points": [
+            "优势",
+            "局限性",
+            "改进方向"
+          ],
+          "estimated_length": 150
+        },
+        {
+          "title": "发展趋势",
+          "type": "future",
+          "key_points": [
+            "发展趋势",
+            "技术展望",
+            "潜在影响"
+          ],
+          "estimated_length": 150
+        },
+        {
+          "title": "参考文献",
+          "type": "references",
+          "key_points": [
+            "主要文献",
+            "权威资料",
+            "进一步阅读"
+          ],
+          "estimated_length": 100
+        }
+      ],
+      "structure_completeness": 1.0
+    },
+    {
+      "phase": 3,
+      "name": "专业化内容撰写",
+      "status": "completed",
+      "sections_content": [
+        {
+          "title": "概述",
+          "type": "introduction",
+          "content": "机器学习是一个重要的技术领域，在相关学科和应用中具有广泛价值。本文基于最新的学术研究和实践案例，全面分析机器学习的核心技术、应用场景和发展趋势。",
+          "word_count": 72
+        },
+        {
+          "title": "基于以下搜索结果和文献资料",
+          "type": "general",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry\n   内容摘要: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n   详细内容: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n\n2. Topic Modelling Meets Deep Neural Networks: A Survey\n   内容摘要: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, ne...\n   详细内容: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, neural topic models, with over a hundred models developed and a wide range of applications in neural l...\n\n3. A Bimodal Network Approach to Model Topic Dynamics\n   内容摘要: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Al...\n   详细内容: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Allocation (LDA). The main contribution is the conceptualization of the topic dynamics and its formali...",
+          "word_count": 1571
+        },
+        {
+          "title": "核心原理与技术机制\n机器学习的核心技术建立在先进的算法理论和数学模型基础上。通过分析现有研究和实践应用，可以发现其技术架构具有以下特点",
+          "type": "general",
+          "content": "1. 理论基础：机器学习的理论基础涉及多个学科领域，包括数学、计算机科学和相关应用学科。这些理论基础为机器学习的技术发展提供了坚实的支撑。",
+          "word_count": 69
+        },
+        {
+          "title": "2. 技术实现在技术实现层面，机器学习采用了多种先进的技术手段和优化策略。这些技术方案不仅提高了系统的性能，还增强了其适应性和可扩展性。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "3. 应用场景机器学习在多个领域都有重要的应用价值。从学术研究到工业应用，从技术创新到教育培训，机器学习都展现出了强大的实用性和发展潜力。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "4. 发展趋势当前机器学习正处于快速发展的阶段。未来的发展方向包括技术优化、应用拓展、标准化建设等方面。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "专业评估\n基于对现有研究和应用案例的分析，机器学习在技术成熟度、市场接受度和未来发展前景方面都表现出积极态势。建议重点关注跨学科融合、实际应用深化和标准化推进。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "参考文献",
+          "type": "references",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry. Matthias Rupp et al. 2018.\n2. Topic Modelling Meets Deep Neural Networks: A Survey. He Zhao et al. 2021.\n3. A Bimodal Network Approach to Model Topic Dynamics. Luigi Di Caro et al. 2017.",
+          "word_count": 259
+        }
+      ],
+      "references": [
+        {
+          "title": "Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry",
+          "authors": [
+            "Matthias Rupp",
+            "O. Anatole von Lilienfeld",
+            "Kieron Burke"
+          ],
+          "year": 2018,
+          "venue": "arxiv",
+          "url": "http://arxiv.org/abs/1806.02690v2",
+          "citations": 0
+        },
+        {
+          "title": "Topic Modelling Meets Deep Neural Networks: A Survey",
+          "authors": [
+            "He Zhao",
+            "Dinh Phung",
+            "Viet Huynh",
+            "Yuan Jin",
+            "Lan Du",
+            "Wray Buntine"
+          ],
+          "year": 2021,
+          "venue": "arxiv",
+          "url": "http://arxiv.org/abs/2103.00498v1",
+          "citations": 0
+        },
+        {
+          "title": "A Bimodal Network Approach to Model Topic Dynamics",
+          "authors": [
+            "Luigi Di Caro",
+            "Marco Guerzoni",
+            "Massimiliano Nuccio",
+            "Giovanni Siragusa"
+          ],
+          "year": 2017,
+          "venue": "arxiv",
+          "url": "http://arxiv.org/abs/1709.09373v1",
+          "citations": 0
+        },
+        {
+          "title": "A Topic Model Approach to Multi-Modal Similarity",
+          "authors": [
+            "Rasmus Troelsgård",
+            "Bjørn Sand Jensen",
+            "Lars Kai Hansen"
+          ],
+          "year": 2014,
+          "venue": "arxiv",
+          "url": "http://arxiv.org/abs/1405.6886v1",
+          "citations": 0
+        },
+        {
+          "title": "Evaluating topic coherence measures",
+          "authors": [
+            "Frank Rosner",
+            "Alexander Hinneburg",
+            "Michael Röder",
+            "Martin Nettling",
+            "Andreas Both"
+          ],
+          "year": 2014,
+          "venue": "arxiv",
+          "url": "http://arxiv.org/abs/1403.6397v1",
+          "citations": 0
+        }
+      ],
+      "total_word_count": 1971,
+      "source_content_length": 2025
+    },
+    {
+      "phase": 4,
+      "name": "质量控制与优化",
+      "status": "completed",
+      "quality_metrics": {
+        "coherence": 0.85,
+        "accuracy": 0.8,
+        "completeness": 0.9,
+        "readability": 0.85
+      },
+      "original_content": [
+        {
+          "title": "概述",
+          "type": "introduction",
+          "content": "机器学习是一个重要的技术领域，在相关学科和应用中具有广泛价值。本文基于最新的学术研究和实践案例，全面分析机器学习的核心技术、应用场景和发展趋势。",
+          "word_count": 72
+        },
+        {
+          "title": "基于以下搜索结果和文献资料",
+          "type": "general",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry\n   内容摘要: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n   详细内容: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n\n2. Topic Modelling Meets Deep Neural Networks: A Survey\n   内容摘要: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, ne...\n   详细内容: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, neural topic models, with over a hundred models developed and a wide range of applications in neural l...\n\n3. A Bimodal Network Approach to Model Topic Dynamics\n   内容摘要: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Al...\n   详细内容: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Allocation (LDA). The main contribution is the conceptualization of the topic dynamics and its formali...",
+          "word_count": 1571
+        },
+        {
+          "title": "核心原理与技术机制\n机器学习的核心技术建立在先进的算法理论和数学模型基础上。通过分析现有研究和实践应用，可以发现其技术架构具有以下特点",
+          "type": "general",
+          "content": "1. 理论基础：机器学习的理论基础涉及多个学科领域，包括数学、计算机科学和相关应用学科。这些理论基础为机器学习的技术发展提供了坚实的支撑。",
+          "word_count": 69
+        },
+        {
+          "title": "2. 技术实现在技术实现层面，机器学习采用了多种先进的技术手段和优化策略。这些技术方案不仅提高了系统的性能，还增强了其适应性和可扩展性。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "3. 应用场景机器学习在多个领域都有重要的应用价值。从学术研究到工业应用，从技术创新到教育培训，机器学习都展现出了强大的实用性和发展潜力。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "4. 发展趋势当前机器学习正处于快速发展的阶段。未来的发展方向包括技术优化、应用拓展、标准化建设等方面。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "专业评估\n基于对现有研究和应用案例的分析，机器学习在技术成熟度、市场接受度和未来发展前景方面都表现出积极态势。建议重点关注跨学科融合、实际应用深化和标准化推进。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "参考文献",
+          "type": "references",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry. Matthias Rupp et al. 2018.\n2. Topic Modelling Meets Deep Neural Networks: A Survey. He Zhao et al. 2021.\n3. A Bimodal Network Approach to Model Topic Dynamics. Luigi Di Caro et al. 2017.",
+          "word_count": 259
+        }
+      ],
+      "optimized_content": [
+        {
+          "title": "概述",
+          "type": "introduction",
+          "content": "机器学习是一个重要的技术领域，在相关学科和应用中具有广泛价值。本文基于最新的学术研究和实践案例，全面分析机器学习的核心技术、应用场景和发展趋势。",
+          "word_count": 72
+        },
+        {
+          "title": "基于以下搜索结果和文献资料",
+          "type": "general",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry\n   内容摘要: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n   详细内容: A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms....\n\n2. Topic Modelling Meets Deep Neural Networks: A Survey\n   内容摘要: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, ne...\n   详细内容: Topic modelling has been a successful technique for text analysis for almost twenty years. When topic modelling met deep neural networks, there emerged a new and increasingly popular research area, neural topic models, with over a hundred models developed and a wide range of applications in neural l...\n\n3. A Bimodal Network Approach to Model Topic Dynamics\n   内容摘要: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Al...\n   详细内容: This paper presents an intertemporal bimodal network to analyze the evolution of the semantic content of a scientific field within the framework of topic modeling, namely using the Latent Dirichlet Allocation (LDA). The main contribution is the conceptualization of the topic dynamics and its formali...",
+          "word_count": 1571
+        },
+        {
+          "title": "核心原理与技术机制\n机器学习的核心技术建立在先进的算法理论和数学模型基础上。通过分析现有研究和实践应用，可以发现其技术架构具有以下特点",
+          "type": "general",
+          "content": "1. 理论基础：机器学习的理论基础涉及多个学科领域，包括数学、计算机科学和相关应用学科。这些理论基础为机器学习的技术发展提供了坚实的支撑。",
+          "word_count": 69
+        },
+        {
+          "title": "2. 技术实现在技术实现层面，机器学习采用了多种先进的技术手段和优化策略。这些技术方案不仅提高了系统的性能，还增强了其适应性和可扩展性。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "3. 应用场景机器学习在多个领域都有重要的应用价值。从学术研究到工业应用，从技术创新到教育培训，机器学习都展现出了强大的实用性和发展潜力。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "4. 发展趋势当前机器学习正处于快速发展的阶段。未来的发展方向包括技术优化、应用拓展、标准化建设等方面。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "专业评估\n基于对现有研究和应用案例的分析，机器学习在技术成熟度、市场接受度和未来发展前景方面都表现出积极态势。建议重点关注跨学科融合、实际应用深化和标准化推进。",
+          "type": "general",
+          "content": "",
+          "word_count": 0
+        },
+        {
+          "title": "参考文献",
+          "type": "references",
+          "content": "1. Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry. Matthias Rupp et al. 2018.\n2. Topic Modelling Meets Deep Neural Networks: A Survey. He Zhao et al. 2021.\n3. A Bimodal Network Approach to Model Topic Dynamics. Luigi Di Caro et al. 2017.",
+          "word_count": 259
+        }
+      ],
+      "improvement_score": 0.1
+    },
+    {
+      "phase": 5,
+      "name": "最终交付",
+      "status": "completed",
+      "html_file": "outputs\\机器学习_智能百科.html",
+      "json_file": "outputs\\wiki_机器学习_20251214_172947.json",
+      "delivery_timestamp": "2025-12-14T17:29:47.168350",
+      "file_sizes": {
+        "html": 5866,
+        "json": 27059
+      }
+    }
+  ]
+}

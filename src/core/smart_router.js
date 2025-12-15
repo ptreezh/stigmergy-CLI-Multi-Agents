@@ -39,9 +39,21 @@ class SmartRouter {
    * Check if input should be routed to a specific CLI tool
    */
   shouldRoute(userInput) {
-    return this.routeKeywords.some((keyword) =>
-      userInput.toLowerCase().includes(keyword.toLowerCase()),
-    );
+    if (!userInput || typeof userInput !== 'string') {
+      return false;
+    }
+
+    const input = userInput.toLowerCase().trim();
+
+    // Check for route keywords
+    const routePatterns = [
+      'use', 'using', 'with',
+      'help', 'please', 'assist',
+      'write', 'generate', 'explain', 'analyze',
+      'translate', 'article', 'create', 'code'
+    ];
+
+    return routePatterns.some(pattern => input.includes(pattern));
   }
 
   /**

@@ -1,0 +1,313 @@
+{
+  "timestamp": "2025-12-14T08:51:35.119Z",
+  "deepTests": [
+    {
+      "category": "文件修改",
+      "test": "src/index.js",
+      "result": true,
+      "details": "单引号: 10, 双引号: 0, CRLF: 0, LF: 30",
+      "timestamp": "2025-12-14T08:51:35.131Z"
+    },
+    {
+      "category": "文件修改",
+      "test": "src/cli/router.js",
+      "result": true,
+      "details": "单引号: 758, 双引号: 76, CRLF: 0, LF: 1279",
+      "timestamp": "2025-12-14T08:51:35.133Z"
+    },
+    {
+      "category": "文件修改",
+      "test": "src/core/installer.js",
+      "result": true,
+      "details": "单引号: 493, 双引号: 27, CRLF: 0, LF: 992",
+      "timestamp": "2025-12-14T08:51:35.134Z"
+    },
+    {
+      "category": "文件修改",
+      "test": "src/core/smart_router.js",
+      "result": true,
+      "details": "单引号: 143, 双引号: 0, CRLF: 0, LF: 261",
+      "timestamp": "2025-12-14T08:51:35.136Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "文件修改检查",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:35.136Z"
+    },
+    {
+      "category": "CLI功能",
+      "test": "--help",
+      "result": true,
+      "details": "退出码: 0, 输出长度: 1354",
+      "timestamp": "2025-12-14T08:51:36.445Z"
+    },
+    {
+      "category": "CLI功能",
+      "test": "version",
+      "result": true,
+      "details": "退出码: 0, 输出长度: 21",
+      "timestamp": "2025-12-14T08:51:37.822Z"
+    },
+    {
+      "category": "CLI功能",
+      "test": "status",
+      "result": false,
+      "details": "退出码: 0, 输出长度: 950",
+      "timestamp": "2025-12-14T08:51:45.205Z"
+    },
+    {
+      "category": "CLI功能",
+      "test": "diagnostic",
+      "result": true,
+      "details": "退出码: 0, 输出长度: 965",
+      "timestamp": "2025-12-14T08:51:52.476Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "CLI功能测试",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:52.477Z"
+    },
+    {
+      "category": "钩子存在",
+      "test": "hooks.json",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:52.478Z"
+    },
+    {
+      "category": "钩子详情",
+      "test": "hooks.json",
+      "result": true,
+      "details": "大小: 386 bytes, 修改时间: Sun Dec 14 2025 16:43:44 GMT+0800 (中国标准时间)",
+      "timestamp": "2025-12-14T08:51:52.478Z"
+    },
+    {
+      "category": "钩子存在",
+      "test": "hooks.json",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:52.479Z"
+    },
+    {
+      "category": "钩子详情",
+      "test": "hooks.json",
+      "result": true,
+      "details": "大小: 386 bytes, 修改时间: Sun Dec 14 2025 16:43:44 GMT+0800 (中国标准时间)",
+      "timestamp": "2025-12-14T08:51:52.479Z"
+    },
+    {
+      "category": "钩子存在",
+      "test": "hooks.json",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:52.479Z"
+    },
+    {
+      "category": "钩子详情",
+      "test": "hooks.json",
+      "result": true,
+      "details": "大小: 386 bytes, 修改时间: Sun Dec 14 2025 16:43:44 GMT+0800 (中国标准时间)",
+      "timestamp": "2025-12-14T08:51:52.479Z"
+    },
+    {
+      "category": "钩子存在",
+      "test": "claude_nodejs_hook.js",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:52.481Z"
+    },
+    {
+      "category": "钩子详情",
+      "test": "claude_nodejs_hook.js",
+      "result": true,
+      "details": "大小: 5446 bytes, 修改时间: Sun Dec 14 2025 16:43:44 GMT+0800 (中国标准时间)",
+      "timestamp": "2025-12-14T08:51:52.481Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "钩子存在性",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:52.481Z"
+    },
+    {
+      "category": "模块加载",
+      "test": "./src/index.js",
+      "result": true,
+      "details": "类型: object",
+      "timestamp": "2025-12-14T08:51:54.148Z"
+    },
+    {
+      "category": "模块加载",
+      "test": "./src/cli/router.js",
+      "result": true,
+      "details": "类型: function",
+      "timestamp": "2025-12-14T08:51:54.153Z"
+    },
+    {
+      "category": "模块加载",
+      "test": "./src/core/installer.js",
+      "result": true,
+      "details": "类型: function",
+      "timestamp": "2025-12-14T08:51:54.155Z"
+    },
+    {
+      "category": "模块加载",
+      "test": "./src/core/smart_router.js",
+      "result": true,
+      "details": "类型: function",
+      "timestamp": "2025-12-14T08:51:54.157Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "模块加载测试",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:54.157Z"
+    },
+    {
+      "category": "交叉验证",
+      "test": "help命令交叉验证",
+      "result": false,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:54.164Z"
+    },
+    {
+      "category": "交叉验证",
+      "test": "version命令交叉验证",
+      "result": false,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:54.168Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "交叉验证",
+      "result": false,
+      "details": "❌ 失败",
+      "timestamp": "2025-12-14T08:51:54.168Z"
+    },
+    {
+      "category": "性能测试",
+      "test": "CLI响应时间",
+      "result": true,
+      "details": "1330ms",
+      "timestamp": "2025-12-14T08:51:55.500Z"
+    },
+    {
+      "category": "性能测试",
+      "test": "模块加载时间",
+      "result": true,
+      "details": "1ms",
+      "timestamp": "2025-12-14T08:51:55.501Z"
+    },
+    {
+      "category": "性能测试",
+      "test": "总体测试时间",
+      "result": true,
+      "details": "1331ms",
+      "timestamp": "2025-12-14T08:51:55.501Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "性能基准",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:55.501Z"
+    },
+    {
+      "category": "数据完整性",
+      "test": "package.json完整性",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:55.502Z"
+    },
+    {
+      "category": "数据完整性",
+      "test": "钩子配置JSON完整性",
+      "result": true,
+      "details": "",
+      "timestamp": "2025-12-14T08:51:55.502Z"
+    },
+    {
+      "category": "总体验证",
+      "test": "数据完整性",
+      "result": true,
+      "details": "✅ 通过",
+      "timestamp": "2025-12-14T08:51:55.503Z"
+    }
+  ],
+  "actualFunctionality": {
+    "--help": {
+      "working": true,
+      "exitCode": 0,
+      "outputLength": 1354,
+      "hasExpectedPattern": true
+    },
+    "version": {
+      "working": true,
+      "exitCode": 0,
+      "outputLength": 21,
+      "hasExpectedPattern": true
+    },
+    "status": {
+      "working": false,
+      "exitCode": 0,
+      "outputLength": 950,
+      "hasExpectedPattern": false
+    },
+    "diagnostic": {
+      "working": true,
+      "exitCode": 0,
+      "outputLength": 965,
+      "hasExpectedPattern": true
+    }
+  },
+  "crossValidation": {
+    "help命令交叉验证": {
+      "allWorking": false,
+      "results": [
+        {
+          "working": false,
+          "exitCode": null
+        },
+        {
+          "working": false,
+          "exitCode": null
+        }
+      ]
+    },
+    "version命令交叉验证": {
+      "allWorking": false,
+      "results": [
+        {
+          "working": false,
+          "exitCode": null
+        },
+        {
+          "working": false,
+          "exitCode": null
+        }
+      ]
+    }
+  },
+  "finalAssessment": {
+    "passedVerifications": 6,
+    "totalVerifications": 7,
+    "passRate": 85.71428571428571,
+    "trustScore": {
+      "score": 88,
+      "level": {
+        "min": 70,
+        "label": "中等可信度",
+        "emoji": "🟡"
+      }
+    },
+    "duration": 20373
+  },
+  "duration": 20373,
+  "verificationPassRate": 85.71428571428571
+}

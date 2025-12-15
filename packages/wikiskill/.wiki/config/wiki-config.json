@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "createdAt": "2025-12-14T07:43:19.733Z",
+  "defaultTheme": "default",
+  "autoSave": true,
+  "localServer": {
+    "enabled": false,
+    "port": 8080
+  },
+  "collaboration": {
+    "enabled": true,
+    "autoSync": false
+  }
+}

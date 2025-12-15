@@ -79,7 +79,7 @@ class EnhancedInstaller {
 
       return this.results;
     } catch (error) {
-      console.error('â?Enhanced installation failed:', error.message);
+      console.error('ï¿½?Enhanced installation failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -109,12 +109,12 @@ class EnhancedInstaller {
         errors: cacheResults.errors.length,
       };
 
-      console.log(`âœ?Cache cleaning completed in ${duration}ms`);
+      console.log(`ï¿½?Cache cleaning completed in ${duration}ms`);
       console.log(
         `ðŸ“Š Removed ${cacheResults.filesRemoved} files, freed ${this.formatBytes(cacheResults.bytesFreed)}\n`,
       );
     } catch (error) {
-      console.error('â?Cache cleaning failed:', error.message);
+      console.error('ï¿½?Cache cleaning failed:', error.message);
       this.results.cacheCleaning = {
         success: false,
         error: error.message,
@@ -143,7 +143,7 @@ class EnhancedInstaller {
       // Scan for existing CLI tools
       const scanResult = await this.baseInstaller.scanCLI();
 
-      console.log('âœ?System scan completed');
+      console.log('ï¿½?System scan completed');
       console.log(
         `ðŸ“Š Found ${Object.keys(scanResult.available).length} available CLI tools`,
       );
@@ -153,7 +153,7 @@ class EnhancedInstaller {
 
       this.results.scan = scanResult;
     } catch (error) {
-      console.error('â?System scan failed:', error.message);
+      console.error('ï¿½?System scan failed:', error.message);
       throw error;
     }
   }
@@ -193,9 +193,9 @@ class EnhancedInstaller {
         result: installResult,
       };
 
-      console.log('âœ?Installation completed');
+      console.log('ï¿½?Installation completed');
     } catch (error) {
-      console.error('â?Installation failed:', error.message);
+      console.error('ï¿½?Installation failed:', error.message);
       this.results.installation = {
         success: false,
         error: error.message,
@@ -208,7 +208,7 @@ class EnhancedInstaller {
    * Post-installation verification
    */
   async verifyInstallation() {
-    console.log('\nâœ?Post-installation Verification...');
+    console.log('\nï¿½?Post-installation Verification...');
 
     try {
       // Verify installation was successful
@@ -237,13 +237,13 @@ class EnhancedInstaller {
 
       if (verificationResults.newlyInstalled.length > 0) {
         console.log(
-          `âœ?Successfully installed: ${verificationResults.newlyInstalled.join(', ')}`,
+          `ï¿½?Successfully installed: ${verificationResults.newlyInstalled.join(', ')}`,
         );
       }
 
-      console.log('âœ?Installation verification completed\n');
+      console.log('ï¿½?Installation verification completed\n');
     } catch (error) {
-      console.error('â?Verification failed:', error.message);
+      console.error('ï¿½?Verification failed:', error.message);
       this.results.errors.push(`Verification: ${error.message}`);
     }
   }
@@ -264,7 +264,7 @@ class EnhancedInstaller {
       );
     }
 
-    console.log(`  âœ?Node.js: ${nodeVersion}`);
+    console.log(`  ï¿½?Node.js: ${nodeVersion}`);
 
     // Check npm availability
     try {
@@ -275,7 +275,7 @@ class EnhancedInstaller {
       });
 
       if (npmResult.status === 0) {
-        console.log(`  âœ?npm: ${npmResult.stdout.trim()}`);
+        console.log(`  ï¿½?npm: ${npmResult.stdout.trim()}`);
       } else {
         throw new Error('npm is not available');
       }
@@ -287,12 +287,12 @@ class EnhancedInstaller {
     const homeDir = os.homedir();
     try {
       const stats = fs.statSync(homeDir);
-      console.log(`  âœ?Home directory accessible: ${homeDir}`);
+      console.log(`  ï¿½?Home directory accessible: ${homeDir}`);
     } catch (error) {
       throw new Error(`Cannot access home directory: ${homeDir}`);
     }
 
-    console.log('âœ?System requirements check passed\n');
+    console.log('ï¿½?System requirements check passed\n');
   }
 
   /**
@@ -351,7 +351,7 @@ class EnhancedInstaller {
 
       return plan;
     } catch (error) {
-      console.error('â?Failed to create installation plan:', error.message);
+      console.error('ï¿½?Failed to create installation plan:', error.message);
       throw error;
     }
   }
@@ -360,7 +360,7 @@ class EnhancedInstaller {
    * Quick cache clean only
    */
   async quickCacheClean() {
-    console.log('âš?Quick Cache Clean Only...\n');
+    console.log('ï¿½?Quick Cache Clean Only...\n');
 
     try {
       const results = await this.cacheCleaner.cleanAllCaches({
@@ -371,14 +371,14 @@ class EnhancedInstaller {
         cleanTemp: true,
       });
 
-      console.log('âœ?Quick cache clean completed');
+      console.log('ï¿½?Quick cache clean completed');
       console.log(
         `ðŸ“Š Removed ${results.filesRemoved} files, freed ${this.formatBytes(results.bytesFreed)}`,
       );
 
       return results;
     } catch (error) {
-      console.error('â?Quick cache clean failed:', error.message);
+      console.error('ï¿½?Quick cache clean failed:', error.message);
       throw error;
     }
   }
@@ -430,7 +430,7 @@ class EnhancedInstaller {
 
     // Cache cleaning summary
     if (this.results.cacheCleaning.success) {
-      console.log('ðŸ§¹ Cache Cleaning: âœ?);
+      console.log('ðŸ§¹ Cache Cleaning: SUCCESS');
       console.log(`   Duration: ${this.results.cacheCleaning.duration}ms`);
       console.log(
         `   Files removed: ${this.results.cacheCleaning.filesRemoved}`,
@@ -439,12 +439,12 @@ class EnhancedInstaller {
         `   Space freed: ${this.formatBytes(this.results.cacheCleaning.bytesFreed)}`,
       );
     } else if (this.results.cacheCleaning.error) {
-      console.log(`ðŸ§¹ Cache Cleaning: â?${this.results.cacheCleaning.error}`);
+      console.log(`ðŸ§¹ Cache Cleaning: ï¿½?${this.results.cacheCleaning.error}`);
     }
 
     // Installation summary
     if (this.results.installation.success) {
-      console.log('ðŸ“¦ Installation: âœ?);
+      console.log('ðŸ“¦ Installation: SUCCESS');
       if (this.results.installation.installed.length > 0) {
         console.log(
           `   Installed: ${this.results.installation.installed.join(', ')}`,
@@ -453,12 +453,12 @@ class EnhancedInstaller {
         console.log(`   Message: ${this.results.installation.message}`);
       }
     } else if (this.results.installation.error) {
-      console.log(`ðŸ“¦ Installation: â?${this.results.installation.error}`);
+      console.log(`ðŸ“¦ Installation: ï¿½?${this.results.installation.error}`);
     }
 
     // Verification summary
     if (this.results.verification) {
-      console.log('âœ?Verification: âœ?);
+      console.log('âœ… Verification: SUCCESS');
       console.log(
         `   Newly installed: ${this.results.verification.newlyInstalled.length} tools`,
       );
@@ -466,7 +466,7 @@ class EnhancedInstaller {
 
     // Errors
     if (this.results.errors.length > 0) {
-      console.log(`\nâ?Errors encountered: ${this.results.errors.length}`);
+      console.log(`\nï¿½?Errors encountered: ${this.results.errors.length}`);
       this.results.errors.forEach((error) => {
         console.log(`   - ${error}`);
       });

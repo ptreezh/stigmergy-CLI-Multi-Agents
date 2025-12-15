@@ -16,6 +16,7 @@ const chalk = require('chalk');
 const yaml = require('js-yaml');
 const fs = require('fs/promises');
 const fsSync = require('fs');
+const { spawnSync } = require('child_process');
 
 // Import our custom modules
 const SmartRouter = require('../core/smart_router');
@@ -78,7 +79,7 @@ async function main() {
     );
     console.log('  setup           Complete setup and configuration');
     console.log(
-      '  init            Initialize Stigmergy configuration (alias for setup)',
+      '  init            Initialize Stigmergy project in current directory',
     );
     console.log('  clean (c)       Clean temporary files and caches');
     console.log('  diagnostic (d)  Show system diagnostic information');
@@ -125,9 +126,24 @@ async function main() {
     break;
 
   case 'init':
-    // Alias for setup command
-    console.log('[INIT] Initializing Stigmergy CLI...');
-    // Fall through to setup case
+    try {
+      console.log('[INIT] Initializing Stigmergy project in current directory...\n');
+
+      // Initialize project files in current directory
+      await installer.createProjectFiles();
+
+      console.log('[INIT] Project initialization completed successfully!');
+      console.log('\n[INFO] Created:');
+      console.log('  - PROJECT_SPEC.json (project specification)');
+      console.log('  - PROJECT_CONSTITUTION.md (collaboration guidelines)');
+
+      // No further setup, just project files creation in current directory
+    } catch (error) {
+      await errorHandler.logError(error, 'ERROR', 'main.init');
+      console.log(`[ERROR] Project initialization failed: ${error.message}`);
+      process.exit(1);
+    }
+    break;
 
   case 'setup':
     try {
@@ -425,8 +441,27 @@ async function main() {
 
     // Execute the routed command
     try {
-      // Get the actual executable path for the tool
-      const toolPath = route.tool;
+      // Get the actual executable path for the tool using which/where command
+      let toolPath = route.tool;
+      try {
+        const whichCmd = process.platform === 'win32' ? 'where' : 'which';
+        const whichResult = spawnSync(whichCmd, [route.tool], {
+          encoding: 'utf8',
+          timeout: 3000,
+          stdio: ['pipe', 'pipe', 'pipe'],
+          shell: true,
+        });
+        
+        if (whichResult.status === 0 && whichResult.stdout.trim()) {
+          // Get the first match (most likely the one that would be executed)
+          toolPath = whichResult.stdout.trim().split('\n')[0].trim();
+        }
+      } catch (whichError) {
+        // If which/where fails, continue with the tool name
+        if (process.env.DEBUG === 'true') {
+          console.log(`[DEBUG] which/where command failed for ${route.tool}: ${whichError.message}`);
+        }
+      }
 
       // SPECIAL TEST CASE: Simulate a non-existent tool for testing
       // This is for demonstration purposes only
@@ -508,7 +543,78 @@ async function main() {
           if (process.env.DEBUG === 'true') {
             console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
           }
-          const result = await executeCommand(toolPath, toolArgs, {
+          
+          // Special handling for Windows to construct the command properly
+          let execCommand = toolPath;
+          let execArgs = toolArgs;
+          if (process.platform === 'win32') {
+            // On Windows, we construct the full command line and pass it as a single string
+            if (toolArgs.length > 0) {
+              // For Windows, we need to properly quote the entire command line
+              const argsString = toolArgs.map(arg => {
+                // If arg contains spaces and is not already quoted, quote it
+                if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                  return `"${arg}"`;
+                }
+                return arg;
+              }).join(' ');
+              execCommand = `${toolPath} ${argsString}`;
+              execArgs = [];
+              console.log(`[DEBUG] Windows full command: ${execCommand}`);
+            }
+          }
+          
+          // Special handling for Claude on Windows to bypass the wrapper script
+          if (process.platform === 'win32' && route.tool === 'claude') {
+            // Use the direct path to avoid the wrapper script that interferes with parameter passing
+            execCommand = 'C:\\npm_global\\claude';
+            if (toolArgs.length > 0) {
+              const argsString = toolArgs.map(arg => {
+                if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                  return `"${arg}"`;
+                }
+                return arg;
+              }).join(' ');
+              execCommand = `${execCommand} ${argsString}`;
+              execArgs = [];
+              console.log(`[DEBUG] Windows direct Claude command: ${execCommand}`);
+            }
+          }
+          
+          // Special handling for Copilot on Windows
+          if (process.platform === 'win32' && route.tool === 'copilot') {
+            // Use the direct path for Copilot as well
+            execCommand = 'C:\\npm_global\\copilot';
+            if (toolArgs.length > 0) {
+              const argsString = toolArgs.map(arg => {
+                if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                  return `"${arg}"`;
+                }
+                return arg;
+              }).join(' ');
+              execCommand = `${execCommand} ${argsString}`;
+              execArgs = [];
+              console.log(`[DEBUG] Windows direct Copilot command: ${execCommand}`);
+            }
+          }
+          
+          // Apply the same Windows handling logic to ensure consistency
+          // This ensures consistency between direct routing and call command routing
+          if (process.platform === 'win32' && execArgs.length > 0) {
+            // For Windows, we need to properly quote the entire command line
+            const argsString = execArgs.map(arg => {
+              // If arg contains spaces and is not already quoted, quote it
+              if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                return `"${arg}"`;
+              }
+              return arg;
+            }).join(' ');
+            execCommand = `${execCommand} ${argsString}`;
+            execArgs = [];
+            console.log(`[DEBUG] Windows unified command: ${execCommand}`);
+          }
+          
+          const result = await executeCommand(execCommand, execArgs, {
             stdio: 'inherit',
             shell: true,
           });
@@ -880,7 +986,8 @@ async function main() {
         console.log('\n📋 Advanced Options:');
         console.log('  • stigmergy clean --all      - Clean all caches');
         console.log('  • stigmergy clean --dry-run - Preview cleaning');
-        console.log('  • npm run uninstall        - Uninstall Stigmergy completely');
+        console.log('  • npm uninstall -g stigmergy - Uninstall Stigmergy completely (runs enhanced cleanup)');
+        console.log('  • See remaining items after uninstall (individual CLI tools, docs, etc.)');
       }
 
     } catch (error) {
@@ -918,8 +1025,27 @@ async function main() {
       
       // Execute the routed command (reusing the call command logic)
       try {
-        // Get the actual executable path for the tool
-        const toolPath = toolName;
+        // Get the actual executable path for the tool using which/where command
+        let toolPath = toolName;
+        try {
+          const whichCmd = process.platform === 'win32' ? 'where' : 'which';
+          const whichResult = spawnSync(whichCmd, [toolName], {
+            encoding: 'utf8',
+            timeout: 3000,
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: true,
+          });
+          
+          if (whichResult.status === 0 && whichResult.stdout.trim()) {
+            // Get the first match (most likely the one that would be executed)
+            toolPath = whichResult.stdout.trim().split('\n')[0].trim();
+          }
+        } catch (whichError) {
+          // If which/where fails, continue with the tool name
+          if (process.env.DEBUG === 'true') {
+            console.log(`[DEBUG] which/where command failed for ${toolName}: ${whichError.message}`);
+          }
+        }
         
         console.log(`[DEBUG] Tool path: ${toolPath}, Prompt: ${route.prompt}`);
         
@@ -1024,7 +1150,7 @@ async function main() {
                 console.log(`[DEBUG] Windows full command: ${execCommand}`);
               }
             }
-            
+      
             // Special handling for Claude on Windows to bypass the wrapper script
             if (process.platform === 'win32' && route.tool === 'claude') {
               // Use the direct path to avoid the wrapper script that interferes with parameter passing
@@ -1040,6 +1166,39 @@ async function main() {
                 execArgs = [];
                 console.log(`[DEBUG] Windows direct Claude command: ${execCommand}`);
               }
+            }
+      
+            // Special handling for Copilot on Windows
+            if (process.platform === 'win32' && route.tool === 'copilot') {
+              // Use the direct path for Copilot as well
+              execCommand = 'C:\\npm_global\\copilot';
+              if (toolArgs.length > 0) {
+                const argsString = toolArgs.map(arg => {
+                  if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                    return `"${arg}"`;
+                  }
+                  return arg;
+                }).join(' ');
+                execCommand = `${execCommand} ${argsString}`;
+                execArgs = [];
+                console.log(`[DEBUG] Windows direct Copilot command: ${execCommand}`);
+              }
+            }
+      
+            // Apply the same Windows handling logic to ensure consistency
+            // This ensures consistency between direct routing and call command routing
+            if (process.platform === 'win32' && execArgs.length > 0) {
+              // For Windows, we need to properly quote the entire command line
+              const argsString = execArgs.map(arg => {
+                // If arg contains spaces and is not already quoted, quote it
+                if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                  return `"${arg}"`;
+                }
+                return arg;
+              }).join(' ');
+              execCommand = `${execCommand} ${argsString}`;
+              execArgs = [];
+              console.log(`[DEBUG] Windows unified command: ${execCommand}`);
             }
             
             const result = await executeCommand(execCommand, execArgs, {

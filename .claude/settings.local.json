@@ -120,7 +120,16 @@
       "Bash(npm:*)",
       "Bash(copilot --version:*)",
       "Bash(do:*)",
-      "Bash($tool --version)"
+      "Bash($tool --version)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(npx depcheck:*)",
+      "Bash(npx npm-check-updates)",
+      "Bash(npx npm-check-updates:*)",
+      "Bash(powershell:*)",
+      "Bash(then echo \"✓ $tool is available\")",
+      "Bash($tool version)",
+      "Bash(else echo \"✗ $tool not found\")"
     ],
     "deny": [],
     "ask": []

@@ -6,7 +6,7 @@ This document contains configuration and usage information for the Claude CLI CL
 ## Basic Information
 - **CLI Name**: claude
 - **Tool Name**: Claude CLI
-- **Installation Command**: `npm install -g @anthropic-ai/claude-cli`
+- **Installation Command**: `npm install -g @anthropic-ai/claude-code`
 - **Version Check**: `claude --version`
 
 ## Usage Patterns

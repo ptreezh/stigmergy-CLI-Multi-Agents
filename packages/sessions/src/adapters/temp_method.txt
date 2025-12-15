@@ -1,0 +1,10 @@
+  async extractProjectPath(sessionData: any): Promise<string | null> {
+    try {
+      if (sessionData.metadata?.projectPath) {
+        return sessionData.metadata.projectPath;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }

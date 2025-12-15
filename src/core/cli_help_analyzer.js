@@ -270,10 +270,10 @@ class CLIHelpAnalyzer {
           'Roaming',
           'npm',
           'node_modules',
-          'openai-codex-cli',
+          '@openai/codex',
         ),
-        path.join('/usr/local/lib/node_modules/openai-codex-cli'),
-        path.join('/usr/lib/node_modules/openai-codex-cli'),
+        path.join('/usr/local/lib/node_modules/@openai/codex'),
+        path.join('/usr/lib/node_modules/@openai/codex'),
       ];
 
       // Check if any of these paths exist

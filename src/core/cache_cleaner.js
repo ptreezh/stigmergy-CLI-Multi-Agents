@@ -82,7 +82,7 @@ class CacheCleaner {
 
       return this.results;
     } catch (error) {
-      console.error('â?Cache cleaning failed:', error.message);
+      console.error('ï¿½?Cache cleaning failed:', error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -121,7 +121,7 @@ class CacheCleaner {
       }
     }
 
-    console.log('âœ?Stigmergy cache cleaning completed');
+    console.log('ï¿½?Stigmergy cache cleaning completed');
   }
 
   /**
@@ -146,7 +146,7 @@ class CacheCleaner {
     }
 
     const removed = await this.batchRemoveFiles(recentFiles);
-    console.log(`    âœ?Removed ${removed} files from ${type} directory`);
+    console.log(`    ï¿½?Removed ${removed} files from ${type} directory`);
   }
 
   /**
@@ -184,7 +184,7 @@ class CacheCleaner {
       }
     }
 
-    console.log(`  âœ?Removed ${removed} NPX cache entries`);
+    console.log(`  ï¿½?Removed ${removed} NPX cache entries`);
     if (failed.length > 0) {
       console.log(`  âš ï¸  Failed to remove ${failed.length} entries`);
     }
@@ -210,13 +210,13 @@ class CacheCleaner {
       });
 
       if (result.status === 0) {
-        console.log('  âœ?NPM cache cleaned successfully');
+        console.log('  ï¿½?NPM cache cleaned successfully');
       } else {
         console.log('  âš ï¸  NPM cache clean failed, trying manual cleanup');
         await this.manualNPMCacheClean();
       }
     } catch (error) {
-      console.error(`  â?Failed to clean NPM cache: ${error.message}`);
+      console.error(`  ï¿½?Failed to clean NPM cache: ${error.message}`);
       this.results.errors.push(`NPM cache: ${error.message}`);
     }
   }
@@ -282,12 +282,12 @@ class CacheCleaner {
       totalCleaned += removed;
 
       if (removed > 0) {
-        console.log(`    âœ?Cleaned ${removed} files from ${cli}`);
+        console.log(`    ï¿½?Cleaned ${removed} files from ${cli}`);
       }
     }
 
     if (totalCleaned > 0) {
-      console.log(`  âœ?Cleaned ${totalCleaned} CLI configuration files`);
+      console.log(`  ï¿½?Cleaned ${totalCleaned} CLI configuration files`);
     }
   }
 
@@ -295,7 +295,7 @@ class CacheCleaner {
    * Clean temporary files
    */
   async cleanTemporaryFiles() {
-    console.log('ðŸ—‘ï¸? Cleaning temporary files...');
+    console.log('ðŸ—‘ï¿½? Cleaning temporary files...');
 
     const tempDirs = [
       os.tmpdir(),
@@ -333,13 +333,13 @@ class CacheCleaner {
 
       if (removed > 0) {
         console.log(
-          `    âœ?Removed ${removed} files from ${path.basename(tempDir)}`,
+          `    ï¿½?Removed ${removed} files from ${path.basename(tempDir)}`,
         );
       }
     }
 
     if (totalRemoved > 0) {
-      console.log(`  âœ?Removed ${totalRemoved} temporary files`);
+      console.log(`  ï¿½?Removed ${totalRemoved} temporary files`);
     }
   }
 
@@ -387,7 +387,7 @@ class CacheCleaner {
     }
 
     const removed = await this.batchRemoveFiles(filesToRemove);
-    console.log(`  âœ?Selectively removed ${removed} files`);
+    console.log(`  ï¿½?Selectively removed ${removed} files`);
   }
 
   /**
@@ -400,7 +400,7 @@ class CacheCleaner {
       maxConcurrency = 4,
     } = options;
 
-    console.log(`âš?Performance cleaning: ${targetDirectory}`);
+    console.log(`ï¿½?Performance cleaning: ${targetDirectory}`);
 
     const files = await this.scanDirectory(targetDirectory);
     const recentFiles = this.filterRecentFiles(files);
@@ -428,7 +428,7 @@ class CacheCleaner {
       }
     }
 
-    console.log(`  âœ?Performance cleaned ${removed} files`);
+    console.log(`  ï¿½?Performance cleaned ${removed} files`);
     return removed;
   }
 
@@ -672,7 +672,7 @@ class CacheCleaner {
         `    ðŸ§¹ Cleaned ${removed} files from ${path.basename(dirPath)}`,
       );
     } catch (error) {
-      console.error(`    â?Failed to clean ${dirPath}: ${error.message}`);
+      console.error(`    ï¿½?Failed to clean ${dirPath}: ${error.message}`);
       this.results.errors.push(`Clean error ${dirPath}: ${error.message}`);
     }
   }
@@ -754,13 +754,13 @@ class CacheCleaner {
     }
 
     if (this.results.errors.length > 0) {
-      console.log(`â?Errors: ${this.results.errors.length}`);
+      console.log(`ï¿½?Errors: ${this.results.errors.length}`);
       this.results.errors.forEach((error) => {
         console.log(`    ${error}`);
       });
     }
 
-    console.log('\nâœ?Cache cleaning completed!');
+    console.log('\nï¿½?Cache cleaning completed!');
   }
 }
 
