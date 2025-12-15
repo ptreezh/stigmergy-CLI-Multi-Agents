@@ -18,20 +18,23 @@ The Qoder CLI CLI can be invoked in several ways:
 ## Cross-CLI Communication
 To call Qoder CLI from another CLI tool:
 ```bash
-# From any other supported CLI
-use qodercli to [task description]
-# or
-call qodercli [task description]
-# or
-ask qodercli [task description]
+# Use stigmergy command
+stigmergy qodercli "[task description]"
+
+# Examples:
+stigmergy qodercli "分析这段代码"
+stigmergy qodercli "翻译这段文字"
+stigmergy qodercli "写一个Python函数"
 ```
+
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 
 ## Configuration
 This tool integrates with Stigmergy through hooks deployed to:
-`C:\Users\WIN10\.qoder\hooks`
+`C:\Users\Zhang\.qoder\hooks`
 
 ## Last Updated
-2025-12-09T14:06:21.978Z
+2025-12-14T10:20:50.711Z
 
 ---
 *This file is automatically managed by Stigmergy CLI*

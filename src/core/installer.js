@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const os = require('os');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const inquirer = require('inquirer');
 const SmartRouter = require('./smart_router');
 const { errorHandler } = require('./error_handler');
@@ -247,27 +247,111 @@ class StigmergyInstaller {
    * Show install options for missing CLI tools
    */
   async showInstallOptions(missingTools) {
-    // This is a placeholder implementation
-    console.log('[INSTALL] No install options to show');
-    return [];
+    if (Object.keys(missingTools).length === 0) {
+      console.log('[INSTALL] All tools are already installed!');
+      return [];
+    }
+
+    console.log('\n[INSTALL] Missing AI CLI Tools:');
+    const options = [];
+    let index = 1;
+
+    for (const [toolName, toolInfo] of Object.entries(missingTools)) {
+      const option = {
+        name: `${index++}. ${toolInfo.name} - ${toolInfo.install}`,
+        value: toolName,
+      };
+      options.push(option);
+      console.log(`  ${option.name}`);
+    }
+
+    return options;
   }
 
   /**
    * Get user selection for CLI tools to install
    */
   async getUserSelection(options, missingTools) {
-    // This is a placeholder implementation
-    console.log('[INSTALL] No user selection needed');
-    return [];
+    if (options.length === 0) {
+      return [];
+    }
+
+    // For non-interactive mode, install all missing tools
+    if (process.env.CI || process.argv.includes('--auto-install') || process.argv.includes('--force')) {
+      console.log('[INSTALL] Auto-installing all missing tools...');
+      return options.map(option => option.value);
+    }
+
+    // Interactive mode
+    try {
+      const { selectedTools } = await inquirer.prompt([
+        {
+          type: 'checkbox',
+          name: 'selectedTools',
+          message: 'Select tools to install (Press Space to select, Enter to confirm):',
+          choices: options,
+          validate: (input) => {
+            if (input && input.length > 0) return true;
+            return 'Please select at least one tool to install';
+          },
+        },
+      ]);
+      return selectedTools || [];
+    } catch (error) {
+      console.log('[INSTALL] Interactive mode failed, installing all missing tools...');
+      return options.map(option => option.value);
+    }
   }
 
   /**
    * Install selected CLI tools
    */
   async installTools(selectedTools, missingTools) {
-    // This is a placeholder implementation
-    console.log('[INSTALL] No tools to install');
-    return true;
+    const chalk = require('chalk');
+    let successCount = 0;
+
+    for (const toolName of selectedTools) {
+      const toolInfo = missingTools[toolName];
+      if (!toolInfo) continue;
+
+      console.log(`\n[INSTALL] Installing ${toolInfo.name}...`);
+      console.log(chalk.yellow(`Command: ${toolInfo.install}`));
+
+      try {
+        // Parse the install command
+        const [command, ...args] = toolInfo.install.split(' ');
+
+        // Execute the installation command
+        const result = spawnSync(command, args, {
+          stdio: 'inherit',  // Show output in real-time
+          shell: true,       // Use shell for npm commands
+          encoding: 'utf-8'
+        });
+
+        if (result.status === 0) {
+          console.log(chalk.green(`[OK] Successfully installed ${toolInfo.name}`));
+          successCount++;
+        } else {
+          console.log(chalk.red(`[ERROR] Failed to install ${toolInfo.name}. Exit code: ${result.status}`));
+          // Continue with other tools
+        }
+      } catch (error) {
+        console.log(chalk.red(`[ERROR] Installation failed for ${toolInfo.name}: ${error.message}`));
+        // Continue with other tools
+      }
+    }
+
+    if (successCount > 0) {
+      console.log(chalk.green(`\n[INSTALL] Successfully installed ${successCount}/${selectedTools.length} tools`));
+
+      // Add a short delay to ensure installations are complete
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      return true;
+    } else {
+      console.log(chalk.red('[INSTALL] No tools were successfully installed'));
+      return false;
+    }
   }
 
   /**
@@ -311,7 +395,7 @@ class StigmergyInstaller {
         await this.installToolIntegration(toolName, toolInfo);
         
         console.log(`[OK] Hooks deployed successfully for ${toolInfo.name}`);
-        successCount++
+        successCount++;
 
       } catch (error) {
         const { errorHandler } = require('./error_handler');
@@ -415,15 +499,66 @@ class StigmergyInstaller {
       // Create PROJECT_CONSTITUTION.md if it doesn't exist
       const projectConstitutionPath = path.join(currentDir, 'PROJECT_CONSTITUTION.md');
       if (!(await fs.access(projectConstitutionPath).then(() => true).catch(() => false))) {
-        const constitutionContent = `# 项目协作宪法
+        const constitutionContent = `# Project Collaboration Constitution
 
-## 协作基本原则
-- 所有协作通过PROJECT_SPEC.json协调
-- 智能体基于背景状态自主决�?- 无中央调度器，实现去中心化协�?
-## 任务管理原则
-- 智能体可认领分配给自己的任务
-- 智能体可认领与其能力匹配的未分配任务
-- 任务状态实时更新至共享背景
+## Basic Collaboration Principles
+- All collaboration is coordinated through PROJECT_SPEC.json
+- Agents make autonomous decisions based on background state
+- No central scheduler, achieving decentralized collaboration
+
+## PROJECT_SPEC.json Usage
+The PROJECT_SPEC.json file serves as the central coordination point for all project activities.
+
+### Basic Structure:
+\`\`
+{
+  "projectName": "your-project-name",
+  "version": "1.0.0",
+  "description": "Project description",
+  "collaboration": {
+    "activeTasks": [],
+    "completedTasks": [],
+    "sharedContext": {}
+  }
+}
+\`\`
+
+### Common Usage Examples:
+1. Define project tasks:
+   \`\`
+   {
+     "collaboration": {
+       "activeTasks": [
+         {
+           "id": "task-001",
+           "name": "Implement feature X",
+           "status": "in-progress",
+           "assignedTo": "any",
+           "priority": "high",
+           "description": "Task details..."
+         }
+       ]
+     }
+   }
+   \`\`
+
+2. Track shared context:
+   \`\`
+   {
+     "collaboration": {
+       "sharedContext": {
+         "lastCompletion": "2025-02-22T10:00:00Z",
+         "activeDevelopers": ["developer1", "developer2"],
+         "currentSprint": "sprint-2"
+       }
+     }
+   }
+   \`\`
+
+## Task Management Principles
+- Agents can claim tasks assigned to themselves
+- Agents can claim unassigned tasks that match their capabilities
+- Task status is updated in real-time to the shared context
 `;
         await fs.writeFile(projectConstitutionPath, constitutionContent, 'utf8');
         console.log('[PROJECT] Created PROJECT_CONSTITUTION.md');
@@ -436,47 +571,72 @@ class StigmergyInstaller {
     }
   }
 
-/**
+  /**
    * Install integration for a specific CLI tool using JavaScript
    */
   async installToolIntegration(toolName, toolInfo) {
     const fs = require('fs/promises');
     const path = require('path');
     const { spawn } = require('child_process');
-    
+
     console.log(`[CONFIG] Configuring ${toolInfo.name}...`);
-    
+
     try {
       // Map tool names to their adapter directory names
       const toolToAdapterDir = {
         'qodercli': 'qoder',
         'qwencode': 'qwen'
       };
-      
+
       const adapterDirName = toolToAdapterDir[toolName] || toolName;
-      const installScriptPath = path.join(__dirname, '..', 'adapters', adapterDirName, `install_${adapterDirName}_integration.js`);
-      
-      // Check if the JavaScript installation script exists
-      try {
-        await fs.access(installScriptPath);
-        console.log(`[RUN] Running JavaScript installation script for ${toolInfo.name}...`);
-        
-        // Run the JavaScript installation script
-        const result = await this.runInstallScript(installScriptPath);
-        
-        if (result.success) {
-          console.log(`[OK] ${toolInfo.name} installation script completed successfully`);
-        } else {
-          console.log(`[WARN] ${toolInfo.name} installation script failed: ${result.error}`);
+
+      // Try to find the installation script using multiple approaches to handle different installation scenarios
+      let installScriptPath;
+      const possiblePaths = [
+        // Standard path: src/core/../adapters => src/adapters
+        path.join(__dirname, '..', 'adapters', adapterDirName, `install_${adapterDirName}_integration.js`),
+        // Path when running from global installation in a different context
+        path.join(process.cwd(), 'src', 'adapters', adapterDirName, `install_${adapterDirName}_integration.js`),
+        // Path when we might be in a different location due to module resolution
+        path.resolve(__dirname, '..', 'adapters', adapterDirName, `install_${adapterDirName}_integration.js`)
+      ];
+
+      // Check if we're in the global npm installation by looking for the install script
+      for (const possiblePath of possiblePaths) {
+        try {
+          await fs.access(possiblePath);
+          installScriptPath = possiblePath;
+          console.log(`[DEBUG] Found installation script at: ${possiblePath}`);
+          break;
+        } catch (error) {
+          // Continue to next possible path
+          continue;
         }
-      } catch (error) {
-        console.log(`[WARN] JavaScript installation script not found for ${toolInfo.name}: ${installScriptPath}`);
+      }
+
+      // If we still haven't found the installation script
+      if (!installScriptPath) {
+        console.log(`[WARN] JavaScript installation script not found for ${toolInfo.name} at possible paths:`, possiblePaths);
         console.log(`[FALLBACK] Using inline configuration for ${toolInfo.name}...`);
-        
-        // Fallback to inline configuration if script doesn't exist
+        await this.inlineToolConfiguration(toolName, toolInfo);
+        return;
+      }
+
+      // Installation script found, execute it
+      console.log(`[RUN] Running JavaScript installation script for ${toolInfo.name}...`);
+
+      // Run the JavaScript installation script
+      const result = await this.runInstallScript(installScriptPath);
+
+      if (result.success) {
+        console.log(`[OK] ${toolInfo.name} installation script completed successfully`);
+      } else {
+        console.log(`[WARN] ${toolInfo.name} installation script failed: ${result.error}`);
+        // If the installation script fails but was found, still try to use inline configuration as fallback
+        console.log(`[FALLBACK] Using inline configuration for ${toolInfo.name} after script failure...`);
         await this.inlineToolConfiguration(toolName, toolInfo);
       }
-      
+
     } catch (error) {
       console.log(`[WARN] Configuration failed for ${toolInfo.name}: ${error.message}`);
     }
@@ -533,11 +693,11 @@ class StigmergyInstaller {
     // Step 1: Create tool-specific configuration
     const config = {
       cross_cli_enabled: true,
-      supported_clis: ["claude", "gemini", "qwen", "iflow", "qodercli", "codebuddy", "copilot", "codex"],
+      supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'copilot', 'codex'],
       auto_detect: true,
       timeout: 30,
-      collaboration_mode: "active",
-      stigmergy_version: "1.2.1",
+      collaboration_mode: 'active',
+      stigmergy_version: '1.2.1',
       deployment_time: new Date().toISOString()
     };
 
@@ -546,10 +706,29 @@ class StigmergyInstaller {
     console.log(`[OK] Configuration file created: ${toolInfo.config}`);
 
     // Step 2: Copy adapter files if they exist
-    const adapterDir = path.join(__dirname, '..', 'adapters', toolName === 'qodercli' ? 'qoder' : toolName);
-    if (await this.fileExists(adapterDir)) {
+    // Try to find the adapter directory using multiple approaches to handle different installation scenarios
+    let adapterDir;
+    const possibleAdapterPaths = [
+      // Standard path: src/core/../adapters => src/adapters
+      path.join(__dirname, '..', 'adapters', toolName === 'qodercli' ? 'qoder' : toolName),
+      // Path when running from global installation
+      path.resolve(__dirname, '..', 'adapters', toolName === 'qodercli' ? 'qoder' : toolName)
+    ];
+
+    for (const possiblePath of possibleAdapterPaths) {
+      if (await this.fileExists(possiblePath)) {
+        adapterDir = possiblePath;
+        console.log(`[DEBUG] Found adapter directory at: ${possiblePath}`);
+        break;
+      }
+    }
+
+    // If we found the adapter directory, copy the files
+    if (adapterDir) {
       await this.copyAdapterFiles(adapterDir, toolInfo.hooksDir);
       console.log(`[OK] Adapter files copied for ${toolInfo.name}`);
+    } else {
+      console.log(`[WARN] Adapter directory not found for ${toolInfo.name} at possible paths:`, possibleAdapterPaths);
     }
 
     // Step 3: Create tool-specific hook files
@@ -579,12 +758,12 @@ class StigmergyInstaller {
       const hooksConfig = {
         cross_cli_adapter: {
           enabled: true,
-          supported_tools: ["claude", "gemini", "qwen", "iflow", "qodercli", "codebuddy", "copilot", "codex"],
+          supported_tools: ['claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'copilot', 'codex'],
           trigger_patterns: [
-            "use\\s+(\\w+)\\s+to\\s+(.+)$",
-            "call\\s+(\\w+)\\s+(.+)$", 
-            "ask\\s+(\\w+)\\s+(.+)$",
-            "stigmergy\\s+(\\w+)\\s+(.+)$"
+            'use\\s+(\\w+)\\s+to\\s+(.+)$',
+            'call\\s+(\\w+)\\s+(.+)$', 
+            'ask\\s+(\\w+)\\s+(.+)$',
+            'stigmergy\\s+(\\w+)\\s+(.+)$'
           ]
         }
       };
@@ -617,8 +796,8 @@ class StigmergyInstaller {
         await fs.access(settingsPath);
       } catch {
         const settings = {
-          version: "1.0.0",
-          theme: "default",
+          version: '1.0.0',
+          theme: 'default',
           auto_save: true,
           cross_cli_enabled: true
         };
@@ -628,18 +807,18 @@ class StigmergyInstaller {
 
       // Tool-specific configurations
       switch (toolName) {
-        case 'copilot':
-          await this.createCopilotConfig(toolInfo);
-          break;
-        case 'iflow':
-          await this.createIflowConfig(toolInfo);
-          break;
-        case 'qodercli':
-          await this.createQoderConfig(toolInfo);
-          break;
-        case 'codebuddy':
-          await this.createCodeBuddyConfig(toolInfo);
-          break;
+      case 'copilot':
+        await this.createCopilotConfig(toolInfo);
+        break;
+      case 'iflow':
+        await this.createIflowConfig(toolInfo);
+        break;
+      case 'qodercli':
+        await this.createQoderConfig(toolInfo);
+        break;
+      case 'codebuddy':
+        await this.createCodeBuddyConfig(toolInfo);
+        break;
       }
     } catch (error) {
       console.log(`[WARN] Failed to create tool-specific configs: ${error.message}`);
@@ -658,17 +837,17 @@ class StigmergyInstaller {
         mcp: {
           enabled: true,
           servers: {
-            "cross-cli-caller": {
-              name: "CrossCLICaller",
-              description: "Cross-CLI Tool Calling Agent",
-              command: "node",
-              args: [path.join(toolInfo.hooksDir, "cross_cli_caller.js")]
+            'cross-cli-caller': {
+              name: 'CrossCLICaller',
+              description: 'Cross-CLI Tool Calling Agent',
+              command: 'node',
+              args: [path.join(toolInfo.hooksDir, 'cross_cli_caller.js')]
             }
           }
         },
         cross_cli_caller: {
-          name: "CrossCLICaller",
-          description: "Cross-CLI Tool Calling Agent"
+          name: 'CrossCLICaller',
+          description: 'Cross-CLI Tool Calling Agent'
         }
       };
 
@@ -724,7 +903,7 @@ class StigmergyInstaller {
           cross_cli: true
         },
         keywords: {
-          cross_cli: ["请用", "调用", "用", "让", "use", "call", "ask"]
+          cross_cli: ['请用', '调用', '用', '让', 'use', 'call', 'ask']
         }
       };
 
@@ -830,7 +1009,7 @@ Examples:
 - Run in shell: stigmergy gemini "translate this text"
 - Run in shell: stigmergy qwen "analyze this code"
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 
 ---
 *This document is automatically generated and maintained by Stigmergy CLI*
@@ -902,7 +1081,7 @@ Examples:
 - Run in shell: stigmergy gemini "translate this text"
 - Run in shell: stigmergy qwen "analyze this code"
 
-Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 `;
     }
   }

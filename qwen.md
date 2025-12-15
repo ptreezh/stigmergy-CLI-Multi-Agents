@@ -18,20 +18,23 @@ The Qwen CLI CLI can be invoked in several ways:
 ## Cross-CLI Communication
 To call Qwen CLI from another CLI tool:
 ```bash
-# From any other supported CLI
-use qwen to [task description]
-# or
-call qwen [task description]
-# or
-ask qwen [task description]
+# Use stigmergy command
+stigmergy qwen "[task description]"
+
+# Examples:
+stigmergy qwen "分析这段代码"
+stigmergy qwen "翻译这段文字"
+stigmergy qwen "写一个Python函数"
 ```
+
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 
 ## Configuration
 This tool integrates with Stigmergy through hooks deployed to:
-`C:\Users\WIN10\.qwen\hooks`
+`C:\Users\Zhang\.qwen\hooks`
 
 ## Last Updated
-2025-12-09T14:06:21.978Z
+2025-12-14T10:20:50.710Z
 
 ---
 *This file is automatically managed by Stigmergy CLI*

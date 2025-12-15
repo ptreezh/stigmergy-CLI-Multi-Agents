@@ -13,23 +13,33 @@ Cross-CLI communication is enabled between all supported AI tools:
 - CodeBuddy
 - GitHub Copilot
 - OpenAI Codex
+- GLM4.5 (Zhipu AI)
 
 ## Cross-CLI Collaboration
 
-Instead of using a central command, cross-CLI communication happens directly between tools through hooks:
+Stigmergy provides a unified command interface for cross-CLI communication:
 
 ### How It Works
 1. Each CLI tool has hooks deployed by Stigmergy
-2. When one tool detects a request to use another tool, it triggers cross-CLI communication
+2. Use the stigmergy command to route tasks to specific AI tools
 3. The target tool executes the requested task and returns results
 
 ### Usage Pattern
-From any supported CLI tool, use natural language patterns:
+Use the stigmergy command with the following format:
 ```bash
-# Natural language patterns recognized by hooks
-"use qwen to translate this code to Python"
-"ask claude to review this algorithm"
-"call gemini to explain this concept"
+stigmergy <tool_name> <task_description>
+```
+
+Examples:
+```bash
+stigmergy claude "write a Python function"
+stigmergy gemini "translate this text"
+stigmergy qwen "analyze this code"
+stigmergy iflow "create a workflow"
+stigmergy qodercli "review this code"
+stigmergy codebuddy "help me debug"
+stigmergy copilot "suggest improvements"
+stigmergy codex "generate documentation"
 ```
 
 ## Project Memory and Documentation

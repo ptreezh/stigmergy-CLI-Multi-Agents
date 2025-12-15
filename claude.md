@@ -6,7 +6,7 @@ This document contains configuration and usage information for the Claude CLI CL
 ## Basic Information
 - **CLI Name**: claude
 - **Tool Name**: Claude CLI
-- **Installation Command**: `npm install -g @anthropic-ai/claude-cli`
+- **Installation Command**: `npm install -g @anthropic-ai/claude-code`
 - **Version Check**: `claude --version`
 
 ## Usage Patterns
@@ -18,20 +18,23 @@ The Claude CLI CLI can be invoked in several ways:
 ## Cross-CLI Communication
 To call Claude CLI from another CLI tool:
 ```bash
-# From any other supported CLI
-use claude to [task description]
-# or
-call claude [task description]
-# or
-ask claude [task description]
+# Use stigmergy command
+stigmergy claude "[task description]"
+
+# Examples:
+stigmergy claude "分析这段代码"
+stigmergy claude "翻译这段文字"
+stigmergy claude "写一个Python函数"
 ```
+
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 
 ## Configuration
 This tool integrates with Stigmergy through hooks deployed to:
-`C:\Users\WIN10\.claude\hooks`
+`C:\Users\Zhang\.claude\hooks`
 
 ## Last Updated
-2025-12-09T14:06:21.978Z
+2025-12-14T10:20:50.708Z
 
 ---
 *This file is automatically managed by Stigmergy CLI*

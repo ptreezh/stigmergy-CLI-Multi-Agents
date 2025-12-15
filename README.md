@@ -1,21 +1,14 @@
 # Stigmergy CLI Multi-Agents System
 
-A comprehensive system for collaboration between multiple AI CLI tools. This monorepo contains several related packages:
-
-## Packages
-
-- `stigmergy` (Core): Main coordination system for multi-agent AI CLI tools
-- `@stigmergy/skills`: Natural language skills for AI CLI tools
-- `@stigmergy/resume`: Cross-CLI memory sharing and session recovery
-- `@stigmergy/sessions`: Cross-CLI session management and recovery
+A comprehensive system for collaboration between multiple AI CLI tools. This system enables seamless cross-CLI communication and intelligent task routing between different AI tools.
 
 ## Features
 
-- 🤖 Multi-agent AI CLI tools collaboration (Claude, Gemini, Qwen, etc.)
-- 🎯 Natural language skills processing
+- 🤖 Multi-agent AI CLI tools collaboration (Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, Codex)
+- 🎯 Natural language skills processing and cross-CLI task routing
 - 🧠 Cross-CLI memory sharing and session recovery
 - 🔗 Hook integration for seamless AI tool usage
-- 🌍 International encoding support (ANSI-based for global compatibility)
+- 🌍 JavaScript-based implementation (no Python dependencies)
 - ⚡ Intelligent command routing and execution
 
 ## Quick Start
@@ -24,14 +17,36 @@ A comprehensive system for collaboration between multiple AI CLI tools. This mon
 # Install the core system
 npm install -g stigmergy
 
-# Install packages
-npm install -g @stigmergy/skills @stigmergy/resume @stigmergy/sessions
+# Scan for available AI CLI tools
+stigmergy scan
 
-# Use unified commands
-sg-skills "translate this to English"
-sg-resume status
-sg-sessions stats
+# Install missing tools
+stigmergy install
+
+# Deploy hooks for cross-CLI integration
+stigmergy deploy
+
+# Use cross-CLI collaboration
+stigmergy claude "write a Python function"
+stigmergy gemini "translate this text"
+stigmergy qwen "analyze this code"
 ```
+
+## Cross-CLI Communication
+
+When you need to call other AI tools, use the following format:
+```bash
+stigmergy <tool_name> <task_description>
+```
+
+Examples:
+```bash
+stigmergy claude "write a Python function"
+stigmergy gemini "translate this text"
+stigmergy qwen "analyze this code"
+```
+
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex, glm4
 
 ## Documentation
 
@@ -42,4 +57,11 @@ sg-sessions stats
 
 ## Contributing
 
-This project follows the MIT License. Contributions are welcome!
+This project is a collaboration between multiple AI systems:
+- Claude (Anthropic)
+- Qwen (Alibaba)
+- iFlow (Intelligent Workflow)
+- QoderCLI
+- GLM4.5 (Zhipu AI)
+
+Contributions are welcome!

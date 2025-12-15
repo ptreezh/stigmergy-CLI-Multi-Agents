@@ -1,6 +1,6 @@
 {
   "name": "stigmergy",
-  "version": "1.2.6",
+  "version": "1.2.8",
   "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
   "main": "src/index.js",
   "bin": {
@@ -37,12 +37,19 @@
     "format": "prettier --write src/",
     "fix-node-conflict": "node fix-node-conflict.js",
     "diagnostic": "node diagnostic.js",
+    "deps-analyze": "node scripts/dependency-analyzer.js",
+    "deps-check": "npx depcheck",
+    "deps-update": "npx npm-check-updates",
+    "deps-clean": "npm prune && npm cache clean --force",
     "path-fixer": "node path-fixer.js",
     "emergency-clean": "node emergency-cleanup.js",
     "test:conflict-prevention": "node test/conflict-prevention-test.js",
     "post-deployment-config": "node scripts/post-deployment-config.js",
     "preinstall": "node scripts/preinstall-check.js",
-    "postinstall": "node src/index.js auto-install"
+    "postinstall": "node src/index.js auto-install",
+    "preuninstall": "node scripts/preuninstall.js",
+    "postuninstall": "node scripts/postuninstall.js",
+    "docs:update": "node scripts/generate-cli-docs.js"
   },
   "keywords": [
     "ai",
@@ -81,32 +88,29 @@
     "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
   },
   "author": "Stigmergy CLI Team",
+  "contributors": [
+    "Claude",
+    "Qwen",
+    "iFlow",
+    "QoderCLI",
+    "GLM4.5"
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "chokidar": "^3.5.3",
-    "commander": "^12.0.0",
-    "figures": "^3.2.0",
-    "fs-extra": "^11.1.1",
-    "glob": "^10.3.10",
+    "commander": "^14.0.2",
     "inquirer": "^8.2.6",
-    "js-yaml": "^4.1.0",
-    "ora": "^5.4.1",
-    "semver": "^7.5.4",
-    "table": "^6.8.1",
-    "axios": "^1.6.0",
-    "playwright": "^1.40.0",
-    "@telagod/papermcp": "^0.3.5",
-    "aigroup-paper-mcp": "^0.3.6"
+    "js-yaml": "^4.1.1",
+    "semver": "^7.7.3"
   },
   "devDependencies": {
     "eslint": "^8.50.0",
     "jest": "^30.2.0",
-    "nodemon": "^3.0.1",
-    "prettier": "^3.0.3"
+    "prettier": "^3.7.4",
+    "rimraf": "^6.1.2"
   },
   "config": {
     "encoding": "ansi",
