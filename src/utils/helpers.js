@@ -22,7 +22,7 @@ function isAuthenticated() {
     }
 
     const authData = JSON.parse(fsSync.readFileSync(authFile, 'utf8'));
-    return authenticator.validateToken(authData.token);
+    return authenticator.validateSession(authData.token);
   } catch (error) {
     console.log(`[AUTH] Authentication check failed: ${error.message}`);
     return false;

@@ -3,32 +3,77 @@ import { join } from 'path';
 import { ShareMemConfig, TemplateOptions } from '../types';
 
 export class CodeGenerator {
+  private templatesDir: string;
+
+  constructor() {
+    // Templates directory is at package root level
+    this.templatesDir = join(__dirname, '..', '..', 'templates');
+  }
+
+  /**
+   * Read template file and replace variables
+   */
+  private readTemplate(cliType: string, variables: Record<string, string>): string {
+    const templatePath = join(this.templatesDir, `${cliType}-integration.template.js`);
+    
+    // Check if template file exists
+    if (!require('fs').existsSync(templatePath)) {
+      throw new Error(`Template file not found: ${templatePath}`);
+    }
+
+    let template = require('fs').readFileSync(templatePath, 'utf8');
+
+    // Replace all {{VARIABLE}} placeholders
+    for (const [key, value] of Object.entries(variables)) {
+      const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+      template = template.replace(placeholder, value);
+    }
+
+    return template;
+  }
+
   /**
    * Generate integration code for specific CLI
    */
   async generateIntegration(cliType: string, projectPath: string, config: ShareMemConfig): Promise<void> {
-    const templates = {
-      claude: this.generateClaudeTemplate,
-      gemini: this.generateGeminiTemplate,
-      qwen: this.generateQwenTemplate,
-      iflow: this.generateIFlowTemplate,
-      codebuddy: this.generateCodeBuddyTemplate,
-      qodercli: this.generateQoderCLITemplate,
-      codex: this.generateCodexTemplate
-    };
+    let code: string;
 
-    const generator = templates[cliType as keyof typeof templates];
-    if (!generator) {
-      throw new Error(`Unsupported CLI type: ${cliType}`);
+    try {
+      // Try to use template file first (new approach)
+      code = this.readTemplate(cliType, {
+        VERSION: config.version,
+        PROJECT_PATH: projectPath,
+        HOME_DIR: require('os').homedir()
+      });
+      console.log(`✓ Using template file for ${cliType}`);
+    } catch (error) {
+      // Fallback to old method generators if template file doesn't exist
+      console.log(`⚠ Template file not found for ${cliType}, using fallback generator`);
+      
+      const templates = {
+        claude: this.generateClaudeTemplate,
+        gemini: this.generateGeminiTemplate,
+        qwen: this.generateQwenTemplate,
+        iflow: this.generateIFlowTemplate,
+        codebuddy: this.generateCodeBuddyTemplate,
+        qodercli: this.generateQoderCLITemplate,
+        codex: this.generateCodexTemplate
+      };
+
+      const generator = templates[cliType as keyof typeof templates];
+      if (!generator) {
+        throw new Error(`Unsupported CLI type: ${cliType}`);
+      }
+
+      const templateOptions: TemplateOptions = {
+        cliType,
+        projectPath,
+        config
+      };
+
+      code = generator.call(this, templateOptions);
     }
 
-    const templateOptions: TemplateOptions = {
-      cliType,
-      projectPath,
-      config
-    };
-
-    const code = generator.call(this, templateOptions);
     const integrationPath = this.getIntegrationPath(cliType, projectPath);
 
     // 确保目录存在
@@ -122,8 +167,8 @@ function buildQuery(input) {
       options.search = parts[++i];
     } else if (part === '--limit' && i + 1 < parts.length) {
       options.limit = parseInt(parts[++i]);
-    } else if (part === '--format') {
-      const format = parts[++1]?.toLowerCase();
+    } else if (part === '--format' && i + 1 < parts.length) {
+      const format = parts[++i]?.toLowerCase();
       if (['summary', 'timeline', 'detailed', 'context'].includes(format)) {
         options.format = format;
       }
@@ -204,9 +249,9 @@ function formatSummary(sessions, context) {
   });
 
   response += \`💡 **使用方法:**\\n\`;
-  response += \`• \`/history --cli <工具>\` - 查看特定CLI\\n\`;
-  response += \`• \`/history --search <关键词>\` - 搜索内容\\n\`;
-  response += \`• \`/history --format timeline\` - 时间线视图\`;
+  response += \`• '/history --cli <工具>' - 查看特定CLI\\n\`;
+  response += \`• '/history --search <关键词>' - 搜索内容\\n\`;
+  response += \`• '/history --format timeline' - 时间线视图\`;
 
   return response;
 }
@@ -243,7 +288,7 @@ function formatDetailed(sessions) {
     response += \`   📅 \${date}\\n\`;
     response += \`   🔧 CLI: \${session.cliType}\\n\`;
     response += \`   💬 消息数: \${session.messageCount}\\n\`;
-    response += \`   🆔 会话ID: \\\`\${session.sessionId}\\\`\\n\\n\`;
+    response += \`   🆔 会话ID: '\${session.sessionId}'\\n\\n\`;
   });
 
   return response;
@@ -585,9 +630,9 @@ class HistoryFormatter {
     });
 
     response += \`💡 **使用方法:**\\n\`;
-    response += \`• \`/history --cli <工具>\` - 查看特定CLI\\n\`;
-    response += \`• \`/history --search <关键词>\` - 搜索内容\\n\`;
-    response += \`• \`/history --format timeline\` - 时间线视图\`;
+    response += \`• '/history --cli <工具>' - 查看特定CLI\\n\`;
+    response += \`• '/history --search <关键词>' - 搜索内容\\n\`;
+    response += \`• '/history --format timeline' - 时间线视图\`;
 
     return response;
   }
@@ -626,7 +671,7 @@ class HistoryFormatter {
       response += \`   📅 \${date}\\n\`;
       response += \`   🔧 CLI: \${session.cliType}\\n\`;
       response += \`   💬 消息数: \${session.messageCount}\\n\`;
-      response += \`   🆔 会话ID: \\\`\${session.sessionId}\\n\\n\`;
+      response += \`   🆔 会话ID: '\${session.sessionId}'\\n\\n\`;
     });
 
     return response;
@@ -800,8 +845,8 @@ class GeminiHistoryHandler {
         options.search = parts[++i];
       } else if (part === '--limit' && i + 1 < parts.length) {
         options.limit = parseInt(parts[++i]);
-      } else if (part === '--format') {
-        const format = parts[++1]?.toLowerCase();
+      } else if (part === '--format' && i + 1 < parts.length) {
+        const format = parts[++i]?.toLowerCase();
         if (['summary', 'timeline', 'detailed', 'context'].includes(format)) {
           options.format = format;
         }
