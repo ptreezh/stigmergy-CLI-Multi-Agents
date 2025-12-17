@@ -1,6 +1,7 @@
 const path = require('path');
 const os = require('os');
 const { errorHandler, ERROR_TYPES } = require('./error_handler');
+const CLIPathDetector = require('./cli_path_detector');
 
 // AI CLI Tools Configuration
 const CLI_TOOLS = {
@@ -86,4 +87,74 @@ function validateCLITool(toolName) {
   }
 }
 
-module.exports = { CLI_TOOLS, validateCLITool };
+/**
+ * Create global path detector instance (lazy initialization)
+ */
+let pathDetector = null;
+
+function getPathDetector() {
+  if (!pathDetector) {
+    pathDetector = new CLIPathDetector();
+  }
+  return pathDetector;
+}
+
+/**
+ * Initialize path detection and load cached paths
+ */
+async function initializePathDetection() {
+  const detector = getPathDetector();
+  await detector.loadDetectedPaths();
+}
+
+/**
+ * Get CLI tool path with automatic detection fallback
+ */
+async function getCLIPath(toolName) {
+  const detector = getPathDetector();
+
+  // Check cached paths first
+  let toolPath = detector.getDetectedPath(toolName);
+  if (toolPath) {
+    return toolPath;
+  }
+
+  // If not cached, detect and update
+  console.log(`[PATH] Detecting path for ${toolName}...`);
+  toolPath = await detector.detectCLIPath(toolName);
+
+  return toolPath;
+}
+
+/**
+ * Update PATH configuration and run path detection
+ */
+async function setupCLIPaths() {
+  console.log('[PATH] Setting up CLI paths configuration...');
+
+  const detector = getPathDetector();
+
+  // 1. Load existing cached paths
+  await detector.loadDetectedPaths();
+
+  // 2. Detect all CLI paths
+  const detectedPaths = await detector.detectAllCLIPaths();
+
+  // 3. Check and update PATH if needed
+  const pathStatus = await detector.updatePATHIfMissing();
+
+  return {
+    detectedPaths,
+    pathStatus,
+    report: detector.getPathStatusReport()
+  };
+}
+
+module.exports = {
+  CLI_TOOLS,
+  validateCLITool,
+  initializePathDetection,
+  getCLIPath,
+  setupCLIPaths,
+  CLIPathDetector
+};

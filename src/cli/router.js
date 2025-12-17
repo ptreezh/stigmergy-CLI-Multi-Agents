@@ -18,13 +18,16 @@ const fs = require('fs/promises');
 const fsSync = require('fs');
 const { spawnSync } = require('child_process');
 
+// Import permission management components
+const DirectoryPermissionManager = require('../core/directory_permission_manager');
+const { setupCLIPaths, getCLIPath } = require('../core/cli_tools');
+
 // Import our custom modules
 const SmartRouter = require('../core/smart_router');
 const CLIHelpAnalyzer = require('../core/cli_help_analyzer');
 const { CLI_TOOLS } = require('../core/cli_tools');
 const { errorHandler } = require('../core/error_handler');
 const { executeCommand, executeJSFile } = require('../utils');
-const { UserAuthenticator } = require('../auth');
 const MemoryManager = require('../core/memory_manager');
 const StigmergyInstaller = require('../core/installer');
 const UpgradeManager = require('../core/upgrade_manager');
@@ -72,7 +75,7 @@ async function main() {
     console.log('  version, --version Show version information');
     console.log('  status          Check CLI tools status');
     console.log('  scan            Scan for available AI CLI tools');
-    console.log('  install         Auto-install missing CLI tools');
+    console.log('  install         Auto-install missing CLI tools (with permission fix)');
     console.log('  upgrade         Upgrade all CLI tools to latest versions');
     console.log(
       '  deploy          Deploy hooks and integration to installed tools',
@@ -83,6 +86,15 @@ async function main() {
     );
     console.log('  clean (c)       Clean temporary files and caches');
     console.log('  diagnostic (d)  Show system diagnostic information');
+    console.log('  fix-perms       Fix directory permissions for installation');
+    console.log('  perm-check      Check current directory permissions');
+    console.log('  skill <action>  Manage skills across CLIs (install/read/list/sync/remove)');
+    console.log('    skill-i <src>   Install skills (shortcut for: skill install)');
+    console.log('    skill-l         List skills (shortcut for: skill list)');
+    console.log('    skill-r <name>  Read skill (shortcut for: skill read)');
+    console.log('    skill-v <name>  View/validate skill (auto-detect read or validate)');
+    console.log('    skill-d <name>  Delete/remove skill (shortcut for: skill remove)');
+    console.log('    skill           Sync skills to all CLI configs (shortcut for: skill sync)');
     console.log('  call "<prompt>" Execute prompt with auto-routed AI CLI');
     console.log('  <tool> "<prompt>" Directly route to specific AI CLI tool');
     console.log('    Supported tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex');
@@ -129,6 +141,12 @@ async function main() {
     try {
       console.log('[INIT] Initializing Stigmergy project in current directory...\n');
 
+      // Quick path detection for better tool availability
+      console.log('[INIT] Detecting CLI tool paths...');
+      const pathSetup = await setupCLIPaths();
+
+      console.log(`[INIT] CLI tool detection: ${pathSetup.report.summary.found}/${pathSetup.report.summary.total} tools found`);
+
       // Initialize project files in current directory
       await installer.createProjectFiles();
 
@@ -136,8 +154,12 @@ async function main() {
       console.log('\n[INFO] Created:');
       console.log('  - PROJECT_SPEC.json (project specification)');
       console.log('  - PROJECT_CONSTITUTION.md (collaboration guidelines)');
+      console.log('  - CLI path detection cache in ~/.stigmergy/cli-paths/');
 
-      // No further setup, just project files creation in current directory
+      if (pathSetup.report.summary.missing > 0) {
+        console.log('\n[INFO] For full CLI integration, run:');
+        console.log('  stigmergy setup  # Complete setup with PATH configuration');
+      }
     } catch (error) {
       await errorHandler.logError(error, 'ERROR', 'main.init');
       console.log(`[ERROR] Project initialization failed: ${error.message}`);
@@ -149,44 +171,73 @@ async function main() {
     try {
       console.log('[SETUP] Starting complete Stigmergy setup...\n');
 
-      // Step 1: Download required assets
-      await installer.downloadRequiredAssets();
+      // Step 0: Setup CLI paths detection and configuration
+      console.log('[STEP 0] Setting up CLI path detection...');
+      const pathSetup = await setupCLIPaths();
 
-      // Step 2: Scan for CLI tools
-      const { available: setupAvailable, missing: setupMissing } =
-            await installer.scanCLI();
-      const setupOptions = await installer.showInstallOptions(setupMissing);
+      console.log(`[PATH] Path detection complete:`);
+      console.log(`  - Found: ${pathSetup.report.summary.found} CLI tools`);
+      console.log(`  - Missing: ${pathSetup.report.summary.missing} CLI tools`);
 
-      // Step 3: Install missing CLI tools if user chooses
-      if (setupOptions.length > 0) {
-        const selectedTools = await installer.getUserSelection(
-          setupOptions,
-          setupMissing,
-        );
-        if (selectedTools.length > 0) {
-          console.log(
-            '\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...',
-          );
-          await installer.installTools(selectedTools, setupMissing);
-        }
+      if (pathSetup.pathStatus.updated) {
+        console.log('\n[PATH] ✓ All npm global directories are now available in PATH');
+        console.log('[PATH] CLI tools will be globally accessible after terminal restart');
       } else {
-        console.log('\n[INFO] All required tools are already installed!');
+        console.log('\n[PATH] ⚠️ PATH update failed:');
+        console.log(`  Error: ${pathSetup.pathStatus.message}`);
+        console.log('\n[PATH] Manual update required:');
+        console.log('  Run the generated scripts to update PATH:');
+        if (pathSetup.pathStatus.scriptPath) {
+          console.log(`  - Script directory: ${pathSetup.pathStatus.scriptPath}`);
+        }
+        console.log('  - Windows: Run PowerShell as Administrator and execute the scripts');
+        console.log('  - Unix/Linux: Source the shell script (source update-path.sh)');
       }
 
-      // Step 4: Deploy hooks to available CLI tools
-      await installer.deployHooks(setupAvailable);
+      // Step 1: Scan for CLI tools
+      console.log('\n[STEP 1] Scanning for AI CLI tools...');
+      const { available: setupAvailable, missing: setupMissing } =
+            await installer.scanCLI();
+      
+      // Step 2: Install missing CLI tools
+      if (Object.keys(setupMissing).length > 0) {
+        console.log('\n[STEP 2] Installing missing tools...');
+        console.log('[INFO] Missing tools found:');
+        for (const [toolName, toolInfo] of Object.entries(setupMissing)) {
+          console.log(`  - ${toolInfo.name}: ${toolInfo.install}`);
+        }
+        
+        console.log('\n[INFO] To install missing tools, run:');
+        for (const [toolName, toolInfo] of Object.entries(setupMissing)) {
+          console.log(`  ${toolInfo.install}`);
+        }
+        
+        console.log('\n[INFO] Or use the enhanced installer:');
+        console.log('  node src/core/enhanced_installer.js');
+      } else {
+        console.log('\n[STEP 2] All required tools are already installed!');
+      }
 
-      // Step 5: Deploy project documentation
-      await installer.deployProjectDocumentation();
+      // Step 3: Deploy hooks to available CLI tools
+      if (Object.keys(setupAvailable).length > 0) {
+        console.log('\n[STEP 3] Deploying hooks to available tools...');
+        await installer.deployHooks(setupAvailable);
+      } else {
+        console.log('\n[STEP 3] No tools available for hook deployment');
+      }
 
-      // Step 6: Initialize configuration
-      await installer.initializeConfig();
-
-      // Step 7: Show usage instructions
-      installer.showUsageInstructions();
+      console.log('\n🎉 Setup completed successfully!');
+      console.log('\n[USAGE] Get started with these commands:');
+      console.log('  stigmergy d        - System diagnostic (recommended first)');
+      console.log('  stigmergy inst     - Install missing AI CLI tools');
+      console.log('  stigmergy deploy   - Deploy hooks to installed tools');
+      console.log('  stigmergy call     - Execute prompts with auto-routing');
+      
     } catch (error) {
-      await errorHandler.logError(error, 'ERROR', 'main.setup');
-      console.log(`[ERROR] Setup failed: ${error.message}`);
+      console.error('[ERROR] Setup failed:', error.message);
+      if (process.env.DEBUG === 'true') {
+        console.error(error.stack);
+      }
       console.log('\n[TROUBLESHOOTING] To manually complete setup:');
       console.log('1. Run: stigmergy deploy   # Deploy hooks manually');
       console.log('2. Run: stigmergy setup    # Try setup again');
@@ -237,146 +288,129 @@ async function main() {
 
   case 'upgrade': {
     try {
-      console.log('[UPGRADE] Starting CLI tools upgrade process...');
-      const upgrader = new UpgradeManager();
-      await upgrader.initialize();
-
+      console.log('[UPGRADE] Starting AI CLI tools upgrade process...\n');
+      
       // 解析命令行选项
       const upgradeArgs = args.slice(1);
       const options = {
         dryRun: upgradeArgs.includes('--dry-run'),
         force: upgradeArgs.includes('--force'),
-        verbose: upgradeArgs.includes('--verbose'),
-        diagnose: upgradeArgs.includes('--diagnose'),
-        suggest: upgradeArgs.includes('--suggest')
+        verbose: upgradeArgs.includes('--verbose')
       };
+      
+      // 使用EnhancedCLIInstaller进行升级
+      const EnhancedCLIInstaller = require(path.resolve(__dirname, '../core/enhanced_cli_installer'));
+      const enhancedInstaller = new EnhancedCLIInstaller({
+        verbose: process.env.DEBUG === 'true' || options.verbose,
+        autoRetry: true,
+        maxRetries: 2
+      });
 
-      if (options.diagnose) {
-        console.log('\n🔍 DIAGNOSTIC MODE - Checking for issues...\n');
-        const deprecations = await upgrader.checkDeprecations();
+      // 获取已安装的工具列表 - 使用全局installer扫描
+      const { available: installedTools } = await installer.scanCLI();
 
-        if (deprecations.length === 0) {
-          console.log('✅ No issues detected.');
-        } else {
-          console.log('❌ Issues found:');
-          deprecations.forEach((dep, index) => {
-            console.log(`\n${index + 1}. ${dep.type || 'Unknown'}`);
-            if (dep.dependency) console.log(`   Dependency: ${dep.dependency}`);
-            console.log(`   Issues: ${dep.issues.join(', ')}`);
-          });
-        }
+      if (Object.keys(installedTools).length === 0) {
+        console.log('[INFO] No AI CLI tools found. Please install tools first with: stigmergy install');
         break;
       }
 
-      if (options.suggest) {
-        console.log('\n💡 SUGGESTION MODE - Generating recommendations...\n');
-        const plan = await upgrader.generateUpgradePlan(options);
-
-        console.log('📋 Recommendations:');
-        if (plan.upgrades.length > 0) {
-          console.log('\n🔺 Available Upgrades:');
-          plan.upgrades.forEach(upgrade => {
-            console.log(`  • ${upgrade.tool}: ${upgrade.from} → ${upgrade.to}`);
-          });
-        }
-
-        if (plan.fixes.length > 0) {
-          console.log('\n🔧 Recommended Fixes:');
-          plan.fixes.forEach(fix => {
-            console.log(`  • ${fix.type}: ${fix.description}`);
-          });
-        }
-
-        if (plan.upgrades.length === 0 && plan.fixes.length === 0) {
-          console.log('✅ Everything is up to date!');
-        }
-        break;
-      }
-
-      // 生成升级计划
-      console.log('\n📋 Generating upgrade plan...\n');
-      const plan = await upgrader.generateUpgradePlan(options);
-
-      // 显示计划
-      console.log('📊 UPGRADE PLAN');
-      console.log('='.repeat(50));
-
-      if (plan.upgrades.length > 0) {
-        console.log('\n🔺 CLI Tool Upgrades:');
-        plan.upgrades.forEach(upgrade => {
-          console.log(`  • ${upgrade.tool.padEnd(12)} ${upgrade.from} → ${upgrade.to}`);
-        });
-      } else {
-        console.log('\n✅ All CLI tools are up to date');
-      }
-
-      if (plan.fixes.length > 0) {
-        console.log('\n🔧 Issues to Fix:');
-        plan.fixes.forEach(fix => {
-          console.log(`  • ${fix.type}: ${fix.description}`);
-        });
-      }
-
-      if (plan.warnings.length > 0) {
-        console.log('\n⚠️  Warnings:');
-        plan.warnings.forEach(warning => {
-          console.log(`  • ${warning.tool || 'Unknown'}: ${warning.error}`);
-        });
+      console.log(`[INFO] Found ${Object.keys(installedTools).length} installed AI CLI tools:`);
+      for (const [toolName, toolInfo] of Object.entries(installedTools)) {
+        console.log(`  - ${toolInfo.name} (${toolName})`);
       }
 
       if (options.dryRun) {
         console.log('\n🔍 DRY RUN MODE - No changes will be made');
-        console.log('   Use --force to execute the upgrade plan');
+        console.log('   Use --force to execute the upgrade');
         break;
       }
 
-      // 确认执行
-      if (!options.force) {
-        const { confirm } = await inquirer.prompt([{
-          type: 'confirm',
-          name: 'confirm',
-          message: 'Do you want to proceed with this upgrade plan?',
-          default: false
-        }]);
+      // 默认直接执行升级，无需用户确认
+      console.log(`\n[UPGRADE] Upgrading ${Object.keys(installedTools).length} AI CLI tools...`);
+      console.log('[INFO] Use --dry-run to preview upgrades without executing');
 
-        if (!confirm) {
-          console.log('\n❌ Upgrade cancelled by user');
-          break;
-        }
+      console.log('\n🚀 Upgrading AI CLI tools with automatic permission handling...\n');
+
+      // 批量升级所有工具，一次权限检测
+      console.log(`[INFO] Starting batch upgrade of ${Object.keys(installedTools).length} tools...`);
+
+      const upgradeToolInfos = {};
+      for (const [toolName, toolInfo] of Object.entries(installedTools)) {
+        upgradeToolInfos[toolName] = {
+          ...toolInfo,
+          install: `npm upgrade -g ${toolName}`,
+          name: `${toolInfo.name} (Upgrade)`
+        };
       }
 
-      // 执行升级
-      console.log('\n🚀 Executing upgrade plan...\n');
-      const results = await upgrader.executeUpgrade(plan, options);
+      const upgradeResult = await enhancedInstaller.upgradeTools(
+        Object.keys(installedTools),
+        upgradeToolInfos
+      );
 
+      // 整理结果
+      const results = {
+        successful: [],
+        failed: [],
+        permissionHandled: []
+      };
+
+      for (const [toolName, installation] of Object.entries(upgradeResult.results.installations || {})) {
+        if (installation.success) {
+          results.successful.push(toolName);
+          if (installation.permissionHandled) {
+            results.permissionHandled.push(toolName);
+          }
+        } else {
+          results.failed.push({
+            tool: toolName,
+            error: installation.error || 'Installation failed'
+          });
+        }
+      }
+      
       // 显示结果
       console.log('\n📊 UPGRADE RESULTS');
       console.log('='.repeat(50));
 
       if (results.successful.length > 0) {
         console.log(`\n✅ Successful (${results.successful.length}):`);
-        results.successful.forEach(result => {
-          const name = result.tool || result.type;
-          console.log(`  • ${name}`);
+        results.successful.forEach(tool => {
+          console.log(`  • ${tool}`);
+        });
+      }
+
+      if (results.permissionHandled.length > 0) {
+        console.log(`\n🔧 Auto-handled permissions (${results.permissionHandled.length}):`);
+        results.permissionHandled.forEach(tool => {
+          console.log(`  • ${tool}`);
         });
       }
 
       if (results.failed.length > 0) {
         console.log(`\n❌ Failed (${results.failed.length}):`);
         results.failed.forEach(result => {
-          const name = result.tool || result.type;
-          console.log(`  • ${name}: ${result.error}`);
+          console.log(`  • ${result.tool}: ${result.error}`);
         });
+
+        // Provide guidance for permission issues
+        if (results.failed.length > 0) {
+          console.log('\n💡 如果遇到权限问题，请尝试:');
+          console.log('   Windows: 以管理员身份运行PowerShell，然后执行 stigmergy upgrade');
+          console.log('   macOS/Linux: sudo stigmergy upgrade');
+        }
       }
 
-      // 记录日志
-      await upgrader.logUpgrade(plan, results);
+      if (results.permissionHandled.length > 0) {
+        console.log('\n✅ 权限问题已自动处理');
+        console.log(`🔧 自动提升权限升级了 ${results.permissionHandled.length} 个工具`);
+      }
 
       console.log('\n🎉 Upgrade process completed!');
-
+      
     } catch (error) {
       console.error('[ERROR] Upgrade failed:', error.message);
-      if (options.verbose) {
+      if (process.env.DEBUG === 'true') {
         console.error(error.stack);
       }
       process.exit(1);
@@ -384,30 +418,101 @@ async function main() {
     break;
   }
 
-  case 'install':
+    case 'install':
   case 'inst':
     try {
       console.log('[INSTALL] Starting AI CLI tools installation...');
-      const { missing: missingTools } = await installer.scanCLI();
-      const options = await installer.showInstallOptions(missingTools);
 
-      if (options.length > 0) {
-        const selectedTools = await installer.getUserSelection(
-          options,
-          missingTools,
-        );
-        if (selectedTools.length > 0) {
-          console.log(
-            '\n[INFO] Installing selected tools (this may take several minutes for tools that download binaries)...',
-          );
-          await installer.installTools(selectedTools, missingTools);
+      // Check directory permissions first
+      const permissionManager = new DirectoryPermissionManager({ verbose: process.env.DEBUG === 'true' });
+      const hasWritePermission = await permissionManager.checkWritePermission();
+
+      if (!hasWritePermission) {
+        console.log('\n⚠️  Current directory lacks write permission');
+        console.log('🔧 Using permission-aware installation...');
+
+        // Use permission-aware installer
+        const permAwareInstaller = new PermissionAwareInstaller({
+          verbose: process.env.DEBUG === 'true',
+          skipPermissionCheck: false
+        });
+
+        const result = await permAwareInstaller.install();
+        if (result.success) {
+          console.log('\n✅ Permission-aware installation completed successfully!');
+        } else {
+          console.log('\n❌ Permission-aware installation failed');
+          process.exit(1);
+        }
+        break;
+      }
+
+      // Normal installation if directory has write permission
+      const { missing: missingTools, available: availableTools } = await installer.scanCLI();
+
+      if (Object.keys(missingTools).length === 0) {
+        console.log('[INFO] All AI CLI tools are already installed!');
+        console.log('\nAvailable tools:');
+        for (const [toolName, toolInfo] of Object.entries(availableTools)) {
+          console.log(`  - ${toolInfo.name} (${toolName})`);
         }
       } else {
-        console.log('\n[INFO] All required tools are already installed!');
+        console.log(`\n[INFO] Found ${Object.keys(missingTools).length} missing AI CLI tools:`);
+        for (const [toolName, toolInfo] of Object.entries(missingTools)) {
+          console.log(`  - ${toolInfo.name}: ${toolInfo.install}`);
+        }
+
+        // 默认自动安装所有缺失的工具
+        console.log(`\n[AUTO-INSTALL] Installing ${Object.keys(missingTools).length} missing AI CLI tools...`);
+
+        const selectedTools = Object.keys(missingTools);
+
+        // Use EnhancedCLIInstaller with batch permission handling
+        const EnhancedCLIInstaller = require(path.resolve(__dirname, '../core/enhanced_cli_installer'));
+        const installer = new EnhancedCLIInstaller({
+          verbose: process.env.DEBUG === 'true',
+          autoRetry: true,
+          maxRetries: 2
+        });
+
+        console.log(`[INFO] Installing ${selectedTools.length} CLI tools with optimized permission handling...`);
+        const installResult = await installer.installTools(selectedTools, missingTools);
+
+        if (installResult) {
+          console.log(`\n[SUCCESS] Installed ${selectedTools.length} AI CLI tools!`);
+
+          // Check if any permissions were handled automatically
+          const installations = installer.results.installations || {};
+          const permissionHandledTools = Object.entries(installations)
+            .filter(([name, result]) => result.success && result.permissionHandled)
+            .map(([name]) => name);
+
+          if (permissionHandledTools.length > 0) {
+            console.log('✅ 权限问题已自动处理');
+            console.log(`🔧 自动提升权限安装了 ${permissionHandledTools.length} 个工具: ${permissionHandledTools.join(', ')}`);
+          }
+
+          // Show permission mode used
+          console.log(`🔧 权限模式: ${installResult.permissionMode}`);
+        } else {
+          console.log('\n[WARN] Some tools may not have installed successfully. Check the logs above for details.');
+
+          // Provide manual guidance for permission issues
+          const failedInstallations = installer.results.failedInstallations || [];
+          if (failedInstallations.length > 0) {
+            console.log('\n💡 如果遇到权限问题，请尝试:');
+            console.log('   Windows: 以管理员身份运行PowerShell，然后执行 stigmergy install');
+            console.log('   macOS/Linux: sudo stigmergy install');
+          }
+        }
       }
+
+      console.log('\n[INFO] Installation process completed.');
     } catch (error) {
-      await errorHandler.logError(error, 'ERROR', 'main.install');
-      console.log(`[ERROR] Installation failed: ${error.message}`);
+      console.error('[ERROR] Installation failed:', error.message);
+      if (process.env.DEBUG === 'true') {
+        console.error(error.stack);
+      }
       process.exit(1);
     }
     break;
@@ -447,7 +552,7 @@ async function main() {
         const whichCmd = process.platform === 'win32' ? 'where' : 'which';
         const whichResult = spawnSync(whichCmd, [route.tool], {
           encoding: 'utf8',
-          timeout: 3000,
+          timeout: 10000,
           stdio: ['pipe', 'pipe', 'pipe'],
           shell: true,
         });
@@ -566,8 +671,16 @@ async function main() {
           
           // Special handling for Claude on Windows to bypass the wrapper script
           if (process.platform === 'win32' && route.tool === 'claude') {
-            // Use the direct path to avoid the wrapper script that interferes with parameter passing
-            execCommand = 'C:\\npm_global\\claude';
+            // Use detected path to avoid the wrapper script that interferes with parameter passing
+            const detectedPath = await getCLIPath('claude');
+            if (detectedPath) {
+              execCommand = detectedPath;
+              console.log(`[DEBUG] Using detected Claude path: ${execCommand}`);
+            } else {
+              execCommand = 'C:\\npm_global\\claude';
+              console.log(`[DEBUG] Using default Claude path: ${execCommand}`);
+            }
+
             if (toolArgs.length > 0) {
               const argsString = toolArgs.map(arg => {
                 if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
@@ -581,11 +694,26 @@ async function main() {
             }
           }
           
-          // Special handling for Copilot on Windows
-          if (process.platform === 'win32' && route.tool === 'copilot') {
-            // Use the direct path for Copilot as well
-            execCommand = 'C:\\npm_global\\copilot';
-            if (toolArgs.length > 0) {
+          // Use detected paths for all CLI tools on all platforms
+          const supportedTools = ['claude', 'copilot', 'qodercli', 'gemini', 'qwen', 'iflow', 'codebuddy', 'codex'];
+
+          if (supportedTools.includes(route.tool)) {
+            // Use detected path for all CLI tools regardless of platform
+            const detectedPath = await getCLIPath(route.tool);
+            if (detectedPath) {
+              execCommand = detectedPath;
+              console.log(`[DEBUG] Using detected ${route.tool} path: ${execCommand}`);
+            } else {
+              // Fallback to system PATH for tools not detected
+              console.log(`[DEBUG] Using system PATH for ${route.tool}: ${route.tool}`);
+            }
+          }
+
+          // Platform-specific command construction
+          if (process.platform === 'win32') {
+            // Special handling for Windows CLI tools
+            if (route.tool === 'claude' && toolArgs.length > 0) {
+              // Special parameter handling for Claude to avoid wrapper script issues
               const argsString = toolArgs.map(arg => {
                 if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
                   return `"${arg}"`;
@@ -594,7 +722,22 @@ async function main() {
               }).join(' ');
               execCommand = `${execCommand} ${argsString}`;
               execArgs = [];
-              console.log(`[DEBUG] Windows direct Copilot command: ${execCommand}`);
+              console.log(`[DEBUG] Windows ${route.tool} direct command: ${execCommand}`);
+            } else if (route.tool === 'copilot') {
+              // Copilot doesn't use -p parameter format
+              execArgs = [];
+              console.log(`[DEBUG] Windows ${route.tool} direct command: ${execCommand}`);
+            } else if (toolArgs.length > 0) {
+              // For other Windows tools, construct full command line
+              const argsString = toolArgs.map(arg => {
+                if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
+                  return `"${arg}"`;
+                }
+                return arg;
+              }).join(' ');
+              execCommand = `${execCommand} ${argsString}`;
+              execArgs = [];
+              console.log(`[DEBUG] Windows full command: ${execCommand}`);
             }
           }
           
@@ -693,10 +836,40 @@ async function main() {
   }
 
   case 'auto-install':
-    // Auto-install mode for npm postinstall - NON-INTERACTIVE
+    // Auto-install mode for npm postinstall - NON-INTERACTIVE with permission awareness
     // Force immediate output visibility during npm install
+
+    // Detect npm environment for better output visibility
+    const isNpmPostinstall = process.env.npm_lifecycle_event === 'postinstall';
+
+    // Use stderr for critical messages in npm environment (more likely to be shown)
+    const criticalLog = isNpmPostinstall ? console.error : console.log;
+
+    criticalLog('🚀 STIGMERGY CLI AUTO-INSTALL STARTING');
+    criticalLog('='.repeat(60));
+    criticalLog('Installing cross-CLI integration and scanning for AI tools...');
+    criticalLog('='.repeat(60));
     console.log('[AUTO-INSTALL] Stigmergy CLI automated setup');
     console.log('='.repeat(60));
+
+    // Check directory permissions
+    const autoPermissionManager = new DirectoryPermissionManager({ verbose: process.env.DEBUG === 'true' });
+    const autoHasWritePermission = await autoPermissionManager.checkWritePermission();
+
+    if (!autoHasWritePermission && !process.env.STIGMERGY_SKIP_PERMISSION_CHECK) {
+      criticalLog('⚠️  Directory permission detected, setting up permission-aware installation...');
+
+      try {
+        const permResult = await autoPermissionManager.setupWorkingDirectory();
+        if (permResult.success) {
+          criticalLog('✅ Working directory configured with proper permissions');
+        } else {
+          criticalLog('⚠️  Could not configure working directory, continuing with limited functionality');
+        }
+      } catch (error) {
+        criticalLog(`⚠️  Permission setup failed: ${error.message}`);
+      }
+    }
 
     // Force stdout flush to ensure visibility during npm install
     if (process.stdout && process.stdout.write) {
@@ -772,7 +945,77 @@ async function main() {
             console.log(`  ✗ ${toolInfo.name} (${toolName})`);
             console.log(`    Install with: ${toolInfo.installCommand}`);
           }
-          console.log('\n[INFO] You can install missing tools with: stigmergy install');
+
+          // Check if auto-install is enabled for npm postinstall
+          const autoInstallEnabled = process.env.STIGMERGY_AUTO_INSTALL !== 'false';
+
+          if (autoInstallEnabled && !process.env.CI) {
+            console.log('\n[AUTO-INSTALL] Installing missing CLI tools automatically...');
+            console.log('[INFO] Set STIGMERGY_AUTO_INSTALL=false to disable this behavior');
+
+            try {
+              const selectedTools = Object.keys(autoMissing);
+
+              // Use EnhancedCLIInstaller with batch permission handling
+              const EnhancedCLIInstaller = require(path.resolve(__dirname, '../core/enhanced_cli_installer'));
+              const installer = new EnhancedCLIInstaller({
+                verbose: process.env.DEBUG === 'true',
+                autoRetry: true,
+                maxRetries: 2
+              });
+
+              console.log(`[INFO] Installing ${selectedTools.length} CLI tools with optimized permission handling...`);
+              const installResult = await installer.installTools(selectedTools, autoMissing);
+
+              if (installResult) {
+                console.log(`[SUCCESS] Auto-installed ${selectedTools.length} CLI tools!`);
+
+                // Check if permissions were handled automatically
+                const installations = installer.results.installations || {};
+                const permissionHandledTools = Object.entries(installations)
+                  .filter(([name, result]) => result.success && result.permissionHandled)
+                  .map(([name]) => name);
+
+                if (permissionHandledTools.length > 0) {
+                  console.log('✅ 权限问题已自动处理');
+                  console.log(`🔧 自动提升权限安装了 ${permissionHandledTools.length} 个工具: ${permissionHandledTools.join(', ')}`);
+                }
+
+                // Show permission mode used
+                console.log(`🔧 权限模式: ${installResult.permissionMode}`);
+              } else {
+                console.log('[WARN] Some tools may not have installed successfully');
+
+                // Provide manual guidance for permission issues
+                const failedInstallations = installer.results.failedInstallations || [];
+                if (failedInstallations.length > 0) {
+                  console.log('\n💡 如果遇到权限问题，请尝试:');
+                  console.log('   Windows: 以管理员身份运行PowerShell，然后执行 stigmergy install');
+                  console.log('   macOS/Linux: sudo stigmergy install');
+                }
+              }
+            } catch (installError) {
+              console.log(`[ERROR] Auto-install failed: ${installError.message}`);
+              console.log('[INFO] You can manually install tools with: stigmergy install --auto');
+
+              // Check if it's a permission error
+              const permissionIndicators = ['EACCES', 'EPERM', 'permission denied', 'access denied'];
+              const isPermissionError = permissionIndicators.some(indicator =>
+                installError.message.toLowerCase().includes(indicator.toLowerCase())
+              );
+
+              if (isPermissionError) {
+                console.log('\n💡 这看起来像是权限问题，请尝试:');
+                console.log('   Windows: 以管理员身份运行PowerShell，然后执行 stigmergy install');
+                console.log('   macOS/Linux: sudo stigmergy install');
+              }
+            }
+          } else {
+            console.log('\n[INFO] You can install missing tools with: stigmergy install --auto');
+            if (process.env.CI) {
+              console.log('[CI] Auto-install disabled in CI environment');
+            }
+          }
         }
 
         console.log('\n[USAGE] Get started with these commands:');
@@ -878,6 +1121,75 @@ async function main() {
       process.exit(1);
     }
     break;
+
+  // Skill命令简化别名
+  case 'skill-i':    // install
+  case 'skill-l':    // list
+  case 'skill-v':    // validate/read
+  case 'skill-r':    // read
+  case 'skill-d':    // remove/delete
+  case 'skill-m':    // remove (移除)
+  case 'skill': {
+    try {
+      // Skill命令通过桥接器调用ES模块
+      const { handleSkillCommand } = require('../commands/skill-handler');
+      
+      // 处理简化命令
+      let skillAction;
+      let skillArgs;
+      
+      switch (command) {
+        case 'skill-i':
+          skillAction = 'install';
+          skillArgs = args.slice(1);
+          break;
+        case 'skill-l':
+          skillAction = 'list';
+          skillArgs = args.slice(1);
+          break;
+        case 'skill-v':
+          // skill-v可以是validate或read，根据参数判断
+          skillAction = args[1] && (args[1].endsWith('.md') || args[1].includes('/') || args[1].includes('\\')) 
+            ? 'validate' 
+            : 'read';
+          skillArgs = args.slice(1);
+          break;
+        case 'skill-r':
+          skillAction = 'read';
+          skillArgs = args.slice(1);
+          break;
+        case 'skill-d':
+        case 'skill-m':
+          skillAction = 'remove';
+          skillArgs = args.slice(1);
+          break;
+        default:
+          // 标准skill命令
+          skillAction = args[1];
+          skillArgs = args.slice(2);
+          
+          // 如果没有子命令，默认执行sync
+          if (!skillAction) {
+            skillAction = 'sync';
+            skillArgs = [];
+          }
+      }
+      
+      const skillOptions = {
+        force: args.includes('--force'),
+        verbose: args.includes('--verbose'),
+        autoSync: !args.includes('--no-auto-sync')
+      };
+
+      const exitCode = await handleSkillCommand(skillAction, skillArgs, skillOptions);
+      process.exit(exitCode || 0);
+    } catch (error) {
+      await errorHandler.logError(error, 'ERROR', 'main.skill');
+      console.error(`[ERROR] Skill command failed: ${error.message}`);
+      process.exit(1);
+    }
+    break;
+  }
 
   case 'clean':
   case 'c': {
@@ -997,6 +1309,71 @@ async function main() {
     break;
   }
 
+  case 'fix-perms': {
+    try {
+      console.log('[FIX-PERMS] Setting up working directory with proper permissions...\n');
+
+      const permAwareInstaller = new PermissionAwareInstaller({
+        verbose: process.env.DEBUG === 'true',
+        skipPermissionCheck: false,
+        autoConfigureShell: true
+      });
+
+      const result = await permAwareInstaller.install();
+
+      if (result.success) {
+        console.log('\n✅ Permission setup completed successfully!');
+        permAwareInstaller.permissionManager.displayResults(result.permissionSetup);
+      } else {
+        console.log('\n❌ Permission setup failed');
+        console.log(`Error: ${result.error || 'Unknown error'}`);
+        process.exit(1);
+      }
+
+    } catch (error) {
+      console.error('[ERROR] Permission setup failed:', error.message);
+      if (process.env.DEBUG === 'true') {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+    break;
+  }
+
+  case 'perm-check': {
+    try {
+      console.log('[PERM-CHECK] Checking current directory permissions...\n');
+
+      const permissionManager = new DirectoryPermissionManager({ verbose: process.env.DEBUG === 'true' });
+      const hasWritePermission = await permissionManager.checkWritePermission();
+
+      console.log(`📍 Current directory: ${process.cwd()}`);
+      console.log(`🔧 Write permission: ${hasWritePermission ? '✅ Yes' : '❌ No'}`);
+
+      if (!hasWritePermission) {
+        console.log('\n💡 Suggestions:');
+        console.log('1. Run: stigmergy fix-perms    # Fix permissions automatically');
+        console.log('2. Change to user directory: cd ~');
+        console.log('3. Create project directory: mkdir ~/stigmergy && cd ~/stigmergy');
+        console.log('\n🔍 System Info:');
+        const sysInfo = permissionManager.getSystemInfo();
+        console.log(`   Platform: ${sysInfo.platform}`);
+        console.log(`   Shell: ${sysInfo.shell}`);
+        console.log(`   Home: ${sysInfo.homeDir}`);
+      } else {
+        console.log('\n✅ Current directory is ready for installation');
+      }
+
+    } catch (error) {
+      console.error('[ERROR] Permission check failed:', error.message);
+      if (process.env.DEBUG === 'true') {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+    break;
+  }
+
   default:
     // Check if the command matches a direct CLI tool name
     if (CLI_TOOLS[command]) {
@@ -1031,7 +1408,7 @@ async function main() {
           const whichCmd = process.platform === 'win32' ? 'where' : 'which';
           const whichResult = spawnSync(whichCmd, [toolName], {
             encoding: 'utf8',
-            timeout: 3000,
+            timeout: 10000,
             stdio: ['pipe', 'pipe', 'pipe'],
             shell: true,
           });
@@ -1151,11 +1528,26 @@ async function main() {
               }
             }
       
-            // Special handling for Claude on Windows to bypass the wrapper script
-            if (process.platform === 'win32' && route.tool === 'claude') {
-              // Use the direct path to avoid the wrapper script that interferes with parameter passing
-              execCommand = 'C:\\npm_global\\claude';
-              if (toolArgs.length > 0) {
+            // Use detected paths for all CLI tools on all platforms
+            const supportedTools = ['claude', 'copilot', 'qodercli', 'gemini', 'qwen', 'iflow', 'codebuddy', 'codex'];
+
+            if (supportedTools.includes(route.tool)) {
+              // Use detected path for all CLI tools regardless of platform
+              const detectedPath = await getCLIPath(route.tool);
+              if (detectedPath) {
+                execCommand = detectedPath;
+                console.log(`[DEBUG] Using detected ${route.tool} path: ${execCommand}`);
+              } else {
+                // Fallback to system PATH for tools not detected
+                console.log(`[DEBUG] Using system PATH for ${route.tool}: ${route.tool}`);
+              }
+            }
+
+            // Platform-specific command construction
+            if (process.platform === 'win32') {
+              // Special handling for Windows CLI tools
+              if (route.tool === 'claude' && toolArgs.length > 0) {
+                // Special parameter handling for Claude to avoid wrapper script issues
                 const argsString = toolArgs.map(arg => {
                   if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
                     return `"${arg}"`;
@@ -1164,15 +1556,13 @@ async function main() {
                 }).join(' ');
                 execCommand = `${execCommand} ${argsString}`;
                 execArgs = [];
-                console.log(`[DEBUG] Windows direct Claude command: ${execCommand}`);
-              }
-            }
-      
-            // Special handling for Copilot on Windows
-            if (process.platform === 'win32' && route.tool === 'copilot') {
-              // Use the direct path for Copilot as well
-              execCommand = 'C:\\npm_global\\copilot';
-              if (toolArgs.length > 0) {
+                console.log(`[DEBUG] Windows ${route.tool} direct command: ${execCommand}`);
+              } else if (route.tool === 'copilot') {
+                // Copilot doesn't use -p parameter format
+                execArgs = [];
+                console.log(`[DEBUG] Windows ${route.tool} direct command: ${execCommand}`);
+              } else if (toolArgs.length > 0) {
+                // For other Windows tools, construct full command line
                 const argsString = toolArgs.map(arg => {
                   if (arg.includes(' ') && !(arg.startsWith('"') && arg.endsWith('"'))) {
                     return `"${arg}"`;
@@ -1181,10 +1571,11 @@ async function main() {
                 }).join(' ');
                 execCommand = `${execCommand} ${argsString}`;
                 execArgs = [];
-                console.log(`[DEBUG] Windows direct Copilot command: ${execCommand}`);
+                console.log(`[DEBUG] Windows full command: ${execCommand}`);
               }
             }
       
+        
             // Apply the same Windows handling logic to ensure consistency
             // This ensures consistency between direct routing and call command routing
             if (process.platform === 'win32' && execArgs.length > 0) {
