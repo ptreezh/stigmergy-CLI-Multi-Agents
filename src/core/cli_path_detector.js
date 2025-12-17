@@ -48,22 +48,87 @@ class CLIPathDetector {
         path.join(process.env.ProgramFiles || 'C:/Program Files', 'npm')
       );
     } else {
-      // Unix-like paths
+      // Unix-like paths - comprehensive coverage
       paths.push(
-        path.join(os.homedir(), '.npm-global', 'bin'), // User local
-        '/usr/local/bin', // System
-        '/usr/bin', // System
-        path.join(os.homedir(), '.npm', 'bin') // User npm
+        // User-specific npm global paths
+        path.join(os.homedir(), '.npm-global', 'bin'), // User local with custom prefix
+        path.join(os.homedir(), '.npm', 'bin'), // User npm
+        path.join(os.homedir(), 'node_modules', '.bin'), // Local node_modules bin
+
+        // System-wide paths
+        '/usr/local/bin', // Common system location
+        '/usr/bin', // System binaries
+        '/opt/node/bin', // Node.js installed to /opt
+        '/opt/nodejs/bin', // Alternative system installation
+
+        // Root-specific paths (when running as root)
+        '/root/.npm-global/bin', // Root user custom prefix
+        '/root/.npm/bin', // Root user npm
+        '/root/node_modules/.bin', // Root local node_modules
+        '/root/.nvm/versions/node/*/bin', // NVM installations for root
+
+        // NVM (Node Version Manager) paths for regular users
+        path.join(os.homedir(), '.nvm', 'versions', 'node', '*', 'bin'), // NVM user installations
+        path.join(os.homedir(), '.nvm', 'current', 'bin'), // NVM current version
+
+        // NodeSource installation paths
+        '/usr/bin/nodejs', // NodeSource package installations
+        '/usr/local/share/npm/bin', // npm share location
+
+        // Homebrew (macOS) paths
+        path.join(os.homedir(), '.brew', 'node', 'bin'), // Custom Homebrew
+        '/opt/homebrew/bin', // Apple Silicon Homebrew
+        '/usr/local/bin', // Intel Homebrew
+
+        // pkg-config and other package managers
+        path.join(os.homedir(), '.local', 'bin'), // User local binaries
+        '/snap/bin', // Snap packages (Ubuntu)
+        '/var/lib/snapd/snap/bin' // Snap system
       );
     }
 
+    // Filter paths, handling wildcards for NVM
     return paths.filter(p => {
       try {
+        // Handle wildcard paths (NVM versions)
+        if (p.includes('*')) {
+          return this.expandWildcardPath(p);
+        }
         return fs.existsSync(p);
       } catch {
         return false;
       }
     });
+  }
+
+  /**
+   * Expand wildcard paths (e.g., NVM version paths)
+   */
+  expandWildcardPath(wildcardPath) {
+    try {
+      const { spawnSync } = require('child_process');
+
+      // Use shell to expand wildcards
+      const result = spawnSync('bash', ['-c', `ls -d ${wildcardPath} 2>/dev/null`], {
+        encoding: 'utf8',
+        shell: true
+      });
+
+      if (result.status === 0 && result.stdout.trim()) {
+        // Check if any of the expanded paths exist
+        const expandedPaths = result.stdout.trim().split('\n');
+        return expandedPaths.some(p => {
+          try {
+            return fs.existsSync(p.trim());
+          } catch {
+            return false;
+          }
+        });
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -146,8 +211,15 @@ class CLIPathDetector {
     const commandNames = this.cliNameMap[toolName] || [toolName];
 
     for (const command of commandNames) {
+      // Method 0: Use npm to get actual global installation path
+      let pathFound = await this.findCommandViaNPM(command);
+      if (pathFound) {
+        console.log(`[DETECTOR] Found ${toolName} via npm: ${pathFound}`);
+        return pathFound;
+      }
+
       // Method 1: Check system PATH (most common)
-      let pathFound = this.findCommandInPath(command);
+      pathFound = this.findCommandInPath(command);
       if (pathFound) {
         console.log(`[DETECTOR] Found ${toolName} in PATH: ${pathFound}`);
         return pathFound;
@@ -169,17 +241,82 @@ class CLIPathDetector {
           return pathFound;
         }
       } else {
-        const userNPMPath = path.join(os.homedir(), '.npm-global', 'bin');
-        pathFound = this.checkCommandInDir(command, userNPMPath);
-        if (pathFound) {
-          console.log(`[DETECTOR] Found ${toolName} in user npm-global: ${pathFound}`);
-          return pathFound;
+        // Check multiple Unix-like locations
+        const unixPaths = [
+          path.join(os.homedir(), '.npm-global', 'bin'),
+          path.join(os.homedir(), '.npm', 'bin'),
+          '/usr/local/bin',
+          '/usr/bin',
+          path.join(os.homedir(), '.local', 'bin'),
+          '/root/.npm-global/bin',
+          '/root/.npm/bin'
+        ];
+
+        for (const dir of unixPaths) {
+          pathFound = this.checkCommandInDir(command, dir);
+          if (pathFound) {
+            console.log(`[DETECTOR] Found ${toolName} in ${dir}: ${pathFound}`);
+            return pathFound;
+          }
         }
       }
     }
 
     console.log(`[DETECTOR] ${toolName} not found`);
     return null;
+  }
+
+  /**
+   * Find command using npm's actual global installation path
+   */
+  async findCommandViaNPM(command) {
+    try {
+      const { spawnSync } = require('child_process');
+
+      // Get npm global prefix
+      const npmPrefixResult = spawnSync('npm', ['config', 'get', 'prefix'], {
+        encoding: 'utf8',
+        shell: true
+      });
+
+      if (npmPrefixResult.status === 0 && npmPrefixResult.stdout.trim()) {
+        const npmPrefix = npmPrefixResult.stdout.trim();
+        let binDir;
+
+        if (this.platform === 'win32') {
+          binDir = npmPrefix; // Windows: prefix already points to the directory with executables
+        } else {
+          binDir = path.join(npmPrefix, 'bin'); // Unix: bin subdirectory
+        }
+
+        const commandPath = this.checkCommandInDir(command, binDir);
+        if (commandPath) {
+          return commandPath;
+        }
+      }
+
+      // Try alternative npm config methods
+      const npmListResult = spawnSync('npm', ['list', '-g', '--depth=0'], {
+        encoding: 'utf8',
+        shell: true
+      });
+
+      if (npmListResult.status === 0) {
+        // Extract global prefix from npm list output if needed
+        const lines = npmListResult.stdout.split('\n');
+        for (const line of lines) {
+          if (line.includes(`${command}@`)) {
+            // Package is installed globally, try to find it in common locations
+            return null; // Fall back to other methods
+          }
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.log(`[DETECTOR] npm query failed: ${error.message}`);
+      return null;
+    }
   }
 
   /**
