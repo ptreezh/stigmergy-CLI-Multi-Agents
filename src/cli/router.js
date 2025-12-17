@@ -45,6 +45,30 @@ function formatBytes(bytes) {
   return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 }
 
+// Helper function to get appropriate working directory for CLI tools
+function getWorkingDirectoryForTool(toolName) {
+  switch (toolName) {
+    case 'qwen':
+      // For Qwen CLI, use user home directory to avoid module resolution issues
+      return os.homedir();
+    case 'claude':
+      // For Claude CLI, use user home directory
+      return os.homedir();
+    case 'gemini':
+      // For Gemini CLI, use user home directory
+      return os.homedir();
+    case 'iflow':
+      // For iFlow CLI, use user home directory
+      return os.homedir();
+    case 'qodercli':
+      // For Qoder CLI, use user home directory
+      return os.homedir();
+    default:
+      // For other tools, use current directory
+      return process.cwd();
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
 
@@ -757,9 +781,18 @@ async function main() {
             console.log(`[DEBUG] Windows unified command: ${execCommand}`);
           }
           
+          // Set environment for tools that need specific working directories
+          const env = { ...process.env };
+          if (route.tool === 'qwen') {
+            // For Qwen CLI, clear NODE_PATH to avoid import conflicts
+            delete env.NODE_PATH;
+          }
+
           const result = await executeCommand(execCommand, execArgs, {
             stdio: 'inherit',
             shell: true,
+            cwd: getWorkingDirectoryForTool(route.tool),
+            env,
           });
 
           if (!result.success) {
@@ -809,9 +842,17 @@ async function main() {
           // For other execution errors, try to execute the command directly
           // which handles cases where the tool executed successfully but returned an error object
           console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+          // Set environment for tools that need specific working directories
+          const env = { ...process.env };
+          if (route.tool === 'qwen') {
+            delete env.NODE_PATH;
+          }
+
           const result = await executeCommand(toolPath, toolArgs, {
             stdio: 'inherit',
             shell: true,
+            cwd: getWorkingDirectoryForTool(route.tool),
+            env,
           });
 
           if (!result.success) {
@@ -1651,9 +1692,18 @@ async function main() {
             // For other execution errors, try to execute the command directly
             // which handles cases where the tool executed successfully but returned an error object
             console.log(`[EXEC] Running: ${toolPath} ${toolArgs.join(' ')}`);
+
+            // Set environment for tools that need specific working directories
+            const env = { ...process.env };
+            if (route.tool === 'qwen') {
+              delete env.NODE_PATH;
+            }
+
             const result = await executeCommand(toolPath, toolArgs, {
               stdio: 'inherit',
               shell: true,
+              cwd: getWorkingDirectoryForTool(route.tool),
+              env,
             });
             
             if (!result.success) {
