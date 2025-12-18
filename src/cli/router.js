@@ -69,6 +69,32 @@ function getWorkingDirectoryForTool(toolName) {
   }
 }
 
+// Helper function to add OAuth authentication for CLI tools that support it
+function addOAuthAuthArgs(toolName, existingArgs) {
+  const args = [...existingArgs];
+
+  switch (toolName) {
+    case 'qwen':
+      // Add OAuth authentication for Qwen CLI to avoid API key errors
+      args.unshift('--auth-type', 'qwen-oauth');
+      break;
+    case 'claude':
+      // Claude uses token-based auth, no special args needed
+      break;
+    case 'gemini':
+      // Gemini might support OAuth in future versions
+      break;
+    case 'iflow':
+      // Add web authentication for iFlow if supported
+      break;
+    default:
+      // No special authentication for other tools
+      break;
+  }
+
+  return args;
+}
+
 async function main() {
   const args = process.argv.slice(2);
 
@@ -641,6 +667,9 @@ async function main() {
         }
       }
 
+      // Add OAuth authentication for tools that support it
+      toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
+
       // Use the reliable cross-platform execution function
       try {
         // Validate that the tool exists before attempting to execute
@@ -784,8 +813,11 @@ async function main() {
           // Set environment for tools that need specific working directories
           const env = { ...process.env };
           if (route.tool === 'qwen') {
-            // For Qwen CLI, clear NODE_PATH to avoid import conflicts
+            // For Qwen CLI, clear Node.js environment variables to avoid import conflicts
             delete env.NODE_PATH;
+            delete env.NODE_OPTIONS;
+            // Ensure clean environment
+            env.PWD = getWorkingDirectoryForTool(route.tool);
           }
 
           const result = await executeCommand(execCommand, execArgs, {
@@ -845,7 +877,11 @@ async function main() {
           // Set environment for tools that need specific working directories
           const env = { ...process.env };
           if (route.tool === 'qwen') {
+            // For Qwen CLI, clear Node.js environment variables to avoid import conflicts
             delete env.NODE_PATH;
+            delete env.NODE_OPTIONS;
+            // Ensure clean environment
+            env.PWD = getWorkingDirectoryForTool(route.tool);
           }
 
           const result = await executeCommand(toolPath, toolArgs, {
@@ -1493,6 +1529,9 @@ async function main() {
             cliPattern,
           );
           
+          // Add OAuth authentication for tools that support it
+          toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
+
           // Add debug logging for the final arguments
           console.log(`[DEBUG] Final toolArgs: ${JSON.stringify(toolArgs)}`);
         } catch (patternError) {
@@ -1511,7 +1550,10 @@ async function main() {
             // For other tools, pass the prompt with -p flag
             toolArgs = ['-p', `"${route.prompt}"`];
           }
-          
+
+          // Add OAuth authentication for tools that support it
+          toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
+
           // Add debug logging for the fallback arguments
           console.log(`[DEBUG] Fallback toolArgs: ${JSON.stringify(toolArgs)}`);
         }
@@ -1696,7 +1738,11 @@ async function main() {
             // Set environment for tools that need specific working directories
             const env = { ...process.env };
             if (route.tool === 'qwen') {
+              // For Qwen CLI, clear Node.js environment variables to avoid import conflicts
               delete env.NODE_PATH;
+              delete env.NODE_OPTIONS;
+              // Ensure clean environment
+              env.PWD = getWorkingDirectoryForTool(route.tool);
             }
 
             const result = await executeCommand(toolPath, toolArgs, {
