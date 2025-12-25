@@ -150,7 +150,7 @@ async function handleInitCommand(options = {}) {
 
     // Create basic config
     const config = {
-      version: '1.3.2-beta.2',
+      version: '1.3.2-beta.3',
       created: new Date().toISOString(),
       project: path.basename(projectDir)
     };
