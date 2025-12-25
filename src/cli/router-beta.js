@@ -95,7 +95,7 @@ async function main() {
 
   // Program setup
   program
-    .version('1.3.2-beta.1')
+    .version('1.3.2-beta.2')
     .description('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System')
     .name('stigmergy');
 
