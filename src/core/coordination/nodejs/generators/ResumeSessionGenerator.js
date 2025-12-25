@@ -534,8 +534,8 @@ function buildQuery(input) {
     search: null
   };
 
-  const cleanInput = input.replace(/^\\\\/?${commandName.replace(/\//g, '')}\\s*/i, '').trim();
-  const parts = cleanInput.split(/\s+/).filter(p => p.length > 0);
+  const cleanInput = input.replace(new RegExp('^\\\\\\\\/?' + '${commandName}' + '\\\\\s*', 'i'), '').trim();
+  const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i].toLowerCase();
@@ -624,8 +624,8 @@ class GeminiHistoryHandler {
       search: null
     };
 
-    const cleanInput = input.replace(/^\\\\/?\${this.commandName.replace(/\\//g, '')}\\s*/i, '').trim();
-    const parts = cleanInput.split(/\\s+/).filter(p => p.length > 0);
+    const cleanInput = input.replace(new RegExp('^\\\\\\\\/?' + this.commandName + '\\\\\s*', 'i'), '').trim();
+    const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].toLowerCase();
