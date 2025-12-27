@@ -7,7 +7,7 @@ class ResumeSessionGenerator {
   constructor() {
     this.supportedCLIs = [
       'claude', 'gemini', 'qwen', 'codebuddy', 'codex',
-      'iflow', 'qodercli', 'copilot', 'kode'
+      'iflow', 'qodercli', 'copilot', 'kode', 'resumesession'
     ];
   }
 
@@ -691,6 +691,7 @@ if (typeof module !== 'undefined' && module.exports) {
       case 'codebuddy':
       case 'codex':
       case 'kode':
+      case 'resumesession':
         return 'resumesession-history.js';
       case 'qodercli':
         return 'history.js';

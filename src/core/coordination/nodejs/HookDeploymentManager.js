@@ -20,7 +20,8 @@ class HookDeploymentManager {
       'codebuddy',
       'codex',
       'copilot',
-      'kode',
+      'kode'
+      // Note: 'resumesession' is handled separately as a session recovery tool, not a regular CLI
     ];
 
     // Initialize generators
@@ -45,6 +46,12 @@ class HookDeploymentManager {
 
   async deployHooksForCLI(cliName, options = {}) {
     console.log(`[HOOK_DEPLOYMENT] Deploying hooks for ${cliName}...`);
+
+    // Skip resumesession as it's a session recovery tool, not a regular CLI tool
+    if (cliName.toLowerCase() === 'resumesession') {
+      console.log(`[HOOK_DEPLOYMENT] Skipping hooks deployment for ${cliName} (session recovery tool)`);
+      return true;
+    }
 
     if (!this.supportedCLIs.includes(cliName.toLowerCase())) {
       throw new Error(`Unsupported CLI: ${cliName}`);
