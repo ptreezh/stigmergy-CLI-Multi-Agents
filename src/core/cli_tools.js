@@ -1,8 +1,8 @@
 const path = require('path');
 const os = require('os');
+const { spawnSync } = require('child_process');
 const { errorHandler, ERROR_TYPES } = require('./error_handler');
 const CLIPathDetector = require('./cli_path_detector');
-const StigmergyInstaller = require('./installer');
 
 // AI CLI Tools Configuration
 const CLI_TOOLS = {
@@ -341,20 +341,32 @@ async function setupCLIPaths() {
   // 3. Check and update PATH if needed
   const pathStatus = await detector.updatePATHIfMissing();
 
-  // 4. Create an enhanced report using StigmergyInstaller detection logic
-  const installer = new StigmergyInstaller();
-  const scanResult = await installer.scanCLI();
-
+  // 4. Create an enhanced report that checks if tools are actually executable
   const enhancedReport = {
     platform: detector.platform,
     npmGlobalPaths: detector.npmGlobalPaths,
     detectedPaths: detector.detectedPaths,
     summary: {
       total: Object.keys(detector.cliNameMap).length,
-      found: Object.keys(scanResult.available).length,
-      missing: Object.keys(scanResult.missing).length
+      found: 0, // Will be calculated below
+      missing: 0 // Will be calculated below
     }
   };
+
+  // Count actually executable tools
+  let executableCount = 0;
+  for (const [toolName, toolPath] of Object.entries(detectedPaths)) {
+    if (toolPath) {
+      // Check if the CLI is actually executable
+      const isExecutable = await checkIfCLIExecutable(toolName);
+      if (isExecutable) {
+        executableCount++;
+      }
+    }
+  }
+
+  enhancedReport.summary.found = executableCount;
+  enhancedReport.summary.missing = Object.keys(detector.cliNameMap).length - executableCount;
 
   return {
     detectedPaths,
@@ -554,26 +566,35 @@ async function checkIfCLIExecutable(toolName) {
  * @returns {Promise<Object>} Scan results
  */
 async function scanForTools(options = {}) {
-  // Use StigmergyInstaller detection logic directly
-  const installer = new StigmergyInstaller();
-  const scanResult = await installer.scanCLI();
+  const detector = getPathDetector();
+
+  // Load cached paths first
+  await detector.loadDetectedPaths();
+
+  // Detect all CLI paths
+  const detectedPaths = await detector.detectAllCLIPaths();
 
   const found = [];
   const missing = [];
 
-  // Convert scanResult to the expected format
-  for (const [toolName, toolInfo] of Object.entries(scanResult.available)) {
-    found.push({
-      name: toolName,
-      path: null, // Path is not provided by scanCLI, but we can potentially add it
-      type: 'cli',
-      status: 'installed',
-      description: CLI_TOOLS[toolName]?.name || toolName
-    });
-  }
-
-  for (const [toolName, toolInfo] of Object.entries(scanResult.missing)) {
-    missing.push(toolName);
+  for (const [toolName, toolPath] of Object.entries(detectedPaths)) {
+    if (toolPath) {
+      // Additional check: verify the CLI is actually executable
+      const isExecutable = await checkIfCLIExecutable(toolName);
+      if (isExecutable) {
+        found.push({
+          name: toolName,
+          path: toolPath,
+          type: 'cli',
+          status: 'installed',
+          description: CLI_TOOLS[toolName]?.name || toolName
+        });
+      } else {
+        missing.push(toolName);
+      }
+    } else {
+      missing.push(toolName);
+    }
   }
 
   return {
@@ -591,25 +612,21 @@ async function scanForTools(options = {}) {
 async function checkInstallation(toolName) {
   validateCLITool(toolName);
 
-  // Use StigmergyInstaller detection logic directly
-  const installer = new StigmergyInstaller();
-  const isAvailable = await installer.checkCLI(toolName);
+  // Get path using the detector
+  const detector = getPathDetector();
+  await detector.loadDetectedPaths();
+  let toolPath = detector.getDetectedPath(toolName);
 
-  // If the tool is available, try to get its path and version
-  let toolPath = null;
+  if (!toolPath) {
+    toolPath = await detector.detectCLIPath(toolName);
+  }
+
+  // Check if the tool is actually executable, not just if the path exists
+  const isExecutable = await checkIfCLIExecutable(toolName);
+  const installed = !!toolPath && isExecutable;
+
   let version = null;
-
-  if (isAvailable) {
-    // Get path using the detector
-    const detector = getPathDetector();
-    await detector.loadDetectedPaths();
-    toolPath = detector.getDetectedPath(toolName);
-
-    if (!toolPath) {
-      toolPath = await detector.detectCLIPath(toolName);
-    }
-
-    // Get version
+  if (installed) {
     try {
       const { spawnSync } = require('child_process');
       const toolConfig = CLI_TOOLS[toolName];
@@ -630,7 +647,7 @@ async function checkInstallation(toolName) {
   }
 
   return {
-    installed: isAvailable,
+    installed,
     path: toolPath,
     version,
     lastChecked: new Date().toISOString()
