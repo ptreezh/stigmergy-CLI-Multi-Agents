@@ -348,7 +348,7 @@ async function main() {
     });
 
   // Route commands to CLI tools
-  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode']) {
+  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode', 'resumesession']) {
     program
       .command(tool)
       .description(`Use ${tool} CLI tool`)

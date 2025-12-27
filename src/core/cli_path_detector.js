@@ -29,7 +29,9 @@ class CLIPathDetector {
       'qodercli': ['qodercli'],
       'codebuddy': ['codebuddy'],
       'copilot': ['copilot'],
-      'codex': ['codex']
+      'codex': ['codex'],
+      'kode': ['kode'],
+      'resumesession': ['resumesession']
     };
   }
 
@@ -372,10 +374,19 @@ class CLIPathDetector {
       if (await fs.access(this.pathCacheFile).then(() => true).catch(() => false)) {
         const data = await fs.readFile(this.pathCacheFile, 'utf8');
         const cacheData = JSON.parse(data);
-        this.detectedPaths = cacheData.detectedPaths || {};
 
-        console.log(`[DETECTOR] Loaded ${Object.keys(this.detectedPaths).length} paths from cache`);
-        return this.detectedPaths;
+        // Check if cache is too old (older than 1 hour) and skip loading if so
+        const cacheAge = Date.now() - new Date(cacheData.timestamp).getTime();
+        const maxCacheAge = 60 * 60 * 1000; // 1 hour in milliseconds
+
+        if (cacheAge < maxCacheAge) {
+          this.detectedPaths = cacheData.detectedPaths || {};
+          console.log(`[DETECTOR] Loaded ${Object.keys(this.detectedPaths).length} paths from cache (age: ${Math.floor(cacheAge/1000)}s)`);
+          return this.detectedPaths;
+        } else {
+          console.log(`[DETECTOR] Cache is too old (${Math.floor(cacheAge/1000)}s), skipping cache`);
+          return {};
+        }
       }
     } catch (error) {
       console.log(`[DETECTOR] Warning: Could not load path cache: ${error.message}`);
