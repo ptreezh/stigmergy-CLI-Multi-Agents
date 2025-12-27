@@ -72,7 +72,7 @@ const CLI_TOOLS = {
   resumesession: {
     name: 'ResumeSession CLI',
     version: 'resumesession --version',
-    install: 'npm install -g resumesession',
+    install: 'npm install -g @stigmergy/resume',
     hooksDir: path.join(os.homedir(), '.resumesession', 'hooks'),
     config: path.join(os.homedir(), '.resumesession', 'config.json'),
   },
