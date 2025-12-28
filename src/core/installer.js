@@ -6,9 +6,11 @@ const inquirer = require('inquirer');
 const SmartRouter = require('./smart_router');
 const { errorHandler } = require('./error_handler');
 const MemoryManager = require('./memory_manager');
+const EnhancedCLIInstaller = require('./enhanced_cli_installer');
 
-class StigmergyInstaller {
-  constructor() {
+class StigmergyInstaller extends EnhancedCLIInstaller {
+  constructor(options = {}) {
+    super(options);
     this.router = new SmartRouter();
     this.memory = new MemoryManager();
     this.configDir = path.join(os.homedir(), '.stigmergy');
@@ -33,7 +35,7 @@ class StigmergyInstaller {
         const whichCmd = process.platform === 'win32' ? 'where' : 'which';
         const whichResult = spawnSync(whichCmd, [toolName], {
           encoding: 'utf8',
-          timeout: 3000,
+          timeout: 10000,
           stdio: ['pipe', 'pipe', 'pipe'],
           shell: true,
         });
@@ -48,36 +50,38 @@ class StigmergyInstaller {
             codexPath.endsWith('/codex') ||
             codexPath.endsWith('\\codex')
           ) {
-            // Read the script to find the JS file path
-            const fsSync = require('fs');
-            const scriptContent = fsSync.readFileSync(codexPath, 'utf8');
+            // Try to verify JS file, but don't fail if we can't
+            // The actual --version test below is more reliable
+            try {
+              const fsSync = require('fs');
+              const scriptContent = fsSync.readFileSync(codexPath, 'utf8');
 
-            // Look for JS file reference in the script
-            const jsFileMatch = scriptContent.match(
-              /(["'])(.*?codex\.js.*?)\1/,
-            );
-            if (jsFileMatch) {
-              const jsFilePath = jsFileMatch[2];
-              // Check if JS file exists and is not empty
-              if (fsSync.existsSync(jsFilePath)) {
-                const stats = fsSync.statSync(jsFilePath);
-                if (stats.size === 0) {
-                  console.log(
-                    '[DEBUG] Codex JS file is empty, marking as unavailable',
-                  );
-                  return false;
+              // Look for JS file reference in the script
+              // Match node_modules/@openai/codex/bin/codex.js pattern
+              const jsFileMatch = scriptContent.match(/node_modules\/@openai\/codex\/bin\/codex\.js/);
+              if (jsFileMatch) {
+                // Construct actual path based on npm global directory
+                const npmGlobalDir = require('path').dirname(codexPath);
+                const jsFilePath = require('path').join(npmGlobalDir, jsFileMatch[0]);
+
+                if (fsSync.existsSync(jsFilePath)) {
+                  const stats = fsSync.statSync(jsFilePath);
+                  if (stats.size === 0) {
+                    console.log('[DEBUG] Codex JS file is empty, marking as unavailable');
+                    return false;
+                  }
+                  // File exists and has content - continue to version check
+                } else {
+                  console.log('[DEBUG] Codex JS file not found at expected path, will try version check');
                 }
-              } else {
-                console.log(
-                  '[DEBUG] Codex JS file does not exist, marking as unavailable',
-                );
-                return false;
               }
+            } catch (scriptError) {
+              console.log(`[DEBUG] Could not verify codex script: ${scriptError.message}`);
+              // Continue anyway - the version check below is more reliable
             }
           }
 
-          // If we got here, the codex command exists and seems valid
-          // Continue with normal checks below
+          // If we got here, the codex command exists - continue with normal checks below
         } else {
           // Codex command doesn't exist
           return false;
@@ -93,7 +97,7 @@ class StigmergyInstaller {
       const whichCmd = process.platform === 'win32' ? 'where' : 'which';
       const whichResult = spawnSync(whichCmd, [toolName], {
         encoding: 'utf8',
-        timeout: 3000,
+        timeout: 10000,
         stdio: ['pipe', 'pipe', 'pipe'], // Use pipes to avoid file opening
         shell: true,
       });
@@ -109,8 +113,9 @@ class StigmergyInstaller {
         };
 
         // Additional protection for codex
+        // Note: codex requires shell=true on Windows to work properly
         if (toolName === 'codex') {
-          testOptions.shell = false;
+          // Keep shell=true for codex (don't override)
           testOptions.windowsHide = true;
           testOptions.detached = false;
         }
@@ -132,6 +137,7 @@ class StigmergyInstaller {
     // Special handling for codex to avoid opening files
     if (toolName === 'codex') {
       // For codex, only try --help and --version with extra precautions
+      // Note: codex requires shell=true on Windows
       const codexChecks = [
         { args: ['--help'], expected: 0 },
         { args: ['--version'], expected: 0 },
@@ -141,9 +147,9 @@ class StigmergyInstaller {
         try {
           const result = spawnSync(toolName, check.args, {
             encoding: 'utf8',
-            timeout: 3000,
+            timeout: 10000,
             stdio: ['pipe', 'pipe', 'pipe'], // Ensure all IO is piped
-            shell: false, // Don't use shell to avoid extra window opening
+            shell: true, // Use shell for codex compatibility
             windowsHide: true, // Hide console window on Windows
             detached: false, // Don't detach process
           });
@@ -205,6 +211,12 @@ class StigmergyInstaller {
     const missing = {};
 
     for (const [toolName, toolInfo] of Object.entries(this.router.tools)) {
+      // Skip internal functions without install command
+      if (!toolInfo.install) {
+        console.log(`[DEBUG] Tool ${toolName} has no version/install info, skipping check`);
+        continue;
+      }
+
       try {
         console.log(`[SCAN] Checking ${toolInfo.name}...`);
         const isAvailable = await this.checkCLI(toolName);
@@ -305,52 +317,56 @@ class StigmergyInstaller {
 
   /**
    * Install selected CLI tools
+   * 统一调用父类EnhancedCLIInstaller的实现
    */
   async installTools(selectedTools, missingTools) {
-    const chalk = require('chalk');
-    let successCount = 0;
+    // 调用父类的增强安装功能
+    const result = await super.installTools(selectedTools, missingTools);
 
-    for (const toolName of selectedTools) {
-      const toolInfo = missingTools[toolName];
-      if (!toolInfo) continue;
-
-      console.log(`\n[INSTALL] Installing ${toolInfo.name}...`);
-      console.log(chalk.yellow(`Command: ${toolInfo.install}`));
-
-      try {
-        // Parse the install command
-        const [command, ...args] = toolInfo.install.split(' ');
-
-        // Execute the installation command
-        const result = spawnSync(command, args, {
-          stdio: 'inherit',  // Show output in real-time
-          shell: true,       // Use shell for npm commands
-          encoding: 'utf-8'
-        });
-
-        if (result.status === 0) {
-          console.log(chalk.green(`[OK] Successfully installed ${toolInfo.name}`));
-          successCount++;
-        } else {
-          console.log(chalk.red(`[ERROR] Failed to install ${toolInfo.name}. Exit code: ${result.status}`));
-          // Continue with other tools
+    // 保留StigmergyInstaller的特有功能：生成cross-CLI hooks
+    if (result && result.successful > 0) {
+      console.log('\n[HOOKS] Generating cross-CLI integration hooks...');
+      for (const toolName of selectedTools) {
+        const toolInfo = missingTools[toolName];
+        if (toolInfo && this.results.installations[toolName]?.success) {
+          try {
+            await this.generateToolHook(toolName, toolInfo);
+          } catch (error) {
+            console.log(`[WARN] Failed to generate hook for ${toolName}: ${error.message}`);
+          }
         }
-      } catch (error) {
-        console.log(chalk.red(`[ERROR] Installation failed for ${toolInfo.name}: ${error.message}`));
-        // Continue with other tools
       }
     }
 
-    if (successCount > 0) {
-      console.log(chalk.green(`\n[INSTALL] Successfully installed ${successCount}/${selectedTools.length} tools`));
+    return result;
+  }
 
-      // Add a short delay to ensure installations are complete
-      await new Promise(resolve => setTimeout(resolve, 2000));
+  /**
+   * Generate hook for a specific CLI tool
+   * @param {string} toolName - Name of the CLI tool
+   * @param {Object} toolInfo - Tool information object
+   */
+  async generateToolHook(toolName, toolInfo) {
+    console.log(`[HOOK] Generating hook for ${toolName}...`);
 
-      return true;
-    } else {
-      console.log(chalk.red('[INSTALL] No tools were successfully installed'));
-      return false;
+    const HookDeploymentManager = require('./coordination/nodejs/HookDeploymentManager');
+    const hookManager = new HookDeploymentManager();
+
+    await hookManager.initialize();
+
+    try {
+      const deploySuccess = await hookManager.deployHooksForCLI(toolName);
+
+      if (deploySuccess) {
+        console.log(`[OK] Hook generated successfully for ${toolName}`);
+        return true;
+      } else {
+        console.log(`[WARN] Hook generation failed for ${toolName}`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`[ERROR] Hook generation error for ${toolName}:`, error.message);
+      throw error;
     }
   }
 
@@ -650,7 +666,7 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
       const child = spawn('node', [scriptPath], {
         cwd: path.dirname(scriptPath),
         stdio: 'pipe',
-        timeout: 30000 // 30 second timeout
+        timeout: 100000 // 30 second timeout
       });
       
       let stdout = '';
@@ -761,7 +777,7 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
           supported_tools: ['claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'copilot', 'codex'],
           trigger_patterns: [
             'use\\s+(\\w+)\\s+to\\s+(.+)$',
-            'call\\s+(\\w+)\\s+(.+)$', 
+            'call\\s+(\\w+)\\s+(.+)$',
             'ask\\s+(\\w+)\\s+(.+)$',
             'stigmergy\\s+(\\w+)\\s+(.+)$'
           ]
@@ -971,7 +987,7 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
   generateCrossCliGuide(toolName) {
     const toolNames = {
       'claude': 'Claude CLI',
-      'gemini': 'Gemini CLI', 
+      'gemini': 'Gemini CLI',
       'qwen': 'Qwen CLI',
       'iflow': 'iFlow CLI',
       'qodercli': 'Qoder CLI',
@@ -980,26 +996,8 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
       'codex': 'OpenAI Codex CLI'
     };
 
-    const isChinese = ['claude', 'qwen', 'iflow', 'qodercli', 'codebuddy'].includes(toolName);
-    
-    if (isChinese) {
-      return `# ${toolNames[toolName]} Cross-CLI 通信指南
-
-## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>
-
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
-
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
-
----
-*本文档由Stigmergy CLI自动生成和维护*
-`;
-    } else {
-      return `# ${toolNames[toolName]} Cross-CLI Communication Guide
+    // All documentation generated in English for consistency
+    return `# ${toolNames[toolName]} Cross-CLI Communication Guide
 
 ## Cross-CLI Communication
 When you need to call other AI tools, please use the following prompt <<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>
@@ -1014,7 +1012,6 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 ---
 *This document is automatically generated and maintained by Stigmergy CLI*
 `;
-    }
   }
 
   /**
@@ -1055,23 +1052,8 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
    * Generate content to append to .md files
    */
   generateCrossCliAppendContent(toolName) {
-    const isChinese = ['claude', 'qwen', 'iflow', 'qodercli', 'codebuddy'].includes(toolName);
-    
-    if (isChinese) {
-      return `
-
-## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>
-
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
-
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
-`;
-    } else {
-      return `
+    // All documentation generated in English for consistency
+    return `
 
 ## Cross-CLI Communication
 When you need to call other AI tools, please use the following prompt <<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>
@@ -1083,7 +1065,6 @@ Examples:
 
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
-    }
   }
 
   /**

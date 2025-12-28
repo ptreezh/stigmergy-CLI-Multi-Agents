@@ -1,8 +1,8 @@
 """
-Qwen CLI 适配器包
+Qwen CLI Adapter Package
 
-基于 Qwen CLI 官方 Class Inheritance 系统的原生集成
-完全无抽象层设计
+Native integration based on Qwen CLI's official Class Inheritance system
+Complete no abstraction layer design
 """
 
 import sys

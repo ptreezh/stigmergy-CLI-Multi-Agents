@@ -160,16 +160,16 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   console.log(chalk.bold('📋 Next steps:'));
   console.log('1. Open your preferred CLI tool in this project directory');
-  console.log('2. Try the /history command to see cross-CLI sessions');
+  console.log('2. Try the /stigmergy-resume command to see cross-CLI sessions');
   console.log(`3. Configuration saved to: ${chalk.gray(configPath)}`);
   console.log(`4. Run ${chalk.cyan('resumesession status')} to check integration status\n`);
 
   console.log(chalk.bold('💡 Example commands:'));
-  console.log(`   ${chalk.cyan('/history')} - Show all project sessions`);
-  console.log(`   ${chalk.cyan('/history --cli <tool>')} - Show sessions from specific CLI`);
-  console.log(`   ${chalk.cyan('/history --search <keyword>')} - Search for content`);
-  console.log(`   ${chalk.cyan('/history --format timeline')} - Timeline view`);
-  console.log(`   ${chalk.cyan('/history --context')} - Get context for continuation\n`);
+  console.log(`   ${chalk.cyan('/stigmergy-resume')} - Show all project sessions`);
+  console.log(`   ${chalk.cyan('/stigmergy-resume --cli <tool>')} - Show sessions from specific CLI`);
+  console.log(`   ${chalk.cyan('/stigmergy-resume --search <keyword>')} - Search for content`);
+  console.log(`   ${chalk.cyan('/stigmergy-resume --format timeline')} - Timeline view`);
+  console.log(`   ${chalk.cyan('/stigmergy-resume --context')} - Get context for continuation\n`);
 
   console.log(chalk.gray('📚 For more information, run: resumesession --help'));
 }
@@ -200,35 +200,35 @@ ${selectedCLIs.map(cli => `- ${cli}`).join('\n')}
 In any of the supported CLI tools, use the following commands:
 
 ### Basic Commands
-- \`/history\` - Show all project sessions (most recent first)
-- \`/history --cli <tool>\` - Show sessions from specific CLI
-- \`/history --search <keyword>\` - Search sessions by content
-- \`/history --limit <number>\` - Limit number of sessions shown
+- \`/stigmergy-resume\` - Show all project sessions (most recent first)
+- \`/stigmergy-resume --cli <tool>\` - Show sessions from specific CLI
+- \`/stigmergy-resume --search <keyword>\` - Search sessions by content
+- \`/stigmergy-resume --limit <number>\` - Limit number of sessions shown
 
 ### Time-based Filtering
-- \`/history --today\` - Show today's sessions only
-- \`/history --week\` - Show sessions from last 7 days
-- \`/history --month\` - Show sessions from last 30 days
+- \`/stigmergy-resume --today\` - Show today's sessions only
+- \`/stigmergy-resume --week\` - Show sessions from last 7 days
+- \`/stigmergy-resume --month\` - Show sessions from last 30 days
 
 ### View Formats
-- \`/history --format summary\` - Summary view (default)
-- \`/history --format timeline\` - Chronological timeline
-- \`/history --format detailed\` - Detailed session information
-- \`/history --format context\` - Get context to continue conversation
+- \`/stigmergy-resume --format summary\` - Summary view (default)
+- \`/stigmergy-resume --format timeline\` - Chronological timeline
+- \`/stigmergy-resume --format detailed\` - Detailed session information
+- \`/stigmergy-resume --format context\` - Get context to continue conversation
 
 ### Examples
 \`\`\`bash
 # Show all React-related sessions
-/history --search "react"
+/stigmergy-resume --search "react"
 
 # Show recent Claude sessions
-/history --cli claude --today
+/stigmergy-resume --cli claude --today
 
 # Get context from most recent session
-/history --format context
+/stigmergy-resume --format context
 
 # Show timeline of all sessions
-/history --format timeline
+/stigmergy-resume --format timeline
 \`\`\`
 
 ## Features

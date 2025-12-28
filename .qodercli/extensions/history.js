@@ -6,6 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Load shared path configuration
+const pathConfigLoader = require(path.join(__dirname, 'path-config-loader.js'));
+
 class SessionScanner {
   scanSessions(cliType, sessionsPath, projectPath) {
     const sessions = [];
@@ -65,8 +68,11 @@ class SessionScanner {
               
               let title = 'Untitled Session';
               if (firstUserMsg) {
-                const msgContent = firstUserMsg.content || firstUserMsg.message || firstUserMsg.text;
-                if (msgContent) {
+                let msgContent = firstUserMsg.content || firstUserMsg.message || firstUserMsg.text;
+                if (typeof msgContent === 'object') {
+                  msgContent = JSON.stringify(msgContent);
+                }
+                if (typeof msgContent === 'string' && msgContent.trim()) {
                   title = msgContent.substring(0, 100) || title;
                 }
               }
@@ -118,30 +124,8 @@ class SessionScanner {
     return sessions;
   }
 
-  scanAllCLISessions(projectPath) {
-    const allSessions = [];
-    const cliPaths = this.getCLISessionPaths();
+  scanAllCLISessions(projectPath) {`n    const allSessions = [];`n    const cliPathsMap = pathConfigLoader.getAllCLISessionPaths();`n`n    for (const [cliType, sessionsPaths] of Object.entries(cliPathsMap)) {`n      for (const sessionsPath of sessionsPaths) {`n        const sessions = this.scanSessions(cliType, sessionsPath, projectPath);`n        allSessions.push(...sessions);`n      }`n    }`n`n    return allSessions;`n  }
 
-    for (const [cliType, sessionsPath] of Object.entries(cliPaths)) {
-      const sessions = this.scanSessions(cliType, sessionsPath, projectPath);
-      allSessions.push(...sessions);
-    }
-
-    return allSessions;
-  }
-
-  getCLISessionPaths() {
-    const homeDir = os.homedir();
-    return {
-      claude: path.join(homeDir, '.claude', 'sessions'),
-      gemini: path.join(homeDir, '.gemini', 'sessions'),
-      qwen: path.join(homeDir, '.qwen', 'projects'),
-      iflow: path.join(homeDir, '.iflow', 'projects'),
-      codebuddy: path.join(homeDir, '.codebuddy'),
-      qodercli: path.join(homeDir, '.qodercli', 'projects'),
-      codex: path.join(homeDir, '.codex', 'sessions')
-    };
-  }
 
   isProjectSession(session, projectPath) {
     const sessionProject = session.projectPath || session.cwd;
@@ -196,10 +180,10 @@ class SessionFilter {
 class HistoryFormatter {
   formatSummary(sessions) {
     if (sessions.length === 0) {
-      return '📭 当前项目暂无历史会话\n\n💡 尝试: /history --search <关键词>';
+      return '📭 当前项目暂无历史会话\n\n💡 尝试: /history --search <关键�?';
     }
 
-    let response = `📁 **项目历史会话**\n\n📊 共 ${sessions.length} 个\n\n`;
+    let response = `📁 **项目历史会话**\n\n📊 �?${sessions.length} 个\n\n`;
 
     const byCLI = {};
     sessions.forEach(s => {
@@ -209,7 +193,7 @@ class HistoryFormatter {
 
     Object.entries(byCLI).forEach(([cli, cliSessions]) => {
       const icon = this.getCLIIcon(cli);
-      response += `${icon} **${cli.toUpperCase()}** (${cliSessions.length}个)\n`;
+      response += `${icon} **${cli.toUpperCase()}** (${cliSessions.length}�?\n`;
       cliSessions.slice(0, 3).forEach((s, i) => {
         response += `   ${i + 1}. ${s.title.substring(0, 50)}...\n`;
         response += `      💬 ${s.messageCount}条消息\n`;
@@ -220,13 +204,13 @@ class HistoryFormatter {
       response += '\n';
     });
 
-    response += '💡 **使用:** /history --cli <工具> | --search <词> | --format timeline';
+    response += '💡 **使用:** /history --cli <工具> | --search <�? | --format timeline';
     return response;
   }
 
   formatTimeline(sessions) {
     if (sessions.length === 0) return '📭 暂无会话';
-    let response = '⏰ **时间线**\n\n';
+    let response = '�?**时间�?*\n\n';
     sessions.forEach((s, i) => {
       const icon = this.getCLIIcon(s.cliType);
       response += `${i + 1}. ${icon} ${s.title}\n   💬 ${s.messageCount}条\n\n`;
@@ -245,8 +229,8 @@ class HistoryFormatter {
   }
 
   formatContext(session) {
-    if (!session) return '📭 暂无上下文';
-    return `🔄 **上下文**\n\n${session.title}\n💬 ${session.messageCount}条消息\n\n${session.content.substring(0, 500)}...`;
+    if (!session) return '📭 暂无上下�?;
+    return `🔄 **上下�?*\n\n${session.title}\n💬 ${session.messageCount}条消息\n\n${session.content.substring(0, 500)}...`;
   }
 
   getCLIIcon(cliType) {
@@ -296,7 +280,7 @@ class HistoryQuery {
       };
     } catch (error) {
       return {
-        response: `❌ 查询失败: ${error.message}`,
+        response: `�?查询失败: ${error.message}`,
         suggestions: []
       };
     }
@@ -309,7 +293,7 @@ class QoderCLIHistoryHandler {
   }
 
   async handler(input, context) {
-    if (!input.startsWith('/history')) return null;
+    if (!input.startsWith('/history') && !input.startsWith('/stigmergy-history') && !input.startsWith('/stigmergy-resume')) return null;
 
     try {
       const options = this.buildQuery(input);
@@ -317,7 +301,7 @@ class QoderCLIHistoryHandler {
 
       return result.response;
     } catch (error) {
-      return `❌ 失败: ${error.message}`;
+      return `�?失败: ${error.message}`;
     }
   }
 
@@ -330,7 +314,7 @@ class QoderCLIHistoryHandler {
       search: null
     };
 
-    const parts = input.replace(/^\/history\s*/i, '').trim().split(/\s+/).filter(p => p.length > 0);
+    const parts = input.replace(/^\/(stigmergy-resume|history|stigmergy-history)\s*/i, '').trim().split(/\s+/).filter(p => p.length > 0);
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].toLowerCase();

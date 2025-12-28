@@ -6,6 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Load shared path configuration
+const pathConfigLoader = require(path.join(__dirname, 'path-config-loader.js'));
+
 // Embedded ResumeSession Core Functionality
 
 class SessionScanner {
@@ -54,31 +57,8 @@ class SessionScanner {
     return sessions;
   }
 
-  scanAllCLISessions(projectPath) {
-    const allSessions = [];
-    const cliPaths = this.getCLISessionPaths();
+  scanAllCLISessions(projectPath) {`n    const allSessions = [];`n    const cliPathsMap = pathConfigLoader.getAllCLISessionPaths();`n`n    for (const [cliType, sessionsPaths] of Object.entries(cliPathsMap)) {`n      for (const sessionsPath of sessionsPaths) {`n        const sessions = this.scanSessions(cliType, sessionsPath, projectPath);`n        allSessions.push(...sessions);`n      }`n    }`n`n    return allSessions;`n  }
 
-    for (const [cliType, sessionsPath] of Object.entries(cliPaths)) {
-      const sessions = this.scanSessions(cliType, sessionsPath, projectPath);
-      allSessions.push(...sessions);
-    }
-
-    return allSessions;
-  }
-
-  getCLISessionPaths() {
-    const homeDir = os.homedir();
-
-    return {
-      claude: path.join(homeDir, '.claude', 'sessions'),
-      gemini: path.join(homeDir, '.gemini', 'sessions'),
-      qwen: path.join(homeDir, '.qwen', 'sessions'),
-      iflow: path.join(homeDir, '.iflow', 'stigmergy', 'sessions'),
-      codebuddy: path.join(homeDir, '.codebuddy', 'sessions'),
-      qodercli: path.join(homeDir, '.qodercli', 'sessions'),
-      codex: path.join(homeDir, '.codex', 'sessions')
-    };
-  }
 
   isProjectSession(session, projectPath) {
     const sessionProject = session.projectPath || session.workingDirectory;
@@ -90,22 +70,56 @@ class SessionScanner {
   }
 
   extractContent(sessionData) {
-    if (sessionData.content) {
+    if (sessionData.content && typeof sessionData.content === 'string') {
       return sessionData.content;
     }
 
-    if (sessionData.messages) {
+    if (sessionData.messages && Array.isArray(sessionData.messages)) {
       return sessionData.messages
-        .map(msg => msg.content || msg.text || '')
+        .map(msg => {
+          if (msg.message && typeof msg.message === 'object') {
+            const content = msg.message.content || msg.message.text || '';
+            return this.extractTextFromContent(content);
+          }
+          const content = msg.content || msg.text || '';
+          return this.extractTextFromContent(content);
+        })
+        .filter(text => text && typeof text === 'string' && text.trim())
         .join(' ');
     }
 
     if (Array.isArray(sessionData)) {
       return sessionData
-        .map(item => item.content || item.text || '')
+        .map(item => {
+          if (item.message && typeof item.message === 'object') {
+            const content = item.message.content || item.message.text || '';
+            return this.extractTextFromContent(content);
+          }
+          const content = item.content || item.text || '';
+          return this.extractTextFromContent(content);
+        })
+        .filter(text => text && typeof text === 'string' && text.trim())
         .join(' ');
     }
 
+    return '';
+  }
+
+  extractTextFromContent(content) {
+    if (typeof content === 'string') return content;
+    if (Array.isArray(content)) {
+      return content
+        .map(item => {
+          if (typeof item === 'string') return item;
+          if (item && typeof item === 'object') return item.text || item.content || '';
+          return '';
+        })
+        .filter(text => text && typeof text === 'string')
+        .join(' ');
+    }
+    if (content && typeof content === 'object') {
+      return content.text || content.content || JSON.stringify(content);
+    }
     return '';
   }
 
@@ -204,10 +218,10 @@ class SessionFilter {
 class HistoryFormatter {
   formatSummary(sessions, context) {
     if (sessions.length === 0) {
-      return `ostringstream 当前项目暂无历史会话\n\n💡 **提示:** 尝试: /history --search <关键词> 查找其他CLI工具的会话`;
+      return `📭 当前项目暂无历史会话\n\n💡 **提示:** 尝试: /history --search <关键�? 查找其他CLI工具的会话`;
     }
 
-    let response = `📁 **项目历史会话**\n\n📊 共找到 ${sessions.length} 个会话\n\n`;
+    let response = `📁 **项目历史会话**\n\n📊 共找�?${sessions.length} 个会话\n\n`;
 
     // Group by CLI
     const byCLI = {};
@@ -218,13 +232,13 @@ class HistoryFormatter {
 
     Object.entries(byCLI).forEach(([cli, cliSessions]) => {
       const icon = this.getCLIIcon(cli);
-      response += `${icon} **${cli.toUpperCase()}** (${cliSessions.length}个)\n`;
+      response += `${icon} **${cli.toUpperCase()}** (${cliSessions.length}�?\n`;
 
       cliSessions.slice(0, 3).forEach((session, i) => {
         const date = this.formatDate(session.updatedAt);
         const title = session.title.substring(0, 50);
         response += `   ${i + 1}. ${title}...\n`;
-        response += `      📅 ${date} • 💬 ${session.messageCount}条消息\n`;
+        response += `      📅 ${date} �?💬 ${session.messageCount}条消息\n`;
       });
 
       if (cliSessions.length > 3) {
@@ -234,26 +248,26 @@ class HistoryFormatter {
     });
 
     response += `💡 **使用方法:**\n`;
-    response += `• '/history --cli <工具>' - 查看特定CLI\n`;
-    response += `• '/history --search <关键词>' - 搜索内容\n`;
-    response += `• '/history --format timeline' - 时间线视图`;
+    response += `�?'/history --cli <工具>' - 查看特定CLI\n`;
+    response += `�?'/history --search <关键�?' - 搜索内容\n`;
+    response += `�?'/history --format timeline' - 时间线视图`;
 
     return response;
   }
 
   formatTimeline(sessions) {
     if (sessions.length === 0) {
-      return 'ostringstream 暂无会话时间线。';
+      return '📭 暂无会话时间线�?;
     }
 
-    let response = `⏰ **时间线视图**\n\n`;
+    let response = `�?**时间线视�?*\n\n`;
 
     sessions.forEach((session, index) => {
       const date = this.formatDate(session.updatedAt);
       const cliIcon = this.getCLIIcon(session.cliType);
 
       response += `${index + 1}. ${cliIcon} ${session.title}\n`;
-      response += `   📅 ${date} • 💬 ${session.messageCount}条消息\n`;
+      response += `   📅 ${date} �?💬 ${session.messageCount}条消息\n`;
       response += `   🔑 ${session.cliType}:${session.sessionId}\n\n`;
     });
 
@@ -262,7 +276,7 @@ class HistoryFormatter {
 
   formatDetailed(sessions) {
     if (sessions.length === 0) {
-      return 'ostringstream 暂无详细会话信息。';
+      return '📭 暂无详细会话信息�?;
     }
 
     let response = `📋 **详细视图**\n\n`;
@@ -274,7 +288,7 @@ class HistoryFormatter {
       response += `${index + 1}. ${cliIcon} **${session.title}**\n`;
       response += `   📅 ${date}\n`;
       response += `   🔧 CLI: ${session.cliType}\n`;
-      response += `   💬 消息数: ${session.messageCount}\n`;
+      response += `   💬 消息�? ${session.messageCount}\n`;
       response += `   🆔 会话ID: '${session.sessionId}'\n\n`;
     });
 
@@ -283,13 +297,13 @@ class HistoryFormatter {
 
   formatContext(session) {
     if (!session) {
-      return `ostringstream 暂无可恢复的上下文。`;
+      return `📭 暂无可恢复的上下文。`;
     }
 
-    let response = `🔄 **上下文恢复**\n\n`;
+    let response = `🔄 **上下文恢�?*\n\n`;
     response += `📅 会话时间: ${session.updatedAt.toLocaleString()}\n`;
     response += `🔧 来源CLI: ${session.cliType}\n`;
-    response += `💬 消息数: ${session.messageCount}\n`;
+    response += `💬 消息�? ${session.messageCount}\n`;
     response += `🆔 会话ID: ${session.sessionId}\n\n`;
     response += `---\n\n`;
     response += `**上次讨论内容:**\n`;
@@ -375,7 +389,7 @@ class HistoryQuery {
       };
     } catch (error) {
       return {
-        response: `❌ 历史查询失败: ${error.message}`,
+        response: `�?历史查询失败: ${error.message}`,
         suggestions: ['/history --help']
       };
     }
@@ -406,7 +420,7 @@ class GeminiHistoryHandler {
   }
 
   async handleCommand(input, session) {
-    if (!input.startsWith('/history')) return null;
+    if (!input.startsWith('/history') && !input.startsWith('/stigmergy-history') && !input.startsWith('/stigmergy-resume')) return null;
 
     try {
       // Build query options from input
@@ -421,7 +435,7 @@ class GeminiHistoryHandler {
       };
     } catch (error) {
       return {
-        text: `❌ History command failed: ${error.message}`,
+        text: `�?History command failed: ${error.message}`,
         continue: true,
         suggestions: []
       };
@@ -437,7 +451,7 @@ class GeminiHistoryHandler {
       search: null
     };
 
-    const cleanInput = input.replace(/^\/history\s*/i, '').trim();
+    const cleanInput = input.replace(/^\/(stigmergy-resume|history|stigmergy-history)\s*/i, '').trim();
     const parts = cleanInput.split(/\s+/).filter(p => p.length > 0);
 
     for (let i = 0; i < parts.length; i++) {
@@ -469,8 +483,7 @@ class GeminiHistoryHandler {
   }
 }
 
-// 注册处理器
-const handler = new GeminiHistoryHandler();
+// 注册处理�?const handler = new GeminiHistoryHandler();
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { GeminiHistoryHandler, handler };
@@ -478,5 +491,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Gemini CLI integration
 if (typeof geminiCLI !== 'undefined') {
-  geminiCLI.addCommandHandler('history', handler.handleCommand.bind(handler));
+  // Register with command name (without leading slash)
+  const cmdName = '{{COMMAND_NAME}}'.replace(/^\//, '');
+  geminiCLI.addCommandHandler(cmdName, handler.handleCommand.bind(handler));
 }

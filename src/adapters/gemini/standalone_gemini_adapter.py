@@ -1,11 +1,11 @@
 """
-独立 Gemini CLI 适配器 - 完全无抽象层
+Standalone Gemini CLI Adapter - Completely No Abstraction Layer
 
-基于 Gemini CLI 官方 Extension 系统的原生集成：
-- 使用 Gemini CLI 官方 Extension 机制
-- 无任何抽象基类或 Factory 系统
-- 不改变 CLI 启动和使用方式
-- 纯粹的原生扩展实现
+Native integration based on Gemini CLI's official Extension system:
+- Uses Gemini CLI's official Extension mechanism
+- No abstract base classes or Factory system
+- Does not change CLI startup and usage methods
+- Pure native extension implementation
 """
 
 import os
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiExtensionContext:
-    """Gemini CLI Extension 上下文 - 独立实现"""
+    """Gemini CLI Extension Context - Independent Implementation"""
 
     def __init__(self, prompt: str = "", metadata: Optional[Dict] = None):
         self.prompt = prompt
@@ -32,20 +32,20 @@ class GeminiExtensionContext:
 
 class StandaloneGeminiAdapter:
     """
-    独立的 Gemini CLI Extension 适配器
+    Standalone Gemini CLI Extension Adapter
 
-    直接基于 Gemini CLI 官方 Extension 系统，无任何抽象层：
-    - @extend('preprocessor') 装饰器
-    - Extension 配置系统
-    - 原生请求处理管道
+    Directly based on Gemini CLI's official Extension system, no abstraction layer:
+    - @extend('preprocessor') decorator
+    - Extension configuration system
+    - Native request processing pipeline
     """
 
     def __init__(self):
-        """初始化 - 纯实现，无抽象"""
+        """Initialize - Pure implementation, no abstraction"""
         self.cli_name = "gemini"
         self.version = "1.0.0"
 
-        # Extension 配置
+        # Extension configuration
         self.extensions_file = os.path.expanduser("~/.config/gemini/extensions.json")
         self.extension_registered = False
 

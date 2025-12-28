@@ -254,6 +254,7 @@ class CacheCleaner {
       'codex',
       'copilot',
       'qwencode',
+      'kode',
     ];
 
     let totalCleaned = 0;

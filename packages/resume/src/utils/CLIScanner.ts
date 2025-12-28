@@ -66,6 +66,13 @@ export class CLIScanner {
         version: '',
         available: false,
         integrationLevel: 'external'
+      },
+      {
+        name: 'kode',
+        displayName: 'Kode CLI',
+        version: '',
+        available: false,
+        integrationLevel: 'external'
       }
     ];
 
@@ -133,7 +140,8 @@ export class CLIScanner {
       'qwen': ['qwen', '--version'],
       'iflow': ['iflow', '--version'],
       'codebuddy': ['codebuddy', '--version'],
-      'qodercli': ['qodercli', '--version']
+      'qodercli': ['qodercli', '--version'],
+      'kode': ['kode', '--version']
     };
 
     const command = versionCommands[cliName];
@@ -220,7 +228,8 @@ export class CLIScanner {
       'iflow': join(homeDir, '.iflow'),
       'codebuddy': join(homeDir, '.codebuddy'),
       'qodercli': join(homeDir, '.qodercli'),
-      'codex': join(homeDir, '.codex')
+      'codex': join(homeDir, '.codex'),
+      'kode': join(homeDir, '.kode')
     };
 
     const path = configPaths[cliName];
@@ -241,7 +250,8 @@ export class CLIScanner {
       'iflow': join(configPath, 'stigmergy', 'sessions'),
       'codebuddy': join(configPath, 'conversations'),
       'qodercli': join(configPath, 'chats'),
-      'codex': join(configPath, 'sessions')
+      'codex': join(configPath, 'sessions'),
+      'kode': join(configPath, 'sessions')
     };
 
     const path = sessionPaths[cliName];

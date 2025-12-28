@@ -13,6 +13,180 @@ class CLIHelpAnalyzer {
     this.lastAnalysisFile = path.join(this.configDir, 'last-analysis.json');
     this.cliTools = CLI_TOOLS;
 
+    // Enhanced CLI Agent and Skill Patterns Configuration
+    this.enhancedPatterns = {
+      'claude': {
+        commandFormat: 'claude -p "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        examples: [
+          'claude -p "请使用异化分析技能分析程序员异化现象"',
+          'claude -p "请使用数字马克思智能体进行阶级分析"'
+        ]
+      },
+      'iflow': {
+        commandFormat: 'iflow -p "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        examples: [
+          'iflow -p "请使用异化分析技能分析程序员异化现象"',
+          'iflow -p "请使用数字马克思智能体进行异化分析"'
+        ]
+      },
+      'qwen': {
+        commandFormat: 'qwen "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        positionalArgs: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['智能体', '分析技能', '马克思', '异化', '阶级'],
+        examples: [
+          'qwen "使用数字马克思智能体进行异化分析，分析程序员的技术异化现象"',
+          'qwen "使用异化分析技能分析程序员在AI开发中的异化现象"'
+        ]
+      },
+      'codebuddy': {
+        commandFormat: 'codebuddy -y -p "{prompt}"',
+        agentDetection: false,
+        skillDetection: true,
+        skillPrefixRequired: true,
+        agentTypes: ['skill'],
+        skillKeywords: ['skill:', '技能', '分析'],
+        examples: [
+          'codebuddy -y -p "skill:alienation-analysis 分析程序员异化现象"',
+          'codebuddy -y -p "skill:marxist-analysis 分析技术异化"'
+        ]
+      },
+      'qodercli': {
+        commandFormat: 'qodercli -p "{prompt}"',
+        agentDetection: false,
+        skillDetection: false,
+        basicAISupport: true,
+        agentTypes: ['basic'],
+        skillKeywords: ['分析', '理解'],
+        examples: [
+          'qodercli -p "分析程序员在AI开发中的异化现象"',
+          'qodercli -p "进行技术异化的基础分析"'
+        ]
+      },
+      'gemini': {
+        commandFormat: 'gemini -p "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        examples: [
+          'gemini -p "请使用分析技能分析程序员异化现象"',
+          'gemini -p "使用智能体进行技术分析"'
+        ]
+      },
+      'copilot': {
+        commandFormat: 'copilot "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        positionalArgs: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        examples: [
+          'copilot "请使用分析技能分析程序员异化现象"',
+          'copilot "使用智能体进行技术分析"'
+        ]
+      },
+      'codex': {
+        commandFormat: 'codex -m gpt-5 "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        positionalArgs: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法', '代码', '审查'],
+        examples: [
+          'codex "请使用异化分析技能分析程序员异化现象"',
+          'codex exec "使用数字马克思智能体分析代码库"',
+          'codex review "分析这段代码的异化现象"'
+        ]
+      },
+      'kode': {
+        commandFormat: 'kode -p "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        positionalArgs: true,
+        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
+        skillKeywords: ['技能', '智能体', '分析', '工具', '方法', '多模型', '协作'],
+        examples: [
+          'kode -p "请使用异化分析技能分析程序员异化现象"',
+          'kode -p "使用数字马克思智能体进行异化分析"',
+          'kode -p "@ask-claude-sonnet-4 分析这个问题"'
+        ]
+      }
+    };
+
+    // Agent and Skill Recognition Patterns
+    this.agentSkillPatterns = {
+      // Agent type detection patterns
+      agentTypes: {
+        'expert': ['专家', 'expert', 'specialist', '马克思', 'marxist', '数字马克思'],
+        'skill': ['技能', 'skill', '能力', '方法', '工具'],
+        'analysis': ['分析', 'analysis', '解析', '评估'],
+        'agent': ['智能体', 'agent', '助手', '助手'],
+        'basic': ['基础', 'basic', '简单', '初步']
+      },
+      
+      // Skill name patterns for different CLIs
+      skillMapping: {
+        '异化分析': {
+          'claude': '异化分析技能',
+          'iflow': '异化分析技能',
+          'qwen': '异化分析技能',
+          'codebuddy': 'alienation-analysis',
+          'gemini': '异化分析技能',
+          'copilot': '异化分析技能',
+          'codex': 'alienation-analysis',
+          'kode': '异化分析技能'
+        },
+        '马克思分析': {
+          'claude': '数字马克思智能体',
+          'iflow': '数字马克思智能体',
+          'qwen': '数字马克思智能体',
+          'codebuddy': 'marxist-analysis',
+          'gemini': '马克思分析技能',
+          'copilot': '马克思分析智能体',
+          'codex': 'marxist-analysis',
+          'kode': '数字马克思智能体'
+        },
+        '技术分析': {
+          'claude': '技术分析技能',
+          'iflow': '技术分析技能',
+          'qwen': '技术分析技能',
+          'codebuddy': 'tech-analysis',
+          'gemini': '技术分析技能',
+          'copilot': '技术分析技能',
+          'codex': 'tech-analysis',
+          'kode': '技术分析技能'
+        },
+        '阶级分析': {
+          'claude': '阶级分析技能',
+          'iflow': '阶级分析技能',
+          'qwen': '阶级分析技能',
+          'codebuddy': 'class-analysis',
+          'gemini': '阶级分析技能',
+          'copilot': '阶级分析技能',
+          'codex': 'class-analysis',
+          'kode': '阶级分析技能'
+        }
+      }
+    };
+
     // Pattern recognition rules for different CLI types
     this.patternRules = {
       // OpenAI style CLI (codex, chatgpt)
@@ -403,7 +577,10 @@ class CLIHelpAnalyzer {
         option.includes('non-interactive') ||
         option.includes('batch') ||
         option.includes('no-input') ||
-        option.includes('stdin'),
+        option.includes('stdin') ||
+        option.includes('print') ||  // For CLI tools like kode with --print flag
+        option.includes('pipe') ||    // Pipes mentioned in description
+        option.includes('exit'),      // Exit after execution
     );
     patterns.nonInteractiveFlag =
       nonInteractiveFlags.length > 0 ? nonInteractiveFlags[0] : null;
@@ -674,6 +851,301 @@ class CLIHelpAnalyzer {
    */
   setCLITools(tools) {
     this.cliTools = tools;
+  }
+
+  /**
+   * Enhanced analysis with agent and skill detection
+   */
+  async analyzeCLIEnhanced(cliName) {
+    const basicAnalysis = await this.analyzeCLI(cliName);
+    
+    if (!basicAnalysis.success) {
+      return basicAnalysis;
+    }
+
+    // Add enhanced agent and skill information
+    const enhancedPatterns = this.enhancedPatterns[cliName] || {};
+    
+    basicAnalysis.agentSkillSupport = {
+      supportsAgents: enhancedPatterns.agentDetection || false,
+      supportsSkills: enhancedPatterns.skillDetection || false,
+      naturalLanguageSupport: enhancedPatterns.naturalLanguageSupport || false,
+      skillPrefixRequired: enhancedPatterns.skillPrefixRequired || false,
+      positionalArgs: enhancedPatterns.positionalArgs || false,
+      agentTypes: enhancedPatterns.agentTypes || [],
+      skillKeywords: enhancedPatterns.skillKeywords || [],
+      commandFormat: enhancedPatterns.commandFormat || '',
+      examples: enhancedPatterns.examples || []
+    };
+
+    return basicAnalysis;
+  }
+
+  /**
+   * Detect agent and skill mentions in user input
+   */
+  detectAgentSkillMentions(input, cliName) {
+    const enhancedPattern = this.enhancedPatterns[cliName];
+    if (!enhancedPattern) {
+      return { hasAgent: false, hasSkill: false, confidence: 0 };
+    }
+
+    const inputLower = input.toLowerCase();
+    let hasAgent = false;
+    let hasSkill = false;
+    let confidence = 0;
+
+    // Check for agent keywords
+    if (enhancedPattern.agentDetection) {
+      const agentKeywords = [
+        ...this.agentSkillPatterns.agentTypes['expert'],
+        ...this.agentSkillPatterns.agentTypes['agent'],
+        ...enhancedPattern.skillKeywords
+      ];
+
+      for (const keyword of agentKeywords) {
+        if (inputLower.includes(keyword.toLowerCase())) {
+          hasAgent = true;
+          confidence += 0.3;
+          break;
+        }
+      }
+    }
+
+    // Check for skill keywords
+    if (enhancedPattern.skillDetection) {
+      const skillKeywords = enhancedPattern.skillKeywords;
+      
+      for (const keyword of skillKeywords) {
+        if (inputLower.includes(keyword.toLowerCase())) {
+          hasSkill = true;
+          confidence += 0.4;
+          break;
+        }
+      }
+
+      // Special check for skill: prefix (codebuddy)
+      if (enhancedPattern.skillPrefixRequired && inputLower.includes('skill:')) {
+        hasSkill = true;
+        confidence += 0.6;
+      }
+    }
+
+    // Boost confidence based on CLI-specific patterns
+    if (cliName === 'qwen' && enhancedPattern.positionalArgs) {
+      // Qwen CLI has higher confidence for natural language
+      confidence *= 1.2;
+    }
+
+    return { hasAgent, hasSkill, confidence: Math.min(confidence, 1.0) };
+  }
+
+  /**
+   * Optimize prompt for specific CLI tool
+   */
+  optimizePromptForCLI(prompt, cliName, detectedMentions) {
+    const enhancedPattern = this.enhancedPatterns[cliName];
+    if (!enhancedPattern) {
+      return prompt;
+    }
+
+    let optimizedPrompt = prompt;
+
+    // Apply skill mapping if applicable
+    for (const [chineseSkill, mapping] of Object.entries(this.agentSkillPatterns.skillMapping)) {
+      if (prompt.includes(chineseSkill) && mapping[cliName]) {
+        if (enhancedPattern.skillPrefixRequired && !prompt.includes('skill:')) {
+          // For codebuddy, add skill: prefix
+          optimizedPrompt = prompt.replace(
+            chineseSkill, 
+            `skill:${mapping[cliName]}`
+          );
+        } else if (enhancedPattern.naturalLanguageSupport) {
+          // For CLIs that support natural language, use the mapped term
+          optimizedPrompt = prompt.replace(
+            chineseSkill, 
+            mapping[cliName]
+          );
+        }
+        break;
+      }
+    }
+
+    return optimizedPrompt;
+  }
+
+  /**
+   * Get enhanced CLI pattern with agent/skill support
+   */
+  async getEnhancedCLIPattern(cliName) {
+    const cached = await this.getCachedAnalysis(cliName);
+    
+    if (cached && cached.timestamp && !this.isCacheExpired(cached.timestamp)) {
+      // Enhance cached data with agent/skill information
+      const enhancedPatterns = this.enhancedPatterns[cliName];
+      if (enhancedPatterns) {
+        cached.agentSkillSupport = {
+          supportsAgents: enhancedPatterns.agentDetection || false,
+          supportsSkills: enhancedPatterns.skillDetection || false,
+          naturalLanguageSupport: enhancedPatterns.naturalLanguageSupport || false,
+          skillPrefixRequired: enhancedPatterns.skillPrefixRequired || false,
+          positionalArgs: enhancedPatterns.positionalArgs || false,
+          agentTypes: enhancedPatterns.agentTypes || [],
+          skillKeywords: enhancedPatterns.skillKeywords || [],
+          commandFormat: enhancedPatterns.commandFormat || '',
+          examples: enhancedPatterns.examples || []
+        };
+      }
+      return cached;
+    }
+
+    // Perform enhanced analysis
+    return await this.analyzeCLIEnhanced(cliName);
+  }
+
+  /**
+   * Analyze call success and update patterns accordingly
+   */
+  async updatePatternOnAgentSkillFailure(cliName, error, attemptedCommand, userPrompt) {
+    if (process.env.DEBUG === 'true') {
+      console.log(`Updating agent/skill pattern for ${cliName} due to failure:`, error.message);
+    }
+
+    try {
+      // Re-analyze with enhanced capabilities
+      const newAnalysis = await this.analyzeCLIEnhanced(cliName);
+      
+      // Add failure context with agent/skill information
+      const detectedMentions = this.detectAgentSkillMentions(userPrompt, cliName);
+      newAnalysis.lastFailure = {
+        error: error.message,
+        attemptedCommand,
+        userPrompt,
+        agentSkillDetected: detectedMentions,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Update the cached analysis
+      await this.cacheAnalysis(cliName, newAnalysis);
+      return newAnalysis;
+    } catch (analysisError) {
+      if (process.env.DEBUG === 'true') {
+        console.error(`Failed to re-analyze ${cliName}:`, analysisError.message);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Get agent/skill compatibility score for CLI tool
+   */
+  getAgentSkillCompatibilityScore(cliName, prompt) {
+    const enhancedPattern = this.enhancedPatterns[cliName];
+    if (!enhancedPattern) {
+      return { score: 0, reasons: ['CLI not supported'] };
+    }
+
+    const detectedMentions = this.detectAgentSkillMentions(prompt, cliName);
+    let score = 0.5; // Base score
+    const reasons = [];
+
+    // Base compatibility
+    if (enhancedPattern.agentDetection) {
+      score += 0.2;
+      reasons.push('支持智能体检测');
+    }
+    
+    if (enhancedPattern.skillDetection) {
+      score += 0.2;
+      reasons.push('支持技能检测');
+    }
+
+    // Detection results
+    if (detectedMentions.hasAgent) {
+      score += 0.1;
+      reasons.push('检测到智能体提及');
+    }
+
+    if (detectedMentions.hasSkill) {
+      score += 0.1;
+      reasons.push('检测到技能提及');
+    }
+
+    // CLI-specific advantages
+    if (cliName === 'qwen' && enhancedPattern.positionalArgs) {
+      score += 0.1;
+      reasons.push('位置参数支持，自然语言理解优秀');
+    }
+
+    if (cliName === 'codebuddy' && enhancedPattern.skillPrefixRequired) {
+      score += 0.1;
+      reasons.push('明确的技能语法支持');
+    }
+
+    // Penalty for mismatches
+    if (enhancedPattern.skillPrefixRequired && !detectedMentions.hasSkill) {
+      score -= 0.2;
+      reasons.push('需要技能语法但未检测到技能');
+    }
+
+    return { 
+      score: Math.max(0, Math.min(1, score)), 
+      reasons,
+      detected: detectedMentions
+    };
+  }
+
+  /**
+   * Generate optimized call command for CLI tool
+   */
+  generateOptimizedCall(cliName, userPrompt) {
+    const enhancedPattern = this.enhancedPatterns[cliName];
+    if (!enhancedPattern) {
+      return null;
+    }
+
+    // Optimize the prompt
+    const detectedMentions = this.detectAgentSkillMentions(userPrompt, cliName);
+    const optimizedPrompt = this.optimizePromptForCLI(userPrompt, cliName, detectedMentions);
+
+    // Generate command based on CLI format
+    let command;
+    let args;
+
+    switch (cliName) {
+      case 'qwen':
+        // Qwen uses positional arguments
+        command = 'qwen';
+        args = [optimizedPrompt];
+        break;
+        
+      case 'codebuddy':
+        // Codebuddy requires -y flag and skill prefix
+        command = 'codebuddy';
+        args = ['-y', '-p', optimizedPrompt];
+        break;
+        
+      case 'claude':
+      case 'iflow':
+      case 'qodercli':
+        // These use -p flag
+        command = cliName;
+        args = ['-p', optimizedPrompt];
+        break;
+        
+      default:
+        command = cliName;
+        args = ['-p', optimizedPrompt];
+    }
+
+    return {
+      command,
+      args,
+      fullCommand: `${command} ${args.join(' ')}`,
+      optimizedPrompt,
+      detectedMentions,
+      compatibilityScore: this.getAgentSkillCompatibilityScore(cliName, userPrompt)
+    };
   }
 }
 

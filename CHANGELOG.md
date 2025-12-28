@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.14] - 2025-12-28
+
+### Features
+
+- **command-simplification**: Simplify resume command structure
+  - Remove resumesession and sg-resume aliases from stigmergy CLI
+  - Keep only resume command in stigmergy CLI for simplicity
+  - Maintain stigmergy-resume command for cross-CLI integration to avoid naming conflicts
+  - Update documentation to reflect new command structure
+
+### Documentation
+
+- **docs**: Update documentation to reflect command simplification
+  - Update RESUMESESSION.md with correct command usage
+  - Remove references to removed commands in test files
+  - Update FINAL_TEST_REPORT.md with correct command names
+
 ## [1.3.2-beta.3] - 2025-12-25
 
 ### Fixed

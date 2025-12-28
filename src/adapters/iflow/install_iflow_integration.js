@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * iFlow CLI Hook适配器安装脚本
- * 为iFlow CLI安装跨CLI协作感知能力
+ * iFlow CLI Hook Adapter Installation Script
+ * Installs cross-CLI collaboration awareness capability for iFlow CLI
  * 
- * 使用方法：
+ * Usage:
  * node install_iflow_integration.js [--verify|--uninstall]
  */
 
@@ -13,7 +13,7 @@ const path = require('path');
 const os = require('os');
 const yaml = require('js-yaml');
 
-// iFlow CLI配置路径
+// iFlow CLI config path
 const IFLOW_CONFIG_DIR = path.join(os.homedir(), '.config', 'iflow');
 const IFLOW_HOOKS_FILE = path.join(IFLOW_CONFIG_DIR, 'hooks.yml');
 
@@ -23,35 +23,35 @@ class IFlowIntegrationInstaller {
   }
 
   /**
-   * 创建iFlow配置目录
+   * Create iFlow config directory
    */
   async createIFlowConfigDirectory() {
     try {
       await fs.mkdir(IFLOW_CONFIG_DIR, { recursive: true });
-      console.log(`[OK] 创建iFlow配置目录: ${IFLOW_CONFIG_DIR}`);
+      console.log(`[OK] Created iFlow config directory: ${IFLOW_CONFIG_DIR}`);
       return true;
     } catch (error) {
-      console.log(`[ERROR] 创建iFlow配置目录失败: ${error.message}`);
+      console.log(`[ERROR] Failed to create iFlow config directory: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 安装iFlow Hook配置
+   * Install iFlow Hook configuration
    */
   async installIFlowHooks() {
     try {
-      // 读取现有hooks配置
+      // Read existing hooks config
       let existingHooks = {};
       try {
         const data = await fs.readFile(IFLOW_HOOKS_FILE, 'utf8');
         existingHooks = yaml.load(data) || {};
       } catch (error) {
-        console.log(`[WARN] 读取现有hooks配置失败: ${error.message}`);
+        console.log(`[WARN] Failed to read existing hooks config: ${error.message}`);
         existingHooks = {};
       }
 
-      // 定义跨CLI协作的Hook配置
+      // Define cross-CLI collaboration Hook configuration
       const crossCliHooks = {
         cross_cli_adapter: {
           module: 'src.adapters.iflow.hook_adapter',
@@ -62,86 +62,86 @@ class IFlowIntegrationInstaller {
         }
       };
 
-      // 合并配置（保留现有配置，添加协作功能）
+      // Merge config (preserve existing config, add collaboration feature)
       const mergedHooks = { ...existingHooks, ...crossCliHooks };
 
-      // 写入hooks配置文件
+      // Write hooks config file
       const yamlContent = yaml.dump(mergedHooks, { indent: 2, lineWidth: 120, noRefs: true });
       await fs.writeFile(IFLOW_HOOKS_FILE, yamlContent, 'utf8');
 
-      console.log(`[OK] iFlow Hook配置已安装: ${IFLOW_HOOKS_FILE}`);
-      console.log('已安装的Hook:');
+      console.log(`[OK] iFlow Hook configuration installed: ${IFLOW_HOOKS_FILE}`);
+      console.log('Installed Hooks:');
       Object.keys(crossCliHooks).forEach(hookName => {
-        console.log(`   - ${hookName}: [OK] 跨CLI协作感知`);
+        console.log(`   - ${hookName}: [OK] Cross-CLI collaboration awareness`);
       });
 
       return true;
     } catch (error) {
-      console.log(`[ERROR] 安装iFlow Hook配置失败: ${error.message}`);
+      console.log(`[ERROR] Failed to install iFlow Hook configuration: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 复制适配器文件到iFlow配置目录
+   * Copy adapter files to iFlow config directory
    */
   async copyAdapterFile() {
     try {
-      // 创建适配器目录
+      // Create adapter directory
       const adapterDir = path.join(IFLOW_CONFIG_DIR, 'adapters');
       await fs.mkdir(adapterDir, { recursive: true });
 
-      // 获取当前脚本目录
+      // Get current script directory
       const currentDir = __dirname;
       const adapterSource = path.join(currentDir, 'hook_adapter.js');
       const adapterDest = path.join(adapterDir, 'hook_adapter.js');
 
-      // 复制适配器文件
+      // Copy adapter file
       try {
         await fs.access(adapterSource);
         await fs.copyFile(adapterSource, adapterDest);
-        console.log(`[OK] 复制适配器文件: ${adapterDest}`);
+        console.log(`[OK] Copied adapter file: ${adapterDest}`);
       } catch (error) {
-        console.log(`[ERROR] 适配器源文件不存在: ${adapterSource}`);
+        console.log(`[ERROR] Adapter source file does not exist: ${adapterSource}`);
         return false;
       }
 
-      // 创建全局Cross-CLI文档
+      // Create global Cross-CLI documentation
       await this.createGlobalCrossCliDocumentation(IFLOW_CONFIG_DIR);
 
       return true;
     } catch (error) {
-      console.log(`[ERROR] 复制适配器文件失败: ${error.message}`);
+      console.log(`[ERROR] Failed to copy adapter file: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 创建全局Cross-CLI通信文档
+   * Create global Cross-CLI communication documentation
    */
   async createGlobalCrossCliDocumentation(configDir) {
     try {
-      const docContent = `# iFlow CLI 跨CLI通信指南
+      const docContent = `# iFlow CLI Cross-CLI Communication Guide
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>>
+When you need to call other AI tools, please use the following prompt <<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "write a Python function"
+- Run in shell: stigmergy gemini "translate this text"
+- Run in shell: stigmergy qwen "analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ---
-*本文档由Stigmergy CLI自动生成和维护*
+*This document is automatically generated and maintained by Stigmergy CLI*
 `;
 
       const docPath = path.join(configDir, 'CROSS_CLI_GUIDE.md');
       await fs.writeFile(docPath, docContent, 'utf8');
-      console.log(`[OK] 创建Cross-CLI通信指南: ${docPath}`);
+      console.log(`[OK] Created Cross-CLI communication guide: ${docPath}`);
 
-      // 如果存在iflow.md文件，则在末尾追加Cross-CLI通信提示
+      // If iflow.md exists, append Cross-CLI communication prompt at the end
       const iflowMdPath = path.join(os.homedir(), '.iflow', 'iflow.md');
       try {
         await fs.access(iflowMdPath);
@@ -149,35 +149,35 @@ class IFlowIntegrationInstaller {
         const crossCliContent = `
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>>
+When you need to call other AI tools, please use the following prompt <<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "write a Python function"
+- Run in shell: stigmergy gemini "translate this text"
+- Run in shell: stigmergy qwen "analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(iflowMdPath, crossCliContent, 'utf8');
-        console.log('[OK] 在IFLOW.md末尾追加Cross-CLI通信提示');
+        console.log('[OK] Appended Cross-CLI communication prompt to IFLOW.md');
       } catch (error) {
-        // 文件可能不存在，忽略
+        // File may not exist, ignore
       }
 
       return true;
     } catch (error) {
-      console.log(`[WARN] 创建Cross-CLI通信指南失败: ${error.message}`);
+      console.log(`[WARN] Failed to create Cross-CLI communication guide: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 验证安装
+   * Verify installation
    */
   async verifyInstallation() {
     const checks = [
-      { name: 'iFlow配置目录', path: IFLOW_CONFIG_DIR },
-      { name: 'iFlow Hooks文件', path: IFLOW_HOOKS_FILE }
+      { name: 'iFlow config directory', path: IFLOW_CONFIG_DIR },
+      { name: 'iFlow Hooks file', path: IFLOW_HOOKS_FILE }
     ];
 
     let allPassed = true;
@@ -195,78 +195,78 @@ class IFlowIntegrationInstaller {
   }
 
   /**
-   * 卸载集成
+   * Uninstall integration
    */
   async uninstallIntegration() {
     try {
-      // 删除hooks配置中的跨CLI适配器
+      // Remove cross-CLI adapter from hooks config
       try {
         const data = await fs.readFile(IFLOW_HOOKS_FILE, 'utf8');
         const hooksConfig = yaml.load(data) || {};
 
-        // 移除跨CLI适配器
+        // Remove cross-CLI adapter
         if ('cross_cli_adapter' in hooksConfig) {
           delete hooksConfig['cross_cli_adapter'];
           
-          // 保存更新后的配置
+          // Save updated config
           const yamlContent = yaml.dump(hooksConfig, { indent: 2, lineWidth: 120, noRefs: true });
           await fs.writeFile(IFLOW_HOOKS_FILE, yamlContent, 'utf8');
           
-          console.log('[OK] 已从iFlow Hooks配置中移除跨CLI适配器');
+          console.log('[OK] Removed cross-CLI adapter from iFlow Hooks config');
         }
       } catch (error) {
-        console.log(`[WARN] 处理hooks配置失败: ${error.message}`);
+        console.log(`[WARN] Failed to process hooks config: ${error.message}`);
       }
 
-      // 删除适配器文件
+      // Delete adapter file
       try {
         const adapterFile = path.join(IFLOW_CONFIG_DIR, 'adapters', 'hook_adapter.js');
         await fs.unlink(adapterFile);
-        console.log('[OK] 已删除iFlow适配器文件');
+        console.log('[OK] Deleted iFlow adapter file');
       } catch (error) {
-        // 文件可能不存在，忽略错误
+        // File may not exist, ignore error
       }
 
-      console.log('[OK] iFlow CLI跨CLI集成已卸载');
+      console.log('[OK] iFlow CLI cross-CLI integration uninstalled');
       return true;
     } catch (error) {
-      console.log(`[ERROR] 卸载失败: ${error.message}`);
+      console.log(`[ERROR] Uninstall failed: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 主安装流程
+   * Main installation process
    */
   async install() {
-    console.log('iFlow CLI跨CLI集成安装程序');
+    console.log('iFlow CLI Cross-CLI Integration Installer');
     console.log('='.repeat(50));
 
-    // 步骤1. 创建配置目录
-    console.log('\n步骤1. 创建配置目录...');
+    // Step 1. Create config directory
+    console.log('\nStep 1. Create config directory...');
     const configDirSuccess = await this.createIFlowConfigDirectory();
 
-    // 步骤2. 安装Hook配置
-    console.log('\n步骤2. 安装Hook配置...');
+    // Step 2. Install Hook config
+    console.log('\nStep 2. Install Hook config...');
     const hooksSuccess = await this.installIFlowHooks();
 
-    // 步骤3. 复制适配器文件
-    console.log('\n步骤3. 复制适配器文件...');
+    // Step 3. Copy adapter files
+    console.log('\nStep 3. Copy adapter files...');
     const adapterSuccess = await this.copyAdapterFile();
 
-    // 步骤4. 验证安装
-    console.log('\n步骤4. 验证安装...');
+    // Step 4. Verify installation
+    console.log('\nStep 4. Verify installation...');
     const verificationSuccess = await this.verifyInstallation();
 
     const overallSuccess = configDirSuccess && hooksSuccess && adapterSuccess && verificationSuccess;
     
     const duration = Date.now() - this.startTime;
-    console.log(`\n[INFO] 安装耗时: ${duration}ms`);
+    console.log(`\n[INFO] Installation took: ${duration}ms`);
     
     if (overallSuccess) {
-      console.log('\n[SUCCESS] iFlow CLI跨CLI集成安装成功!');
+      console.log('\n[SUCCESS] iFlow CLI cross-CLI integration installed successfully!');
     } else {
-      console.log('\n[WARNING] 安装过程中出现警告，请检查上述输出');
+      console.log('\n[WARNING] Warnings occurred during installation, please check above output');
     }
 
     return overallSuccess;

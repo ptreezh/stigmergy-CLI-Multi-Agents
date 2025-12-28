@@ -1,5 +1,5 @@
 {
-  "name": "@stigmergy/resume",
+  "name": "resumesession",
   "version": "1.0.4",
   "description": "Cross-CLI memory sharing and session recovery for any project",
   "main": "dist/index.js",
@@ -38,6 +38,10 @@
     "tsx": "^4.1.4",
     "typescript": "^5.2.2"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "engines": {
     "node": ">=16.0.0"
   },

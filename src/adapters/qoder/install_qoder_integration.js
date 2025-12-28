@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Qoder CLI Hook安装器
- * 用于自动安装和配置Qoder CLI的通知Hook插件
+ * Qoder CLI Hook installer
+ * Used to automatically install and configure Qoder CLI notification Hook plugins
  * 
- * 使用方法：
+ * Usage:
  * node install_qoder_integration.js [install|uninstall|status]
  */
 
@@ -20,128 +20,128 @@ class QoderHookInstaller {
     this.logsDir = path.join(this.qoderConfigDir, 'logs');
     this.cacheDir = path.join(this.qoderConfigDir, 'cache');
     
-    // 适配器路径
+    // Adapter paths
     this.currentDir = __dirname;
     this.hookAdapterFile = path.join(this.currentDir, 'notification_hook_adapter.js');
     this.configFile = path.join(this.currentDir, 'config.json');
     
-    // 安装状态
+    // Installation status
     this.installationLog = [];
   }
 
   /**
-   * 安装Qoder CLI Hook插件
+   * Install Qoder CLI Hook plugin
    */
   async installHooks() {
     try {
-      console.log('开始安装Qoder CLI Hook插件...');
+      console.log('Starting Qoder CLI Hook plugin installation...');
 
-      // 1. 检查环境和平台
+      // 1. Check environment and platform
       if (!await this._checkEnvironment()) {
-        console.error('环境检查失败');
+        console.error('Environment check failed');
         return false;
       }
 
-      // 2. 创建配置目录
+      // 2. Create config directory
       await this._createDirectories();
 
-      // 3. 复制适配器文件
+      // 3. Copy adapter files
       if (!await this._installAdapterFiles()) {
-        console.error('适配器文件安装失败');
+        console.error('Adapter file installation failed');
         return false;
       }
 
-      // 4. 创建Hook脚本
+      // 4. Create Hook scripts
       if (!await this._createHookScripts()) {
-        console.error('Hook脚本创建失败');
+        console.error('Hook script creation failed');
         return false;
       }
 
-      // 5. 设置环境配置
+      // 5. Set up environment config
       if (!await this._setupEnvironmentConfig()) {
-        console.error('环境配置设置失败');
+        console.error('Environment config setup failed');
         return false;
       }
 
-      // 6. 创建启动脚本
+      // 6. Create startup scripts
       if (!await this._createStartupScripts()) {
-        console.error('启动脚本创建失败');
+        console.error('Startup script creation failed');
         return false;
       }
 
-      // 7. 创建全局Cross-CLI文档
+      // 7. Create global Cross-CLI documentation
       await this._createGlobalCrossCliDocumentation();
 
-      // 8. 验证安装
+      // 8. Verify installation
       if (!await this._verifyInstallation()) {
-        console.error('安装验证失败');
+        console.error('Installation verification failed');
         return false;
       }
 
-      console.log('Qoder CLI Hook插件安装成功');
-      await this._logInstallation('success', 'Hook插件安装成功');
+      console.log('Qoder CLI Hook plugin installation successful');
+      await this._logInstallation('success', 'Hook plugin installed successfully');
       return true;
 
     } catch (error) {
-      console.error(`安装Qoder CLI Hook插件失败: ${error.message}`);
-      await this._logInstallation('error', `安装失败: ${error.message}`);
+      console.error(`Failed to install Qoder CLI Hook plugin: ${error.message}`);
+      await this._logInstallation('error', `Installation failed: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 卸载Qoder CLI Hook插件
+   * Uninstall Qoder CLI Hook plugin
    */
   async uninstallHooks() {
     try {
-      console.log('开始卸载Qoder CLI Hook插件...');
+      console.log('Starting Qoder CLI Hook plugin uninstallation...');
 
-      // 1. 备份配置
+      // 1. Backup configuration
       await this._backupConfiguration();
 
-      // 2. 清理Hook脚本
+      // 2. Clean up Hook scripts
       await this._cleanupHookScripts();
 
-      // 3. 清理适配器文件
+      // 3. Clean up adapter files
       await this._cleanupAdapterFiles();
 
-      // 4. 清理环境变量
+      // 4. Clean up environment variables
       await this._cleanupEnvironment();
 
-      // 5. 清理临时文件
+      // 5. Clean up temporary files
       await this._cleanupTempFiles();
 
-      console.log('Qoder CLI Hook插件卸载成功');
-      await this._logInstallation('success', 'Hook插件卸载成功');
+      console.log('Qoder CLI Hook plugin uninstallation successful');
+      await this._logInstallation('success', 'Hook plugin uninstalled successfully');
       return true;
 
     } catch (error) {
-      console.error(`卸载Qoder CLI Hook插件失败: ${error.message}`);
-      await this._logInstallation('error', `卸载失败: ${error.message}`);
+      console.error(`Failed to uninstall Qoder CLI Hook plugin: ${error.message}`);
+      await this._logInstallation('error', `Uninstall failed: ${error.message}`);
       return false;
     }
   }
 
   /**
-   * 检查安装环境
+   * Check installation environment
    */
   async _checkEnvironment() {
     try {
-      // 检查Node.js版本
+      // Check Node.js version
       const nodeVersion = process.version;
       const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0]);
       if (majorVersion < 14) {
-        console.error('需要Node.js 14或更高版本');
+        console.error('Node.js 14 or higher required');
         return false;
       }
 
-      // 检查平台支持
+      // Check platform support
       const currentPlatform = os.platform();
       if (!['darwin', 'linux', 'win32'].includes(currentPlatform)) {
-        console.warn(`平台 ${currentPlatform} 可能不受完全支持，将使用fallback机制`);
+        console.warn(`Platform ${currentPlatform} may not be fully supported, will use fallback mechanism`);
       }
 
-      // 检查必要的文件是否存在
+      // Check if required files exist
       const requiredFiles = [
         this.configFile
       ];
@@ -150,26 +150,26 @@ class QoderHookInstaller {
         try {
           await fs.access(file);
         } catch (error) {
-          console.warn(`必要文件不存在: ${file}`);
-          // 不强制要求适配器文件
+          console.warn(`Required file does not exist: ${file}`);
+          // Adapter file is not mandatory
         }
       }
 
-      // 检查系统工具
+      // Check system tools
       if (currentPlatform === 'darwin') {
-        // 检查osascript是否可用
+        // Check if osascript is available
         try {
           await this._runCommand('osascript', ['-e', '1'], { timeout: 2000 });
         } catch (error) {
-          console.warn('osascript不可用，通知功能可能受限');
+          console.warn('osascript unavailable, notification function may be limited');
         }
       }
 
-      console.log(`环境检查通过 (${currentPlatform})`);
+      console.log(`Environment check passed (${currentPlatform})`);
       return true;
 
     } catch (error) {
-      console.error(`环境检查失败: ${error.message}`);
+      console.error(`Environment check failed: ${error.message}`);
       return false;
     }
   }
@@ -851,20 +851,20 @@ echo "Qoder Hook监控已停止"
    */
   async _createGlobalCrossCliDocumentation() {
     try {
-      const docContent = `# Qoder CLI 跨CLI通信指南
+      const docContent = `# Qoder CLI Cross-CLI Communication Guide
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>>
+When you need to call other AI tools, please use the following prompt<<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "Write a Python function"
+- Run in shell: stigmergy gemini "Translate this text"
+- Run in shell: stigmergy qwen "Analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ---
-*本文档由Stigmergy CLI自动生成和维护*
+*This document is automatically generated and maintained by Stigmergy CLI*
 `;
 
       const docPath = path.join(this.qoderConfigDir, 'CROSS_CLI_GUIDE.md');
@@ -879,17 +879,17 @@ echo "Qoder Hook监控已停止"
         const crossCliContent = `
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy <工具名> <任务描述>>>>
+When you need to call other AI tools, please use the following prompt<<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "Write a Python function"
+- Run in shell: stigmergy gemini "Translate this text"
+- Run in shell: stigmergy qwen "Analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(qoderMdPath, crossCliContent, 'utf8');
-        console.log('在QODER.md末尾追加Cross-CLI通信提示');
+        console.log('Append Cross-CLI communication prompt to QODER.md');
       } catch (error) {
         // 文件可能不存在，忽略
       }

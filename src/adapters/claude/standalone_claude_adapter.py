@@ -1,11 +1,11 @@
 """
-独立 Claude CLI 适配器 - 完全无抽象层
+Standalone Claude CLI Adapter - Completely No Abstraction Layer
 
-基于 Claude CLI 官方 Hook 系统的原生集成：
-- 使用 Claude CLI 官方 Hook 机制
-- 无任何抽象基类或 Factory 系统
-- 不改变 CLI 启动和使用方式
-- 纯粹的原生扩展实现
+Native integration based on Claude CLI's official Hook system:
+- Uses Claude CLI's official Hook mechanism
+- No abstract base classes or Factory system
+- Does not change CLI startup and usage methods
+- Pure native extension implementation
 """
 
 import os
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class ClaudeHookContext:
-    """Claude CLI Hook 上下文 - 独立实现"""
+    """Claude CLI Hook Context - Independent Implementation"""
 
     def __init__(self, prompt: str = "", metadata: Optional[Dict] = None):
         self.prompt = prompt
@@ -32,20 +32,20 @@ class ClaudeHookContext:
 
 class StandaloneClaudeAdapter:
     """
-    独立的 Claude CLI Hook 适配器
+    Standalone Claude CLI Hook Adapter
 
-    直接基于 Claude CLI 官方 Hook 系统，无任何抽象层：
+    Directly based on Claude CLI's official Hook system, no abstraction layer:
     - user_prompt_submit Hook
     - tool_use_pre/post Hooks
     - response_generated Hook
     """
 
     def __init__(self):
-        """初始化 - 纯实现，无抽象"""
+        """Initialize - Pure implementation, no abstraction"""
         self.cli_name = "claude"
         self.version = "1.0.0"
 
-        # Hook 配置
+        # Hook configuration
         self.hooks_config_file = os.path.expanduser("~/.config/claude/hooks.json")
         self.hooks_registered = False
 

@@ -95,7 +95,7 @@ async function main() {
 
   // Program setup
   program
-    .version('1.3.2-beta.3')
+    .version('1.3.8')
     .description('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System')
     .name('stigmergy');
 
@@ -319,7 +319,7 @@ async function main() {
       await handleAutoInstallCommand(options);
     });
 
-  // Resume session commands
+  // Resume session command
   program
     .command('resume')
     .description('Resume session (forwards to @stigmergy/resume CLI tool)')
@@ -329,26 +329,8 @@ async function main() {
       await handleResumeCommand(args, options);
     });
 
-  program
-    .command('resumesession')
-    .description('Resume session management (forwards to @stigmergy/resume)')
-    .argument('[args...]', 'Arguments to pass to resumesession')
-    .option('-v, --verbose', 'Verbose output')
-    .action(async (args, options) => {
-      await handleResumeCommand(args, options);
-    });
-
-  program
-    .command('sg-resume')
-    .description('Resume session management (short alias)')
-    .argument('[args...]', 'Arguments to pass to resumesession')
-    .option('-v, --verbose', 'Verbose output')
-    .action(async (args, options) => {
-      await handleResumeCommand(args, options);
-    });
-
   // Route commands to CLI tools
-  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode', 'resumesession']) {
+  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode']) {
     program
       .command(tool)
       .description(`Use ${tool} CLI tool`)

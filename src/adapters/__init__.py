@@ -1,8 +1,8 @@
 """
-Cross-CLI适配器包入口 - 无抽象层实现
+Cross-CLI Adapter Package Entry - No Abstraction Layer Implementation
 
-提供简单的适配器检索机制，替代原有的工厂模式。
-每个适配器都是独立实现，通过直接导入访问。
+Provides a simple adapter retrieval mechanism, replacing the original factory pattern.
+Each adapter is implemented independently and accessed through direct imports.
 """
 
 from typing import Optional, Dict, Any
@@ -10,29 +10,29 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# 适配器注册表 - 替代工厂模式
+# Adapter registry - replacing factory pattern
 _ADAPTER_REGISTRY = {}
 
-def register_adapter(cli_name: str, adapter_instance):
+def register_adapter(cli_name: str, adapter_instance: Any):
     """
-    注册适配器实例
+    Register adapter instance
     
     Args:
-        cli_name: CLI工具名称
-        adapter_instance: 适配器实例
+        cli_name: CLI tool name
+        adapter_instance: Adapter instance
     """
-    _ADAPTER_REGISTRY[cli_name.lower()] = adapter_instance
-    logger.debug(f"注册适配器: {cli_name}")
+    logger.debug(f"Registering adapter: {cli_name}")
+    _ADAPTER_REGISTRY[cli_name] = adapter_instance
 
-def get_adapter(cli_name: str):
+def get_adapter(cli_name: str) -> Optional[Any]:
     """
-    获取指定CLI的适配器实例
+    Get adapter instance for specified CLI
     
     Args:
-        cli_name: CLI工具名称
+        cli_name: CLI tool name
         
     Returns:
-        适配器实例或None
+        Adapter instance or None
     """
     return _ADAPTER_REGISTRY.get(cli_name.lower())
 
@@ -126,15 +126,15 @@ def get_cline_adapter():
 
 
 # 兼容旧接口
-def get_cross_cli_adapter(cli_name: str):
+def get_cross_cli_adapter(cli_name: str) -> Optional[Any]:
     """
-    获取跨CLI适配器 - 替代原有的工厂方法
+    Get cross-CLI adapter - replacing the original factory method
     
     Args:
-        cli_name: CLI工具名称
+        cli_name: CLI tool name
         
     Returns:
-        适配器实例或None
+        Adapter instance or None
     """
     adapter_getters = {
         "claude": get_claude_adapter,

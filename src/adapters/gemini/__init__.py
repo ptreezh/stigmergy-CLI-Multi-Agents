@@ -1,8 +1,8 @@
 """
-Gemini CLI 适配器包
+Gemini CLI Adapter Package
 
-基于 Gemini CLI 官方 Extension 系统的原生集成
-完全无抽象层设计
+Native integration based on Gemini CLI's official Extension system
+Complete no abstraction layer design
 """
 
 from .standalone_gemini_adapter import get_standalone_gemini_adapter, StandaloneGeminiAdapter

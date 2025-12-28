@@ -1,8 +1,8 @@
 """
-Copilot CLI 适配器包
+Copilot CLI Adapter Package
 
-基于 Copilot CLI 官方 MCP 系统的原生集成
-完全无抽象层设计
+Native integration based on Copilot CLI's official MCP system
+Complete no abstraction layer design
 """
 
 from .standalone_copilot_adapter import get_standalone_copilot_adapter, StandaloneCopilotAdapter

@@ -40,15 +40,20 @@ export class CodeGenerator {
 
     try {
       // Try to use template file first (new approach)
+      // Determine command name based on CLI type
+      const needsSlashPrefix = ['claude', 'codebuddy'].includes(cliType.toLowerCase());
+      const commandName = needsSlashPrefix ? '/stigmergy-resume' : 'stigmergy-resume';
+
       code = this.readTemplate(cliType, {
+        COMMAND_NAME: commandName,
         VERSION: config.version,
         PROJECT_PATH: projectPath,
         HOME_DIR: require('os').homedir()
       });
-      console.log(`✓ Using template file for ${cliType}`);
+      console.log(`�?Using template file for ${cliType}`);
     } catch (error) {
       // Fallback to old method generators if template file doesn't exist
-      console.log(`⚠ Template file not found for ${cliType}, using fallback generator`);
+      console.log(`�?Template file not found for ${cliType}, using fallback generator`);
       
       const templates = {
         claude: this.generateClaudeTemplate,
@@ -57,7 +62,8 @@ export class CodeGenerator {
         iflow: this.generateIFlowTemplate,
         codebuddy: this.generateCodeBuddyTemplate,
         qodercli: this.generateQoderCLITemplate,
-        codex: this.generateCodexTemplate
+        codex: this.generateCodexTemplate,
+        kode: this.generateKodeTemplate
       };
 
       const generator = templates[cliType as keyof typeof templates];
@@ -94,7 +100,8 @@ export class CodeGenerator {
       iflow: join(projectPath, 'stigmergy', 'commands', 'history.js'),
       codebuddy: join(projectPath, '.codebuddy', 'integrations', 'resumesession.js'),
       qodercli: join(projectPath, '.qodercli', 'extensions', 'history.js'),
-      codex: join(projectPath, '.codex', 'plugins', 'resumesession-history.js')
+      codex: join(projectPath, '.codex', 'plugins', 'resumesession-history.js'),
+      kode: join(projectPath, '.kode', 'agents', 'resumesession-history.js')
     };
 
     return paths[cliType as keyof typeof paths] || join(projectPath, '.resumesession', `${cliType}-integration.js`);
@@ -127,8 +134,7 @@ async function handleHistoryCommand(input, context) {
     // 执行跨CLI会话扫描
     const sessions = await scanProjectSessions(query, context);
 
-    // 格式化结果
-    const response = formatResponse(sessions, query, context);
+    // 格式化结�?    const response = formatResponse(sessions, query, context);
 
     return {
       response,
@@ -137,7 +143,7 @@ async function handleHistoryCommand(input, context) {
   } catch (error) {
     console.error('History command error:', error);
     return {
-      response: \`❌ 历史查询失败: \${error.message}\`,
+      response: \`�?历史查询失败: \${error.message}\`,
       suggestions: ['/history --help']
     };
   }
@@ -199,11 +205,10 @@ async function scanProjectSessions(query, context) {
 }
 
 /**
- * 格式化响应
- */
+ * 格式化响�? */
 function formatResponse(sessions, query, context) {
   if (sessions.length === 0) {
-    return \`📭 当前项目暂无历史会话\\n\\n💡 **提示:**\\n• 尝试: /history --search <关键词>\\n• 检查: 其他CLI工具是否有会话文件\`;
+    return \`📭 当前项目暂无历史会话\\n\\n💡 **提示:**\\n�?尝试: /history --search <关键�?\\n�?检�? 其他CLI工具是否有会话文件\`;
   }
 
   switch (query.format) {
@@ -219,10 +224,9 @@ function formatResponse(sessions, query, context) {
 }
 
 /**
- * 格式化摘要视图
- */
+ * 格式化摘要视�? */
 function formatSummary(sessions, context) {
-  let response = \`📁 **项目历史会话**\\n\\n📊 共找到 \${sessions.length} 个会话\\n\\n\`;
+  let response = \`📁 **项目历史会话**\\n\\n📊 共找�?\${sessions.length} 个会话\\n\\n\`;
 
   // 按CLI分组
   const byCLI = {};
@@ -233,13 +237,13 @@ function formatSummary(sessions, context) {
 
   Object.entries(byCLI).forEach(([cli, cliSessions]) => {
     const icon = cli === 'claude' ? '🟢' : '🔵';
-    response += \`\${icon} **\${cli.toUpperCase()}** (\${cliSessions.length}个)\\n\`;
+    response += \`\${icon} **\${cli.toUpperCase()}** (\${cliSessions.length}�?\\n\`;
 
     cliSessions.slice(0, 3).forEach((session, i) => {
       const date = formatDate(session.updatedAt);
       const title = session.title.substring(0, 50);
       response += \`   \${i + 1}. \${title}...\n\`;
-      response += \`      📅 \${date} • 💬 \${session.messageCount}条消息\\n\`;
+      response += \`      📅 \${date} �?💬 \${session.messageCount}条消息\\n\`;
     });
 
     if (cliSessions.length > 3) {
@@ -249,9 +253,9 @@ function formatSummary(sessions, context) {
   });
 
   response += \`💡 **使用方法:**\\n\`;
-  response += \`• '/history --cli <工具>' - 查看特定CLI\\n\`;
-  response += \`• '/history --search <关键词>' - 搜索内容\\n\`;
-  response += \`• '/history --format timeline' - 时间线视图\`;
+  response += \`�?'/history --cli <工具>' - 查看特定CLI\\n\`;
+  response += \`�?'/history --search <关键�?' - 搜索内容\\n\`;
+  response += \`�?'/history --format timeline' - 时间线视图\`;
 
   return response;
 }
@@ -260,14 +264,14 @@ function formatSummary(sessions, context) {
  * 格式化时间线视图
  */
 function formatTimeline(sessions) {
-  let response = \`⏰ **时间线视图**\\n\\n\`;
+  let response = \`�?**时间线视�?*\\n\\n\`;
 
   sessions.forEach((session, index) => {
     const date = formatDate(session.updatedAt);
     const cliIcon = getCLIIcon(session.cliType);
 
     response += \`\${index + 1}. \${cliIcon} \${session.title}\\n\`;
-    response += \`   📅 \${date} • 💬 \${session.messageCount}条消息\\n\`;
+    response += \`   📅 \${date} �?💬 \${session.messageCount}条消息\\n\`;
     response += \`   🔑 \${session.cliType}:\${session.sessionId}\\n\\n\`;
   });
 
@@ -275,8 +279,7 @@ function formatTimeline(sessions) {
 }
 
 /**
- * 格式化详细视图
- */
+ * 格式化详细视�? */
 function formatDetailed(sessions) {
   let response = \`📋 **详细视图**\\n\\n\`;
 
@@ -287,7 +290,7 @@ function formatDetailed(sessions) {
     response += \`\${index + 1}. \${cliIcon} **\${session.title}**\\n\`;
     response += \`   📅 \${date}\\n\`;
     response += \`   🔧 CLI: \${session.cliType}\\n\`;
-    response += \`   💬 消息数: \${session.messageCount}\\n\`;
+    response += \`   💬 消息�? \${session.messageCount}\\n\`;
     response += \`   🆔 会话ID: '\${session.sessionId}'\\n\\n\`;
   });
 
@@ -302,10 +305,10 @@ function formatContext(session) {
     return \`📭 暂无可恢复的上下文。\`;
   }
 
-  let response = \`🔄 **上下文恢复**\\n\\n\`;
+  let response = \`🔄 **上下文恢�?*\\n\\n\`;
   response += \`📅 会话时间: \${session.updatedAt.toLocaleString()}\\n\`;
   response += \`🔧 来源CLI: \${session.cliType}\\n\`;
-  response += \`💬 消息数: \${session.messageCount}\\n\`;
+  response += \`💬 消息�? \${session.messageCount}\\n\`;
   response += \`🆔 会话ID: \${session.sessionId}\\n\\n\`;
   response += \`---\\n\\n\`;
   response += \`**上次讨论内容:**\\n\`;
@@ -318,8 +321,7 @@ function formatContext(session) {
 }
 
 /**
- * 格式化日期
- */
+ * 格式化日�? */
 function formatDate(date) {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
@@ -375,8 +377,7 @@ function generateSuggestions(sessions, query) {
   return suggestions.slice(0, 5);
 }
 
-// 导出处理器
-module.exports = {
+// 导出处理�?module.exports = {
   handleHistoryCommand
 };
 
@@ -600,10 +601,10 @@ class SessionFilter {
 class HistoryFormatter {
   formatSummary(sessions, context) {
     if (sessions.length === 0) {
-      return \`ostringstream 当前项目暂无历史会话\\n\\n💡 **提示:** 尝试: /history --search <关键词> 查找其他CLI工具的会话\`;
+      return \`ostringstream 当前项目暂无历史会话\\n\\n💡 **提示:** 尝试: /history --search <关键�? 查找其他CLI工具的会话\`;
     }
 
-    let response = \`📁 **项目历史会话**\\n\\n📊 共找到 \${sessions.length} 个会话\\n\\n\`;
+    let response = \`📁 **项目历史会话**\\n\\n📊 共找�?\${sessions.length} 个会话\\n\\n\`;
 
     // Group by CLI
     const byCLI = {};
@@ -614,13 +615,13 @@ class HistoryFormatter {
 
     Object.entries(byCLI).forEach(([cli, cliSessions]) => {
       const icon = this.getCLIIcon(cli);
-      response += \`\${icon} **\${cli.toUpperCase()}** (\${cliSessions.length}个)\\n\`;
+      response += \`\${icon} **\${cli.toUpperCase()}** (\${cliSessions.length}�?\\n\`;
 
       cliSessions.slice(0, 3).forEach((session, i) => {
         const date = this.formatDate(session.updatedAt);
         const title = session.title.substring(0, 50);
         response += \`   \${i + 1}. \${title}...\\n\`;
-        response += \`      📅 \${date} • 💬 \${session.messageCount}条消息\\n\`;
+        response += \`      📅 \${date} �?💬 \${session.messageCount}条消息\\n\`;
       });
 
       if (cliSessions.length > 3) {
@@ -630,26 +631,26 @@ class HistoryFormatter {
     });
 
     response += \`💡 **使用方法:**\\n\`;
-    response += \`• '/history --cli <工具>' - 查看特定CLI\\n\`;
-    response += \`• '/history --search <关键词>' - 搜索内容\\n\`;
-    response += \`• '/history --format timeline' - 时间线视图\`;
+    response += \`�?'/history --cli <工具>' - 查看特定CLI\\n\`;
+    response += \`�?'/history --search <关键�?' - 搜索内容\\n\`;
+    response += \`�?'/history --format timeline' - 时间线视图\`;
 
     return response;
   }
 
   formatTimeline(sessions) {
     if (sessions.length === 0) {
-      return 'ostringstream 暂无会话时间线。';
+      return 'ostringstream 暂无会话时间线�?;
     }
 
-    let response = \`⏰ **时间线视图**\\n\\n\`;
+    let response = \`�?**时间线视�?*\\n\\n\`;
 
     sessions.forEach((session, index) => {
       const date = this.formatDate(session.updatedAt);
       const cliIcon = this.getCLIIcon(session.cliType);
 
       response += \`\${index + 1}. \${cliIcon} \${session.title}\\n\`;
-      response += \`   📅 \${date} • 💬 \${session.messageCount}条消息\\n\`;
+      response += \`   📅 \${date} �?💬 \${session.messageCount}条消息\\n\`;
       response += \`   🔑 \${session.cliType}:\${session.sessionId}\\n\\n\`;
     });
 
@@ -658,7 +659,7 @@ class HistoryFormatter {
 
   formatDetailed(sessions) {
     if (sessions.length === 0) {
-      return 'ostringstream 暂无详细会话信息。';
+      return 'ostringstream 暂无详细会话信息�?;
     }
 
     let response = \`📋 **详细视图**\\n\\n\`;
@@ -670,7 +671,7 @@ class HistoryFormatter {
       response += \`\${index + 1}. \${cliIcon} **\${session.title}**\\n\`;
       response += \`   📅 \${date}\\n\`;
       response += \`   🔧 CLI: \${session.cliType}\\n\`;
-      response += \`   💬 消息数: \${session.messageCount}\\n\`;
+      response += \`   💬 消息�? \${session.messageCount}\\n\`;
       response += \`   🆔 会话ID: '\${session.sessionId}'\\n\\n\`;
     });
 
@@ -682,10 +683,10 @@ class HistoryFormatter {
       return \`ostringstream 暂无可恢复的上下文。\`;
     }
 
-    let response = \`🔄 **上下文恢复**\\n\\n\`;
+    let response = \`🔄 **上下文恢�?*\\n\\n\`;
     response += \`📅 会话时间: \${session.updatedAt.toLocaleString()}\\n\`;
     response += \`🔧 来源CLI: \${session.cliType}\\n\`;
-    response += \`💬 消息数: \${session.messageCount}\\n\`;
+    response += \`💬 消息�? \${session.messageCount}\\n\`;
     response += \`🆔 会话ID: \${session.sessionId}\\n\\n\`;
     response += \`---\\n\\n\`;
     response += \`**上次讨论内容:**\\n\`;
@@ -771,7 +772,7 @@ class HistoryQuery {
       };
     } catch (error) {
       return {
-        response: \`❌ 历史查询失败: \${error.message}\`,
+        response: \`�?历史查询失败: \${error.message}\`,
         suggestions: ['/history --help']
       };
     }
@@ -817,7 +818,7 @@ class GeminiHistoryHandler {
       };
     } catch (error) {
       return {
-        text: \`❌ History command failed: \${error.message}\`,
+        text: \`�?History command failed: \${error.message}\`,
         continue: true,
         suggestions: []
       };
@@ -864,18 +865,6 @@ class GeminiHistoryHandler {
     return options;
   }
 }
-
-// 注册处理器
-const handler = new GeminiHistoryHandler();
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { GeminiHistoryHandler, handler };
-}
-
-// Gemini CLI integration
-if (typeof geminiCLI !== 'undefined') {
-  geminiCLI.addCommandHandler('history', handler.handleCommand.bind(handler));
-}
 `;
   }
 
@@ -890,7 +879,7 @@ const qwenHistory = {
   async processSlashCommand(input, context) {
     if (!input.startsWith('/history')) return null;
 
-    // 实현与Claude类似的逻辑
+    // 实现与Claude类似的逻辑
     return {
       response: '🔍 Qwen CLI ResumeSession history integration...',
       suggestions: ['/history --help']
@@ -1008,6 +997,33 @@ if (typeof codex !== 'undefined') {
 }
 
 module.exports = codexHistory;
+`;
+  }
+
+  /**
+   * Kode CLI 集成模板
+   */
+  private generateKodeTemplate(options: TemplateOptions): string {
+    return `// Kode CLI ResumeSession Integration
+// Auto-generated by ResumeSession v${options.config.version}
+
+const kodeHistory = {
+  async handleCommand(input, context) {
+    if (!input.startsWith('/stigmergy-resume') && !input.startsWith('/history') && !input.startsWith('/resume')) return null;
+
+    // 实现history逻辑
+    return {
+      response: '🔍 Kode CLI ResumeSession history integration...',
+      suggestions: ['/stigmergy-resume --help']
+    };
+  }
+};
+
+if (typeof kode !== 'undefined') {
+  kode.addExtension('history', kodeHistory.handleCommand);
+}
+
+module.exports = kodeHistory;
 `;
   }
 }

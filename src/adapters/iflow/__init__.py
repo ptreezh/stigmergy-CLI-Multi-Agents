@@ -1,5 +1,5 @@
 """
-iFlow CLI适配器模块
+iFlow CLI Adapter Module
 """
 
 from .workflow_adapter import IFlowWorkflowAdapter

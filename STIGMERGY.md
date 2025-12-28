@@ -13,6 +13,7 @@ Cross-CLI communication is enabled between all supported AI tools:
 - CodeBuddy
 - GitHub Copilot
 - OpenAI Codex
+- Kode (Multi-Model Collaboration System)
 
 ## Project Contributors
 
@@ -49,6 +50,7 @@ stigmergy qodercli "review this code"
 stigmergy codebuddy "help me debug"
 stigmergy copilot "suggest improvements"
 stigmergy codex "generate documentation"
+stigmergy kode "use digital marxist agent for analysis"
 ```
 
 ## Project Memory and Documentation
@@ -62,6 +64,7 @@ This project automatically generates documentation for each CLI tool:
 - codebuddy.md
 - copilot.md
 - codex.md
+- kode.md
 
 Each documentation file contains:
 - Tool configuration information

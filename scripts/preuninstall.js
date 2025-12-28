@@ -8,6 +8,15 @@
 const path = require('path');
 const { spawnSync } = require('child_process');
 
+// Detect npm environment for better output visibility
+const isNpmUninstall = process.env.npm_lifecycle_event === 'preuninstall' || 
+                      process.env.npm_lifecycle_event === 'uninstall';
+const criticalLog = isNpmUninstall ? console.error : console.log;
+
+criticalLog('🔄 STIGMERGY CLI PRE-UNINSTALL CLEANUP');
+criticalLog('='.repeat(50));
+criticalLog('Cleaning up configuration files and hooks...');
+criticalLog('='.repeat(50));
 console.log('🔄 Running pre-uninstall cleanup for Stigmergy CLI...');
 
 try {
@@ -18,6 +27,7 @@ try {
     verbose: true   // Show detailed output
   });
 
+  criticalLog('🗑️ Starting enhanced uninstallation process...\n');
   console.log('🗑️ Starting enhanced uninstallation process...\n');
 
   // Execute the uninstallation asynchronously 

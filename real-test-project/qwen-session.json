@@ -1,0 +1,38 @@
+{
+  "id": "qwen-session-1",
+  "title": "API Design Discussion",
+  "topic": "REST API Design",
+  "updatedAt": "2025-12-27T14:30:00.000Z",
+  "createdAt": "2025-12-27T14:00:00.000Z",
+  "messageCount": 4,
+  "projectPath": "D:\\stigmergy-CLI-Multi-Agents\\real-test-project",
+  "workingDirectory": "D:\\stigmergy-CLI-Multi-Agents\\real-test-project",
+  "messages": [
+    {
+      "id": "msg-1",
+      "role": "user",
+      "content": "How should I design a REST API for a blog platform?",
+      "timestamp": "2025-12-27T14:05:00.000Z"
+    },
+    {
+      "id": "msg-2", 
+      "role": "assistant",
+      "content": "For a blog platform, you'll want resources like /posts, /users, /comments. Use standard HTTP methods (GET, POST, PUT, DELETE).",
+      "timestamp": "2025-12-27T14:06:00.000Z"
+    },
+    {
+      "id": "msg-3",
+      "role": "user", 
+      "content": "What about authentication and authorization?",
+      "timestamp": "2025-12-27T14:15:00.000Z"
+    },
+    {
+      "id": "msg-4",
+      "role": "assistant",
+      "content": "Use JWT tokens for authentication. Implement role-based access control for admin vs regular users.",
+      "timestamp": "2025-12-27T14:16:00.000Z"
+    }
+  ],
+  "tags": ["api", "rest", "blog", "authentication"],
+  "cliTool": "qwen"
+}

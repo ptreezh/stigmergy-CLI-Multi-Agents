@@ -1,8 +1,8 @@
 """
-CodeBuddy CLI 适配器包
+CodeBuddy CLI Adapter Package
 
-基于 CodeBuddy CLI 官方 Skills Hook 系统的原生集成
-完全无抽象层设计
+Native integration based on CodeBuddy CLI's official Skills Hook system
+Complete no abstraction layer design
 """
 
 from .standalone_codebuddy_adapter import get_standalone_codebuddy_adapter, StandaloneCodeBuddyAdapter

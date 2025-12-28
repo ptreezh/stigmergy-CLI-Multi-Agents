@@ -273,12 +273,12 @@ class CodexIntegrationInstaller {
       const docContent = `# Codex CLI Cross-CLI Communication Guide
 
 ## Cross-CLI Communication
-When you need to call other AI tools, please use the following prompt <<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
+When you need to call other AI tools, please use the following prompt<<<Execute the following command in shell: stigmergy <tool_name> <task_description>>>>
 
 Examples:
-- Run in shell: stigmergy claude "write a Python function"
-- Run in shell: stigmergy gemini "translate this text"
-- Run in shell: stigmergy qwen "analyze this code"
+- Run in shell: stigmergy claude "Write a Python function"
+- Run in shell: stigmergy gemini "Translate this text"
+- Run in shell: stigmergy qwen "Analyze this code"
 
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
@@ -309,7 +309,7 @@ Examples:
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(codexMdPath, crossCliContent);
-        console.log('[OK] 在CODEX.md末尾追加Cross-CLI通信提示');
+        console.log('[OK] Append Cross-CLI communication prompt to CODEX.md');
       } catch (error) {
         // 文件可能不存在，忽略
       }
@@ -328,31 +328,30 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
     console.log('Codex CLI Cross-CLI Integration Installer');
     console.log('='.repeat(50));
 
-    // 步骤1. 创建配置目录
-    console.log('\n步骤1. 创建配置目录...');
-    const configDirSuccess = await this.createCodexConfigDirectory();
-
-    // 步骤2. 安装Slash Commands配置
-    console.log('\n步骤2. 安装Slash Commands配置...');
-    const slashCommandsSuccess = await this.installCodexSlashCommands(true);
-
-    // 步骤3. 复制适配器文件
-    console.log('\n步骤3. 复制适配器文件...');
-    const adapterSuccess = await this.copyAdapterFile();
-
-    // 步骤4. 创建Cross-CLI通信指南
-    console.log('\n步骤4. 创建Cross-CLI通信指南...');
-    const guideSuccess = await this.createGlobalCrossCliDocumentation();
-
-    // 步骤5. 验证安装
-    console.log('\n步骤5. 验证安装...');
-    const verificationSuccess = await this.verifyInstallation();
-
-    const overallSuccess = configDirSuccess && slashCommandsSuccess && adapterSuccess && guideSuccess && verificationSuccess;
+          // Step 1. Create config directory
+          console.log('\nStep 1. Creating config directory...');
+          const configDirSuccess = await this.createCodexConfigDirectory();
     
-    const duration = Date.now() - this.startTime;
-    console.log(`\n[INFO] 安装耗时: ${duration}ms`);
+          // Step 2. Install Slash Commands config
+          console.log('\nStep 2. Installing Slash Commands config...');
+          const slashCommandsSuccess = await this.installCodexSlashCommands(true);
     
+          // Step 3. Copy adapter files
+          console.log('\nStep 3. Copying adapter files...');
+          const adapterSuccess = await this.copyAdapterFile();
+    
+          // Step 4. Create Cross-CLI communication guide
+          console.log('\nStep 4. Creating Cross-CLI communication guide...');
+          const guideSuccess = await this.createGlobalCrossCliDocumentation();
+    
+          // Step 5. Verify installation
+          console.log('\nStep 5. Verifying installation...');
+          const verificationSuccess = await this.verifyInstallation();
+    
+          const overallSuccess = configDirSuccess && slashCommandsSuccess && adapterSuccess && guideSuccess && verificationSuccess;
+          
+          const duration = Date.now() - this.startTime;
+          console.log(`\n[INFO] Installation took: ${duration}ms`);    
     if (overallSuccess) {
       console.log('\n[SUCCESS] Codex CLI cross-CLI integration installed successfully!');
     } else {

@@ -1,11 +1,11 @@
 """
-独立 CodeBuddy CLI 适配器 - 完全无抽象层
+Standalone CodeBuddy CLI Adapter - Completely No Abstraction Layer
 
-基于 CodeBuddy CLI 官方 Skills Hook 系统的原生集成：
-- 使用 CodeBuddy CLI 官方 Skills Hook 机制
-- 无任何抽象基类或 Factory 系统
-- 不改变 CLI 启动和使用方式
-- 纯粹的原生扩展实现
+Native integration based on CodeBuddy CLI's official Skills Hook system:
+- Uses CodeBuddy CLI's official Skills Hook mechanism
+- No abstract base classes or Factory system
+- Does not change CLI startup and usage methods
+- Pure native extension implementation
 """
 
 import os
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class CodeBuddySkillsContext:
-    """CodeBuddy CLI Skills Hook 上下文 - 独立实现"""
+    """CodeBuddy CLI Skills Hook Context - Independent Implementation"""
 
     def __init__(self, skill_name: str = "", parameters: Dict[str, Any] = None, metadata: Optional[Dict] = None):
         self.skill_name = skill_name
@@ -33,21 +33,21 @@ class CodeBuddySkillsContext:
 
 class StandaloneCodeBuddyAdapter:
     """
-    独立的 CodeBuddy CLI Skills Hook 适配器
+    Standalone CodeBuddy CLI Skills Hook Adapter
 
-    直接基于 CodeBuddy CLI 官方 Skills Hook 系统，无任何抽象层：
-    - Skills Hook 系统集成
-    - Buddy 适配器模式
-    - 原生技能调用
+    Directly based on CodeBuddy CLI's official Skills Hook system, no abstraction layer:
+    - Skills Hook system integration
+    - Buddy adapter pattern
+    - Native skill invocation
     """
 
     def __init__(self):
-        """初始化 - 纯实现，无抽象"""
+        """Initialize - Pure implementation, no abstraction"""
         self.cli_name = "codebuddy"
         self.version = "1.0.0"
         self.buddy_name = "CrossCLI Buddy"
 
-        # Skills Hook 配置
+        # Skills Hook configuration
         self.skills_config_file = os.path.expanduser("~/.config/codebuddy/skills_hooks.json")
         self.skills_registered = False
 

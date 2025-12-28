@@ -1,0 +1,15 @@
+{
+  "projectPath": "D:\\stigmergy-CLI-Multi-Agents\\test-command-consistency",
+  "selectedCLIs": [
+    "claude",
+    "gemini",
+    "qwen",
+    "iflow",
+    "codebuddy",
+    "qodercli",
+    "codex",
+    "kode"
+  ],
+  "initializedAt": "2025-12-27T23:57:14.049Z",
+  "version": "1.0.4"
+}

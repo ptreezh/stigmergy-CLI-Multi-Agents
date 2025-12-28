@@ -179,7 +179,7 @@ class LanguagePatternManager {
         
         // Validate that the target CLI is supported
         const supportedCLIs = [
-          'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot'
+          'claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'codex', 'copilot', 'kode'
         ];
         
         if (supportedCLIs.includes(targetCLI)) {

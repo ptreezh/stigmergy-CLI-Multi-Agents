@@ -1,0 +1,152 @@
+{
+  "timestamp": "2025-12-15T13:08:20.777Z",
+  "summary": {
+    "total": 7,
+    "installed": 7,
+    "integrationExists": 7,
+    "codeValid": 7,
+    "commandWorks": 0
+  },
+  "results": {
+    "claude": {
+      "name": "Claude CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": false,
+        "hasExports": true,
+        "size": 7188
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": ""
+      }
+    },
+    "gemini": {
+      "name": "Gemini CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 14046
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": ""
+      }
+    },
+    "qwen": {
+      "name": "Qwen CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 10430
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": ""
+      }
+    },
+    "iflow": {
+      "name": "IFlow CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": false,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 10164
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": ""
+      }
+    },
+    "codebuddy": {
+      "name": "CodeBuddy CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 12310
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": ""
+      }
+    },
+    "qodercli": {
+      "name": "QoderCLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 11401
+      },
+      "commandTest": {
+        "success": false,
+        "error": "spawnSync C:\\WINDOWS\\system32\\cmd.exe ETIMEDOUT",
+        "output": "\u001b[?25l\u001b[?2004h\u001b[s\u001b[A\u001b[DTerminal window too small. Required: 60x12, Current: 0x0\u001b[0J\r\n\u001b[D\u001b[J"
+      }
+    },
+    "codex": {
+      "name": "Codex CLI",
+      "installed": true,
+      "integrationExists": true,
+      "codeValidation": {
+        "valid": true,
+        "hasHandleHistory": true,
+        "hasScanSessions": true,
+        "hasFormatResponse": true,
+        "hasHistoryQuery": true,
+        "hasSessionScanner": true,
+        "hasExports": true,
+        "size": 11283
+      },
+      "commandTest": {
+        "success": false,
+        "error": "Command failed: codex \"/history\"\nError: stdin is not a terminal\n",
+        "output": ""
+      }
+    }
+  }
+}

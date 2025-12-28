@@ -1,0 +1,250 @@
+{
+  "timestamp": "2025-12-15T15:51:07.890Z",
+  "summary": {
+    "total": 38,
+    "passed": 37,
+    "failed": 0,
+    "skipped": 1
+  },
+  "availableCLIs": [
+    "claude",
+    "qwen",
+    "gemini",
+    "iflow",
+    "qodercli",
+    "codebuddy",
+    "copilot",
+    "codex"
+  ],
+  "results": [
+    {
+      "name": "清理npm缓存",
+      "status": "passed",
+      "duration": 557,
+      "category": "环境准备"
+    },
+    {
+      "name": "清理项目缓存",
+      "status": "passed",
+      "duration": 567,
+      "category": "环境准备"
+    },
+    {
+      "name": "清理临时文件",
+      "status": "passed",
+      "duration": 1,
+      "category": "环境准备"
+    },
+    {
+      "name": "stigmergy --version",
+      "status": "passed",
+      "duration": 439,
+      "category": "核心命令"
+    },
+    {
+      "name": "stigmergy --help",
+      "status": "passed",
+      "duration": 397,
+      "category": "核心命令"
+    },
+    {
+      "name": "stigmergy diagnostic",
+      "status": "passed",
+      "duration": 13975,
+      "category": "核心命令"
+    },
+    {
+      "name": "stigmergy status",
+      "status": "passed",
+      "duration": 13992,
+      "category": "核心命令"
+    },
+    {
+      "name": "skill list (完整命令)",
+      "status": "passed",
+      "duration": 427,
+      "category": "技能命令"
+    },
+    {
+      "name": "skill-l (简化命令)",
+      "status": "passed",
+      "duration": 418,
+      "category": "技能命令"
+    },
+    {
+      "name": "skill sync (完整命令)",
+      "status": "passed",
+      "duration": 385,
+      "category": "技能命令"
+    },
+    {
+      "name": "skill (简化命令 - 默认sync)",
+      "status": "passed",
+      "duration": 437,
+      "category": "技能命令"
+    },
+    {
+      "name": "skill-r (读取技能)",
+      "status": "passed",
+      "duration": 837,
+      "category": "技能命令"
+    },
+    {
+      "name": "skill-v (验证技能)",
+      "status": "skipped",
+      "duration": 1,
+      "reason": "SKIP: 无法访问技能目录",
+      "category": "技能命令"
+    },
+    {
+      "name": "验证 AGENTS.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 claude.md 同步",
+      "status": "passed",
+      "duration": 2,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 qwen.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 gemini.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 iflow.md 同步",
+      "status": "passed",
+      "duration": 1,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 qodercli.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 codebuddy.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 copilot.md 同步",
+      "status": "passed",
+      "duration": 0,
+      "category": "配置同步"
+    },
+    {
+      "name": "验证 codex.md 同步",
+      "status": "passed",
+      "duration": 1,
+      "category": "配置同步"
+    },
+    {
+      "name": "检查 claude CLI",
+      "status": "passed",
+      "duration": 57,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 qwen CLI",
+      "status": "passed",
+      "duration": 55,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 gemini CLI",
+      "status": "passed",
+      "duration": 55,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 iflow CLI",
+      "status": "passed",
+      "duration": 55,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 qodercli CLI",
+      "status": "passed",
+      "duration": 53,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 codebuddy CLI",
+      "status": "passed",
+      "duration": 53,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 copilot CLI",
+      "status": "passed",
+      "duration": 54,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "检查 codex CLI",
+      "status": "passed",
+      "duration": 54,
+      "category": "CLI可用性"
+    },
+    {
+      "name": "交叉调用 claude",
+      "status": "passed",
+      "duration": 15547,
+      "category": "CLI交叉调用"
+    },
+    {
+      "name": "交叉调用 qwen",
+      "status": "passed",
+      "duration": 6591,
+      "category": "CLI交叉调用"
+    },
+    {
+      "name": "交叉调用 gemini",
+      "status": "passed",
+      "duration": 30019,
+      "category": "CLI交叉调用"
+    },
+    {
+      "name": "从本地读取技能",
+      "status": "passed",
+      "duration": 798,
+      "category": "技能使用"
+    },
+    {
+      "name": "技能安装测试（模拟）",
+      "status": "passed",
+      "duration": 387,
+      "category": "技能使用"
+    },
+    {
+      "name": "SkillParser单元测试",
+      "status": "passed",
+      "duration": 137,
+      "category": "单元测试"
+    },
+    {
+      "name": "集成测试",
+      "status": "passed",
+      "duration": 144,
+      "category": "集成测试"
+    },
+    {
+      "name": "同步功能测试",
+      "status": "passed",
+      "duration": 251,
+      "category": "集成测试"
+    }
+  ]
+}

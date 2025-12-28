@@ -1,0 +1,14 @@
+{
+  "projectPath": "D:\\stigmergy-CLI-Multi-Agents",
+  "selectedCLIs": [
+    "claude",
+    "gemini",
+    "qwen",
+    "iflow",
+    "codebuddy",
+    "qodercli",
+    "codex"
+  ],
+  "initializedAt": "2025-12-24T11:51:39.748Z",
+  "version": "1.0.4"
+}

@@ -158,7 +158,7 @@ Examples:
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(qwenMdPath, crossCliContent);
-        console.log('[OK] 在QWEN.md末尾追加Cross-CLI通信提示');
+        console.log('[OK] Appended Cross-CLI communication prompt to QWEN.md');
       } catch (e) {
         // File doesn't exist, that's ok
       }
@@ -171,7 +171,7 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
   }
 
   async verifyInstallation() {
-    console.log('\n验证Qwen CLI集成安装...');
+    console.log('\nVerifying Qwen CLI integration installation...');
 
     // Check config directory
     if (!await fs.access(this.configDir).then(() => true).catch(() => false)) {
@@ -236,19 +236,19 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
     console.log('==========================================');
 
     // Execute installation
-    console.log('Step 1. 创建配置目录...');
+    console.log('Step 1. Create config directory...');
     await this.createConfigDirectory();
 
-    console.log('\nStep 2. 安装配置...');
+    console.log('\nStep 2. Install config...');
     const configSuccess = await this.installConfig();
 
-    console.log('\nStep 3. 安装钩子...');
+    console.log('\nStep 3. Install hooks...');
     const hooksSuccess = await this.installHooks();
 
-    console.log('\nStep 4. 复制适配器文件...');
+    console.log('\nStep 4. Copy adapter files...');
     const adapterSuccess = await this.copyAdapterFiles();
 
-    console.log('\nStep 5. 验证安装...');
+    console.log('\nStep 5. Verify installation...');
     const verificationSuccess = await this.verifyInstallation();
 
     const overallSuccess = configSuccess && hooksSuccess && adapterSuccess && verificationSuccess;

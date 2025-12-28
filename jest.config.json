@@ -1,8 +1,10 @@
 {
   "testEnvironment": "node",
+  "rootDir": ".",
   "testMatch": [
     "**/tests/**/*.test.js",
-    "**/test/**/*.test.js"
+    "**/test/**/*.test.js",
+    "**/__tests__/**/*.test.js"
   ],
   "collectCoverageFrom": [
     "src/**/*.js",
@@ -13,7 +15,12 @@
   "coverageReporters": ["text", "lcov", "html"],
   "moduleFileExtensions": ["js", "json"],
   "testTimeout": 15000,
-  "verbose": true,
-  "collectCoverage": true,
-  "passWithNoTests": false
+  "verbose": false,
+  "collectCoverage": false,
+  "passWithNoTests": false,
+  "moduleNameMapper": {
+    "^@core/(.*)$": "<rootDir>/src/core/$1",
+    "^@cli/(.*)$": "<rootDir>/src/cli/$1",
+    "^@utils/(.*)$": "<rootDir>/src/utils/$1"
+  }
 }

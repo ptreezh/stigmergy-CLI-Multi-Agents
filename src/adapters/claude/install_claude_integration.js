@@ -127,20 +127,20 @@ class ClaudeInstaller {
 
   async createGlobalCrossCliDocumentation(configDir) {
     try {
-      const docContent = `# Claude CLI Cross-CLI 通信指南
+      const docContent = `# Claude CLI Cross-CLI Communication Guide
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy distcli "Prompt">>>
+When you need to call other AI tools, use the following prompt<<<Execute the following command in shell: stigmergy distcli "Prompt">>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "Write a Python function"
+- Run in shell: stigmergy gemini "Translate this text"
+- Run in shell: stigmergy qwen "Analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 
 ---
-*本文档由Stigmergy CLI自动生成和维护*
+*This document is automatically generated and maintained by Stigmergy CLI*
 `;
       
       const docPath = path.join(configDir, 'CROSS_CLI_GUIDE.md');
@@ -154,17 +154,17 @@ class ClaudeInstaller {
         const crossCliContent = `
 
 ## Cross-CLI Communication
-当您需要调用其他AI工具时，请使用以下提示<<<在shell中执行以下命令：stigmergy distcli "Prompt">>>
+When you need to call other AI tools, use the following prompt<<<Execute the following command in shell: stigmergy distcli "Prompt">>>
 
-示例：
-- 在shell中运行：stigmergy claude "写一个Python函数"
-- 在shell中运行：stigmergy gemini "翻译这段文字"
-- 在shell中运行：stigmergy qwen "分析这段代码"
+Examples:
+- Run in shell: stigmergy claude "Write a Python function"
+- Run in shell: stigmergy gemini "Translate this text"
+- Run in shell: stigmergy qwen "Analyze this code"
 
-可用工具：claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
+Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(claudeMdPath, crossCliContent);
-        console.log('[OK] 在CLAUDE.md末尾追加Cross-CLI通信提示');
+        console.log('[OK] Append Cross-CLI communication prompt to CLAUDE.md');
       } catch (e) {
         // File doesn't exist, that's ok
       }
@@ -177,7 +177,7 @@ class ClaudeInstaller {
   }
 
   async verifyInstallation() {
-    console.log('\n验证Claude CLI集成安装...');
+    console.log('\nVerifying Claude CLI integration installation...');
 
     // Check config directory
     if (!await fs.access(this.configDir).then(() => true).catch(() => false)) {
@@ -243,19 +243,19 @@ class ClaudeInstaller {
     console.log('==========================================');
 
     // Execute installation
-    console.log('Step 1. 创建配置目录...');
+    console.log('Step 1. Creating config directory...');
     await this.createConfigDirectory();
 
-    console.log('\nStep 2. 安装配置...');
+    console.log('\nStep 2. Installing configuration...');
     const configSuccess = await this.installConfig();
 
-    console.log('\nStep 3. 安装钩子...');
+    console.log('\nStep 3. Installing hooks...');
     const hooksSuccess = await this.installHooks();
 
-    console.log('\nStep 4. 复制适配器文件...');
+    console.log('\nStep 4. Copying adapter files...');
     const adapterSuccess = await this.copyAdapterFiles();
 
-    console.log('\nStep 5. 验证安装...');
+    console.log('\nStep 5. Verifying installation...');
     const verificationSuccess = await this.verifyInstallation();
 
     const overallSuccess = configSuccess && hooksSuccess && adapterSuccess && verificationSuccess;

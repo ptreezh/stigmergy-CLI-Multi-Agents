@@ -106,6 +106,15 @@ class EnhancedCLIInstaller {
         return { success: true, mode: 'elevated' };
       }
 
+      // Check if we're in a container environment (common indicators)
+      const inContainer = await this.checkContainerEnvironment();
+      if (inContainer) {
+        this.log('info', 'Detected container environment, using user-space installation');
+        this.permissionMode = 'user-space';
+        this.permissionConfigured = true;
+        return { success: true, mode: 'user-space' };
+      }
+
       // Attempt standard installation first
       const testResult = await this.attemptTestInstallation();
 
@@ -128,9 +137,10 @@ class EnhancedCLIInstaller {
           return { success: true, mode: 'elevated' };
         } else {
           this.log('error', 'Failed to set up elevated permissions');
-          this.permissionMode = 'failed';
+          this.log('info', 'Falling back to user-space installation');
+          this.permissionMode = 'user-space';
           this.permissionConfigured = true;
-          return { success: false, mode: 'failed', error: elevatedSetup.error };
+          return { success: true, mode: 'user-space' };
         }
       }
 
@@ -142,9 +152,10 @@ class EnhancedCLIInstaller {
 
     } catch (error) {
       this.log('error', `Permission setup failed: ${error.message}`);
-      this.permissionMode = 'failed';
+      this.log('info', 'Falling back to user-space installation');
+      this.permissionMode = 'user-space';
       this.permissionConfigured = true;
-      return { success: false, mode: 'failed', error: error.message };
+      return { success: true, mode: 'user-space', error: error.message };
     }
   }
 
@@ -166,6 +177,59 @@ class EnhancedCLIInstaller {
     } else {
       // Unix-like systems: Check if we have root privileges
       return process.getuid && process.getuid() === 0;
+    }
+  }
+
+  /**
+   * Check if we're running in a container environment
+   */
+  async checkContainerEnvironment() {
+    try {
+      // Check for container indicators
+      const fs = require('fs');
+
+      // Check for .dockerenv file
+      if (fs.existsSync('/.dockerenv')) {
+        return true;
+      }
+
+      // Check for container environment variables
+      if (process.env.container || process.env.DOCKER_CONTAINER) {
+        return true;
+      }
+
+      // Check cgroup for container indicators
+      try {
+        if (fs.existsSync('/proc/1/cgroup')) {
+          const cgroupContent = fs.readFileSync('/proc/1/cgroup', 'utf8');
+          if (cgroupContent.includes('docker') || cgroupContent.includes('containerd')) {
+            return true;
+          }
+        }
+      } catch (e) {
+        // Ignore errors reading cgroup
+      }
+
+      // Check for container-specific files
+      const containerIndicators = [
+        '/run/.containerenv', // Podman/Docker
+        '/sys/fs/cgroup/cpu/cpu.cfs_quota_us', // Common in containers
+      ];
+
+      for (const indicator of containerIndicators) {
+        try {
+          if (fs.existsSync(indicator)) {
+            return true;
+          }
+        } catch (e) {
+          // Ignore errors
+        }
+      }
+
+      return false;
+    } catch (error) {
+      // If we can't determine, assume not in container
+      return false;
     }
   }
 
@@ -304,6 +368,15 @@ class EnhancedCLIInstaller {
       await this.setupPermissions();
     }
 
+    // Check if we're in a container environment and force user-space mode if needed
+    if (this.permissionMode !== 'user-space') {
+      const inContainer = await this.checkContainerEnvironment();
+      if (inContainer) {
+        this.log('info', 'Detected container environment, switching to user-space installation');
+        this.permissionMode = 'user-space';
+      }
+    }
+
     this.log('info', `Installing ${toolInfo.name} (${toolName})...`);
 
     try {
@@ -358,6 +431,8 @@ class EnhancedCLIInstaller {
         return await this.executeStandardInstallation(toolInfo);
       case 'elevated':
         return await this.executeElevatedInstallation(toolInfo);
+      case 'user-space':
+        return await this.executeUserSpaceInstallation(toolInfo);
       case 'failed':
         return await this.executeFallbackInstallation(toolInfo);
       default:
@@ -412,10 +487,25 @@ class EnhancedCLIInstaller {
         return { success: true, error: null };
       } else {
         const errorMessage = result.stderr || result.stdout || `Exit code ${result.status}`;
+
+        // Check if this is a permission error and switch to user-space if needed
+        if (this.isPermissionError(errorMessage)) {
+          this.log('warn', `Standard installation failed due to permission error, switching to user-space installation...`);
+          this.permissionMode = 'user-space';
+          return await this.executeUserSpaceInstallation(toolInfo);
+        }
+
         return { success: false, error: errorMessage };
       }
 
     } catch (error) {
+      // Check if this is a permission error and switch to user-space if needed
+      if (this.isPermissionError(error.message)) {
+        this.log('warn', `Standard installation failed due to permission error, switching to user-space installation...`);
+        this.permissionMode = 'user-space';
+        return await this.executeUserSpaceInstallation(toolInfo);
+      }
+
       return { success: false, error: error.message };
     }
   }
@@ -477,12 +567,22 @@ class EnhancedCLIInstaller {
         this.log('warn', `Could not clean up temp script: ${cleanupError.message}`);
       }
 
-      return {
-        success: result.status === 0,
-        error: result.status !== 0 ? 'Windows elevated installation failed' : null
-      };
+      if (result.status === 0) {
+        return {
+          success: true,
+          error: null
+        };
+      } else {
+        // If elevated installation failed, try user-space installation
+        this.log('warn', `Elevated installation failed, trying user-space installation...`);
+        this.permissionMode = 'user-space';
+        return await this.executeUserSpaceInstallation(toolInfo);
+      }
     } catch (error) {
-      return { success: false, error: error.message };
+      // If elevated installation failed, try user-space installation
+      this.log('warn', `Elevated installation failed (${error.message}), trying user-space installation...`);
+      this.permissionMode = 'user-space';
+      return await this.executeUserSpaceInstallation(toolInfo);
     }
   }
 
@@ -490,15 +590,21 @@ class EnhancedCLIInstaller {
    * Execute Unix elevated installation
    */
   async executeUnixElevatedInstallation(toolInfo) {
-    const permissionSetup = await this.setupPermissions();
+    // Use the detected privilege escalation tool
+    const privilegeSetup = await this.setupUnixElevatedContext();
+
+    if (!privilegeSetup.success) {
+      this.log('warn', 'No privilege escalation tool available, using user-space installation...');
+      return await this.executeUserSpaceInstallation(toolInfo);
+    }
 
     // If no privilege escalation tool is available, use user-space installation
-    if (permissionSetup.userSpaceOnly) {
+    if (privilegeSetup.userSpaceOnly) {
       return await this.executeUserSpaceInstallation(toolInfo);
     }
 
     // Use the detected privilege escalation tool
-    const privilegeTool = permissionSetup.privilegeTool || 'sudo';
+    const privilegeTool = privilegeSetup.privilegeTool || 'sudo';
     const command = `${privilegeTool} ${toolInfo.install}`;
 
     try {
@@ -660,9 +766,22 @@ class EnhancedCLIInstaller {
       if (result.status === 0) {
         return { success: true, error: null };
       } else {
-        return { success: false, error: `Fallback failed: ${result.stderr}` };
+        const errorMessage = result.stderr || `Fallback failed with exit code ${result.status}`;
+        // If fallback failed due to permissions, try user-space installation
+        if (this.isPermissionError(errorMessage)) {
+          this.log('warn', `Fallback installation failed due to permission error, switching to user-space installation...`);
+          this.permissionMode = 'user-space';
+          return await this.executeUserSpaceInstallation(toolInfo);
+        }
+        return { success: false, error: errorMessage };
       }
     } catch (error) {
+      // If fallback failed due to permissions, try user-space installation
+      if (this.isPermissionError(error.message)) {
+        this.log('warn', `Fallback installation failed due to permission error, switching to user-space installation...`);
+        this.permissionMode = 'user-space';
+        return await this.executeUserSpaceInstallation(toolInfo);
+      }
       return { success: false, error: error.message };
     }
   }
@@ -769,9 +888,21 @@ class EnhancedCLIInstaller {
         continue;
       }
 
+      // Determine the appropriate upgrade command based on permission mode
+      let upgradeCommand;
+      if (this.permissionMode === 'user-space') {
+        // For user-space installations, upgrade to user directory
+        const os = require('os');
+        const path = require('path');
+        let userNpmDir = process.env.NPM_CONFIG_PREFIX || path.join(os.homedir(), '.npm-global');
+        upgradeCommand = `npm install -g --prefix "${userNpmDir}" ${toolName}`;
+      } else {
+        upgradeCommand = `npm upgrade -g ${toolName}`;
+      }
+
       const toolInfo = {
         ...originalInfo,
-        install: `npm upgrade -g ${toolName}`,
+        install: upgradeCommand,
         name: `${originalInfo.name} (Upgrade)`
       };
 
@@ -896,7 +1027,17 @@ class EnhancedCLIInstaller {
       return false;
     }
 
-    const upgradeCommand = `npm upgrade -g ${toolName}`;
+    // Determine the appropriate upgrade command based on permission mode
+    let upgradeCommand;
+    if (this.permissionMode === 'user-space') {
+      // For user-space installations, upgrade to user directory
+      const os = require('os');
+      const path = require('path');
+      let userNpmDir = process.env.NPM_CONFIG_PREFIX || path.join(os.homedir(), '.npm-global');
+      upgradeCommand = `npm install -g --prefix "${userNpmDir}" ${toolName}`;
+    } else {
+      upgradeCommand = `npm upgrade -g ${toolName}`;
+    }
 
     this.results.installations[toolName] = {
       startTime: Date.now(),

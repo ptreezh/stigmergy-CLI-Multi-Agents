@@ -631,9 +631,11 @@ async function executeCommand(command, args = [], options = {}) {
   const opts = {
     stdio: 'inherit',
     shell: true,
-    timeout: 300000, // 5 minute timeout
     ...options,
   };
+
+  // Extract timeout from options to handle separately
+  const timeoutValue = options.timeout || 300000; // Default to 5 minutes if not specified
 
   return new Promise((resolve, reject) => {
     // Don't log the command if it contains sensitive information
@@ -699,16 +701,73 @@ async function executeCommand(command, args = [], options = {}) {
         });
       }
 
-      child.on('close', (code) => {
-        resolve({
+      let timeoutId = null;
+
+      // Flag to ensure timeout is cleared only once
+      let timeoutCleared = false;
+
+      // Flag to prevent duplicate promise resolution
+      let promiseResolved = false;
+
+      // Function to clear timeout safely
+      const clearTimeoutSafely = () => {
+        if (timeoutId && !timeoutCleared) {
+          clearTimeout(timeoutId);
+          timeoutCleared = true;
+        }
+      };
+
+      // Function to resolve safely (prevent duplicate resolution)
+      const safeResolve = (result) => {
+        if (!promiseResolved) {
+          promiseResolved = true;
+          resolve(result);
+        }
+      };
+
+      // Function to reject safely (prevent duplicate rejection)
+      const safeReject = (error) => {
+        if (!promiseResolved) {
+          promiseResolved = true;
+          reject(error);
+        }
+      };
+
+      child.on('exit', (code, signal) => {
+        // Clear timeout when process exits
+        clearTimeoutSafely();
+
+        // Resolve with collected stdout/stderr
+        safeResolve({
           code,
+          signal,
           stdout,
           stderr,
           success: code === 0,
         });
       });
 
+      child.on('close', (code, signal) => {
+        // Clear timeout when all stdio streams are closed
+        clearTimeoutSafely();
+
+        // Only resolve if not already resolved via 'exit' event
+        // This prevents duplicate resolution
+        if (!promiseResolved) {
+          safeResolve({
+            code,
+            signal,
+            stdout,
+            stderr,
+            success: code === 0,
+          });
+        }
+      });
+
       child.on('error', (error) => {
+        // Clear timeout on error
+        clearTimeoutSafely();
+
         // Provide more detailed error information
         let errorMessage = error.message;
         if (error.code === 'ENOENT') {
@@ -728,16 +787,16 @@ async function executeCommand(command, args = [], options = {}) {
       });
 
       // Handle timeout
-      if (opts.timeout) {
-        setTimeout(() => {
+      if (timeoutValue) {
+        timeoutId = setTimeout(() => {
           child.kill();
           reject({
             error: new Error('Command timeout'),
-            message: `Command timed out after ${opts.timeout}ms`,
+            message: `Command timed out after ${timeoutValue}ms`,
             stdout,
             stderr,
           });
-        }, opts.timeout);
+        }, timeoutValue);
       }
     } catch (error) {
       reject({

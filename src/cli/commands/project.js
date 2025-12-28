@@ -150,7 +150,7 @@ async function handleInitCommand(options = {}) {
 
     // Create basic config
     const config = {
-      version: '1.3.2-beta.3',
+      version: '1.3.8',
       created: new Date().toISOString(),
       project: path.basename(projectDir)
     };
@@ -336,26 +336,41 @@ async function executeSmartRoutedCommand(route, options = {}) {
 
     // Use enhanced parameter handling for one-time mode only
     if (mode === 'one-time') {
-      const EnhancedCLIParameterHandler = require('../../core/enhanced_cli_parameter_handler');
-      const paramHandler = new EnhancedCLIParameterHandler();
+      try {
+        const EnhancedCLIParameterHandler = require('../../core/enhanced_cli_parameter_handler');
+        const paramHandler = new EnhancedCLIParameterHandler();
 
-      // Generate optimized arguments with agent/skill support
-      const paramResult = await paramHandler.generateArgumentsWithRetry(
-        route.tool,
-        route.prompt,
-        {
-          maxRetries,
-          enableAgentSkillOptimization: true
+        // Generate optimized arguments with agent/skill support
+        // Add timeout protection for parameter generation
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Parameter generation timeout')), 30000); // 30 second timeout for parameter generation
+        });
+
+        const paramPromise = paramHandler.generateArgumentsWithRetry(
+          route.tool,
+          route.prompt,
+          {
+            maxRetries,
+            enableAgentSkillOptimization: true
+          }
+        );
+
+        const paramResult = await Promise.race([paramPromise, timeoutPromise]);
+
+        toolArgs = paramResult.arguments;
+
+        // Re-add OAuth authentication (paramResult might overwrite)
+        toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
+
+        if (verbose) {
+          console.log(chalk.gray(`[DEBUG] Generated args: ${toolArgs.join(' ')}`));
         }
-      );
-
-      toolArgs = paramResult.arguments;
-
-      // Re-add OAuth authentication (paramResult might overwrite)
-      toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
-
-      if (verbose) {
-        console.log(chalk.gray(`[DEBUG] Generated args: ${toolArgs.join(' ')}`));
+      } catch (paramError) {
+        console.log(chalk.yellow(`[WARN] Parameter generation failed: ${paramError.message}, using basic arguments`));
+        // Fallback to basic arguments if enhanced parameter generation fails
+        if (verbose) {
+          console.log(chalk.gray(`[DEBUG] Falling back to basic args: ${toolArgs.join(' ')}`));
+        }
       }
     } else {
       if (verbose) {
@@ -379,15 +394,23 @@ async function executeSmartRoutedCommand(route, options = {}) {
       console.log(chalk.gray(`[DEBUG] Mode: ${mode}`));
     }
 
+    console.log(chalk.gray(`[EXEC] ${route.tool}: ${route.prompt}`)); // Add this to match direct command format
+
     // Execute the command
     // For interactive mode, we need stdio: 'inherit' to allow user interaction
+    // For one-time mode, we should use 'inherit' to ensure CLI tools can properly execute
+    const stdioOption = mode === 'interactive' ? 'inherit' : 'inherit'; // Use 'inherit' for both modes to ensure proper CLI execution
+
+    console.log(chalk.gray(`[DEBUG] About to execute command with args: ${toolArgs.join(' ')}`)); // Debug log
+    console.log(chalk.gray(`[DEBUG] Using stdio option: ${stdioOption}`)); // Debug log
     const result = await executeCommand(toolPath, toolArgs, {
-      stdio: mode === 'interactive' ? 'inherit' : 'pipe',
+      stdio: stdioOption,
       shell: true,
       cwd,
       env,
       timeout: 300000 // 5 minutes
     });
+    console.log(chalk.gray(`[DEBUG] Command execution completed`)); // Debug log
 
     return { success: true, tool: route.tool, result, mode };
 

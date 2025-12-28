@@ -1,8 +1,8 @@
 """
-Codex CLI 适配器包
+Codex CLI Adapter Package
 
-基于 OpenAI Codex API 的斜杠命令和 MCP 扩展系统
-支持原生集成和跨 CLI 调用功能
+Slash command and MCP extension system based on OpenAI Codex API
+Supports native integration and cross CLI call functionality
 """
 
 from .slash_command_adapter import CodexSlashCommandAdapter
