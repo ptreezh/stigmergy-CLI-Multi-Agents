@@ -60,7 +60,9 @@ class CodexIntegrationInstaller {
           module: 'src.core.enhanced_init_processor',
           enabled: true,
           cross_cli_enabled: true,
-          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot']
+          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot'],
+          resumesession_enabled: true,
+          resumesession_integration: true
         },
         scan: {
           command: 'scan',
@@ -68,7 +70,9 @@ class CodexIntegrationInstaller {
           module: 'src.core.ai_environment_scanner',
           enabled: true,
           cross_cli_enabled: true,
-          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot']
+          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot'],
+          resumesession_enabled: true,
+          resumesession_integration: true
         },
         status: {
           command: 'status',
@@ -76,7 +80,9 @@ class CodexIntegrationInstaller {
           module: 'src.core.cli_hook_integration',
           enabled: true,
           cross_cli_enabled: true,
-          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot']
+          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot'],
+          resumesession_enabled: true,
+          resumesession_integration: true
         },
         deploy: {
           command: 'deploy',
@@ -84,7 +90,9 @@ class CodexIntegrationInstaller {
           module: 'src.core.cli_hook_integration',
           enabled: true,
           cross_cli_enabled: true,
-          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot']
+          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot'],
+          resumesession_enabled: true,
+          resumesession_integration: true
         },
         call: {
           command: 'call',
@@ -92,7 +100,9 @@ class CodexIntegrationInstaller {
           module: 'src.core.cli_hook_integration',
           enabled: true,
           cross_cli_enabled: true,
-          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot']
+          supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'codebuddy', 'copilot'],
+          resumesession_enabled: true,
+          resumesession_integration: true
         }
       };
 

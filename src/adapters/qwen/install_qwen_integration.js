@@ -45,7 +45,9 @@ class QwenInstaller {
       auto_detect: true,
       timeout: 30,
       collaboration_mode: 'active',
-      qwen_oauth_integration: true
+      qwen_oauth_integration: true,
+      resumesession_enabled: true,
+      resumesession_integration: true
     };
 
     // Merge configs

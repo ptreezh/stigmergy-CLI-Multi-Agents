@@ -68,7 +68,9 @@ class CodeBuddyIntegrationInstaller {
             supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qoder', 'copilot'],
             auto_route: true,
             timeout: 30,
-            collaboration_mode: 'active'
+            collaboration_mode: 'active',
+            resumesession_enabled: true,
+            resumesession_integration: true
           }
         }
       };

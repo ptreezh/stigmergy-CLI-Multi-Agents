@@ -46,7 +46,9 @@ class ClaudeInstaller {
       timeout: 30,
       collaboration_mode: 'active',
       claude_skills_integration: true,
-      claude_hooks_enabled: true
+      claude_hooks_enabled: true,
+      resumesession_enabled: true,
+      resumesession_integration: true
     };
 
     // Merge configs
@@ -85,6 +87,12 @@ class ClaudeInstaller {
         enabled: true,
         auto_register: true,
         cross_cli_aware: true
+      },
+      resumesession: {
+        enabled: true,
+        command: '/stigmergy-resume',
+        description: 'Resume or query session history across CLIs',
+        version: '1.0.4'
       }
     };
 

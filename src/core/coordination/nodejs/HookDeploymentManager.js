@@ -129,11 +129,44 @@ class HookDeploymentManager {
         );
       }
 
+      // Create or update hooks.json to register the stigmergy-resume command
+      await this.updateHooksJson(cliName, hookDir, fileName);
+
       return true;
     } catch (error) {
       console.error(`[HOOK_DEPLOYMENT] Failed to deploy ResumeSession extension for ${cliName}:`, error);
       return false;
     }
+  }
+
+  async updateHooksJson(cliName, hookDir, resumeSessionFileName) {
+    const hooksJsonPath = path.join(hookDir, 'hooks.json');
+    let hooksConfig = {};
+
+    // Load existing hooks.json if it exists
+    if (fs.existsSync(hooksJsonPath)) {
+      try {
+        const existingContent = fs.readFileSync(hooksJsonPath, 'utf8');
+        hooksConfig = JSON.parse(existingContent);
+      } catch (error) {
+        console.warn(`[HOOK_DEPLOYMENT] Failed to parse existing hooks.json, creating new one: ${error.message}`);
+        hooksConfig = {};
+      }
+    }
+
+    // Register the stigmergy-resume command
+    hooksConfig.resumesession = {
+      enabled: true,
+      command: '/stigmergy-resume',
+      handler: resumeSessionFileName,
+      description: 'Resume or query session history across CLIs',
+      version: '1.0.4',
+      deploymentTime: new Date().toISOString()
+    };
+
+    // Write the updated hooks.json
+    fs.writeFileSync(hooksJsonPath, JSON.stringify(hooksConfig, null, 2));
+    console.log(`[HOOK_DEPLOYMENT] Updated hooks.json with resumesession command: ${hooksJsonPath}`);
   }
 
   async deploySkillsIntegration(cliName, hookDir) {

@@ -578,13 +578,81 @@ ${this.generateCLIRegistrationCode(cliName, commandName, projectPath)}
       case 'codebuddy':
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
+
+// Main command handler
+function handleHistoryCommand(input) {
+  if (!input || typeof input !== 'string') {
+    return {
+      response: 'Usage: ' + commandName + ' [options]\\n' +
+                'Options:\\n' +
+                '  --cli <name>     Filter by CLI (claude, gemini, qwen, etc.)\\n' +
+                '  --search <term>  Search in session content\\n' +
+                '  --limit <num>    Maximum sessions to show (default: 10)\\n' +
+                '  --format <type>  Output format: summary, detailed, json (default: summary)\\n' +
+                '  --time <range>   Time range: today, week, month, all (default: all)',
+      suggestions: []
+    };
+  }
+
+  try {
+    const options = parseCommandOptions(input);
+    const historyQuery = new HistoryQuery();
+    const result = historyQuery.queryHistory(options, projectPath);
+    
+    return {
+      response: result.response,
+      suggestions: result.suggestions || []
+    };
+  } catch (error) {
+    return {
+      response: 'Error: ' + error.message,
+      suggestions: []
+    };
+  }
+}
+
+// Parse command options
+function parseCommandOptions(input) {
+  const options = {
+    limit: 10,
+    format: 'summary',
+    timeRange: 'all',
+    cli: null,
+    search: null
+  };
+
+  const cleanInput = input.replace(new RegExp('^\\\\/?' + commandName + '\\\\\s*', 'i'), '').trim();
+  const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].toLowerCase();
+    if (part === '--cli' && i + 1 < parts.length) {
+      options.cli = parts[++i];
+    } else if (part === '--search' && i + 1 < parts.length) {
+      options.search = parts[++i];
+    } else if (part === '--limit' && i + 1 < parts.length) {
+      options.limit = parseInt(parts[++i]);
+    } else if (part === '--format' && i + 1 < parts.length) {
+      options.format = parts[++i];
+    } else if (part === '--time' && i + 1 < parts.length) {
+      options.timeRange = parts[++i];
+    } else if (!part.startsWith('--') && !options.search) {
+      options.search = part;
+    }
+  }
+
+  return options;
+}
+
+// Register command
 if (typeof ${cliName} !== 'undefined') {
   ${cliName}.addCommand('${commandName}', handleHistoryCommand);
 }
 
 // 导出处理器
 module.exports = {
-  handleHistoryCommand
+  handleHistoryCommand,
+  parseCommandOptions
 };`;
 
       case 'gemini':
@@ -625,8 +693,8 @@ class GeminiHistoryHandler {
       search: null
     };
 
-    const cleanInput = input.replace(new RegExp('^\\\\\\\\/?' + this.commandName + '\\\\\\s*', 'i'), '').trim();
-    const parts = cleanInput.split(/\\\\s+/).filter(p => p.length > 0);
+    const cleanInput = input.replace(new RegExp('^\\\\/?' + this.commandName + '\\\\\s*', 'i'), '').trim();
+    const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].toLowerCase();
@@ -636,6 +704,10 @@ class GeminiHistoryHandler {
         options.search = parts[++i];
       } else if (part === '--limit' && i + 1 < parts.length) {
         options.limit = parseInt(parts[++i]);
+      } else if (part === '--format' && i + 1 < parts.length) {
+        options.format = parts[++i];
+      } else if (part === '--time' && i + 1 < parts.length) {
+        options.timeRange = parts[++i];
       } else if (!part.startsWith('--') && !options.search) {
         options.search = part;
       }
@@ -653,7 +725,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 if (typeof geminiCLI !== 'undefined') {
-  const cmdName = '${commandName}'.replace(/^\\//, '');
+  const cmdName = '${commandName}'.replace(/^\\\//, '');
   geminiCLI.addCommandHandler(cmdName, handler.handleCommand.bind(handler));
 }`;
 
@@ -662,13 +734,81 @@ if (typeof geminiCLI !== 'undefined') {
       case 'kode':
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
+
+// Main command handler
+function handleHistoryCommand(input) {
+  if (!input || typeof input !== 'string') {
+    return {
+      response: 'Usage: ' + commandName + ' [options]\\n' +
+                'Options:\\n' +
+                '  --cli <name>     Filter by CLI (claude, gemini, qwen, etc.)\\n' +
+                '  --search <term>  Search in session content\\n' +
+                '  --limit <num>    Maximum sessions to show (default: 10)\\n' +
+                '  --format <type>  Output format: summary, detailed, json (default: summary)\\n' +
+                '  --time <range>   Time range: today, week, month, all (default: all)',
+      suggestions: []
+    };
+  }
+
+  try {
+    const options = parseCommandOptions(input);
+    const historyQuery = new HistoryQuery();
+    const result = historyQuery.queryHistory(options, projectPath);
+    
+    return {
+      response: result.response,
+      suggestions: result.suggestions || []
+    };
+  } catch (error) {
+    return {
+      response: 'Error: ' + error.message,
+      suggestions: []
+    };
+  }
+}
+
+// Parse command options
+function parseCommandOptions(input) {
+  const options = {
+    limit: 10,
+    format: 'summary',
+    timeRange: 'all',
+    cli: null,
+    search: null
+  };
+
+  const cleanInput = input.replace(new RegExp('^\\\\/?' + commandName + '\\\\\s*', 'i'), '').trim();
+  const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].toLowerCase();
+    if (part === '--cli' && i + 1 < parts.length) {
+      options.cli = parts[++i];
+    } else if (part === '--search' && i + 1 < parts.length) {
+      options.search = parts[++i];
+    } else if (part === '--limit' && i + 1 < parts.length) {
+      options.limit = parseInt(parts[++i]);
+    } else if (part === '--format' && i + 1 < parts.length) {
+      options.format = parts[++i];
+    } else if (part === '--time' && i + 1 < parts.length) {
+      options.timeRange = parts[++i];
+    } else if (!part.startsWith('--') && !options.search) {
+      options.search = part;
+    }
+  }
+
+  return options;
+}
+
+// Register extension
 if (typeof ${cliName} !== 'undefined' && ${cliName}.addExtension) {
   ${cliName}.addExtension('history', handleHistoryCommand);
 }
 
 // 导出处理器
 module.exports = {
-  handleHistoryCommand
+  handleHistoryCommand,
+  parseCommandOptions
 };`;
 
       default:
@@ -676,9 +816,75 @@ module.exports = {
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 // Generic registration - may need customization for specific CLI
 
+// Main command handler
+function handleHistoryCommand(input) {
+  if (!input || typeof input !== 'string') {
+    return {
+      response: 'Usage: ' + commandName + ' [options]\\n' +
+                'Options:\\n' +
+                '  --cli <name>     Filter by CLI (claude, gemini, qwen, etc.)\\n' +
+                '  --search <term>  Search in session content\\n' +
+                '  --limit <num>    Maximum sessions to show (default: 10)\\n' +
+                '  --format <type>  Output format: summary, detailed, json (default: summary)\\n' +
+                '  --time <range>   Time range: today, week, month, all (default: all)',
+      suggestions: []
+    };
+  }
+
+  try {
+    const options = parseCommandOptions(input);
+    const historyQuery = new HistoryQuery();
+    const result = historyQuery.queryHistory(options, projectPath);
+    
+    return {
+      response: result.response,
+      suggestions: result.suggestions || []
+    };
+  } catch (error) {
+    return {
+      response: 'Error: ' + error.message,
+      suggestions: []
+    };
+  }
+}
+
+// Parse command options
+function parseCommandOptions(input) {
+  const options = {
+    limit: 10,
+    format: 'summary',
+    timeRange: 'all',
+    cli: null,
+    search: null
+  };
+
+  const cleanInput = input.replace(new RegExp('^\\\\/?' + commandName + '\\\\\s*', 'i'), '').trim();
+  const parts = cleanInput.split(/\\\s+/).filter(p => p.length > 0);
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].toLowerCase();
+    if (part === '--cli' && i + 1 < parts.length) {
+      options.cli = parts[++i];
+    } else if (part === '--search' && i + 1 < parts.length) {
+      options.search = parts[++i];
+    } else if (part === '--limit' && i + 1 < parts.length) {
+      options.limit = parseInt(parts[++i]);
+    } else if (part === '--format' && i + 1 < parts.length) {
+      options.format = parts[++i];
+    } else if (part === '--time' && i + 1 < parts.length) {
+      options.timeRange = parts[++i];
+    } else if (!part.startsWith('--') && !options.search) {
+      options.search = part;
+    }
+  }
+
+  return options;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    handleHistoryCommand
+    handleHistoryCommand,
+    parseCommandOptions
   };
 }`;
     }

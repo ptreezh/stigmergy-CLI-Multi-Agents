@@ -63,7 +63,9 @@ class GeminiIntegrationInstaller {
             auto_detect: true,
             timeout: 30,
             error_handling: 'continue',
-            collaboration_mode: 'active'
+            collaboration_mode: 'active',
+            resumesession_enabled: true,
+            resumesession_integration: true
           }
         },
         cross_cli_response_processor: {
