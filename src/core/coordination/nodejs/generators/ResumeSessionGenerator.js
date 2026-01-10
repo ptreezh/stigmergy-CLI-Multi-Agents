@@ -591,6 +591,9 @@ ${this.generateCLIRegistrationCode(cliName, commandName, projectPath)}
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 
+// Command name constant
+const commandName = '${commandName}';
+
 // Main command handler
 function handleHistoryCommand(input) {
   if (!input || typeof input !== 'string') {
@@ -747,6 +750,9 @@ if (typeof geminiCLI !== 'undefined') {
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 
+// Command name constant
+const commandName = '${commandName}';
+
 // Main command handler
 function handleHistoryCommand(input) {
   if (!input || typeof input !== 'string') {
@@ -827,6 +833,9 @@ module.exports = {
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 // Generic registration - may need customization for specific CLI
+
+// Command name constant
+const commandName = '${commandName}';
 
 // Main command handler
 function handleHistoryCommand(input) {
