@@ -12,10 +12,11 @@ const EnhancedCLIInstaller = require('./enhanced_cli_installer');
 class StigmergyInstaller extends EnhancedCLIInstaller {
   constructor(options = {}) {
     super(options);
-    this.concurrency = options.concurrency || 4;
+    this.concurrency = options.concurrency || 6;
     this.router = new SmartRouter();
     this.memory = new MemoryManager();
     this.configDir = path.join(os.homedir(), '.stigmergy');
+    this.scanCache = new Map(); // 缓存扫描结果
   }
 
   async checkCLI(toolName) {
@@ -209,42 +210,60 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
 
   async scanCLI() {
     console.log('[SCAN] Scanning for AI CLI tools...');
+    
+    // 检查缓存
+    const cacheKey = 'scan_results';
+    if (this.scanCache.has(cacheKey)) {
+      console.log('[SCAN] Using cached scan results');
+      return this.scanCache.get(cacheKey);
+    }
+
     const available = {};
     const missing = {};
+    const tools = Object.entries(this.router.tools);
 
-    for (const [toolName, toolInfo] of Object.entries(this.router.tools)) {
+    // 并行扫描所有工具
+    const scanPromises = tools.map(async ([toolName, toolInfo]) => {
       // Skip internal functions without install command
       if (!toolInfo.install) {
-        console.log(`[DEBUG] Tool ${toolName} has no version/install info, skipping check`);
-        continue;
+        return { toolName, status: 'skip' };
       }
 
       try {
-        console.log(`[SCAN] Checking ${toolInfo.name}...`);
         const isAvailable = await this.checkCLI(toolName);
-
-        if (isAvailable) {
-          console.log(`[OK] ${toolInfo.name} is available`);
-          available[toolName] = toolInfo;
-        } else {
-          console.log(`[MISSING] ${toolInfo.name} is not installed`);
-          missing[toolName] = toolInfo;
-        }
+        return { toolName, status: isAvailable ? 'available' : 'missing', toolInfo };
       } catch (error) {
         await errorHandler.logError(
           error,
           'WARN',
           `StigmergyInstaller.scanCLI.${toolName}`,
         );
-        console.log(
-          `[ERROR] Failed to check ${toolInfo.name}: ${error.message}`,
-        );
-        console.log(`[MISSING] ${toolInfo.name} is not installed`);
-        missing[toolName] = toolInfo;
+        return { toolName, status: 'missing', toolInfo };
+      }
+    });
+
+    const results = await Promise.all(scanPromises);
+
+    // 处理结果
+    for (const result of results) {
+      if (result.status === 'skip') {
+        continue;
+      }
+
+      if (result.status === 'available') {
+        console.log(`[OK] ${result.toolInfo.name} is available`);
+        available[result.toolName] = result.toolInfo;
+      } else {
+        console.log(`[MISSING] ${result.toolInfo.name} is not installed`);
+        missing[result.toolName] = result.toolInfo;
       }
     }
 
-    return { available, missing };
+    // 缓存结果
+    const scanResults = { available, missing };
+    this.scanCache.set(cacheKey, scanResults);
+
+    return scanResults;
   }
 
   /**
@@ -377,7 +396,7 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
    */
   async deployHooks(available) {
     console.log('\n[DEPLOY] Deploying cross-CLI integration hooks...');
-    console.log(chalk.blue(`[INFO] Using parallel deployment with concurrency: ${this.concurrency || 4}`));
+    console.log(chalk.blue(`[INFO] Using parallel deployment with concurrency: ${this.concurrency || 6}`));
 
     const HookDeploymentManager = require('./coordination/nodejs/HookDeploymentManager');
     const hookManager = new HookDeploymentManager();
@@ -387,7 +406,7 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
     const toolEntries = Object.entries(available);
     let successCount = 0;
     let totalCount = toolEntries.length;
-    const concurrency = this.concurrency || 4;
+    const concurrency = this.concurrency || 6;
 
     const deployForTool = async ([toolName, toolInfo]) => {
       const startTime = Date.now();

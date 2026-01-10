@@ -12,6 +12,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @anthropic-ai/claude-code',
     hooksDir: path.join(os.homedir(), '.claude', 'hooks'),
     config: path.join(os.homedir(), '.claude', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   gemini: {
     name: 'Gemini CLI',
@@ -19,6 +20,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @google/gemini-cli',
     hooksDir: path.join(os.homedir(), '.gemini', 'extensions'),
     config: path.join(os.homedir(), '.gemini', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   qwen: {
     name: 'Qwen CLI',
@@ -26,6 +28,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @qwen-code/qwen-code',
     hooksDir: path.join(os.homedir(), '.qwen', 'hooks'),
     config: path.join(os.homedir(), '.qwen', 'config.json'),
+    autoInstall: true, // 默认安装
   },
   iflow: {
     name: 'iFlow CLI',
@@ -33,6 +36,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @iflow-ai/iflow-cli',
     hooksDir: path.join(os.homedir(), '.iflow', 'hooks'),
     config: path.join(os.homedir(), '.iflow', 'config.json'),
+    autoInstall: true, // 默认安装
   },
   qodercli: {
     name: 'Qoder CLI',
@@ -40,6 +44,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @qoder-ai/qodercli',
     hooksDir: path.join(os.homedir(), '.qoder', 'hooks'),
     config: path.join(os.homedir(), '.qoder', 'config.json'),
+    autoInstall: true, // 默认安装
   },
   codebuddy: {
     name: 'CodeBuddy CLI',
@@ -47,6 +52,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @tencent-ai/codebuddy-code',
     hooksDir: path.join(os.homedir(), '.codebuddy', 'hooks'),
     config: path.join(os.homedir(), '.codebuddy', 'config.json'),
+    autoInstall: true, // 默认安装
   },
   copilot: {
     name: 'GitHub Copilot CLI',
@@ -54,6 +60,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @github/copilot',
     hooksDir: path.join(os.homedir(), '.copilot', 'mcp'),
     config: path.join(os.homedir(), '.copilot', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   codex: {
     name: 'OpenAI Codex CLI',
@@ -61,6 +68,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @openai/codex',
     hooksDir: path.join(os.homedir(), '.config', 'codex', 'slash_commands'),
     config: path.join(os.homedir(), '.codex', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   kode: {
     name: 'Kode CLI',
@@ -68,6 +76,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @shareai-lab/kode',
     hooksDir: path.join(os.homedir(), '.kode', 'agents'),
     config: path.join(os.homedir(), '.kode', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   resumesession: {
     name: 'ResumeSession CLI',
@@ -75,6 +84,7 @@ const CLI_TOOLS = {
     install: 'npm install -g @stigmergy/resume',
     hooksDir: path.join(os.homedir(), '.resumesession', 'hooks'),
     config: path.join(os.homedir(), '.resumesession', 'config.json'),
+    autoInstall: false, // 内部功能，不单独安装
   },
   opencode: {
     name: 'OpenCode AI CLI',
@@ -82,6 +92,7 @@ const CLI_TOOLS = {
     install: 'npm install -g opencode-ai',
     hooksDir: path.join(os.homedir(), '.opencode', 'hooks'),
     config: path.join(os.homedir(), '.opencode', 'config.json'),
+    autoInstall: false, // 默认不安装
   },
   'oh-my-opencode': {
     name: 'Oh-My-OpenCode Plugin Manager',
@@ -91,6 +102,7 @@ const CLI_TOOLS = {
     config: path.join(os.homedir(), '.opencode', 'config.json'),
     skipVersionCheck: true, // Version check may not work properly for bunx packages
     requiresBun: true, // Requires bun runtime
+    autoInstall: false, // 默认不安装
   },
 };
 

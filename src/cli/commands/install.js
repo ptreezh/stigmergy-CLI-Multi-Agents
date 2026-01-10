@@ -30,8 +30,14 @@ async function handleInstallCommand(options = {}) {
       // Scan for available and missing tools
       const { missing: missingTools, available: availableTools } = await installer.scanCLI();
 
-      if (Object.keys(missingTools).length === 0) {
-        console.log(chalk.green('✅ All AI CLI tools are already installed!'));
+      // Filter to only install tools with autoInstall: true
+      const toolsToInstall = Object.entries(missingTools)
+        .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+      
+      const filteredMissingTools = Object.fromEntries(toolsToInstall);
+
+      if (Object.keys(filteredMissingTools).length === 0) {
+        console.log(chalk.green('✅ All auto-install CLI tools are already installed!'));
         return {
           success: true,
           installed: [],
@@ -40,10 +46,10 @@ async function handleInstallCommand(options = {}) {
       }
 
       // Install all missing tools in auto mode
-      const selectedTools = Object.keys(missingTools);
+      const selectedTools = Object.keys(filteredMissingTools);
       console.log(chalk.blue(`[AUTO-INSTALL] Installing ${selectedTools.length} tools: ${selectedTools.join(', ')}`));
 
-      const installResult = await installer.installTools(selectedTools, missingTools);
+      const installResult = await installer.installTools(selectedTools, filteredMissingTools);
 
       if (installResult.success) {
         console.log(chalk.green('✅ Auto-install completed successfully!'));
@@ -68,8 +74,13 @@ async function handleInstallCommand(options = {}) {
     // Interactive install mode
     const { missing: missingTools, available: availableTools } = await installer.scanCLI();
 
-    if (Object.keys(missingTools).length === 0) {
-      console.log(chalk.green('✅ All AI CLI tools are already installed!'));
+    // Filter to only show tools with autoInstall: true
+    const toolsToInstall = Object.entries(missingTools)
+      .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+    const filteredMissingTools = Object.fromEntries(toolsToInstall);
+
+    if (Object.keys(filteredMissingTools).length === 0) {
+      console.log(chalk.green('✅ All auto-install CLI tools are already installed!'));
 
       if (Object.keys(availableTools).length > 0) {
         console.log(chalk.cyan('\n📦 Available tools:'));
@@ -85,14 +96,14 @@ async function handleInstallCommand(options = {}) {
       };
     }
 
-    console.log(chalk.yellow(`\n⚠️ Found ${Object.keys(missingTools).length} missing tools:`));
-    Object.entries(missingTools).forEach(([toolName, toolInfo]) => {
+    console.log(chalk.yellow(`\n⚠️ Found ${Object.keys(filteredMissingTools).length} missing tools:`));
+    Object.entries(filteredMissingTools).forEach(([toolName, toolInfo]) => {
       console.log(`  - ${toolInfo.name}: ${toolInfo.install}`);
     });
 
     // For now, install all missing tools
-    const selectedTools = Object.keys(missingTools);
-    const installResult = await installer.installTools(selectedTools, missingTools);
+    const selectedTools = Object.keys(filteredMissingTools);
+    const installResult = await installer.installTools(selectedTools, filteredMissingTools);
 
     if (installResult.success) {
       console.log(chalk.green('✅ Installation completed successfully!'));

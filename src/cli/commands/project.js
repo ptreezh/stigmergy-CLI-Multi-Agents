@@ -104,18 +104,23 @@ async function handleDeployCommand(options = {}) {
     const installer = new StigmergyInstaller({ verbose: options.verbose });
     const { available: deployedTools } = await installer.scanCLI();
 
-    if (Object.keys(deployedTools).length === 0) {
-      console.log(chalk.yellow('[INFO] No CLI tools found for deployment'));
+    // Filter to only deploy tools with autoInstall: true
+    const toolsToDeploy = Object.entries(deployedTools)
+      .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+    const filteredDeployedTools = Object.fromEntries(toolsToDeploy);
+
+    if (Object.keys(filteredDeployedTools).length === 0) {
+      console.log(chalk.yellow('[INFO] No auto-install CLI tools found for deployment'));
       console.log(chalk.blue('💡 Run: stigmergy install to install CLI tools first'));
       return { success: true, deployed: 0 };
     }
 
-    console.log(chalk.blue(`[INFO] Deploying hooks for ${Object.keys(deployedTools).length} tools...`));
+    console.log(chalk.blue(`[INFO] Deploying hooks for ${Object.keys(filteredDeployedTools).length} tools...`));
 
-    await installer.deployHooks(deployedTools);
+    await installer.deployHooks(filteredDeployedTools);
 
     console.log(chalk.green('\n✅ Hook deployment completed successfully!'));
-    return { success: true, deployed: Object.keys(deployedTools).length };
+    return { success: true, deployed: Object.keys(filteredDeployedTools).length };
 
   } catch (error) {
     console.error(chalk.red('[ERROR] Deployment failed:'), error.message);
