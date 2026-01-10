@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs/promises');
 const os = require('os');
@@ -11,6 +12,7 @@ const EnhancedCLIInstaller = require('./enhanced_cli_installer');
 class StigmergyInstaller extends EnhancedCLIInstaller {
   constructor(options = {}) {
     super(options);
+    this.concurrency = options.concurrency || 4;
     this.router = new SmartRouter();
     this.memory = new MemoryManager();
     this.configDir = path.join(os.homedir(), '.stigmergy');
@@ -375,43 +377,39 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
    */
   async deployHooks(available) {
     console.log('\n[DEPLOY] Deploying cross-CLI integration hooks...');
+    console.log(chalk.blue(`[INFO] Using parallel deployment with concurrency: ${this.concurrency || 4}`));
 
     const HookDeploymentManager = require('./coordination/nodejs/HookDeploymentManager');
     const hookManager = new HookDeploymentManager();
     
     await hookManager.initialize();
 
+    const toolEntries = Object.entries(available);
     let successCount = 0;
-    let totalCount = Object.keys(available).length;
+    let totalCount = toolEntries.length;
+    const concurrency = this.concurrency || 4;
 
-    for (const [toolName, toolInfo] of Object.entries(available)) {
-      console.log(`\n[DEPLOY] Deploying hooks for ${toolInfo.name}...`);
-
+    const deployForTool = async ([toolName, toolInfo]) => {
+      const startTime = Date.now();
+      
       try {
         const fs = require('fs/promises');
         const path = require('path');
         
-        // Create hooks directory
         await fs.mkdir(toolInfo.hooksDir, { recursive: true });
-        console.log(`[OK] Created hooks directory: ${toolInfo.hooksDir}`);
-
-        // Create config directory
         const configDir = path.dirname(toolInfo.config);
         await fs.mkdir(configDir, { recursive: true });
-        console.log(`[OK] Created config directory: ${configDir}`);
 
-        // Use HookDeploymentManager to deploy Node.js hooks
         const deploySuccess = await hookManager.deployHooksForCLI(toolName);
         
         if (deploySuccess) {
-          console.log(`[OK] Node.js hooks deployed successfully for ${toolInfo.name}`);
+          await this.installToolIntegration(toolName, toolInfo);
+          const duration = Date.now() - startTime;
+          console.log(`[OK] ${toolInfo.name} deployed successfully (${duration}ms)`);
+          return { success: true, toolName, duration };
         }
 
-        // Run JavaScript-based installation for each tool
-        await this.installToolIntegration(toolName, toolInfo);
-        
-        console.log(`[OK] Hooks deployed successfully for ${toolInfo.name}`);
-        successCount++;
+        return { success: false, toolName, duration: Date.now() - startTime };
 
       } catch (error) {
         const { errorHandler } = require('./error_handler');
@@ -420,16 +418,28 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
           'ERROR',
           `StigmergyInstaller.deployHooks.${toolName}`,
         );
-        console.log(
-          `[ERROR] Failed to deploy hooks for ${toolInfo.name}: ${error.message}`,
-        );
-        console.log('[INFO] Continuing with other tools...');
+        
+        const duration = Date.now() - startTime;
+        console.log(`[ERROR] Failed to deploy hooks for ${toolInfo.name}: ${error.message} (${duration}ms)`);
+        
+        return { success: false, toolName, duration, error: error.message };
       }
+    };
+
+    const results = [];
+    for (let i = 0; i < toolEntries.length; i += concurrency) {
+      const batch = toolEntries.slice(i, i + concurrency);
+      const batchResults = await Promise.all(batch.map(deployForTool));
+      results.push(...batchResults);
     }
 
-    console.log(
-      `\n[SUMMARY] Hook deployment completed: ${successCount}/${totalCount} tools successful`,
-    );
+    successCount = results.filter(r => r.success).length;
+    const totalDuration = Math.max(...results.map(r => r.duration));
+
+    console.log(`\n[SUMMARY] Hook deployment completed: ${successCount}/${totalCount} tools successful`);
+    console.log(chalk.blue(`[PERFORMANCE] Total deployment time: ${totalDuration}ms`));
+    console.log(chalk.blue(`[PERFORMANCE] Average per tool: ${Math.round(totalDuration / totalCount)}ms`));
+    
     return successCount > 0;
   }
 
