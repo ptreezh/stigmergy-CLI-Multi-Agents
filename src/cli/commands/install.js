@@ -6,6 +6,7 @@
 const StigmergyInstaller = require('../../core/installer');
 const chalk = require('chalk');
 const { ensureSkillsCache } = require('../utils/skills_cache');
+const { handleDeployCommand } = require('./project');
 
 /**
  * Handle install command
@@ -30,14 +31,21 @@ async function handleInstallCommand(options = {}) {
       // Scan for available and missing tools
       const { missing: missingTools, available: availableTools } = await installer.scanCLI();
 
-      // Filter to only install tools with autoInstall: true
-      const toolsToInstall = Object.entries(missingTools)
-        .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+      // Filter to only install tools with autoInstall: true, unless --all is specified
+      let toolsToInstall;
+      if (options.all) {
+        console.log(chalk.blue('[AUTO-INSTALL] Installing ALL CLI tools (--all mode)'));
+        toolsToInstall = Object.entries(missingTools);
+      } else {
+        console.log(chalk.blue('[AUTO-INSTALL] Installing only auto-install tools'));
+        toolsToInstall = Object.entries(missingTools)
+          .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+      }
       
       const filteredMissingTools = Object.fromEntries(toolsToInstall);
 
       if (Object.keys(filteredMissingTools).length === 0) {
-        console.log(chalk.green('✅ All auto-install CLI tools are already installed!'));
+        console.log(chalk.green('✅ All CLI tools are already installed!'));
         return {
           success: true,
           installed: [],
@@ -53,6 +61,24 @@ async function handleInstallCommand(options = {}) {
 
       if (installResult.success) {
         console.log(chalk.green('✅ Auto-install completed successfully!'));
+        
+        // 如果是 --all 模式，自动部署所有工具
+        if (options.all) {
+          console.log(chalk.blue('\n🚀 Deploying hooks for all installed tools...'));
+          try {
+            const deployResult = await handleDeployCommand({
+              verbose: options.verbose || process.env.DEBUG === 'true',
+              force: options.force || false,
+              all: true
+            });
+            if (deployResult.success) {
+              console.log(chalk.green('✅ Hooks deployed successfully!'));
+            }
+          } catch (deployError) {
+            console.log(chalk.yellow(`⚠️  Hook deployment warning: ${deployError.message}`));
+          }
+        }
+        
         return {
           success: true,
           installed: installResult.installed || [],

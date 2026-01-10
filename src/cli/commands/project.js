@@ -104,13 +104,20 @@ async function handleDeployCommand(options = {}) {
     const installer = new StigmergyInstaller({ verbose: options.verbose });
     const { available: deployedTools } = await installer.scanCLI();
 
-    // Filter to only deploy tools with autoInstall: true
-    const toolsToDeploy = Object.entries(deployedTools)
-      .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
-    const filteredDeployedTools = Object.fromEntries(toolsToDeploy);
+    // 如果 options.all 为 true，部署所有工具；否则只部署 autoInstall: true 的工具
+    let filteredDeployedTools;
+    if (options.all) {
+      console.log(chalk.blue('[INFO] Deploying hooks for ALL available tools (--all mode)'));
+      filteredDeployedTools = deployedTools;
+    } else {
+      console.log(chalk.blue('[INFO] Deploying hooks for auto-install tools only'));
+      const toolsToDeploy = Object.entries(deployedTools)
+        .filter(([toolName]) => installer.router.tools[toolName]?.autoInstall === true);
+      filteredDeployedTools = Object.fromEntries(toolsToDeploy);
+    }
 
     if (Object.keys(filteredDeployedTools).length === 0) {
-      console.log(chalk.yellow('[INFO] No auto-install CLI tools found for deployment'));
+      console.log(chalk.yellow('[INFO] No CLI tools found for deployment'));
       console.log(chalk.blue('💡 Run: stigmergy install to install CLI tools first'));
       return { success: true, deployed: 0 };
     }

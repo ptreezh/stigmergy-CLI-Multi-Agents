@@ -123,11 +123,18 @@ async function main() {
   program
     .command('install')
     .alias('inst')
+    .alias('a')
     .description('Install CLI tools')
     .option('-c, --cli <cli>', 'Install specific CLI tool')
     .option('-v, --verbose', 'Verbose output')
     .option('-f, --force', 'Force installation')
+    .option('--all', 'Install all CLI tools (ignore autoInstall filter)')
     .action(async (options) => {
+      // 检测是否通过 'a' 别名调用，自动设置 --all 选项
+      const commandName = process.argv[2];
+      if (commandName === 'a') {
+        options.all = true;
+      }
       await handleInstallCommand(options);
     });
 
