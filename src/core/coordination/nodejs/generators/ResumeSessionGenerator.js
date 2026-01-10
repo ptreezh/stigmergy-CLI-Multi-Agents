@@ -7,7 +7,8 @@ class ResumeSessionGenerator {
   constructor() {
     this.supportedCLIs = [
       'claude', 'gemini', 'qwen', 'codebuddy', 'codex',
-      'iflow', 'qodercli', 'copilot', 'kode', 'resumesession'
+      'iflow', 'qodercli', 'copilot', 'kode', 'opencode',
+      'oh-my-opencode', 'resumesession'
     ];
   }
 

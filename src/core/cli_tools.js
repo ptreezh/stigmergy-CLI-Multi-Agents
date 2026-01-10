@@ -76,6 +76,22 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), '.resumesession', 'hooks'),
     config: path.join(os.homedir(), '.resumesession', 'config.json'),
   },
+  opencode: {
+    name: 'OpenCode AI CLI',
+    version: 'opencode --version',
+    install: 'npm install -g opencode-ai',
+    hooksDir: path.join(os.homedir(), '.opencode', 'hooks'),
+    config: path.join(os.homedir(), '.opencode', 'config.json'),
+  },
+  'oh-my-opencode': {
+    name: 'Oh-My-OpenCode Plugin Manager',
+    version: 'oh-my-opencode --version',
+    install: 'npm install bun -g && bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no',
+    hooksDir: path.join(os.homedir(), '.opencode', 'plugins'),
+    config: path.join(os.homedir(), '.opencode', 'config.json'),
+    skipVersionCheck: true, // Version check may not work properly for bunx packages
+    requiresBun: true, // Requires bun runtime
+  },
 };
 
 /**

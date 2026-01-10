@@ -20,7 +20,9 @@ class HookDeploymentManager {
       'codebuddy',
       'codex',
       'copilot',
-      'kode'
+      'kode',
+      'opencode',
+      'oh-my-opencode'
       // Note: 'resumesession' is handled separately as a session recovery tool, not a regular CLI
     ];
 

@@ -155,7 +155,14 @@
       "Bash(DEBUG=true stigmergy:*)",
       "Bash(Format-Table Name, Length, LastWriteTime)",
       "Bash(printf:*)",
-      "Bash(python3 <<'PYSCRIPT'\nimport re\n\nwith open\\('src/core/coordination/nodejs/generators/ResumeSessionGenerator.js', 'r', encoding='utf-8'\\) as f:\n    lines = f.readlines\\(\\)\n\n# Fix line 538 \\(0-indexed: 537\\)\n# Change: split\\(/s+/\\) -> split\\(/\\\\\\\\s+/\\)\nif 'split\\(/s+/\\)' in lines[537]:\n    lines[537] = lines[537].replace\\('split\\(/s+/\\)', 'split\\(/\\\\\\\\\\\\\\\\s+/\\)'\\)\n    print\\('Fixed line 538'\\)\n\nwith open\\('src/core/coordination/nodejs/generators/ResumeSessionGenerator.js', 'w', encoding='utf-8'\\) as f:\n    f.writelines\\(lines\\)\n\nprint\\('Done'\\)\nPYSCRIPT)"
+      "Bash(python3 <<'PYSCRIPT'\nimport re\n\nwith open\\('src/core/coordination/nodejs/generators/ResumeSessionGenerator.js', 'r', encoding='utf-8'\\) as f:\n    lines = f.readlines\\(\\)\n\n# Fix line 538 \\(0-indexed: 537\\)\n# Change: split\\(/s+/\\) -> split\\(/\\\\\\\\s+/\\)\nif 'split\\(/s+/\\)' in lines[537]:\n    lines[537] = lines[537].replace\\('split\\(/s+/\\)', 'split\\(/\\\\\\\\\\\\\\\\s+/\\)'\\)\n    print\\('Fixed line 538'\\)\n\nwith open\\('src/core/coordination/nodejs/generators/ResumeSessionGenerator.js', 'w', encoding='utf-8'\\) as f:\n    f.writelines\\(lines\\)\n\nprint\\('Done'\\)\nPYSCRIPT)",
+      "Bash(test:*)",
+      "Bash(xxd:*)",
+      "Bash(hash:*)",
+      "Skill(field-analysis)",
+      "Skill(ant)",
+      "Bash(git fetch:*)",
+      "Bash(bun:*)"
     ],
     "deny": [],
     "ask": []

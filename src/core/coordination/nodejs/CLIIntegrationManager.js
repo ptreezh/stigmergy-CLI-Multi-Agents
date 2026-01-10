@@ -72,6 +72,24 @@ class CLIIntegrationManager {
         executable: 'copilot',
         mcp: ['cross_cli_execute'],
       },
+      opencode: {
+        name: 'OpenCode AI CLI',
+        executable: 'opencode',
+        skills: [
+          'on_skill_invocation',
+          'on_code_generation',
+          'on_cross_cli_task',
+        ],
+      },
+      'oh-my-opencode': {
+        name: 'Oh-My-OpenCode Plugin Manager',
+        executable: 'oh-my-opencode',
+        plugins: [
+          'on_plugin_install',
+          'on_plugin_load',
+          'on_cross_cli_integration',
+        ],
+      },
     };
   }
 

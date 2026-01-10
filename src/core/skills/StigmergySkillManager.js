@@ -121,11 +121,11 @@ export class StigmergySkillManager {
 
     /**
      * Sync skills to CLI configuration files
-     * Also refreshes the LocalSkillScanner cache
+     * Also copies skills to CLI-specific directories and refreshes cache
      * @returns {Promise<void>}
      */
     async sync() {
-        console.log('[INFO] Syncing skills to CLI configuration files...');
+        console.log('[INFO] Syncing skills to CLI directories...');
 
         try {
             // Refresh the LocalSkillScanner cache
@@ -152,10 +152,14 @@ export class StigmergySkillManager {
                 return;
             }
 
-            // Generate <available_skills> XML
+            // Step 1: Copy skills to CLI-specific directories
+            console.log('[INFO] Copying skills to CLI directories...');
+            const copyResults = await this.syncSkillFiles(skills);
+
+            // Step 2: Generate <available_skills> XML
             const skillsXml = this.generateSkillsXml(skills);
 
-            // All CLI configuration files to update
+            // Step 3: All CLI configuration files to update
             const cliFiles = [
                 'AGENTS.md',      // Universal config
                 'claude.md',      // Claude CLI
@@ -165,7 +169,9 @@ export class StigmergySkillManager {
                 'qodercli.md',    // Qoder CLI
                 'codebuddy.md',   // CodeBuddy CLI
                 'copilot.md',     // Copilot CLI
-                'codex.md'        // Codex CLI
+                'codex.md',       // Codex CLI
+                'opencode.md',    // OpenCode CLI
+                'oh-my-opencode.md' // Oh-My-OpenCode Plugin Manager
             ];
 
             let syncedCount = 0;
@@ -191,17 +197,100 @@ export class StigmergySkillManager {
 
             // Output sync result summary
             console.log(`\n[OK] Sync completed:`);
-            console.log(`   - Updated: ${syncedCount} file(s)`);
+            console.log(`   - Skills copied: ${copyResults.copied} to ${copyResults.targets} CLI directory(ies)`);
+            console.log(`   - Config updated: ${syncedCount} file(s)`);
             if (createdCount > 0) {
-                console.log(`   - Created: ${createdCount} file(s)`);
+                console.log(`   - Config created: ${createdCount} file(s)`);
             }
             if (skippedCount > 0) {
-                console.log(`   - Skipped: ${skippedCount} file(s)`);
+                console.log(`   - Config skipped: ${skippedCount} file(s)`);
             }
-            console.log(`   - Skills: ${skills.length}`);
+            console.log(`   - Total skills: ${skills.length}`);
         } catch (err) {
             console.error(`[X] Sync failed: ${err.message}`);
             throw err;
+        }
+    }
+
+    /**
+     * Copy skill files to CLI-specific directories
+     * @private
+     * @param {Array} skills - List of skills to copy
+     * @returns {Promise<Object>} Copy results
+     */
+    async syncSkillFiles(skills) {
+        const fsPromises = await import('fs/promises');
+
+        // Define CLI skill directories
+        const cliSkillDirs = [
+            { name: 'Claude', path: path.join(os.homedir(), '.claude', 'skills') },
+            { name: 'Universal', path: path.join(process.cwd(), '.agent', 'skills') },
+            { name: 'Universal (global)', path: path.join(os.homedir(), '.agent', 'skills') }
+        ];
+
+        let copiedCount = 0;
+        let targets = 0;
+
+        for (const cliDir of cliSkillDirs) {
+            try {
+                // Ensure CLI directory exists
+                await fsPromises.mkdir(cliDir.path, { recursive: true });
+
+                // Copy each skill
+                for (const skill of skills) {
+                    const skillName = skill.name;
+                    const sourceDir = path.join(this.skillsDir, skillName);
+                    const targetDir = path.join(cliDir.path, skillName);
+
+                    try {
+                        // Check if source exists
+                        await fsPromises.access(sourceDir);
+
+                        // Remove existing if present
+                        await fsPromises.rm(targetDir, { recursive: true, force: true });
+
+                        // Copy directory
+                        await this.copyDirectoryRecursive(sourceDir, targetDir);
+                        copiedCount++;
+                    } catch (err) {
+                        // Skip if source doesn't exist or copy fails
+                        if (process.env.DEBUG === 'true') {
+                            console.log(`[DEBUG] Skipped ${skillName} for ${cliDir.name}: ${err.message}`);
+                        }
+                    }
+                }
+
+                targets++;
+                console.log(`   [OK] Synced to ${cliDir.name}: ${cliDir.path}`);
+            } catch (err) {
+                console.log(`   [INFO] Skipped ${cliDir.name}: ${err.message}`);
+            }
+        }
+
+        return { copied: copiedCount, targets: targets };
+    }
+
+    /**
+     * Recursively copy a directory
+     * @private
+     * @param {string} src - Source directory
+     * @param {string} dest - Destination directory
+     */
+    async copyDirectoryRecursive(src, dest) {
+        const fsPromises = await import('fs/promises');
+
+        await fsPromises.mkdir(dest, { recursive: true });
+        const entries = await fsPromises.readdir(src, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const srcPath = path.join(src, entry.name);
+            const destPath = path.join(dest, entry.name);
+
+            if (entry.isDirectory()) {
+                await this.copyDirectoryRecursive(srcPath, destPath);
+            } else {
+                await fsPromises.copyFile(srcPath, destPath);
+            }
         }
     }
     

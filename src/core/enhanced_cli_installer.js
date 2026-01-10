@@ -465,6 +465,31 @@ class EnhancedCLIInstaller {
         };
       }
 
+      // Check if tool requires bun runtime
+      if (toolInfo.requiresBun) {
+        const bunAvailable = await this.checkBunAvailable();
+        if (!bunAvailable) {
+          this.log('warn', `${toolInfo.name} requires bun, but bun is not installed`);
+          this.log('info', `Installing bun first...`);
+
+          const bunResult = await this.executeInstallationCommand('npm install bun -g');
+
+          if (!bunResult.success) {
+            return {
+              success: false,
+              error: `Failed to install bun (required for ${toolInfo.name}): ${bunResult.error}`
+            };
+          }
+
+          this.log('success', 'Bun installed successfully');
+        }
+      }
+
+      // Check if install command contains multiple steps (&&)
+      if (toolInfo.install.includes('&&')) {
+        return await this.executeMultiStepInstallation(toolInfo);
+      }
+
       const [command, ...args] = toolInfo.install.split(' ');
 
       this.log('debug', `Executing: ${toolInfo.install}`);
@@ -1088,6 +1113,96 @@ class EnhancedCLIInstaller {
       })),
       details: installations
     };
+  }
+
+  /**
+   * Check if bun runtime is available
+   * @returns {Promise<boolean>} True if bun is available
+   */
+  async checkBunAvailable() {
+    const { spawnSync } = require('child_process');
+
+    try {
+      const result = spawnSync('bun', ['--version'], {
+        stdio: 'pipe',
+        shell: true
+      });
+
+      return result.status === 0 || result.error === undefined;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Execute multi-step installation (commands with &&)
+   * @param {Object} toolInfo - Tool information
+   * @returns {Promise<Object>} Installation result
+   */
+  async executeMultiStepInstallation(toolInfo) {
+    const steps = toolInfo.install.split('&&').map(s => s.trim());
+
+    this.log('info', `Executing multi-step installation (${steps.length} steps) for ${toolInfo.name}...`);
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const stepNumber = i + 1;
+
+      this.log('info', `Step ${stepNumber}/${steps.length}: ${step}`);
+
+      const result = await this.executeInstallationCommand(step);
+
+      if (!result.success) {
+        this.log('error', `Step ${stepNumber} failed: ${result.error}`);
+        return {
+          success: false,
+          error: `Installation failed at step ${stepNumber}: ${result.error}`,
+          failedAtStep: stepNumber,
+          failedCommand: step
+        };
+      }
+
+      this.log('success', `Step ${stepNumber}/${steps.length} completed`);
+    }
+
+    this.log('success', `All ${steps.length} steps completed successfully for ${toolInfo.name}`);
+
+    return {
+      success: true,
+      stepsCompleted: steps.length
+    };
+  }
+
+  /**
+   * Execute a single installation command
+   * @param {string} command - Installation command
+   * @returns {Promise<Object>} Execution result
+   */
+  async executeInstallationCommand(command) {
+    const { executeCommand } = require('../utils');
+
+    try {
+      const result = await executeCommand(command, [], {
+        stdio: this.verbose ? 'inherit' : 'pipe',
+        shell: true,
+        timeout: 300000 // 5 minutes
+      });
+
+      if (result.success) {
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: result.error || `Command exited with code ${result.code}`,
+          code: result.code
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 }
 

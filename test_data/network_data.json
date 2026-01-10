@@ -1,0 +1,42 @@
+{
+  "network_data": {
+    "nodes": [
+      {"id": "张教授", "type": "学者", "institution": "A大学", "field": "计算机"},
+      {"id": "李教授", "type": "学者", "institution": "A大学", "field": "计算机"},
+      {"id": "王教授", "type": "学者", "institution": "B大学", "field": "计算机"},
+      {"id": "陈博士", "type": "学者", "institution": "A大学", "field": "人工智能"},
+      {"id": "刘博士", "type": "学者", "institution": "C研究院", "field": "机器学习"},
+      {"id": "赵企业", "type": "企业家", "company": "科技公司A", "sector": "AI"},
+      {"id": "钱企业", "type": "企业家", "company": "科技公司B", "sector": "大数据"},
+      {"id": "孙局长", "type": "政府官员", "department": "科技局", "level": "处级"},
+      {"id": "周主编", "type": "媒体人", "journal": "科技导报", "role": "主编"}
+    ],
+    "edges": [
+      {"source": "张教授", "target": "李教授", "type": "合作研究", "strength": 0.9, "year": 2023},
+      {"source": "张教授", "target": "王教授", "type": "学术交流", "strength": 0.7, "year": 2022},
+      {"source": "张教授", "target": "陈博士", "type": "师生关系", "strength": 0.95, "year": 2020},
+      {"source": "李教授", "target": "赵企业", "type": "产学研合作", "strength": 0.8, "year": 2023},
+      {"source": "陈博士", "target": "刘博士", "type": "合作研究", "strength": 0.85, "year": 2023},
+      {"source": "赵企业", "target": "钱企业", "type": "商业合作", "strength": 0.6, "year": 2022},
+      {"source": "孙局长", "target": "张教授", "type": "项目评审", "strength": 0.5, "year": 2023},
+      {"source": "孙局长", "target": "赵企业", "type": "政策咨询", "strength": 0.7, "year": 2023},
+      {"source": "周主编", "target": "张教授", "type": "媒体报道", "strength": 0.4, "year": 2023},
+      {"source": "周主编", "target": "赵企业", "type": "媒体报道", "strength": 0.6, "year": 2023},
+      {"source": "王教授", "target": "刘博士", "type": "学术交流", "strength": 0.65, "year": 2021},
+      {"source": "钱企业", "target": "孙局长", "type": "政策咨询", "strength": 0.55, "year": 2023}
+    ]
+  },
+  "analysis_parameters": {
+    "network_type": "undirected",
+    "is_weighted": true,
+    "centrality_metrics": ["degree", "betweenness", "closeness", "eigenvector"],
+    "community_method": "louvain"
+  },
+  "analysis_context": "分析AI领域产学研合作网络的结构特征和关键节点",
+  "research_questions": [
+    "谁在网络中处于中心位置？",
+    "哪些学者与企业合作关系紧密？",
+    "是否存在明显的子群体或社区？",
+    "政府官员在网络中扮演什么角色？"
+  ]
+}

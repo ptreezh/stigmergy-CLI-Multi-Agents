@@ -16,6 +16,7 @@ const LocalSkillScanner = require('../../core/local_skill_scanner');
 const CLIHelpAnalyzer = require('../../core/cli_help_analyzer');
 const { CLI_TOOLS } = require('../../core/cli_tools');
 const { ensureSkillsCache } = require('../utils/skills_cache');
+const packageJson = require('../../../package.json');
 
 // Import execution mode detection and CLI adapters
 const ExecutionModeDetector = require('../../core/execution_mode_detector');
@@ -150,7 +151,7 @@ async function handleInitCommand(options = {}) {
 
     // Create basic config
     const config = {
-      version: '1.3.8',
+      version: packageJson.version,
       created: new Date().toISOString(),
       project: path.basename(projectDir)
     };

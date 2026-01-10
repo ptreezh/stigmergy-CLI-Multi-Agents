@@ -13,7 +13,9 @@ export class SkillParser {
      * @returns {Object} Parsed metadata
      */
     parseMetadata(content) {
-        const match = content.match(/^---\n(.*?)\n---/s);
+        // Normalize line endings to LF
+        const normalizedContent = content.replace(/\r\n/g, '\n');
+        const match = normalizedContent.match(/^---\n(.*?)\n---/s);
         if (!match) {
             return {};
         }
@@ -78,8 +80,10 @@ export class SkillParser {
      * @returns {string} Content without frontmatter
      */
     extractContent(content) {
-        const match = content.match(/^---\n.*?\n---\n(.*)$/s);
-        return match ? match[1].trim() : content;
+        // Normalize line endings to LF
+        const normalizedContent = content.replace(/\r\n/g, '\n');
+        const match = normalizedContent.match(/^---\n.*?\n---\n(.*)$/s);
+        return match ? match[1].trim() : normalizedContent;
     }
 
     /**

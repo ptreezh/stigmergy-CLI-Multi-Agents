@@ -92,10 +92,11 @@ function addOAuthAuthArgs(toolName, args = []) {
  */
 async function main() {
   const program = new Command();
+  const packageJson = require('../../package.json');
 
   // Program setup
   program
-    .version('1.3.8')
+    .version(packageJson.version)
     .description('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System')
     .name('stigmergy');
 
@@ -330,7 +331,7 @@ async function main() {
     });
 
   // Route commands to CLI tools
-  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode']) {
+  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode', 'opencode', 'oh-my-opencode']) {
     program
       .command(tool)
       .description(`Use ${tool} CLI tool`)
