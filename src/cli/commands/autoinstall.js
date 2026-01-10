@@ -5,6 +5,7 @@
 
 const chalk = require('chalk');
 const { handleInstallCommand } = require('./install');
+const { handleDeployCommand } = require('./project');
 
 /**
  * Handle auto-install command - Automated installation for npm postinstall
@@ -20,7 +21,7 @@ async function handleAutoInstallCommand(options = {}) {
 
     criticalLog(chalk.cyan('🚀 STIGMERGY CLI AUTO-INSTALL STARTING'));
     criticalLog('='.repeat(60));
-    criticalLog('Installing cross-CLI integration and scanning for AI tools...');
+    criticalLog('Installing CLI tools and deploying hooks (including ResumeSession)...');
     criticalLog('='.repeat(60));
 
     console.log(chalk.blue('[AUTO-INSTALL] Stigmergy CLI automated setup'));
@@ -29,7 +30,7 @@ async function handleAutoInstallCommand(options = {}) {
     // Check if we're in npm postinstall environment
     if (isNpmPostinstall) {
       console.log(chalk.yellow('📦 Detected npm postinstall environment'));
-      console.log(chalk.gray('Setting up CLI integrations automatically...'));
+      console.log(chalk.gray('Setting up CLI integrations and hooks automatically...'));
     }
 
     // Auto-install options - non-interactive mode
@@ -44,17 +45,16 @@ async function handleAutoInstallCommand(options = {}) {
 
     console.log(chalk.blue('🔍 Scanning for available CLI tools...'));
 
-    // Run the installation
-    console.log(chalk.blue('🛠️  Starting automated CLI tool installation...'));
+    // Step 1: Install CLI tools
+    console.log(chalk.blue('🛠️  Step 1/2: Installing CLI tools...'));
 
     const installResult = await handleInstallCommand(autoInstallOptions);
 
     if (installResult.success) {
-      console.log(chalk.green('\n✅ Auto-install completed successfully!'));
+      console.log(chalk.green('\n✅ CLI tools installed successfully!'));
 
       if (isNpmPostinstall) {
-        criticalLog(chalk.green('✅ STIGMERGY CLI SETUP COMPLETE'));
-        criticalLog(chalk.gray('You can now use: stigmergy <tool> <command>'));
+        criticalLog(chalk.green('✅ CLI TOOLS INSTALLED'));
       }
 
       // Show summary of what was installed
@@ -79,12 +79,37 @@ async function handleAutoInstallCommand(options = {}) {
         });
       }
 
+      // Step 2: Deploy hooks and ResumeSession
+      console.log(chalk.blue('\n🚀 Step 2/2: Deploying hooks and ResumeSession integration...'));
+      
+      try {
+        const deployResult = await handleDeployCommand({
+          verbose: options.verbose || process.env.DEBUG === 'true',
+          force: options.force || false
+        });
+
+        if (deployResult.success) {
+          console.log(chalk.green('\n✅ Hooks and ResumeSession deployed successfully!'));
+          
+          if (isNpmPostinstall) {
+            criticalLog(chalk.green('✅ HOOKS AND RESUMESESSION DEPLOYED'));
+            criticalLog(chalk.green('✅ /stigmergy-resume command is now available in all CLIs'));
+          }
+        } else {
+          console.log(chalk.yellow('\n⚠️  Hook deployment encountered issues'));
+          console.log(chalk.yellow('Run: stigmergy deploy --verbose for details'));
+        }
+      } catch (deployError) {
+        console.log(chalk.red(`\n❌ Hook deployment failed: ${deployError.message}`));
+        console.log(chalk.yellow('Run: stigmergy deploy manually to complete setup'));
+      }
+
     } else {
       console.log(chalk.red('\n❌ Auto-install encountered issues'));
 
       if (isNpmPostinstall) {
         criticalLog(chalk.red('❌ STIGMERGY CLI SETUP INCOMPLETE'));
-        criticalLog(chalk.yellow('Run: stigmergy install to complete setup manually'));
+        criticalLog(chalk.yellow('Run: stigmergy install && stigmergy deploy to complete setup manually'));
       }
 
       if (installResult.error) {
@@ -99,7 +124,9 @@ async function handleAutoInstallCommand(options = {}) {
     const verificationChecks = [
       { name: 'Core modules accessible', check: () => require('../utils/formatters') && require('../utils/environment') },
       { name: 'Error handler available', check: () => require('../../core/error_handler') },
-      { name: 'Smart router available', check: () => require('../../core/smart_router') }
+      { name: 'Smart router available', check: () => require('../../core/smart_router') },
+      { name: 'Hook deployment manager', check: () => require('../../core/coordination/nodejs/HookDeploymentManager') },
+      { name: 'ResumeSession generator', check: () => require('../../core/coordination/nodejs/generators/ResumeSessionGenerator') }
     ];
 
     let verificationPassed = 0;
@@ -118,6 +145,7 @@ async function handleAutoInstallCommand(options = {}) {
 
       if (isNpmPostinstall) {
         criticalLog(chalk.green('🎉 STIGMERGY CLI IS READY TO USE!'));
+        criticalLog(chalk.green('🎯 All CLI tools configured with ResumeSession support'));
       }
     } else {
       console.log(chalk.yellow('\n⚠️  Some verification checks failed'));
@@ -128,6 +156,11 @@ async function handleAutoInstallCommand(options = {}) {
     if (isNpmPostinstall) {
       criticalLog('='.repeat(60));
       criticalLog(chalk.cyan('🎯 STIGMERGY CLI AUTO-INSTALL FINISHED'));
+      criticalLog('='.repeat(60));
+      criticalLog(chalk.green('✅ All CLI tools installed and configured'));
+      criticalLog(chalk.green('✅ Hooks deployed for all CLIs'));
+      criticalLog(chalk.green('✅ ResumeSession integration enabled'));
+      criticalLog(chalk.cyan('📝 Usage: /stigmergy-resume in any CLI'));
       criticalLog('='.repeat(60));
     }
 
@@ -146,7 +179,7 @@ async function handleAutoInstallCommand(options = {}) {
 
     if (isNpmPostinstall) {
       criticalLog(chalk.red('💥 AUTO-INSTALL FAILED'));
-      criticalLog(chalk.yellow('Run: stigmergy install --verbose for detailed installation'));
+      criticalLog(chalk.yellow('Run: stigmergy install --verbose && stigmergy deploy --verbose'));
     }
 
     return { success: false, error: error.message };
