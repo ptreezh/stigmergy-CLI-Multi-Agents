@@ -29,8 +29,20 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Load shared path configuration
-const pathConfigLoader = require(path.join(__dirname, 'path-config-loader.js'));
+// Embedded path configuration for CLI session paths
+const getAllCLISessionPaths = () => {
+  const homeDir = os.homedir();
+  return {
+    claude: [path.join(homeDir, '.claude', 'projects')],
+    gemini: [path.join(homeDir, '.config', 'gemini', 'tmp')],
+    qwen: [path.join(homeDir, '.qwen', 'projects')],
+    iflow: [path.join(homeDir, '.iflow', 'projects')],
+    qodercli: [path.join(homeDir, '.qoder', 'projects')],
+    codebuddy: [path.join(homeDir, '.codebuddy')],
+    codex: [path.join(homeDir, '.config', 'codex')],
+    kode: [path.join(homeDir, '.kode', 'projects')]
+  };
+};
 
 // Embedded ResumeSession Core Functionality
 
@@ -212,7 +224,7 @@ class SessionScanner {
 
   scanAllCLISessions(projectPath) {
     const allSessions = [];
-    const cliPathsMap = pathConfigLoader.getAllCLISessionPaths();
+    const cliPathsMap = getAllCLISessionPaths();
 
     for (const [cliType, sessionsPaths] of Object.entries(cliPathsMap)) {
       for (const sessionsPath of sessionsPaths) {
