@@ -14,6 +14,27 @@
 3. **依赖倒置原则**：依赖抽象而非具体实现
 4. **接口隔离原则**：接口精简，职责明确
 
+### 1.3 命名规范
+
+#### 1.3.1 现有方法命名（保持向后兼容）
+- `analyzeCLI()` - 核心分析方法
+- `analyzeCLIEnhanced()` - 增强分析方法
+- `getCLIPattern()` - 获取CLI模式
+- `getEnhancedCLIPattern()` - 获取增强CLI模式
+- `analyzeAllCLI()` - 分析所有CLI
+
+#### 1.3.2 命名规范说明
+- **核心分析方法**：使用 `analyze` 前缀，表示执行分析操作
+- **数据获取方法**：使用 `get` 前缀，表示获取已分析的数据
+- **批量操作方法**：使用 `analyzeAll` 前缀，表示批量分析
+
+#### 1.3.3 新增方法命名规范
+- 新增分析方法：使用 `analyze` 前缀
+- 新增获取方法：使用 `get` 前缀
+- 新增批量方法：使用 `analyzeAll` 前缀
+
+**注意**：为保持向后兼容性，现有方法名保持不变，不进行重命名。
+
 ## 2. 架构设计
 
 ### 2.1 当前架构问题
@@ -188,11 +209,18 @@ addEnhancedInfo(analysis, cliName)
 }
 ```
 
+**重要说明**：
+- ⚠️ **必须返回新对象，不能修改原对象**
+- ⚠️ 使用展开运算符 `...analysis` 创建新对象
+- ⚠️ 遵循不可变原则，避免副作用
+- ⚠️ 原始 `analysis` 对象必须保持不变
+
 **伪代码**：
 ```javascript
 addEnhancedInfo(analysis, cliName) {
   const enhancedPatterns = this.enhancedPatterns[cliName] || {};
   
+  // 使用展开运算符创建新对象，不修改原对象
   return {
     ...analysis,
     agentSkillSupport: {
@@ -208,6 +236,23 @@ addEnhancedInfo(analysis, cliName) {
     }
   };
 }
+```
+
+**与现有代码的差异**：
+现有代码 `analyzeCLIEnhanced()` 直接修改原对象：
+```javascript
+// ❌ 错误：直接修改原对象
+basicAnalysis.agentSkillSupport = { ... };
+return basicAnalysis;
+```
+
+重构后必须使用展开运算符：
+```javascript
+// ✅ 正确：返回新对象
+return {
+  ...basicAnalysis,
+  agentSkillSupport: { ... }
+};
 ```
 
 #### 3.1.3 包装器方法设计
@@ -357,6 +402,7 @@ const result = await analyzer.analyzeCLI('claude', {
 ```javascript
 /**
  * 获取CLI模式（向后兼容）
+ * @deprecated 建议使用 analyzeCLI(cliName, { enhanced: false })
  * @param {string} cliName - CLI工具名称
  * @returns {Promise<Object>} 分析结果
  */
@@ -368,6 +414,7 @@ async getCLIPattern(cliName)
 ```javascript
 /**
  * 获取增强CLI模式（向后兼容）
+ * @deprecated 建议使用 analyzeCLI(cliName, { enhanced: true })
  * @param {string} cliName - CLI工具名称
  * @returns {Promise<Object>} 增强分析结果
  */
@@ -379,6 +426,7 @@ async getEnhancedCLIPattern(cliName)
 ```javascript
 /**
  * 增强分析（向后兼容）
+ * @deprecated 建议使用 analyzeCLI(cliName, { enhanced: true })
  * @param {string} cliName - CLI工具名称
  * @returns {Promise<Object>} 增强分析结果
  */
