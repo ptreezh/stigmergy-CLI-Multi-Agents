@@ -273,12 +273,20 @@ class CLIHelpAnalyzer {
    */
   async analyzeAllCLI() {
     const results = {};
-    for (const [cliName, _] of Object.entries(this.cliTools)) {
+    const cliNames = Object.keys(this.cliTools);
+    
+    // 优化：并行分析所有 CLI，添加超时保护
+    const analysisPromises = cliNames.map(async (cliName) => {
       try {
         if (process.env.DEBUG === 'true') {
           console.log(`Analyzing ${cliName}...`);
         }
-        results[cliName] = await this.analyzeCLI(cliName);
+        // 添加超时保护，单个 CLI 分析最多 60 秒（因为需要尝试多个 help 方法）
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Analysis timeout')), 60000)
+        );
+        const result = await Promise.race([this.analyzeCLI(cliName), timeoutPromise]);
+        return { cliName, result };
       } catch (error) {
         // Only log important errors, suppress expected file not found errors
         if (
@@ -286,7 +294,8 @@ class CLIHelpAnalyzer {
           !error.message.includes('no such file or directory') &&
           !error.message.includes(
             'not recognized as an internal or external command',
-          )
+          ) &&
+          !error.message.includes('Analysis timeout')
         ) {
           await errorHandler.logError(
             error,
@@ -294,9 +303,21 @@ class CLIHelpAnalyzer {
             `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
           );
         }
-        results[cliName] = { success: false, error: error.message };
+        return { cliName, result: { success: false, error: error.message } };
       }
+    });
+
+    // 等待所有分析完成，添加整体超时保护
+    const overallTimeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Overall analysis timeout')), 120000)
+    );
+    const analysisResults = await Promise.race([Promise.all(analysisPromises), overallTimeoutPromise]);
+    
+    // 整理结果
+    for (const { cliName, result } of analysisResults) {
+      results[cliName] = result;
     }
+    
     return results;
   }
 
@@ -309,6 +330,24 @@ class CLIHelpAnalyzer {
       throw new Error(`CLI tool ${cliName} not found in configuration`);
     }
     try {
+      // 优化：检查缓存版本，只在版本变化时重新分析
+      const cachedAnalysis = await this.getCachedAnalysis(cliName);
+      if (cachedAnalysis && cachedAnalysis.success) {
+        // 获取当前版本
+        const currentVersion = await this.getCurrentVersion(cliName, cliConfig);
+        // 如果版本未变化，使用缓存
+        if (currentVersion === cachedAnalysis.version && !this.isCacheExpired(cachedAnalysis.timestamp)) {
+          if (process.env.DEBUG === 'true') {
+            console.log(`[DEBUG] ${cliName}: 使用缓存的分析结果 (版本: ${cachedAnalysis.version})`);
+          }
+          return cachedAnalysis;
+        } else {
+          if (process.env.DEBUG === 'true') {
+            console.log(`[DEBUG] ${cliName}: 版本变化 (${cachedAnalysis.version} -> ${currentVersion}) 或缓存过期，重新分析`);
+          }
+        }
+      }
+      
       // Get help information
       const helpInfo = await this.getHelpInfo(cliName, cliConfig);
       // Detect CLI type
@@ -368,14 +407,8 @@ class CLIHelpAnalyzer {
     }
 
     const helpMethods = [
-      ['--help'],
-      ['-h'],
-      ['help'],
-      ['--usage'],
-      [''],
-      ['version'],
-      ['--version'],
-      ['-v'],
+      ['--help'],  // 最常用
+      ['-h'],      // 常用
     ];
     let rawHelp = '';
     let version = 'unknown';
@@ -385,7 +418,7 @@ class CLIHelpAnalyzer {
       try {
         const result = spawnSync(cliName, helpArgs, {
           encoding: 'utf8',
-          timeout: 15000,
+          timeout: 5000,
           shell: true,
         });
         if (result.status === 0 && result.stdout) {
@@ -407,11 +440,10 @@ class CLIHelpAnalyzer {
       try {
         const versionCmd = cliConfig.version.split(' ');
         const versionResult = spawnSync(versionCmd[0], versionCmd.slice(1), {
-          encoding: 'utf8',
-          timeout: 10000,
-          shell: true,
-        });
-        if (versionResult.status === 0) {
+                encoding: 'utf8',
+                timeout: 3000, // 优化：减少超时时间从 10 秒到 3 秒
+                shell: true,
+              });        if (versionResult.status === 0) {
           version = versionResult.stdout.trim() || versionResult.stderr.trim();
         }
       } catch (error) {
@@ -720,7 +752,23 @@ class CLIHelpAnalyzer {
    * Get CLI pattern (wrapper for getCachedAnalysis)
    */
   async getCLIPattern(cliName) {
-    return await this.getCachedAnalysis(cliName);
+    const cached = await this.getCachedAnalysis(cliName);
+    
+    // 优化：添加版本变化检测
+    if (cached && cached.success && cached.timestamp && !this.isCacheExpired(cached.timestamp)) {
+      // 检查版本是否变化
+      const cliConfig = this.cliTools[cliName];
+      if (cliConfig) {
+        const currentVersion = await this.getCurrentVersion(cliName, cliConfig);
+        // 如果版本未变化，使用缓存
+        if (currentVersion === cached.version) {
+          return cached;
+        }
+      }
+    }
+    
+    // 版本变化或缓存过期，重新分析
+    return await this.analyzeCLI(cliName);
   }
 
   /**
@@ -772,6 +820,28 @@ class CLIHelpAnalyzer {
       );
     } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Get current CLI version
+   */
+  async getCurrentVersion(cliName, cliConfig) {
+    try {
+      const versionCmd = cliConfig.version || `${cliName} --version`;
+      const result = spawnSync(versionCmd.split(' ')[0], versionCmd.split(' ').slice(1), {
+        encoding: 'utf8',
+        shell: true,
+        timeout: 3000,
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      
+      if (result.status === 0) {
+        return (result.stdout.trim() || result.stderr.trim()).split('\n')[0];
+      }
+      return 'unknown';
+    } catch (error) {
+      return 'unknown';
     }
   }
 
@@ -980,23 +1050,32 @@ class CLIHelpAnalyzer {
   async getEnhancedCLIPattern(cliName) {
     const cached = await this.getCachedAnalysis(cliName);
     
-    if (cached && cached.timestamp && !this.isCacheExpired(cached.timestamp)) {
-      // Enhance cached data with agent/skill information
-      const enhancedPatterns = this.enhancedPatterns[cliName];
-      if (enhancedPatterns) {
-        cached.agentSkillSupport = {
-          supportsAgents: enhancedPatterns.agentDetection || false,
-          supportsSkills: enhancedPatterns.skillDetection || false,
-          naturalLanguageSupport: enhancedPatterns.naturalLanguageSupport || false,
-          skillPrefixRequired: enhancedPatterns.skillPrefixRequired || false,
-          positionalArgs: enhancedPatterns.positionalArgs || false,
-          agentTypes: enhancedPatterns.agentTypes || [],
-          skillKeywords: enhancedPatterns.skillKeywords || [],
-          commandFormat: enhancedPatterns.commandFormat || '',
-          examples: enhancedPatterns.examples || []
-        };
+    // 优化：添加版本变化检测
+    if (cached && cached.success && cached.timestamp && !this.isCacheExpired(cached.timestamp)) {
+      // 检查版本是否变化
+      const cliConfig = this.cliTools[cliName];
+      if (cliConfig) {
+        const currentVersion = await this.getCurrentVersion(cliName, cliConfig);
+        // 如果版本未变化，使用缓存
+        if (currentVersion === cached.version) {
+          // Enhance cached data with agent/skill information
+          const enhancedPatterns = this.enhancedPatterns[cliName];
+          if (enhancedPatterns) {
+            cached.agentSkillSupport = {
+              supportsAgents: enhancedPatterns.agentDetection || false,
+              supportsSkills: enhancedPatterns.skillDetection || false,
+              naturalLanguageSupport: enhancedPatterns.naturalLanguageSupport || false,
+              skillPrefixRequired: enhancedPatterns.skillPrefixRequired || false,
+              positionalArgs: enhancedPatterns.positionalArgs || false,
+              agentTypes: enhancedPatterns.agentTypes || [],
+              skillKeywords: enhancedPatterns.skillKeywords || [],
+              commandFormat: enhancedPatterns.commandFormat || '',
+              examples: enhancedPatterns.examples || []
+            };
+          }
+          return cached;
+        }
       }
-      return cached;
     }
 
     // Perform enhanced analysis
