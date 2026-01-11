@@ -26,10 +26,37 @@
 
 ### 1.1 修改 analyzeCLI() 方法签名
 
-#### 1.1.1 添加 options 参数
+#### 1.1.1 添加参数验证和边界条件处理（FR-008）
 - [ ] 修改方法签名为 `async analyzeCLI(cliName, options = {})`
-- [ ] 添加参数验证逻辑
+- [ ] 添加 cliName 参数验证（非空、非null、存在于配置中）
+- [ ] 添加 options 参数验证（类型检查）
 - [ ] 添加 JSDoc 注释
+
+**验收标准**：
+```javascript
+// 参数验证正确
+if (!cliName || cliName.trim() === '') {
+  throw new Error('cliName cannot be empty or null');
+}
+
+if (!this.cliTools[cliName]) {
+  throw new Error(`CLI tool ${cliName} not found`);
+}
+
+if (options !== null && typeof options !== 'object') {
+  throw new Error('options must be an object');
+}
+
+// JSDoc 完整
+/**
+ * 分析CLI工具
+ * @param {string} cliName - CLI工具名称
+ * @param {Object} options - 分析选项
+ * @param {boolean} options.enhanced - 是否返回增强信息
+ * @param {boolean} options.forceRefresh - 是否强制刷新缓存
+ * @returns {Promise<Object>} 分析结果
+ */
+```
 
 **验收标准**：
 ```javascript
@@ -188,7 +215,170 @@ async analyzeAllCLI(options = {}) {
 - 所有内部调用都已更新
 - 无遗漏的调用点
 
-### 1.4 单元测试 - 核心方法
+### 1.4 实施错误处理（FR-007）
+
+#### 1.4.1 实现失败尝试记录
+- [ ] 在 `analyzeCLI()` 中添加失败记录逻辑
+- [ ] 调用 `recordFailedAttempt()` 方法
+- [ ] 记录到配置文件
+
+**验收标准**：
+```javascript
+try {
+  const analysis = await this.performAnalysis(cliName);
+  // 成功后清除失败记录
+  this.clearFailedAttempts(cliName);
+  return analysis;
+} catch (error) {
+  // 记录失败尝试
+  await this.recordFailedAttempt(cliName, error);
+  throw error;
+}
+```
+
+#### 1.4.2 实现错误日志记录
+- [ ] 在所有 catch 块中添加错误日志
+- [ ] 调用错误处理器记录错误
+- [ ] 确保错误信息完整
+
+**验收标准**：
+```javascript
+catch (error) {
+  this.errorHandler.logError('analyzeCLI', {
+    cliName,
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+  throw error;
+}
+```
+
+#### 1.4.3 实现缓存失败处理
+- [ ] 缓存读取失败时使用内存配置
+- [ ] 不阻塞主流程
+- [ ] 记录警告日志
+
+**验收标准**：
+```javascript
+async getCachedAnalysis(cliName) {
+  try {
+    const cachedData = await this.configManager.readCache(cliName);
+    return cachedData;
+  } catch (error) {
+    this.logger.warn(`Cache read failed for ${cliName}, using in-memory config`);
+    return null;
+  }
+}
+```
+
+#### 1.4.4 实现配置文件写入失败处理
+- [ ] 配置文件写入失败时不抛出异常
+- [ ] 使用内存配置作为回退
+- [ ] 记录错误日志
+
+**验收标准**：
+```javascript
+async cacheAnalysis(cliName, analysis) {
+  try {
+    await this.configManager.writeCache(cliName, analysis);
+  } catch (error) {
+    this.logger.error(`Cache write failed for ${cliName}, using in-memory cache`);
+    // 不阻塞主流程，继续返回结果
+  }
+}
+```
+
+#### 1.4.5 实现工具不存在处理
+- [ ] 工具不存在时返回失败结果而非抛出异常
+- [ ] 记录错误信息
+
+**验收标准**：
+```javascript
+async analyzeCLI(cliName, options = {}) {
+  if (!this.cliTools[cliName]) {
+    return {
+      success: false,
+      cliName,
+      error: `CLI tool ${cliName} not found`,
+      timestamp: new Date().toISOString()
+    };
+  }
+  // 继续处理...
+}
+```
+
+### 1.5 实施边界条件处理（FR-008）
+
+#### 1.5.1 添加配置文件处理
+- [ ] 配置文件不存在时创建默认配置
+- [ ] 配置文件损坏时恢复默认配置
+- [ ] 版本检测失败时使用 'unknown' 标记
+
+**验收标准**：
+```javascript
+async getCurrentVersion(cliName) {
+  try {
+    const version = await this.executeCommand(`${cliName} --version`);
+    return version.trim();
+  } catch (error) {
+    this.logger.warn(`Version detection failed for ${cliName}`);
+    return 'unknown';
+  }
+}
+
+async loadConfiguration() {
+  try {
+    return await this.configManager.readConfig();
+  } catch (error) {
+    this.logger.warn('Configuration file corrupted, using defaults');
+    return this.getDefaultConfiguration();
+  }
+}
+```
+
+#### 1.5.2 添加帮助信息获取失败处理
+- [ ] 帮助信息获取失败时返回失败结果
+- [ ] 记录错误到日志
+
+**验收标准**：
+```javascript
+async getHelpInfo(cliName) {
+  try {
+    const helpText = await this.executeCommand(`${cliName} --help`);
+    return helpText;
+  } catch (error) {
+    this.logger.error(`Help info retrieval failed for ${cliName}: ${error.message}`);
+    return null;
+  }
+}
+```
+
+#### 1.5.3 添加 CLI 命令执行超时处理
+- [ ] CLI 命令执行超时时返回失败结果
+- [ ] 记录超时错误到日志
+
+**验收标准**：
+```javascript
+async executeCommand(command, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Command timeout: ${command}`));
+    }, timeout);
+
+    exec(command, (error, stdout, stderr) => {
+      clearTimeout(timer);
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+```
+
+### 1.6 单元测试 - 核心方法
 
 #### 1.4.1 测试 analyzeCLI() 基础功能
 - [ ] 测试 `enhanced=false` 返回基础分析
@@ -790,7 +980,100 @@ echo "# CLI Help Analyzer 备份\n\n备份日期: 2026-01-11\n备份版本: 1.3.
 - 无过时文档
 - 无重复文档
 
-### 8.2 项目总结
+### 8.2 设计决策追溯
+
+#### 8.2.1 DDR-001: 保留包装器方法
+**决策描述**：保留 getCLIPattern()、getEnhancedCLIPattern()、analyzeCLIEnhanced() 作为包装器方法
+
+**实施状态**：
+- [ ] 已实现：getCLIPattern() 调用 analyzeCLI(cliName, { enhanced: false })
+- [ ] 已实现：getEnhancedCLIPattern() 调用 analyzeCLI(cliName, { enhanced: true })
+- [ ] 已实现：analyzeCLIEnhanced() 调用 analyzeCLI(cliName, { enhanced: true })
+- [ ] 已标注：@deprecated 注释添加到所有包装器方法
+- [ ] 已测试：包装器方法测试通过（阶段2.4）
+
+**验证方法**：
+```javascript
+// 验证 getCLIPattern() 正确调用
+const spy = jest.spyOn(analyzer, 'analyzeCLI');
+await analyzer.getCLIPattern('claude');
+expect(spy).toHaveBeenCalledWith('claude', { enhanced: false });
+```
+
+#### 8.2.2 DDR-002: 使用 options 对象
+**决策描述**：使用 options 对象控制 analyzeCLI() 行为，而不是多个方法
+
+**实施状态**：
+- [ ] 已实现：analyzeCLI(cliName, options) 方法签名
+- [ ] 已实现：enhanced 参数支持（默认 false）
+- [ ] 已实现：forceRefresh 参数支持（默认 false）
+- [ ] 已测试：enhanced 参数测试通过（阶段1.6.1）
+- [ ] 已测试：forceRefresh 参数测试通过（阶段1.6.1）
+- [ ] 已文档：JSDoc 注释完整
+
+**验证方法**：
+```javascript
+// 验证 enhanced 参数
+const result = await analyzer.analyzeCLI('claude', { enhanced: true });
+expect(result.agentSkillSupport).toBeDefined();
+
+// 验证 forceRefresh 参数
+const result1 = await analyzer.analyzeCLI('claude');
+const result2 = await analyzer.analyzeCLI('claude', { forceRefresh: true });
+expect(result2.timestamp).not.toEqual(result1.timestamp);
+```
+
+#### 8.2.3 DDR-003: addEnhancedInfo() 不修改原对象
+**决策描述**：addEnhancedInfo() 方法返回新对象，不修改原始分析结果
+
+**实施状态**：
+- [ ] 已实现：使用展开运算符返回新对象
+- [ ] 已测试：不修改原对象测试通过（阶段1.6.2）
+- [ ] 已文档：代码注释说明
+
+**验证方法**：
+```javascript
+// 验证不修改原对象
+const basicAnalysis = { cliName: 'claude', version: '2.1.4' };
+const enhancedAnalysis = analyzer.addEnhancedInfo(basicAnalysis, 'claude');
+expect(basicAnalysis.agentSkillSupport).toBeUndefined();
+expect(enhancedAnalysis.agentSkillSupport).toBeDefined();
+```
+
+#### 8.2.4 DDR-004: 错误处理策略
+**决策描述**：错误时返回失败结果而非抛出异常，确保系统稳定性
+
+**实施状态**：
+- [ ] 已实现：工具不存在时返回失败结果（阶段1.4.5）
+- [ ] 已实现：缓存失败时使用内存配置（阶段1.4.3）
+- [ ] 已实现：配置文件写入失败时不阻塞（阶段1.4.4）
+- [ ] 已测试：错误处理测试通过（阶段1.6.4）
+
+**验证方法**：
+```javascript
+// 验证错误处理
+const result = await analyzer.analyzeCLI('nonexistent-cli');
+expect(result.success).toBe(false);
+expect(result.error).toContain('not found');
+```
+
+#### 8.2.5 DDR-005: 边界条件处理
+**决策描述**：明确处理各种边界条件和异常输入，提高健壮性
+
+**实施状态**：
+- [ ] 已实现：cliName 参数验证（阶段1.1.1）
+- [ ] 已实现：options 参数验证（阶段1.1.1）
+- [ ] 已实现：版本检测失败处理（阶段1.5.1）
+- [ ] 已实现：命令超时处理（阶段1.5.3）
+- [ ] 已测试：边界条件测试通过（阶段1.6.5）
+
+**验证方法**：
+```javascript
+// 验证参数验证
+await expect(analyzer.analyzeCLI(null)).rejects.toThrow('cliName cannot be empty or null');
+```
+
+### 8.3 项目总结
 
 #### 8.2.1 编写总结报告
 - [ ] 记录重构过程
@@ -846,6 +1129,85 @@ echo "# CLI Help Analyzer 备份\n\n备份日期: 2026-01-11\n备份版本: 1.3.
 - [ ] 首次分析性能 (< 10s)
 - [ ] 并行分析性能 (< 35s)
 - [ ] 内存使用检查
+
+#### A.4 错误处理测试用例（FR-007）
+- [ ] analyzeCLI() - cliName不存在返回失败结果
+- [ ] analyzeCLI() - 配置文件损坏时恢复默认配置
+- [ ] analyzeCLI() - 缓存读取失败时使用内存配置
+- [ ] analyzeCLI() - 配置文件写入失败时不阻塞主流程
+- [ ] analyzeCLI() - 失败后能够重新分析
+- [ ] analyzeCLI() - 错误日志正确记录
+
+**测试用例示例**：
+```javascript
+describe('Error Handling (FR-007)', () => {
+  test('should return failure result when cliName not found', async () => {
+    const result = await analyzer.analyzeCLI('nonexistent-cli');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('not found');
+  });
+
+  test('should handle cache read failure gracefully', async () => {
+    // Mock cache read failure
+    jest.spyOn(analyzer.configManager, 'readCache').mockRejectedValue(new Error('Cache read failed'));
+    const result = await analyzer.analyzeCLI('claude');
+    expect(result.success).toBe(true); // Should still work with in-memory config
+  });
+
+  test('should not block main flow when cache write fails', async () => {
+    // Mock cache write failure
+    jest.spyOn(analyzer.configManager, 'writeCache').mockRejectedValue(new Error('Cache write failed'));
+    const result = await analyzer.analyzeCLI('claude', { forceRefresh: true });
+    expect(result.success).toBe(true); // Should still return result
+  });
+});
+```
+
+#### A.5 边界条件测试用例（FR-008）
+- [ ] analyzeCLI() - cliName为null抛出明确错误
+- [ ] analyzeCLI() - cliName为空字符串抛出明确错误
+- [ ] analyzeCLI() - options参数为null使用默认值
+- [ ] analyzeCLI() - options参数类型错误抛出明确错误
+- [ ] analyzeCLI() - 版本检测失败使用'unknown'标记
+- [ ] analyzeCLI() - 帮助信息获取失败返回失败结果
+- [ ] analyzeCLI() - CLI命令执行超时返回失败结果
+- [ ] analyzeCLI() - 配置文件不存在时创建默认配置
+
+**测试用例示例**：
+```javascript
+describe('Boundary Conditions (FR-008)', () => {
+  test('should throw error when cliName is null', async () => {
+    await expect(analyzer.analyzeCLI(null)).rejects.toThrow('cliName cannot be empty or null');
+  });
+
+  test('should throw error when cliName is empty string', async () => {
+    await expect(analyzer.analyzeCLI('')).rejects.toThrow('cliName cannot be empty or null');
+  });
+
+  test('should use default options when options is null', async () => {
+    const result = await analyzer.analyzeCLI('claude', null);
+    expect(result.success).toBe(true);
+  });
+
+  test('should throw error when options type is wrong', async () => {
+    await expect(analyzer.analyzeCLI('claude', 'invalid')).rejects.toThrow('options must be an object');
+  });
+
+  test('should use unknown marker when version detection fails', async () => {
+    // Mock version detection failure
+    jest.spyOn(analyzer, 'executeCommand').mockRejectedValue(new Error('Version command failed'));
+    const result = await analyzer.analyzeCLI('claude', { forceRefresh: true });
+    expect(result.version).toBe('unknown');
+  });
+
+  test('should handle command timeout', async () => {
+    // Mock command timeout
+    jest.spyOn(analyzer, 'executeCommand').mockRejectedValue(new Error('Command timeout'));
+    const result = await analyzer.analyzeCLI('claude', { forceRefresh: true });
+    expect(result.success).toBe(false);
+  });
+});
+```
 
 ### B. 验收标准清单
 
