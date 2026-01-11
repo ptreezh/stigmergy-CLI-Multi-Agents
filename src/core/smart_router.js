@@ -1,3 +1,15 @@
+/**
+ * Smart Router - 智能路由器，根据用户输入选择最合适的 CLI 工具
+ * 
+ * 📚 参考文档：
+ * - CLI Help Analyzer 重构：REFACTORING_CLI_HELP_ANALYZER.md
+ * 
+ * 🔗 依赖关系：
+ * - 依赖 CLIHelpAnalyzer 的 getEnhancedCLIPattern() 方法
+ * - 重构后调用方式保持不变，完全向后兼容
+ * 
+ * @module SmartRouter
+ */
 const CLIHelpAnalyzer = require('./cli_help_analyzer');
 const { CLI_TOOLS, validateCLITool } = require('./cli_tools');
 const { errorHandler } = require('./error_handler');

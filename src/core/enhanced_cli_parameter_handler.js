@@ -7,6 +7,13 @@
  * 3. Fallback strategies for different CLI tools
  *
  * OPTIMIZATION: Stage 1 (quickDetectMention) avoids cache I/O if no keywords found
+ * 
+ * 📚 参考文档：
+ * - CLI Help Analyzer 重构：REFACTORING_CLI_HELP_ANALYZER.md
+ * 
+ * 🔗 依赖关系：
+ * - 依赖 CLIHelpAnalyzer 的 getCLIPattern() 方法
+ * - 重构后调用方式保持不变，完全向后兼容
  */
 
 const CLIHelpAnalyzer = require('./cli_help_analyzer');
