@@ -1,0 +1,180 @@
+// Find latest session in a directory
+  findLatestSessionInDir(dirPath, cliType, context) {
+    try {
+      const files = fs.readdirSync(dirPath);
+
+      // Filter for session files only
+      const sessionFiles = files.filter(file => {
+        // CodeBuddy's user-state.json should be skipped
+        if (cliType === 'codebuddy' && file === 'user-state.json') {
+          return false;
+        }
+        // Codex's slash_commands.json should be skipped
+        if (cliType === 'codex' && file === 'slash_commands.json') {
+          return false;
+        }
+        return file.endsWith('.jsonl') || file.endsWith('.json') || file.endsWith('.session');
+      });
+
+      if (sessionFiles.length === 0) return null;
+
+      let latestFile = null;
+      let latestTime = new Date(0);
+
+      for (const file of sessionFiles) {
+        const filePath = path.join(dirPath, file);
+        try {
+          const stats = fs.statSync(filePath);
+          if (stats.mtime > latestTime) {
+            latestTime = stats.mtime;
+            latestFile = file;
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+
+      if (!latestFile) return null;
+
+      return {
+        cliType,
+        file: latestFile,
+        path: path.join(dirPath, latestFile),
+        modified: latestTime,
+        context
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+// Find latest session in a directory
+  findLatestSessionInDir(dirPath, cliType, context) {
+    try {
+      const files = fs.readdirSync(dirPath);
+
+      // Filter for session files only
+      const sessionFiles = files.filter(file => {
+        // CodeBuddy's user-state.json should be skipped
+        if (cliType === 'codebuddy' && file === 'user-state.json') {
+          return false;
+        }
+        // Codex's slash_commands.json should be skipped
+        if (cliType === 'codex' && file === 'slash_commands.json') {
+          return false;
+        }
+        return file.endsWith('.jsonl') || file.endsWith('.json') || file.endsWith('.session');
+      });
+
+      if (sessionFiles.length === 0) return null;
+
+      let latestFile = null;
+      let latestTime = new Date(0);
+
+      for (const file of sessionFiles) {
+        const filePath = path.join(dirPath, file);
+        try {
+          const stats = fs.statSync(filePath);
+          if (stats.mtime > latestTime) {
+            latestTime = stats.mtime;
+            latestFile = file;
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+
+      if (!latestFile) return null;
+
+      return {
+        cliType,
+        file: latestFile,
+        path: path.join(dirPath, latestFile),
+        modified: latestTime,
+        context
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+// Format full session for output
+  formatFullSession(session) {
+    const messages = this.readFullSession(session.path);
+    if (!messages) {
+      return null;
+    }
+
+    // Handle different message formats
+    const messageList = Array.isArray(messages) ? messages :
+                       (messages.messages && Array.isArray(messages.messages)) ? messages.messages : [];
+
+    if (messageList.length === 0) {
+      return null;
+    }
+
+    const output = [];
+    output.push('📋 最新会话恢复');
+    output.push('');
+    output.push(`🔧 来源: ${session.cliType.toUpperCase()}`);
+    output.push(`📅 最后修改: ${session.modified.toLocaleString()}`);
+    output.push(`📁 文件: ${session.file}`);
+    output.push('');
+    output.push('---');
+    output.push('');
+    output.push('📝 完整对话内容:');
+    output.push('');
+
+    // Extract and format all messages (limit to last 50 for readability)
+    messageList.slice(-50).forEach((msg, index) => {
+      const role = msg.type || msg.role || 'unknown';
+      const prefix = role === 'user' ? '👤 用户' : '🤖 助手';
+      const content = this.extractMessageContent(msg);
+
+      if (content && content.trim()) {
+        output.push(`${prefix}:`);
+        output.push(content);
+        output.push('');
+      }
+    });
+
+    return output.join('\n');
+  }
+
+// Extract text content from a message
+  extractMessageContent(msg) {
+    if (msg.message && typeof msg.message === 'object') {
+      const content = msg.message.content || msg.message.text || '';
+      return this.extractTextFromContent(content);
+    }
+
+    const content = msg.content || msg.text || '';
+    return this.extractTextFromContent(content);
+  }
+
+// Extract text from content
+  extractTextFromContent(content) {
+    if (typeof content === 'string') {
+      return content;
+    }
+
+    if (Array.isArray(content)) {
+      return content
+        .map(item => {
+          if (typeof item === 'string') return item;
+          if (item && typeof item === 'object') {
+            return item.text || item.content || '';
+          }
+          return '';
+        })
+        .filter(text => text && typeof text === 'string')
+        .join(' ');
+    }
+
+    if (content && typeof content === 'object') {
+      return content.text || content.content || '';
+    }
+
+    return '';
+  }
+}

@@ -28,7 +28,7 @@ for (const template of expectedTemplates) {
 console.log(`\n🎯 Template Status: ${allTemplatesExist ? 'All templates present' : 'Missing templates'}`);
 
 // 测试2: 验证resumesession命令是否可用
-const resumeCmdPath = 'D:/stigmergy-CLI-Multi-Agents/src/cli/commands/resume.js';
+const resumeCmdPath = 'D:/stigmergy-CLI-Multi-Agents/src/cli/commands/stigmergy-resume.js';
 const hasResumeCmd = fs.existsSync(resumeCmdPath);
 console.log(`\n📋 Resume command implemented: ${hasResumeCmd ? '✅' : '❌'}`);
 

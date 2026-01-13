@@ -6,6 +6,10 @@
     "**/test/**/*.test.js",
     "**/__tests__/**/*.test.js"
   ],
+  "modulePathIgnorePatterns": [
+    "<rootDir>/sscisubagent-skills",
+    "<rootDir>/openskills"
+  ],
   "collectCoverageFrom": [
     "src/**/*.js",
     "!src/index.js",

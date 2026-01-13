@@ -60,7 +60,14 @@ async function handleStatusCommand(options = {}) {
 
       for (const tool of supportedTools) {
         try {
-          const status = await CLI_TOOLS.checkInstallation(tool);
+          // 添加超时保护
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 5000)
+          );
+          
+          const statusPromise = CLI_TOOLS.checkInstallation(tool);
+          const status = await Promise.race([statusPromise, timeoutPromise]);
+          
           results.push({ tool, ...status });
 
           if (status.installed) {

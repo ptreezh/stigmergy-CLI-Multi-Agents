@@ -297,24 +297,6 @@ class CLIPathDetector {
         }
       }
 
-      // Try alternative npm config methods
-      const npmListResult = spawnSync('npm', ['list', '-g', '--depth=0'], {
-        encoding: 'utf8',
-        shell: true
-      });
-
-      if (npmListResult.status === 0) {
-        // Extract global prefix from npm list output if needed
-        const lines = npmListResult.stdout.split('\n');
-        for (const line of lines) {
-          if (line.includes(`${command}@`)) {
-            // Package is installed globally, try to find it in common locations
-            return null; // Fall back to other methods
-          }
-        }
-      }
-
-      return null;
     } catch (error) {
       console.log(`[DETECTOR] npm query failed: ${error.message}`);
       return null;

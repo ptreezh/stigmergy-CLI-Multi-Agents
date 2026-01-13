@@ -35,7 +35,7 @@ const { handleDiagnosticCommand, handleCleanCommand } = require('./commands/syst
 const { handleSkillMainCommand, printSkillsHelp } = require('./commands/skills');
 const { handleErrorsCommand } = require('./commands/errors');
 const { handleAutoInstallCommand } = require('./commands/autoinstall');
-const { handleResumeCommand, printResumeHelp } = require('./commands/resume');
+const { handleResumeCommand, printResumeHelp } = require('./commands/stigmergy-resume');
 const { getCLIPath } = require('../core/cli_tools');
 const {
   handleUpgradeCommand,
@@ -330,15 +330,19 @@ async function main() {
   // Resume session command
   program
     .command('resume')
-    .description('Resume session (forwards to @stigmergy/resume CLI tool)')
-    .argument('[args...]', 'Arguments to pass to resumesession')
+    .description('Resume session - Cross-CLI session recovery and history management')
+    .argument('[cli]', 'CLI tool to filter (claude, gemini, qwen, iflow, codebuddy, codex, qodercli)')
+    .argument('[limit]', 'Maximum number of sessions to show')
     .option('-v, --verbose', 'Verbose output')
-    .action(async (args, options) => {
+    .action(async (cli, limit, options) => {
+      const args = [];
+      if (cli) args.push(cli);
+      if (limit) args.push(limit);
       await handleResumeCommand(args, options);
     });
 
   // Route commands to CLI tools
-  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'kode', 'opencode', 'oh-my-opencode']) {
+  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot']) {
     program
       .command(tool)
       .description(`Use ${tool} CLI tool`)

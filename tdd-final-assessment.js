@@ -29,7 +29,7 @@ const IMPLEMENTATION_STATUS = {
     { name: 'skill-m', aliases: [], status: '✅', module: 'commands/skills.js' },
     { name: 'errors', aliases: [], status: '✅', module: 'commands/errors.js' },
     { name: 'auto-install', aliases: [], status: '✅', module: 'commands/autoinstall.js' },
-    { name: 'resume', aliases: [], status: '✅', module: 'commands/resume.js' },
+    { name: 'resume', aliases: [], status: '✅', module: 'commands/stigmergy-resume.js' },
     { name: 'resumesession', aliases: [], status: '❌', module: 'command removed' },
     { name: 'sg-resume', aliases: [], status: '❌', module: 'command removed' }
   ],
@@ -97,7 +97,7 @@ const modules = [
   'commands/skills.js',
   'commands/errors.js',
   'commands/autoinstall.js',
-  'commands/resume.js',
+  'commands/stigmergy-resume.js',
   'utils/formatters.js',
   'utils/environment.js',
   'router-beta.js (main)'
