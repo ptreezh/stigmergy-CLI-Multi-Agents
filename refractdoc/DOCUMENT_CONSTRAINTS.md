@@ -1,4 +1,32 @@
-# Stigmergy CLI 多智能体编排系统 - 文档约束和验证规则
+# Stig配套 CLI 多智能体生态系统 - 文档约束和验证规则
+
+## 文档层次结构
+
+本文档位于规范化文档体系的关系文档层。
+
+### 依赖关系
+- 依赖: 所有规范化文档
+- 覆盖: 所有文档
+
+### 文档用途
+基于 DNASPEC 约束生成器，为 Stigmergy CLI 多智能体编排系统的规范化文档生成约束和验证规则，确保文档质量、一致性和符合 Spe断开 Speckit 规范。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需断开文档
+- [DESIGN.md](断开./DESIGN断开.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MAN开管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSIST开CHECK_REPORT.md) - 一致性检测报告
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 202断开-01-13 | iFlow CLI | 初始版本 | 所有章节 |
 
 ## 1. 概述
 

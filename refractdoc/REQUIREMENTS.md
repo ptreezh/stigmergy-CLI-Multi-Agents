@@ -1,5 +1,33 @@
 # Stigmergy CLI 多智能体编排系统 - 需求文档
 
+## 文档层次结构
+
+本文档位于规范化文档体系的核心文档层。
+
+### 依赖关系
+- 依赖: 无
+- 被依赖: DESIGN.md, IMPLEMENTATION.md, CORE_CONCEPTS.md, CONTEXT_MANAGEMENT_DESIGN.md
+
+### 文档用途
+定义 Stigmergy CLI 多智能体编排系统的完整需求，包括功能需求、非功能需求和约束条件。
+
+## 相关文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 1. 概述
 
 ### 1.1 目的
@@ -429,3 +457,151 @@
 - **KPI-13**: 用户满意度 > 4.0/5.0
 - **KPI-14**: 学习曲线 < 1 周
 - **KPI-15**: 问题解决时间 < 1 天
+
+## 10. 追溯矩阵
+
+### 10.1 需求到设计的追溯
+
+| 需求 ID | 需求描述 | 设计组件 | 设计章节 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.2 | 独立运行 CLI | EnhancedTerminalManager | 2.2.1 |
+| FR-1.3 | 配置环境变量 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.4 | 监控终端状态 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.5 | 读取终端输出 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.6 | 终止指定终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.7 | 批量等待终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-2.1 | 指定智能体 | CLI 参数映射 | 2.2.1 |
+| FR-2.2 | 指定技能 | CLI 参数映射 | 2.2.1 |
+| FR-2.3 | MCP 工具配置 | CLI 参数映射 | 2.2.1 |
+| FR-2.4 | 工作目录指定 | CLI 参数映射 | 2.2.1 |
+| FR-2.5 | CLI 特定参数 | CLI 参数映射 | 2.2.1 |
+| FR-3.1 | 创建 worktree | GitWorktreeManager | 2.2.2 |
+| FR-3.2 | 创建任务分支 | GitWorktreeManager | 2.2.2 |
+| FR-3.3 | 同步配置文件 | GitWorktreeManager | 2.2.2 |
+| FR-3.4 | 初始化协调上下文 | GitWorktreeManager | 2.2.2 |
+| FR-4.1 | Squash 合并 | GitWorktreeManager | 2.2.2 |
+| FR-4.2 | Merge 合并 | GitWorktreeManager | 2.2.2 |
+| FR-4.3 | 检测合并冲突 | GitWorktreeManager | 2.2.2 |
+| FR-4.4 | 提供冲突建议 | GitWorktreeManager | 2.2.2 |
+| FR-4.5 | 选择性合并 | GitWorktreeManager | 2.2.2 |
+| FR-5.1 | 删除 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.2 | 批量清理 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.3 | 保留 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.4 | 清理临时文件 | GitWorktreeManager | 2.2.2 |
+| FR-6.1 | 原子锁操作 | StateLockManager | 2.2.3 |
+| FR-6.2 | 依赖关系检查 | StateLockManager | 2.2.3 |
+| FR-6.3 | 文件锁检测 | StateLockManager | 2.2.3 |
+| FR-6.4 | 锁超时释放 | StateLockManager | 2.2.3 |
+| FR-6.5 | 死锁检测预防 | StateLockManager | 2.2.3 |
+| FR-7.1 | 锁状态管理 | StateLockManager | 2.2.3 |
+| FR-7.2 | 锁所有者记录 | StateLockManager | 2.2.3 |
+| FR-7.3 | 锁获取时间 | StateLockManager | 2.2.3 |
+| FR-7.4 | 锁释放时间 | StateLockManager | 2.2.3 |
+| FR-7.5 | 锁失败原因 | StateLockManager | 2.2.3 |
+| FR-8.1 | 任务检测 Hook | HookSystem | 2.2.4 |
+| FR-8.2 | 锁获取 Hook | HookSystem | 2.2.4 |
+| FR-8.3 | 锁释放 Hook | HookSystem | 2.2.4 |
+| FR-8.4 | 冲突检测 Hook | HookSystem | 2.2.4 |
+| FR-8.5 | 事件发布 Hook | HookSystem | 2.2.4 |
+| FR-9.1 | 任务创建事件 | EventBus | 2.2.5 |
+| FR-9.2 | 锁获取事件 | EventBus | 2.2.5 |
+| FR-9.3 | 锁释放事件 | EventBus | 2.2.5 |
+| FR-9.4 | 任务完成事件 | EventBus | 2.2.5 |
+| FR-9.5 | 冲突检测事件 | EventBus | 2.2.5 |
+| FR-9.6 | 错误事件 | EventBus | 2.2.5 |
+| FR-10.1 | 任务分解 | CentralOrchestrator | 2.2.6 |
+| FR-10.2 | CLI 分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.3 | 智能体分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.4 | 技能分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.5 | 依赖分析 | CentralOrchestrator | 2.2.6 |
+| FR-11.1 | 并行执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.2 | 串行执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.3 | 混合执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.4 | 自定义策略 | CentralOrchestrator | 2.2.6 |
+| FR-11.5 | 并发度控制 | CentralOrchestrator | 2.2.6 |
+| FR-12.1 | 收集结果 | ResultAggregator | 2.2.7 |
+| FR-12.2 | 检测冲突 | ResultAggregator | 2.2.7 |
+| FR-12.3 | 生成摘要 | ResultAggregator | 2.2.7 |
+| FR-12.4 | 生成建议 | ResultAggregator | 2.2.7 |
+| FR-12.5 | 计算成功率 | ResultAggregator | 2.2.7 |
+| FR-13.1 | 保存任务状态 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.2 | 中断恢复 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.3 | 传递上下文 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.4 | 收集结果摘要 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.5 | 恢复任务 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.1 | 传递描述 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.2 | 传递依赖 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.3 | 传递路径 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.4 | 传递文件列表 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.5 | 传递输出列表 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.1 | 记录任务 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.2 | 记录分解 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.3 | 记录策略 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.4 | 记录结果 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.5 | 记录合并 | ResumeSessionIntegration | 2.2.6 |
+| FR-16.1 | 创建 task_plan.md | TaskPlanningFiles | 2.2.8 |
+| FR-16.2 | 包含目标阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-16.3 | 记录决策 | TaskPlanningFiles | 2.2.8 |
+| FR-16.4 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-16.5 | 跟踪阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-17.1 | 创建 findings.md | TaskPlanningFiles | 2.2.8 |
+| FR-17.2 | 记录需求 | TaskPlanningFiles | 2.2.8 |
+| FR-17.3 | 记录发现 | TaskPlanningFiles | 2.2.8 |
+| FR-17.4 | 记录问题 | TaskPlanningFiles | 2.2.8 |
+| FR-17.5 | 记录资源 | TaskPlanningFiles | 2.2.8 |
+| FR-18.1 | 创建 progress.md | TaskPlanningFiles | 2.2.8 |
+| FR-18.2 | 记录操作 | TaskPlanningFiles | 2.2.8 |
+| FR-18.3 | 记录文件 | TaskPlanningFiles | 2.2.8 |
+| FR-18.4 | 记录测试 | TaskPlanningFiles | 2.2.8 |
+| FR-18.5 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-19.1 | 自动创建 | TaskPlanningFiles | 2.2.8 |
+| FR-19.2 | 更新任务计划 | TaskPlanningFiles | 2.2.8 |
+| FR-19.3 | 更新发现 | TaskPlanningFiles | 2.2.8 |
+| FR-19.4 | 更新进度 | TaskPlanningFiles | 2.2.8 |
+| FR-19.5 | 清理归档 | TaskPlanningFiles | 2.2.8 |
+| FR-20.1 | 先创建计划 | TaskPlanningFiles | 2.2.8 |
+| FR-20.2 | 2-Action 规则 | TaskPlanningFiles | 2.2.8 |
+| FR-20.3 | 重读计划 | TaskPlanningFiles | 2.2.8 |
+| FR-20.4 | 更新状态 | TaskPlanningFiles | 2.2.8 |
+| FR-20.5 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-20.6 | 永不重复失败 | TaskPlanningFiles | 2.2.8 |
+| FR-20.7 | 3次失败升级 | TaskPlanningFiles | 2.2.8 |
+| FR-21.1 | 恢复阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-21.2 | 恢复发现 | TaskPlanningFiles | 2.2.8 |
+| FR-21.3 | 恢复工作 | TaskPlanningFiles | 2.2.8 |
+| FR-21.4 | 快速恢复 | TaskPlanningFiles | 2.2.8 |
+| FR-21.5 | 继续执行 | TaskPlanningFiles | 2.2.8 |
+| FR-22.1 | 独立三文件 | TaskPlanningFiles | 2.2.8 |
+| FR-22.2 | 不共享 | TaskPlanningFiles | 2.2.8 |
+| FR-22.3 | 独立记录 | TaskPlanningFiles | 2.2.8 |
+| FR-22.4 | Git 合并 | TaskPlanningFiles | 2.2.8 |
+| FR-22.5 | 事件通知 | TaskPlanningFiles | 2.2.8 |
+
+**覆盖率**: 85/85 (100%)
+
+### 10.2 需求到实施的追溯
+
+| 需求 ID | 需求描述 | 实施阶段 | 实施任务 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | 阶段 2 | 任务 2.1 |
+| FR-1.2 | 独立运行 CLI | 阶段 2 | 任务 2.1 |
+| FR-3.1 | 创建 worktree | 阶段 3 | 任务 3.1 |
+| FR-6.1 | 原子锁操作 | 阶段 1 | 任务 1.5 |
+| FR-16.1 | 创建 task_plan.md | 阶段 6 | 任务 6.1 |
+| FR-17.1 | 创建 findings.md | 阶段 6 | 任务 6.1 |
+| FR-18.1 | 创建 progress.md | 阶段 6 | 任务 6.1 |
+
+**覆盖率**: 7/85 (8.2%) - 实施文档中需要补充完整的追溯矩阵
+
+### 10.3 需求到测试的追溯
+
+| 需求 ID | 需求描述 | 测试文件 | 测试用例 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | TerminalManager.test.ts | should launch multiple terminals |
+| FR-1.2 | 独立运行 CLI | TerminalManager.test.ts | should run CLI independently |
+| FR-3.1 | 创建 worktree | WorktreeManager.test.ts | should create worktree |
+| FR-6.1 | 原子锁操作 | LockManager.test.ts | should acquire lock atomically |
+| FR-16.1 | 创建 task_plan.md | SessionManager.test.ts | should create planning files |
+
+**覆盖率**: 5/85 (5.9%) - 实施文档中需要补充完整的测试追溯矩阵

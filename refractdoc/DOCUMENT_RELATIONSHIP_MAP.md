@@ -1,5 +1,33 @@
 # Stigmergy CLI 多智能体编排系统 - 文档关系图
 
+## 文档层次结构
+
+本文档位于规范化文档体系的关系文档层。
+
+### 依赖关系
+- 依赖: 所有规范化文档
+- 被依赖: 无
+
+### 文档用途
+记录所有规范化文档之间的关系、依赖关系和追溯矩阵，确保文档的一致性和完整性。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 1. 文档概览
 
 ### 1.1 文档列表

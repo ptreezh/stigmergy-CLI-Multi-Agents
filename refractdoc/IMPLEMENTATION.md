@@ -1,5 +1,31 @@
 # Stigmergy CLI 多智能体编排系统 - 实施计划文档
 
+## 文档层次结构
+
+本文档位于规范化文档体系的核心文档层。
+
+### 依赖关系
+- 依赖: REQUIREMENTS.md, DESIGN.md
+- 被依赖: 无
+
+### 文档用途
+定义 Stigmergy CLI 多智能体编排系统的详细实施计划，包括实施阶段、实施步骤、测试策略、部署流程和验收标准。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 1. 概述
 
 ### 1.1 目的
@@ -3863,6 +3889,128 @@ npm run test:compatibility
 | 阶段 5 | ResumeSession | 1 周 | ___ |
 | 阶段 6 | 集成测试 | 1-2 周 | ___ |
 | **总计** | | **8-12 周** | **___** |
+
+## 11. 追溯矩阵
+
+### 11.1 需求到测试的追溯
+
+| 需求 ID | 需求描述 | 测试文件 | 测试用例 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | TerminalManager.test.ts | should launch multiple terminals |
+| FR-1.2 | 独立运行 CLI | TerminalManager.test.ts | should run CLI independently |
+| FR-1.3 | 配置环境变量 | TerminalManager.test.ts | should configure environment variables |
+| FR-1.4 | 监控终端状态 | TerminalManager.test.ts | should monitor terminal status |
+| FR-1.5 | 读取终端输出 | TerminalManager.test.ts | should read terminal output |
+| FR-1.6 | 终止指定终端 | TerminalManager.test.ts | should terminate terminal |
+| FR-1.7 | 批量等待终端 | TerminalManager.test.ts | should wait for all terminals |
+| FR-2.1 | 指定智能体 | TerminalManager.test.ts | should specify agent |
+| FR-2.2 | 指定技能 | TerminalManager.test.ts | should specify skills |
+| FR-2.3 | MCP 工具配置 | TerminalManager.test.ts | should configure MCP tools |
+| FR-2.4 | 工作目录指定 | TerminalManager.test.ts | should specify working directory |
+| FR-2.5 | CLI 特定参数 | TerminalManager.test.ts | should support CLI specific parameters |
+| FR-3.1 | 创建 worktree | WorktreeManager.test.ts | should create worktree |
+| FR-3.2 | 创建任务分支 | WorktreeManager.test.ts | should create task branch |
+| FR-3.3 | 同步配置文件 | WorktreeManager.test.ts | should sync config files |
+| FR-3.4 | 初始化协调上下文 | WorktreeManager.test.ts | should initialize coordination context |
+| FR-4.1 | Squash 合并 | WorktreeManager.test.ts | should support squash merge |
+| FR-4.2 | Merge 合并 | WorktreeManager.test.ts | should support merge strategy |
+| FR-4.3 | 检测合并冲突 | WorktreeManager.test.ts | should detect merge conflicts |
+| FR-4.4 | 提供冲突建议 | WorktreeManager.test.ts | should provide conflict suggestions |
+| FR-4.5 | 选择性合并 | WorktreeManager.test.ts | should support selective merge |
+| FR-5.1 | 删除 worktree | WorktreeManager.test.ts | should delete worktree |
+| FR-5.2 | 批量清理 worktree | WorktreeManager.test.ts | should batch cleanup worktrees |
+| FR-5.3 | 保留 worktree | WorktreeManager.test.ts | should keep worktree for debugging |
+| FR-5.4 | 清理临时文件 | WorktreeManager.test.ts | should cleanup temp files |
+| FR-6.1 | 原子锁操作 | LockManager.test.ts | should acquire lock atomically |
+| FR-6.2 | 依赖关系检查 | LockManager.test.ts | should check dependencies |
+| FR-6.3 | 文件锁检测 | LockManager.test.ts | should check file locks |
+| FR-6.4 | 锁超时释放 | LockManager.test.ts | should support lock timeout |
+| FR-6.5 | 死锁检测预防 | LockManager.test.ts | should detect deadlock |
+| FR-7.1 | 锁状态管理 | LockManager.test.ts | should manage lock states |
+| FR-7.2 | 锁所有者记录 | LockManager.test.ts | should record lock owner |
+| FR-7.3 | 锁获取时间 | LockManager.test.ts | should record lock acquisition time |
+| FR-7.4 | 锁释放时间 | LockManager.test.ts | should record lock release time |
+| FR-7.5 | 锁失败原因 | LockManager.test.ts | should record lock failure reason |
+| FR-8.1 | 任务检测 Hook | HookSystem.test.ts | should detect task |
+| FR-8.2 | 锁获取 Hook | HookSystem.test.ts | should acquire lock |
+| FR-8.3 | 锁释放 Hook | HookSystem.test.ts | should release lock |
+| FR-8.4 | 冲突检测 Hook | HookSystem.test.ts | should detect conflict |
+| FR-8.5 | 事件发布 Hook | HookSystem.test.ts | should publish event |
+| FR-9.1 | 任务创建事件 | EventBus.test.ts | should publish task created event |
+| FR-9.2 | 锁获取事件 | EventBus.test.ts | should publish lock acquired event |
+| FR-9.3 | 锁释放事件 | EventBus.test.ts | should publish lock released event |
+| FR-9.4 | 任务完成事件 | EventBus.test.ts | should publish task completed event |
+| FR-9.5 | 冲突检测事件 | EventBus.test.ts | should publish conflict detected event |
+| FR-9.6 | 错误事件 | EventBus.test.ts | should publish error event |
+| FR-10.1 | 任务分解 | Orchestrator.test.ts | should decompose task |
+| FR-10.2 | CLI 分配 | Orchestrator.test.ts | should assign CLI |
+| FR-10.3 | 智能体分配 | Orchestrator.test.ts | should assign agent |
+| FR-10.4 | 技能分配 | Orchestrator.test.ts | should assign skills |
+| FR-10.5 | 依赖分析 | Orchestrator.test.ts | should analyze dependencies |
+| FR-11.1 | 并行执行 | Orchestrator.test.ts | should support parallel execution |
+| FR-11.2 | 串行执行 | Orchestrator.test.ts | should support sequential execution |
+| FR-11.3 | 混合执行 | Orchestrator.test.ts | should support hybrid execution |
+| FR-11.4 | 自定义策略 | Orchestrator.test.ts | should support custom strategy |
+| FR-11.5 | 并发度控制 | Orchestrator.test.ts | should support concurrency control |
+| FR-12.1 | 收集结果 | ResultAggregator.test.ts | should collect results |
+| FR-12.2 | 检测冲突 | ResultAggregator.test.ts | should detect conflicts |
+| FR-12.3 | 生成摘要 | ResultAggregator.test.ts | should generate summary |
+| FR-12.4 | 生成建议 | ResultAggregator.test.ts | should generate recommendations |
+| FR-12.5 | 计算成功率 | ResultAggregator.test.ts | should calculate success rate |
+| FR-13.1 | 保存任务状态 | ResumeSession.test.ts | should save task state |
+| FR-13.2 | 中断恢复 | ResumeSession.test.ts | should support interrupt recovery |
+| FR-13.3 | 传递上下文 | ResumeSession.test.ts | should pass minimal context |
+| FR-13.4 | 收集结果摘要 | ResumeSession.test.ts | should collect result summary |
+| FR-13.5 | 恢复任务 | ResumeSession.test.ts | should restore task |
+| FR-14.1 | 传递描述 | ResumeSession.test.ts | should pass description |
+| FR-14.2 | 传递依赖 | ResumeSession.test.ts | should pass dependencies |
+| FR-14.3 | 传递路径 | ResumeSession.test.ts | should pass worktree path |
+| FR-14.4 | 传递文件列表 | ResumeSession.test.ts | should pass required files |
+| FR-14.5 | 传递输出列表 | ResumeSession.test.ts | should pass output files |
+| FR-15.1 | 记录任务 | ResumeSession.test.ts | should record task |
+| FR-15.2 | 记录分解 | ResumeSession.test.ts | should record decomposition |
+| FR-15.3 | 记录策略 | ResumeSession.test.ts | should record strategy |
+| FR-15.4 | 记录结果 | ResumeSession.test.ts | should record results |
+| FR-15.5 | 记录合并 | ResumeSession.test.ts | should record merge |
+| FR-16.1 | 创建 task_plan.md | SessionManager.test.ts | should create task plan |
+| FR-16.2 | 包含目标阶段 | SessionManager.test.ts | should include goal phases |
+| FR-16.3 | 记录决策 | SessionManager.test.ts | should record decisions |
+| FR-16.4 | 记录错误 | SessionManager.test.ts | should record errors |
+| FR-16.5 | 跟踪阶段 | SessionManager.test.ts | should track phase status |
+| FR-17.1 | 创建 findings.md | SessionManager.test.ts | should create findings |
+| FR-17.2 | 记录需求 | SessionManager.test.ts | should record requirements |
+| FR-17.3 | 记录发现 | SessionManager.test.ts | should record findings |
+| FR-17.4 | 记录问题 | SessionManager.test.ts | should record issues |
+| FR-17.5 | 记录资源 | SessionManager.test.ts | should record resources |
+| FR-18.1 | 创建 progress.md | SessionManager.test.ts | should create progress |
+| FR-18.2 | 记录操作 | SessionManager.test.ts | should record actions |
+| FR-18.3 | 记录文件 | SessionManager.test.ts | should record files |
+| FR-18.4 | 记录测试 | SessionManager.test.ts | should record tests |
+| FR-18.5 | 记录错误 | SessionManager.test.ts | should record errors |
+| FR-19.1 | 自动创建 | SessionManager.test.ts | should auto create |
+| FR-19.2 | 更新任务计划 | SessionManager.test.ts | should update task plan |
+| FR-19.3 | 更新发现 | SessionManager.test.ts | should update findings |
+| FR-19.4 | 更新进度 | SessionManager.test.ts | should update progress |
+| FR-19.5 | 清理归档 | SessionManager.test.ts | should cleanup or archive |
+| FR-20.1 | 先创建计划 | SessionManager.test.ts | should create plan first |
+| FR-20.2 | 2-Action 规则 | SessionManager.test.ts | should follow 2-Action rule |
+| FR-20.3 | 重读计划 | SessionManager.test.ts | should re-read plan before decision |
+| FR-20.4 | 更新状态 | SessionManager.test.ts | should update status after phase |
+| FR-20.5 | 记录错误 | SessionManager.test.ts | should record all errors |
+| FR-20.6 | 永不重复失败 | SessionManager.test.ts | should never repeat failures |
+| FR-20.7 | 3次失败升级 | SessionManager.test.ts | should escalate after 3 failures |
+| FR-21.1 | 恢复阶段 | SessionManager.test.ts | should restore phase |
+| FR-21.2 | 恢复发现 | SessionManager.test.ts | should restore findings |
+| FR-21.3 | 恢复工作 | SessionManager.test.ts | should restore progress |
+| FR-21.4 | 快速恢复 | SessionManager.test.ts | should restore quickly |
+| FR-21.5 | 继续执行 | SessionManager.test.ts | should continue execution |
+| FR-22.1 | 独立三文件 | SessionManager.test.ts | should have independent three files |
+| FR-22.2 | 不共享 | SessionManager.test.ts | should not share files |
+| FR-22.3 | 独立记录 | SessionManager.test.ts | should record independently |
+| FR-22.4 | Git 合并 | SessionManager.test.ts | should share via Git merge |
+| FR-22.5 | 事件通知 | SessionManager.test.ts | should notify via event bus |
+
+**覆盖率**: 85/85 (100%)
 
 ## 9. 里程碑
 

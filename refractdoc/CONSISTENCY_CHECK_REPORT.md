@@ -1,5 +1,33 @@
 # Stigmergy CLI 多智能体编排系统 - 内部逻辑一致性检测报告
 
+## 文档层次结构
+
+本文档位于规范化文档体系的关系文档层。
+
+### 依赖关系
+- 依赖: 所有规范化文档
+- 被依赖: 无
+
+### 文档用途
+对 Stigmergy CLI 多智能体编排系统的所有规范化文档进行内部逻辑一致性检测，确保文档质量、一致性和符合 Speckit 规范。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 1. 检测概述
 
 ### 1.1 检测目标

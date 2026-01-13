@@ -1,5 +1,33 @@
 # Stigmergy CLI 多智能体编排系统 - 设计文档
 
+## 文档层次结构
+
+本文档位于规范化文档体系的核心文档层。
+
+### 依赖关系
+- 依赖: REQUIREMENTS.md
+- 被依赖: IMPLEMENTATION.md, CORE_CONCEPTS.md, CONTEXT_MANAGEMENT_DESIGN.md
+
+### 文档用途
+定义 Stigmergy CLI 多智能体编排系统的完整设计，包括系统架构、核心模块、数据流和接口设计。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 1. 系统架构设计
 
 ### 1.1 总体架构图
@@ -1853,6 +1881,28 @@ async function installCustomHook(cliName: string, hookType: string): Promise<voi
   const hookFile = path.join(hooksDir, `${hookType}.js`)
   
   await fs.writeFile(hookFile, hookContent)
+```
+
+## 13. 追溯矩阵
+
+### 13.1 设计到实施的追溯
+
+| 设计组件 | 实施文档 | 实施阶段 | 实施任务 |
+|---------|---------|---------|---------|
+| CentralOrchestrator | IMPLEMENTATION.md | 阶段 1 | 任务 1.2 |
+| EnhancedTerminalManager | IMPLEMENTATION.md | 阶段 2 | 任务 2.1 |
+| GitWorktreeManager | IMPLEMENTATION.md | 阶段 3 | 任务 3.1 |
+| StateLockManager | IMPLEMENTATION.md | 阶段 1 | 任务 1.5 |
+| HookSystem | IMPLEMENTATION.md | 阶段 4 | 任务 4.1 |
+| EventBus | IMPLEMENTATION.md | 阶段 1 | 任务 1.4 |
+| ResultAggregator | IMPLEMENTATION.md | 阶段 2 | 任务 2.2 |
+| ResumeSessionIntegration | IMPLEMENTATION.md | 阶段 5 | 任务 5.1 |
+| TaskPlanningFiles | IMPLEMENTATION.md | 阶段 6 | 任务 6.1 |
+| ProjectContextManager | IMPLEMENTATION.md | 无 | 无 |
+
+**覆盖率**: 9/10 (90%)
+
+**说明**: ProjectContextManager 没有对应的实施任务，需要在 IMPLEMENTATION.md 中添加或从 DESIGN.md 中移除
   
   // 更新 CLI 配置
   const config = await loadCLIConfig(cliName)

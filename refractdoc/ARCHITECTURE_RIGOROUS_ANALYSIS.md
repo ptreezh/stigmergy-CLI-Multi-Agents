@@ -1,5 +1,31 @@
 # Stigmergy CLI 多智能体编排系统 - 架构严格论证报告
 
+## 文档层次结构
+
+本文档位于规范化文档体系的支撑文档层。
+
+### 依赖关系
+- 依赖: REQUIREMENTS.md, DESIGN.md, IMPLEMENTATION.md
+- 被依赖: DESIGN_SIMPLIFIED.md
+
+### 文档用途
+基于 KISS、YAGNI、SOLID 原则，对现有规范化文档进行严格论证，并验证是否符合 Speckit 规范。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 执行摘要
 
 本报告基于 **KISS**（Keep It Simple, Stupid）、**YAGNI**（You Aren't Gonna Need It）、**SOLID** 原则，对现有规范性文档进行严格论证，并验证是否符合 **Speckit** 规范。

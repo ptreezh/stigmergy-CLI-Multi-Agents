@@ -1,0 +1,74 @@
+name: Validate Documentation
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Run document validation
+      run: |
+        echo "Running document validation..."
+        node scripts/validate-constraints.js
+    
+    - name: Upload validation results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-results
+        path: |
+          validation-report.json
+          validation-summary.txt
+        retention-days: 7
+    
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          let comment = '## 📋 文档验证结果\n\n';
+          
+          try {
+            const results = JSON.parse(fs.readFileSync('validation-report.json', 'utf8'));
+            comment += `✅ 通过: ${results.passed}\n`;
+            comment += `❌ 失败: ${results.failed}\n`;
+            comment += `⚠️ 警告: ${results.warnings}\n\n`;
+            
+            if (results.errors && results.errors.length > 0) {
+              comment += '### 错误\n';
+              results.errors.forEach(error => {
+                comment += `- ${error}\n`;
+              });
+              comment += '\n';
+            }
+            
+            if (results.warnings && results.warnings.length > 0) {
+              comment += '### 警告\n';
+              results.warnings.forEach(warning => {
+                comment += `- ${warning}\n`;
+              });
+            }
+          } catch (e) {
+            comment += '无法读取验证结果\n';
+          }
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
