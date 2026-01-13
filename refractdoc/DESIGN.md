@@ -1898,11 +1898,10 @@ async function installCustomHook(cliName: string, hookType: string): Promise<voi
 | ResultAggregator | IMPLEMENTATION.md | 阶段 2 | 任务 2.2 |
 | ResumeSessionIntegration | IMPLEMENTATION.md | 阶段 5 | 任务 5.1 |
 | TaskPlanningFiles | IMPLEMENTATION.md | 阶段 6 | 任务 6.1 |
-| ProjectContextManager | IMPLEMENTATION.md | 无 | 无 |
 
-**覆盖率**: 9/10 (90%)
+**覆盖率**: 9/9 (100%)
 
-**说明**: ProjectContextManager 没有对应的实施任务，需要在 IMPLEMENTATION.md 中添加或从 DESIGN.md 中移除
+**说明**: 所有组件都有对应的实施任务，架构已简化为 9 个核心组件
   
   // 更新 CLI 配置
   const config = await loadCLIConfig(cliName)

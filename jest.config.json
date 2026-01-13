@@ -2,22 +2,22 @@
   "testEnvironment": "node",
   "rootDir": ".",
   "testMatch": [
-    "**/tests/**/*.test.js",
-    "**/test/**/*.test.js",
-    "**/__tests__/**/*.test.js"
+    "**/tests/**/*.test.{js,ts}",
+    "**/test/**/*.test.{js,ts}",
+    "**/__tests__/**/*.test.{js,ts}"
   ],
   "modulePathIgnorePatterns": [
     "<rootDir>/sscisubagent-skills",
     "<rootDir>/openskills"
   ],
   "collectCoverageFrom": [
-    "src/**/*.js",
+    "src/**/*.{js,ts}",
     "!src/index.js",
     "!**/node_modules/**"
   ],
   "coverageDirectory": "coverage",
   "coverageReporters": ["text", "lcov", "html"],
-  "moduleFileExtensions": ["js", "json"],
+  "moduleFileExtensions": ["js", "json", "ts"],
   "testTimeout": 15000,
   "verbose": false,
   "collectCoverage": false,
@@ -26,5 +26,9 @@
     "^@core/(.*)$": "<rootDir>/src/core/$1",
     "^@cli/(.*)$": "<rootDir>/src/cli/$1",
     "^@utils/(.*)$": "<rootDir>/src/utils/$1"
-  }
+  },
+  "transform": {
+    "^.+\\.tsx?$": "ts-jest"
+  },
+  "preset": "ts-jest"
 }

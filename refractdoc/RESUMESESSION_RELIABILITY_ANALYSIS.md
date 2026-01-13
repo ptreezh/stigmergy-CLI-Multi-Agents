@@ -1,5 +1,31 @@
 # ResumeSession 上下文传递机制可靠性分析
 
+## 文档层次结构
+
+本文档位于规范化文档体系的支撑文档层。
+
+### 依赖关系
+- 依赖: REQUIREMENTS.md, DESIGN.md, IMPLEMENTATION.md
+- 被依赖: 无
+
+### 文档用途
+深入分析 Stigmergy 项目中 ResumeSession 的上下文传递机制，评估其可靠性、潜在问题和改进建议。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 概述
 
 本文档深入分析 Stigmergy 项目中 ResumeSession 的上下文传递机制，评估其可靠性、潜在问题和改进建议。

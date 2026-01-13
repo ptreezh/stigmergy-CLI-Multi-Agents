@@ -1,5 +1,31 @@
 # Stigmergy 架构更新总结
 
+## 文档层次结构
+
+本文档位于规范化文档体系的支撑文档层。
+
+### 依赖关系
+- 依赖: REQUIREMENTS.md, DESIGN.md, IMPLEMENTATION.md, ARCHITECTURE_RIGOROUS_ANALYSIS.md
+- 被依赖: 无
+
+### 文档用途
+基于 Worktree 隔离的优势，总结 Stigmergy 多智能体编排系统的架构更新，移除实时上下文共享的需求，简化上下文传递机制。
+
+## 相关文档
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
 ## 概述
 
 基于 Worktree 隔离的优势，我们对 Stigmergy 多智能体编排系统的架构进行了重要更新，**移除了实时上下文共享的需求，简化了上下文传递机制**。
