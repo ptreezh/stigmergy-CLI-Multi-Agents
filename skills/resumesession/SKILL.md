@@ -2,7 +2,7 @@
 name: resumesession
 description: Cross-CLI session recovery and history management skill
 author: stigmergy
-version: 2.0.0
+version: 2.1.0
 ---
 
 # ResumeSession Skill
@@ -11,117 +11,201 @@ Cross-CLI session recovery and history management skill for all CLI tools.
 
 ## Description
 
-This skill enables session recovery across all supported CLI tools with intelligent project-based filtering.
+This skill enables Claude CLI and other AI assistants to recover and manage sessions across different CLI tools. When users ask to "恢复上次对话" (recover last conversation) or "查看历史会话" (view session history), this skill provides intelligent project-based filtering and context recovery.
 
-## Usage
+**Configuration**: CLI paths and detection are managed by stigmergy. The skill reads configuration from `~/.stigmergy/config.json`.
 
-### Default Behavior - Recover Current Project's Latest Session
+## When to Use This Skill
 
-To quickly recover current project's latest session:
+Use this skill when users request:
+- 恢复上次对话 (recover last conversation)
+- 查看历史会话 (view session history)
+- 继续之前的讨论 (continue previous discussion)
+- 找到之前的某个会话 (find a previous session)
+- 查看某个 CLI 的会话 (view sessions from a specific CLI)
 
-```bash
-# Use stigmergy resume command
-stigmergy resume
+## How It Works
+
+### 1. Identify User Intent
+
+Analyze the user's request to determine:
+- Whether they want to recover the latest session or browse multiple sessions
+- Whether they want sessions from a specific CLI or all CLIs
+- Whether they want sessions from current project or all projects
+
+### 2. Execute Recovery Tool
+
+Call the `independent-resume.js` script with appropriate parameters:
+
+```javascript
+// Default: recover latest session from current project
+Bash("node independent-resume.js")
+
+// Show 5 recent sessions from current project
+Bash("node independent-resume.js 5")
+
+// Show iFlow sessions from current project
+Bash("node independent-resume.js iflow")
+
+// Show all CLI sessions from current project
+Bash("node independent-resume.js --all")
+
+// Show all sessions from all projects
+Bash("node independent-resume.js --complete")
 ```
 
-This command:
-- **Filters by current project** (only shows sessions from current working directory)
-- **Finds most recent session** from current project
-- **Checks session content** - if latest session is empty, it recovers previous one
-- **Displays context** for immediate recovery
+### 3. Analyze and Present Results
 
-### Show Multiple Sessions (Current Project Only)
+The tool returns session data in a structured format. Use LLM intelligence to:
+- Summarize the session content
+- Highlight key information
+- Provide context for continuation
+- Help user select the right session if multiple are shown
 
-To show multiple sessions from current project:
+### 4. Continue Conversation
 
-```bash
-# Show 5 most recent sessions
-stigmergy resume 5
+After displaying the session content, ask the user:
+- "是否要继续这个会话？" (Do you want to continue this session?)
+- "需要查看其他会话吗？" (Do you need to view other sessions?)
+- "需要我帮你做什么？" (What would you like me to do?)
 
-# Show 10 most recent sessions
-stigmergy resume 10
-```
+## Configuration
 
-### Show Sessions from Specific CLI
+**No manual configuration required!** The tool automatically detects installed CLI tools using a two-tier strategy:
 
-To show sessions from a specific CLI (current project only):
+### Priority 1: Stigmergy Configuration (if available)
 
-```bash
-# Show iFlow sessions
-stigmergy resume iflow
+If stigmergy is installed and configured, the tool uses its CLI configuration:
+- Reads from `~/.stigmergy/config.json`
+- Uses stigmergy's scan results for CLI paths
+- Supports custom CLI paths and multiple instances
+- Provides the most accurate CLI detection
 
-# Show 3 iFlow sessions
-stigmergy resume iflow 3
-```
+### Priority 2: Automatic Detection (fallback)
 
-### Show All Projects' Sessions
+If stigmergy is not available or has no configuration, the tool automatically scans common installation locations:
+- Scans multiple common paths for each CLI
+- Supports both Linux/Mac and Windows paths
+- Detects CLI tools without user intervention
+- Works out of the box for most installations
 
-To show sessions from all projects:
+**Scanned Locations** (for each CLI):
+- `~/.cli-name/projects/` (Linux/Mac)
+- `~/.config/cli-name/projects/` (Linux/Mac)
+- `~/AppData/Roaming/cli-name/projects/` (Windows)
 
-```bash
-# Show all projects' sessions (default: 10 per CLI)
-stigmergy resume --all
+**Supported CLI Tools**:
+- Claude
+- Gemini
+- Qwen
+- iFlow
+- CodeBuddy
+- Codex
+- QoderCLI
+- Kode
 
-# Show all projects' sessions with limit
-stigmergy resume --all 5
-```
+**Custom Installation Support**:
+If a CLI is installed in a custom location:
+- With stigmergy: Configure in stigmergy for best results
+- Without stigmergy: The tool scans multiple candidate paths automatically
 
-### Advanced Filters
+## Usage Examples
 
-```bash
-# Search sessions by keyword
-stigmergy resume --search "react"
+### Example 1: Quick Recovery
 
-# Show today's sessions
-stigmergy resume --today
+**User**: "恢复上次对话"
 
-# Show sessions from last 7 days
-stigmergy resume --week
+**AI Response**:
+1. Execute: `node independent-resume.js`
+2. Display the latest session content
+3. Ask: "已恢复上次对话。是否要继续？"
 
-# Show sessions from last 30 days
-stigmergy resume --month
+### Example 2: Browse Recent Sessions
 
-# Use different view formats
-stigmergy resume --format timeline
-stigmergy resume --format detailed
-```
+**User**: "查看最近几次会话"
+
+**AI Response**:
+1. Execute: `node independent-resume.js 5`
+2. Display the 5 most recent sessions with summaries
+3. Ask: "找到了 5 个会话。你想继续哪个？"
+
+### Example 3: Filter by CLI
+
+**User**: "看看 iFlow 的会话"
+
+**AI Response**:
+1. Execute: `node independent-resume.js iflow`
+2. Display all iFlow sessions from current project
+3. Ask: "找到了 X 个 iFlow 会话。你想继续哪个？"
+
+### Example 4: View All Projects
+
+**User**: "查看所有项目的会话"
+
+**AI Response**:
+1. Execute: `node independent-resume.js --complete`
+2. Display sessions grouped by project
+3. Ask: "你想查看哪个项目的会话？"
 
 ## Features
 
 - ✅ **Project-Aware**: Automatically filters sessions by current working directory
-- ✅ **Smart Content Check**: Skips empty sessions and finds previous one
-- ✅ **Default Context Recovery**: Shows latest session context by default
+- ✅ **Default Context Recovery**: Shows latest session content by default
 - ✅ **Number-Based Control**: Use numbers to show multiple sessions
 - ✅ **CLI Filtering**: Filter sessions by specific CLI tool
-- ✅ **Content Search**: Search sessions by keywords
-- ✅ **Time Filtering**: Filter by date ranges (today, week, month)
-- ✅ **Multiple View Formats**: summary, timeline, detailed, context
+- ✅ **All CLI View**: Show all CLI sessions for current project
+- ✅ **Complete View**: Show all projects' sessions grouped by project
 - ✅ **Cross-CLI Support**: Works with Claude, Gemini, Qwen, iFlow, CodeBuddy, Codex, QoderCLI, Kode
+- ✅ **Smart Project Recognition**: Automatically matches sessions to current project
+- ✅ **Relative Time Display**: Shows relative time (e.g., "5 minutes ago")
 
-## Command Behavior
+## Tool Parameters
 
-| Command | Behavior |
-|---------|----------|
-| `stigmergy resume` | Shows **latest session** from **current project** (context format) |
-| `stigmergy resume 5` | Shows **5 most recent sessions** from **current project** (summary format) |
-| `stigmergy resume iflow` | Shows **latest iFlow session** from **current project** |
-| `stigmergy resume iflow 5` | Shows **5 iFlow sessions** from **current project** |
-| `stigmergy resume --all` | Shows **all projects' sessions** (10 per CLI) |
-| `stigmergy resume --all 5` | Shows **all projects' sessions** (5 per CLI) |
+| Parameter | Description |
+|-----------|-------------|
+| (none) | Recover latest session from current project |
+| `[number]` | Show N most recent sessions from current project |
+| `[cli-name]` | Show sessions from specific CLI (current project) |
+| `[cli-name] [number]` | Show N sessions from specific CLI |
+| `--all` | Show all CLI sessions from current project |
+| `--complete` | Show all sessions from all projects |
 
 ## Supported CLIs
 
-- Claude: `~/.claude/projects/{project-name}/`
-- Gemini: `~/.config/gemini/tmp/{hash}/chats/`
-- Qwen: `~/.qwen/projects/{project-name}/chats/`
-- iFlow: `~/.iflow/projects/{project-name}/`
-- CodeBuddy: `~/.codebuddy/projects/{project-name}/`
-- Codex: `~/.config/codex/`
-- QoderCLI: `~/.qoder/projects/{project-name}/`
-- Kode: `~/.kode/projects/{project-name}/`
+This skill supports any CLI tool that:
+- Stores sessions in files (typically JSON)
+- Can be configured in stigmergy
+- Has extractable project and session information
+
+**Common CLI Tools** (examples, not limited to):
+- Claude
+- Gemini
+- Qwen
+- iFlow
+- CodeBuddy
+- Codex
+- QoderCLI
+- Kode
+
+**Custom CLI Support**:
+- Add any CLI to stigmergy configuration
+- Support multiple instances of the same CLI
+- Support custom installation paths
+- Support custom session formats
 
 ## Notes
 
-**Best Practice**: Always open your terminal in project directory before using `stigmergy resume`. This ensures you recover sessions relevant to your current project.
+**Configuration Strategy**:
+- **Priority 1**: Uses stigmergy configuration if available (most accurate)
+- **Priority 2**: Falls back to automatic detection (works out of the box)
+- No manual configuration required in either case
+- Seamlessly switches between strategies based on environment
 
-**Important**: By default, only sessions from **current working directory** are shown. Use `--all` to see sessions from all projects.
+**Context Loading**: When recovering a session, load the conversation history as context for the LLM to understand the previous discussion.
+
+**Project Awareness**: The tool automatically identifies the current project based on the working directory. Ensure users are in the correct project directory.
+
+**Error Handling**: 
+- If no sessions are found, inform the user and suggest they check if CLI tools have created sessions
+- The tool automatically detects installed CLI tools (with or without stigmergy)
+- If CLI is installed in a custom location, ensure the session directory is accessible
