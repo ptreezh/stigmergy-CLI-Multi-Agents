@@ -31,7 +31,7 @@ class CLIPathDetector {
       'copilot': ['copilot'],
       'codex': ['codex'],
       'kode': ['kode'],
-      'resumesession': ['resumesession']
+      'opencode': ['opencode']
     };
   }
 

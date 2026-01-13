@@ -546,7 +546,7 @@ class ResumeSessionCommand {
   }
 
   // Format session context
-  formatContext(session) {
+  formatContext(session, full = false) {
     if (!session) {
       return `📭 暂无可恢复的上下文。`;
     }
@@ -564,9 +564,12 @@ class ResumeSessionCommand {
       response += `⚠️ 此会话内容为空\n`;
     } else {
       response += `**上次讨论内容:**\n`;
-      response += content.substring(0, 500);
-      if (content.length > 500) {
-        response += `...`;
+      if (full) {
+        // 返回完整内容
+        response += content;
+      } else {
+        // 返回完整内容，不再截断
+        response += content;
       }
     }
 
@@ -615,7 +618,8 @@ class ResumeSessionCommand {
       format: 'context',     // 默认显示上下文格式
       timeRange: 'all',
       cli: null,
-      search: null
+      search: null,
+      full: false            // --full 显示完整上下文（不截断）
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -641,6 +645,8 @@ class ResumeSessionCommand {
         options.timeRange = 'week';
       } else if (arg === '--month') {
         options.timeRange = 'month';
+      } else if (arg === '--full') {
+        options.full = true;
       } else if (!arg.startsWith('--')) {
         // 检查是否是数字
         const num = parseInt(arg);
@@ -691,7 +697,7 @@ class ResumeSessionCommand {
         if (!session) {
           response = `📭 ${options.showAll ? '暂无会话记录' : '当前项目暂无会话记录'}\n\n💡 **提示:** 尝试: stigmergy resume --all 查看所有项目的会话`;
         } else {
-          response = this.formatContext(session);
+          response = this.formatContext(session, options.full);
         }
       } else {
         // 列表模式或其他格式
@@ -703,7 +709,7 @@ class ResumeSessionCommand {
             response = this.formatDetailed(filteredSessions);
             break;
           case 'context':
-            response = this.formatContext(filteredSessions[0] || null);
+            response = this.formatContext(filteredSessions[0] || null, options.full);
             break;
           case 'summary':
           default:
@@ -752,11 +758,13 @@ Options:
   --week              Show sessions from last 7 days
   --month             Show sessions from last 30 days
   --limit <number>    Limit number of sessions
+  --full              Show complete context without truncation (default: false)
   -v, --verbose       Verbose output
   -h, --help          Show this help
 
 Examples:
-  stigmergy resume                     # 恢复当前项目最近的会话
+  stigmergy resume                     # 恢复当前项目最近的会话（完整内容）
+  stigmergy resume --full              # 恢复当前项目最近的会话（完整内容，显式指定）
   stigmergy resume 5                   # 显示当前项目最近 5 个会话
   stigmergy resume --all                # 显示所有项目的会话
   stigmergy resume iflow               # 显示当前项目 iflow 的会话

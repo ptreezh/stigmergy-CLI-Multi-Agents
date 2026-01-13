@@ -209,9 +209,10 @@ class HistoryFormatter {
     return response;
   }
 
-  formatContext(session) {
-    if (!session) return '📭 暂无上下�?;
-    return `🔄 **上下�?*\n\n${session.title}\n💬 ${session.messageCount}条消息\n\n${session.content.substring(0, 500)}...`;
+  formatContext(session, full = false) {
+    if (!session) return '📭 暂无上下文';
+    const content = full ? session.content : session.content;
+    return `🔄 **上下文恢复**\n\n${session.title}\n💬 ${session.messageCount}条消息\n\n${content}`;
   }
 
   getCLIIcon(cliType) {
@@ -249,7 +250,7 @@ class HistoryQuery {
           response = this.formatter.formatDetailed(filtered);
           break;
         case 'context':
-          response = this.formatter.formatContext(filtered[0]);
+          response = this.formatter.formatContext(filtered[0], options.full);
           break;
         default:
           response = this.formatter.formatSummary(filtered);
@@ -257,7 +258,7 @@ class HistoryQuery {
 
       return {
         response,
-        suggestions: ['stigmergy history --format timeline', 'stigmergy history --search <keyword>']
+        suggestions: ['stigmergy history --format timeline', 'stigmergy history --search <keyword>', 'stigmergy history --full']
       };
     } catch (error) {
       return {
@@ -291,7 +292,8 @@ class IFlowHistoryCommand {
       format: 'summary',
       timeRange: 'all',
       cli: null,
-      search: null
+      search: null,
+      full: false
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -307,6 +309,8 @@ class IFlowHistoryCommand {
         options.format = args[++i];
       } else if (arg === '--today') {
         options.timeRange = 'today';
+      } else if (arg === '--full') {
+        options.full = true;
       }
     }
 
