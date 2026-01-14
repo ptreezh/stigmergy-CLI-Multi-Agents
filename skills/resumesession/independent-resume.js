@@ -70,12 +70,12 @@ const DEFAULT_CLI_CONFIG = {
   iflow: {
     name: 'iFlow',
     path: path.join(os.homedir(), '.iflow', 'projects'),
-    sessionPattern: /.*\.json$/,
+    sessionPattern: /.*\.jsonl$/,
     extractProject: (filePath) => {
       const match = filePath.match(/projects[\\/]([^\\/]+)/);
       return match ? match[1] : null;
     },
-    getSessionId: (filePath) => path.basename(filePath, '.json')
+    getSessionId: (filePath) => path.basename(filePath, '.jsonl')
   },
   codebuddy: {
     name: 'CodeBuddy',
@@ -256,7 +256,7 @@ function autoDetectCLIs() {
         detectedCLIs[cliKey] = {
           name: cliDef.name,
           path: candidatePath,
-          sessionPattern: /.*\.json$/,
+          sessionPattern: DEFAULT_CLI_CONFIG[cliKey].sessionPattern,
           extractProject: DEFAULT_CLI_CONFIG[cliKey].extractProject,
           getSessionId: DEFAULT_CLI_CONFIG[cliKey].getSessionId
         };

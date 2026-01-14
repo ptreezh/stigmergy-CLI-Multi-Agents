@@ -3,9 +3,9 @@
  * Automatically deploys stigmergy built-in skills during installation
  */
 
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 class BuiltinSkillsDeployer {
   constructor() {
@@ -185,4 +185,4 @@ class BuiltinSkillsDeployer {
   }
 }
 
-export default BuiltinSkillsDeployer;
+module.exports = BuiltinSkillsDeployer;

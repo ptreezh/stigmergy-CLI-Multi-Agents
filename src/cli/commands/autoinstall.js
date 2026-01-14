@@ -1,9 +1,9 @@
-import chalk from 'chalk';
-import { handleInstallCommand } from './install.js';
-import { handleDeployCommand } from './project.js';
-import BuiltinSkillsDeployer from '../../core/skills/BuiltinSkillsDeployer.js';
+const chalk = require('chalk');
+const { handleInstallCommand } = require('./install.js');
+const { handleDeployCommand } = require('./project.js');
+const BuiltinSkillsDeployer = require('../../core/skills/BuiltinSkillsDeployer.js');
 
-export async function handleAutoInstallCommand(options) {
+async function handleAutoInstallCommand(options) {
   console.log(chalk.blue('🚀 Stigmergy Auto-Installation'));
   console.log(chalk.gray('=====================================\n'));
 
@@ -63,3 +63,7 @@ export async function handleAutoInstallCommand(options) {
   console.log('  • Check: stigmergy status');
   console.log('  • Resume sessions: stigmergy resume --limit 10');
 }
+
+module.exports = {
+  handleAutoInstallCommand
+};

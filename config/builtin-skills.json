@@ -28,6 +28,10 @@
           {
             "source": "skills/resumesession/__init__.py",
             "destination": "skills/resumesession/__init__.py"
+          },
+          {
+            "source": "skills/resumesession/independent-resume.js",
+            "destination": "skills/resumesession/independent-resume.js"
           }
         ]
       },
