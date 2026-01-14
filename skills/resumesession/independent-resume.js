@@ -42,7 +42,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.claude', 'projects'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -52,7 +55,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.config', 'gemini', 'tmp'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -62,7 +68,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.qwen', 'projects'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -72,8 +81,20 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.iflow', 'projects'),
     sessionPattern: /.*\.jsonl$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
-      return relativePath.split(path.sep)[0];
+      // 使用 path.normalize 确保路径格式一致
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      
+      // 计算相对路径
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      
+      // 移除 Windows 路径中的驱动器前缀（如 -D- 或 -C-）
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
+      
+      // 获取第一级目录名
+      const projectName = relativePath.split(path.sep)[0];
+      
+      return projectName;
     },
     getSessionId: (filePath) => path.basename(filePath, '.jsonl')
   },
@@ -82,7 +103,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.codebuddy', 'projects'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -92,7 +116,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.config', 'codex'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -102,7 +129,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.qoder', 'projects'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -112,7 +142,10 @@ const DEFAULT_CLI_CONFIG = {
     path: path.join(os.homedir(), '.kode', 'projects'),
     sessionPattern: /.*\.json$/,
     extractProject: (filePath, cliPath) => {
-      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      const normalizedFilePath = path.normalize(filePath);
+      const normalizedCliPath = path.normalize(cliPath);
+      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
+      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
@@ -213,8 +246,17 @@ function saveToolConfig(cliConfig) {
       fs.mkdirSync(configDir, { recursive: true });
     }
     
+    // 只保存路径信息，不保存函数和正则表达式
+    const simplifiedConfig = {};
+    for (const [cliKey, config] of Object.entries(cliConfig)) {
+      simplifiedConfig[cliKey] = {
+        name: config.name,
+        path: config.path
+      };
+    }
+    
     const config = {
-      cli_paths: cliConfig,
+      cli_paths: simplifiedConfig,
       lastUpdated: new Date().toISOString()
     };
     
@@ -273,13 +315,40 @@ function getCLIConfig() {
   // 1. 优先使用工具自己的配置文件
   const toolConfig = getToolConfig();
   if (toolConfig && Object.keys(toolConfig).length > 0) {
-    return toolConfig;
+    // 合并工具配置和默认配置（补充函数和正则表达式）
+    const mergedConfig = {};
+    for (const [cliKey, config] of Object.entries(toolConfig)) {
+      if (DEFAULT_CLI_CONFIG[cliKey]) {
+        mergedConfig[cliKey] = {
+          ...DEFAULT_CLI_CONFIG[cliKey],
+          path: config.path,
+          name: config.name
+        };
+      }
+    }
+    
+    if (Object.keys(mergedConfig).length > 0) {
+      return mergedConfig;
+    }
   }
   
   // 2. 尝试从 stigmergy 获取配置（可选增强）
   const stigmergyConfig = getStigmergyConfig();
   if (stigmergyConfig && Object.keys(stigmergyConfig).length > 0) {
-    return stigmergyConfig;
+    const mergedConfig = {};
+    for (const [cliKey, config] of Object.entries(stigmergyConfig)) {
+      if (DEFAULT_CLI_CONFIG[cliKey]) {
+        mergedConfig[cliKey] = {
+          ...DEFAULT_CLI_CONFIG[cliKey],
+          path: config.path,
+          name: config.name
+        };
+      }
+    }
+    
+    if (Object.keys(mergedConfig).length > 0) {
+      return mergedConfig;
+    }
   }
   
   // 3. 使用自动检测
@@ -380,6 +449,54 @@ function findAllSessions() {
 function readSessionContent(session) {
   try {
     const content = fs.readFileSync(session.filePath, 'utf8');
+    
+    // 处理 .jsonl 格式（每行一个 JSON 对象）
+    if (session.filePath.endsWith('.jsonl')) {
+      const lines = content.split('\n').filter(line => line.trim());
+      if (lines.length === 0) return null;
+      
+      // 读取第一行获取基本信息
+      const firstLine = JSON.parse(lines[0]);
+      
+      // 尝试构建对话摘要
+      let conversation = '';
+      
+      // 如果第一行包含 messages 数组
+      if (firstLine.messages && Array.isArray(firstLine.messages)) {
+        conversation = firstLine.messages.map(msg => {
+          const role = msg.role || 'unknown';
+          const content = msg.content || '';
+          return `[${role}]: ${content}`;
+        }).join('\n\n');
+      } 
+      // 如果第一行包含 conversation 数组
+      else if (firstLine.conversation && Array.isArray(firstLine.conversation)) {
+        conversation = firstLine.conversation.map(msg => {
+          const role = msg.role || 'unknown';
+          const content = msg.content || '';
+          return `[${role}]: ${content}`;
+        }).join('\n\n');
+      }
+      // 如果第一行包含 content 字段
+      else if (firstLine.content) {
+        conversation = firstLine.content;
+      }
+      // 否则显示基本信息
+      else {
+        conversation = `会话包含 ${lines.length} 条记录\n`;
+        conversation += `会话ID: ${firstLine.sessionId || firstLine.id || '未知'}\n`;
+        if (firstLine.title) {
+          conversation += `标题: ${firstLine.title}\n`;
+        }
+        if (firstLine.messageCount !== undefined) {
+          conversation += `消息数: ${firstLine.messageCount}\n`;
+        }
+      }
+      
+      return conversation || JSON.stringify(firstLine, null, 2);
+    }
+    
+    // 处理标准 JSON 格式
     const data = JSON.parse(content);
     
     // 尝试提取对话内容
@@ -432,6 +549,7 @@ function sortSessionsByTime(sessions, descending = true) {
 // 过滤当前项目的会话
 function filterCurrentProjectSessions(sessions) {
   const currentProjectPath = getCurrentProjectPath();
+  const currentDirName = path.basename(currentProjectPath);
   
   return sessions.filter(session => {
     if (!session.projectName) return false;
@@ -439,10 +557,10 @@ function filterCurrentProjectSessions(sessions) {
     // 多级匹配策略
     const projectName = session.projectName.toLowerCase();
     const currentPath = currentProjectPath.toLowerCase();
-    const currentDirName = path.basename(currentPath).toLowerCase();
+    const currentDirNameLower = currentDirName.toLowerCase();
     
     // 1. 精确匹配：项目名称与当前目录名完全相同
-    if (projectName === currentDirName) {
+    if (projectName === currentDirNameLower) {
       return true;
     }
     
@@ -452,12 +570,24 @@ function filterCurrentProjectSessions(sessions) {
     }
     
     // 3. 名称包含：项目名称包含当前目录名
-    if (projectName.includes(currentDirName)) {
+    if (projectName.includes(currentDirNameLower)) {
       return true;
     }
     
     // 4. 文件路径包含：会话文件路径包含当前路径
     if (session.filePath.toLowerCase().includes(currentPath)) {
+      return true;
+    }
+    
+    // 5. 处理 IFlow 的特殊路径格式：-D-stigmergy-CLI-Multi-Agents
+    // 移除驱动器前缀（如 -D- 或 -C-）
+    const normalizedProjectName = projectName.replace(/^-[a-z]-/i, '');
+    if (normalizedProjectName === currentDirNameLower) {
+      return true;
+    }
+    
+    // 6. 处理包含驱动器前缀的路径包含
+    if (normalizedProjectName.includes(currentDirNameLower) || currentDirNameLower.includes(normalizedProjectName)) {
       return true;
     }
     
