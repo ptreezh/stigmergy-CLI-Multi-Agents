@@ -840,14 +840,20 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
       try {
         await fs.access(settingsPath);
       } catch {
-        const settings = {
-          version: '1.0.0',
-          theme: 'default',
-          auto_save: true,
-          cross_cli_enabled: true
-        };
-        await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
-        console.log(`[OK] Created settings file: ${settingsPath}`);
+        // Only create settings.json for CLIs that support this format
+        // Qwen, IFlow, etc. have their own config formats and don't use these settings
+        const supportedCLIs = ['claude', 'gemini', 'codex', 'codebuddy', 'qodercli'];
+        
+        if (supportedCLIs.includes(toolName)) {
+          const settings = {
+            version: '1.0.0',
+            theme: 'default',
+            auto_save: true,
+            cross_cli_enabled: true
+          };
+          await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
+          console.log(`[OK] Created settings file: ${settingsPath}`);
+        }
       }
 
       // Tool-specific configurations

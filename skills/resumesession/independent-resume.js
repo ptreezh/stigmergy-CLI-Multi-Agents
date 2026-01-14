@@ -41,9 +41,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'Claude',
     path: path.join(os.homedir(), '.claude', 'projects'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -51,9 +51,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'Gemini',
     path: path.join(os.homedir(), '.config', 'gemini', 'tmp'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/tmp[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -61,9 +61,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'Qwen',
     path: path.join(os.homedir(), '.qwen', 'projects'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -71,9 +71,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'iFlow',
     path: path.join(os.homedir(), '.iflow', 'projects'),
     sessionPattern: /.*\.jsonl$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.jsonl')
   },
@@ -81,9 +81,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'CodeBuddy',
     path: path.join(os.homedir(), '.codebuddy', 'projects'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -91,9 +91,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'Codex',
     path: path.join(os.homedir(), '.config', 'codex'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/codex[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -101,9 +101,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'QoderCLI',
     path: path.join(os.homedir(), '.qoder', 'projects'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   },
@@ -111,9 +111,9 @@ const DEFAULT_CLI_CONFIG = {
     name: 'Kode',
     path: path.join(os.homedir(), '.kode', 'projects'),
     sessionPattern: /.*\.json$/,
-    extractProject: (filePath) => {
-      const match = filePath.match(/projects[\\/]([^\\/]+)/);
-      return match ? match[1] : null;
+    extractProject: (filePath, cliPath) => {
+      const relativePath = path.relative(cliPath, path.dirname(filePath));
+      return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
   }
@@ -352,7 +352,7 @@ function findAllSessions() {
       for (const filePath of sessionFiles) {
         try {
           const stats = fs.statSync(filePath);
-          const projectName = config.extractProject(filePath);
+          const projectName = config.extractProject(filePath, config.path);
           const sessionId = config.getSessionId(filePath);
           
           allSessions.push({
