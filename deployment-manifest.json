@@ -1,0 +1,25 @@
+{
+  "deploymentDate": "2026-01-15T08:50:13.708Z",
+  "version": "1.0.0",
+  "environment": "production",
+  "components": {
+    "core": 7,
+    "nodejs": 6,
+    "python": 4,
+    "total": 17
+  },
+  "directories": [
+    "./logs",
+    "./cache",
+    "./config",
+    "./data",
+    "./backups"
+  ],
+  "configuration": [
+    "coordination-layer.config.json",
+    ".env.coordination"
+  ],
+  "sourceFiles": 11,
+  "testFiles": 12,
+  "nodeVersion": "v22.14.0"
+}
