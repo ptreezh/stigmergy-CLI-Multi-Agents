@@ -1,0 +1,27 @@
+{
+ "fields": [
+ {
+ "name":"场域名称",
+ "core_actors":"[行动者1", 行动者2],
+ "boundary_markers":"[标识1", 标识2],
+ "entry_conditions":"[条件1", 条件2],
+ "exclusion_mechanisms":"[机制1", 机制2]
+ }
+ ],
+ "gatekeepers": [
+ {
+ "actor":"守门人名称",
+ "fields":"[场域1", 场域2],
+ "role":"守门角色描述",
+ "gatekeeping_power":"守门权力来源"}
+ ],
+ "boundary_dynamics": {
+ "stability":"稳定/变化中",
+ "permeability":"高/中/低",
+ "change_triggers":"[触发因素1", 触发因素2]
+ },
+ "field_relations": {
+ "dominance":"[{"dominant": 场域A", "dominated":"场域B", "mechanism":"支配机制"}],
+ "autonomy":"[{"field": 场域名称", "autonomy_level":"高/中/低", "external_influences":"[影响1", 影响2]}]
+ }
+}

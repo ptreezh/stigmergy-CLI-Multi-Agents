@@ -1,0 +1,607 @@
+# Stigmergy CLI 多智能体编排系统 - 需求文档
+
+## 文档层次结构
+
+本文档位于规范化文档体系的核心文档层。
+
+### 依赖关系
+- 依赖: 无
+- 被依赖: DESIGN.md, IMPLEMENTATION.md, CORE_CONCEPTS.md, CONTEXT_MANAGEMENT_DESIGN.md
+
+### 文档用途
+定义 Stigmergy CLI 多智能体编排系统的完整需求，包括功能需求、非功能需求和约束条件。
+
+## 相关文档
+- [DESIGN.md](./DESIGN.md) - 设计文档
+- [IMPLEMENTATION.md](./IMPLEMENTATION.md) - 实施文档
+- [CORE_CONCEPTS.md](./CORE_CONCEPTS.md) - 核心概念
+- [CONTEXT_MANAGEMENT_DESIGN.md](./CONTEXT_MANAGEMENT_DESIGN.md) - 上下文管理设计
+- [ARCHITECTURE_RIGOROUS_ANALYSIS.md](./ARCHITECTURE_RIGOROUS_ANALYSIS.md) - 架构严格论证
+- [DESIGN_SIMPLIFIED.md](./DESIGN_SIMPLIFIED.md) - 简化设计
+- [DOCUMENT_RELATIONSHIP_MAP.md](./DOCUMENT_RELATIONSHIP_MAP.md) - 文档关系图
+- [CONSISTENCY_CHECK_REPORT.md](./CONSISTENCY_CHECK_REPORT.md) - 一致性检测报告
+- [DOCUMENT_CONSTRAINTS.md](./DOCUMENT_CONSTRAINTS.md) - 文档约束和验证规则
+
+## 变更历史
+
+| 版本 | 日期 | 作者 | 变更内容 | 影响范围 |
+|------|------|------|---------|---------|
+| v1.0 | 2026-01-13 | iFlow CLI | 初始版本 | 所有章节 |
+
+## 1. 概述
+
+### 1.1 目的
+本文档定义了 Stigmergy CLI 多智能体编排系统的完整需求，包括多终端并发执行、状态锁管理、Git Worktree 隔离和去中心化协作等核心功能。
+
+### 1.2 范围
+- 多终端并发执行多个独立 CLI 工具
+- 基于文件系统的状态锁管理机制
+- Git Worktree 隔离工作环境（完全隔离，无需实时上下文共享）
+- 去中心化协作系统（基于 Hook）
+- 完整的任务规划和结果聚合
+- ResumeSession 集成用于会话恢复和任务级上下文传递
+
+### 1.3 目标
+1. 实现真正并发的多 CLI 协作
+2. 通过 Git Worktree 实现完全隔离的工作环境（每个 CLI 独立工作）
+3. 通过状态锁防止文件冲突（只对共享文件加锁）
+4. 保持现有功能的完全兼容性
+5. 提供透明的任务追踪和状态监控（通过事件总线）
+6. 利用 ResumeSession 实现会话恢复和任务级上下文传递（最小化上下文）
+
+## 2. 系统架构需求
+
+### 2.1 核心架构
+```
+用户终端
+├── Stigmergy CLI (编排器)
+├── 多终端管理器 (并发执行)
+│   ├── Terminal 1: claude --agent oracle
+│   ├── Terminal 2: gemini --agent gemini-pro
+│   ├── Terminal 3: iflow --agent backend
+│   └── Terminal 4: opencode --agent sisyphus
+├── Git Worktree 管理器 (工作隔离)
+│   ├── worktree-001 (claude 工作目录)
+│   ├── worktree-002 (gemini 工作目录)
+│   ├── worktree-003 (iflow 工作目录)
+│   └── worktree-004 (opencode 工作目录)
+├── 状态锁管理器 (冲突预防)
+│   ├── task-registry.json
+│   ├── state-locks.json
+│   └── event-log.json
+├── Hook 系统 (去中心化协作)
+│   ├── task-detection.js
+│   ├── lock-acquisition.js
+│   └── lock-release.js
+└── ResumeSession (会话恢复)
+    ├── 上下文传递
+    └── 状态恢复
+```
+
+### 2.2 组件职责
+
+#### 2.2.1 多终端管理器
+- 管理多个独立终端窗口
+- 并发启动 CLI 进程
+- 监控终端状态
+- 收集终端输出
+- 管理终端生命周期
+
+#### 2.2.2 Git Worktree 管理器
+- 为每个子任务创建独立 worktree
+- 管理分支创建和合并
+- 同步配置文件
+- 清理 worktree
+- 处理合并冲突
+
+#### 2.2.3 状态锁管理器
+- 原子锁操作（基于文件系统）
+- 依赖关系检查
+- 文件锁检测
+- 锁释放和超时处理
+- 死锁检测和预防
+
+#### 2.2.4 Hook 系统
+- 任务检测 Hook（自动匹配任务）
+- 锁获取 Hook（原子操作）
+- 锁释放 Hook（任务完成）
+- 冲突检测 Hook（预防冲突）
+
+#### 2.2.5 ResumeSession 集成
+- 会话状态持久化
+- 上下文传递
+- 中断恢复
+- 历史记录
+
+## 3. 功能需求
+
+### 3.1 多终端并发执行
+
+#### FR-1: 终端管理
+- **FR-1.1**: 支持并发启动多个终端窗口
+- **FR-1.2**: 每个终端独立运行指定的 CLI
+- **FR-1.3**: 支持为每个终端配置环境变量
+- **FR-1.4**: 支持监控终端状态（运行中/完成/错误）
+- **FR-1.5**: 支持读取终端输出
+- **FR-1.6**: 支持终止指定终端
+- **FR-1.7**: 支持批量等待所有终端完成
+
+#### FR-2: CLI 参数化
+- **FR-2.1**: 支持指定智能体（--agent）
+- **FR-2.2**: 支持指定技能（--skills）
+- **FR-2.3**: 支持 MCP 工具配置（--mcp）
+- **FR-2.4**: 支持工作目录指定（--cwd）
+- **FR-2.5**: 支持 CLI 特定的参数格式
+
+### 3.2 Git Worktree 管理
+
+#### FR-3: Worktree 创建
+- **FR-3.1**: 为每个子任务创建独立 worktree
+- **FR-3.2**: 自动创建任务特定分支
+- **FR-3.3**: 同步必要的配置文件
+- **FR-3.4**: 初始化协调上下文
+
+#### FR-4: Worktree 合并
+- **FR-4.1**: 支持 squash 合并策略
+- **FR-4.2**: 支持 merge 合并策略
+- **FR-4.3**: 自动检测合并冲突
+- **FR-4.4**: 提供冲突解决建议
+- **FR-4.5**: 支持选择性合并
+
+#### FR-5: Worktree 清理
+- **FR-5.1**: 支持删除指定 worktree
+- **FR-5.2**: 支持批量清理所有 worktree
+- **FR-5.3**: 支持保留 worktree（用于调试）
+- **FR-5.4**: 自动清理临时文件
+
+### 3.3 状态锁管理
+
+#### FR-6: 锁机制
+- **FR-6.1**: 基于文件系统的原子锁操作
+- **FR-6.2**: 支持依赖关系检查
+- **FR-6.3**: 支持文件锁检测
+- **FR-6.4**: 支持锁超时自动释放
+- **FR-6.5**: 支持死锁检测和预防
+
+#### FR-7: 锁状态管理
+- **FR-7.1**: 锁状态：pending/in-progress/completed/failed
+- **FR-7.2**: 锁所有者记录
+- **FR-7.3**: 锁获取时间记录
+- **FR-7.4**: 锁释放时间记录
+- **FR-7.5**: 锁失败原因记录
+
+### 3.4 去中心化协作
+
+#### FR-8: Hook 系统
+- **FR-8.1**: 任务检测 Hook（自动匹配用户输入）
+- **FR-8.2**: 锁获取 Hook（原子操作）
+- **FR-8.3**: 锁释放 Hook（任务完成）
+- **FR-8.4**: 冲突检测 Hook（预防冲突）
+- **FR-8.5**: 事件发布 Hook（状态更新）
+
+#### FR-9: 事件驱动
+- **FR-9.1**: 任务创建事件
+- **FR-9.2**: 锁获取事件
+- **FR-9.3**: 锁释放事件
+- **FR-9.4**: 任务完成事件
+- **FR-9.5**: 冲突检测事件
+- **FR-9.6**: 错误事件
+
+### 3.5 任务规划和执行
+
+#### FR-10: 任务分解
+- **FR-10.1**: 自动分解复杂任务为子任务
+- **FR-10.2**: 基于任务类型分配 CLI
+- **FR-10.3**: 基于任务类型分配智能体
+- **FR-10.4**: 基于任务类型分配技能
+- **FR-10.5**: 分析子任务依赖关系
+
+#### FR-11: 执行策略
+- **FR-11.1**: 并行执行（无依赖任务）
+- **FR-11.2**: 串行执行（有依赖任务）
+- **FR-11.3**: 混合执行（部分依赖）
+- **FR-11.4**: 支持自定义执行策略
+- **FR-11.5**: 支持并发度控制
+
+#### FR-12: 结果聚合
+- **FR-12.1**: 收集所有子任务结果
+- **FR-12.2**: 检测文件修改冲突
+- **FR-12.3**: 生成执行摘要
+- **FR-12.4**: 生成改进建议
+- **FR-12.5**: 计算成功率
+
+### 3.6 ResumeSession 集成
+
+#### FR-13: 任务级会话管理
+- **FR-13.1**: 保存编排任务状态（任务 ID、描述、状态）
+- **FR-13.2**: 支持中断恢复（恢复到中断点）
+- **FR-13.3**: 传递任务级上下文到子任务（最小化上下文）
+- **FR-13.4**: 收集子任务结果摘要（不收集完整上下文）
+- **FR-13.5**: 恢复中断的任务（恢复 worktree 状态和任务进度）
+
+#### FR-14: 最小化上下文传递
+- **FR-14.1**: 只传递任务描述和约束
+- **FR-14.2**: 传递依赖关系（只传递任务 ID，不传递详细内容）
+- **FR-14.3**: 传递 worktree 路径
+- **FR-14.4**: 传递必需文件列表
+- **FR-14.5**: 传递输出文件列表
+
+#### FR-15: 历史记录
+- **FR-15.1**: 记录所有编排任务（任务 ID、描述、状态）
+- **FR-15.2**: 记录任务分解（子任务列表和依赖）
+- **FR-15.3**: 记录执行策略（并行、串行、混合）
+- **FR-15.4**: 记录执行结果（成功/失败、输出文件、冲突）
+- **FR-15.5**: 记录合并结果（合并策略、冲突解决）
+
+### 3.7 三文件系统（Planning with Files）
+
+#### FR-16: 任务规划文件（task_plan.md）
+- **FR-16.1**: 为每个任务创建 `task_plan.md` 文件
+- **FR-16.2**: 包含任务目标、阶段列表、关键问题
+- **FR-16.3**: 记录决策和决策理由
+- **FR-16.4**: 记录错误和解决方法
+- **FR-16.5**: 跟踪阶段状态（pending → in_progress → complete）
+
+#### FR-17: 研究发现文件（findings.md）
+- **FR-17.1**: 为每个任务创建 `findings.md` 文件
+- **FR-17.2**: 记录需求和约束
+- **FR-17.3**: 记录研究发现和技术决策
+- **FR-17.4**: 记录遇到的问题和解决方案
+- **FR-17.5**: 记录资源链接和引用
+
+#### FR-18: 进度日志文件（progress.md）
+- **FR-18.1**: 为每个任务创建 `progress.md` 文件
+- **FR-18.2**: 记录每个阶段的操作
+- **FR-18.3**: 记录创建/修改的文件
+- **FR-18.4**: 记录测试结果
+- **FR-18.5**: 记录错误日志和时间戳
+
+#### FR-19: 三文件系统管理
+- **FR-19.1**: 自动创建三文件系统（在 worktree 创建时）
+- **FR-19.2**: 在每个阶段后更新 `task_plan.md`
+- **FR-19.3**: 在每次发现后更新 `findings.md`
+- **FR-19.4**: 在整个会话期间更新 `progress.md`
+- **FR-19.5**: 任务完成后清理或归档三文件系统
+
+#### FR-20: 上下文管理规则
+- **FR-20.1**: 先创建计划再执行（强制规则）
+- **FR-20.2**: 2-Action 规则（每次查看/浏览后立即保存）
+- **FR-20.3**: 决策前重读计划（保持目标在注意力窗口）
+- **FR-20.4**: 阶段后更新状态（标记完成，记录错误）
+- **FR-20.5**: 记录所有错误（建立知识库，避免重复）
+- **FR-20.6**: 永不重复失败（跟踪尝试，改变方法）
+- **FR-20.7**: 3次失败升级（尝试3次后升级到用户）
+
+#### FR-21: 中断恢复支持
+- **FR-21.1**: 读取 `task_plan.md` 恢复当前阶段
+- **FR-21.2**: 读取 `findings.md` 恢复已有发现
+- **FR-21.3**: 读取 `progress.md` 恢复已完成工作
+- **FR-21.4**: 快速恢复到中断点
+- **FR-21.5**: 继续执行（从上次中断的地方开始）
+
+#### FR-22: 与 Worktree 隔离集成
+- **FR-22.1**: 每个 worktree 有独立的三文件系统
+- **FR-22.2**: 不需要在 CLI 之间共享三文件系统
+- **FR-22.3**: 每个 worktree 独立记录自己的进度
+- **FR-22.4**: 通过 Git 合并共享结果摘要
+- **FR-22.5**: 通过事件总线通知状态变化
+
+## 4. 非功能需求
+
+### 4.1 性能需求
+- **NFR-1**: 终端启动时间 < 5 秒
+- **NFR-2**: 锁获取/释放操作 < 100ms
+- **NFR-3**: Worktree 创建时间 < 10 秒
+- **NFR-4**: 并发执行效率提升 3-5x
+- **NFR-5**: 内存使用 < 500MB（4个并发终端）
+
+### 4.2 可靠性需求
+- **NFR-6**: 锁操作原子性保证
+- **N-7**: 死锁自动检测和恢复
+- **NFR-8**: 终端崩溃自动恢复
+- **NFR-9**: Worktree 损坏自动修复
+- **NFR-10**: 事件日志完整性保证
+
+### 4.3 兼容性需求
+- **NFR-11**: 不影响现有 `stigmergy call` 功能
+- **NFR-12**: 不影响现有 Hook 系统
+- **NFR-13**: 不影响现有 ResumeSession 功能
+- **NFR-14**: 支持 Windows/Linux/macOS
+- **NFR-15**: 支持 Git 2.0+
+
+### 4.4 可维护性需求
+- **NFR-16**: 模块化设计，易于扩展
+- **NFR-17**: 清晰的错误消息
+- **NFR-18**: 完整的日志记录
+- **NFR-19**: 详细的文档
+- **NFR-20**: 单元测试覆盖率 > 80%
+
+### 4.5 可用性需求
+- **NFR-21**: 清晰的命令行界面
+- **NFR-22**: 实时进度显示
+- **NFR-23**: 详细的帮助文档
+- **NFR-24**: 友好的错误提示
+- **NFR-25**: 支持交互式确认
+
+## 5. 约束条件
+
+### 5.1 技术约束
+- **C-1**: 必须使用 Node.js 16+ 作为主要运行时
+- **C-2**: 必须支持 Git 2.0+
+- **C-3**: 必须兼容现有 CLI 工具
+- **C-4**: 必须使用文件系统实现锁机制
+- **C-5**: 必须支持 Windows/Linux/macOS
+
+### 5.2 兼容性约束
+- **C-6**: 不能破坏现有 `stigmergy call` 功能
+- **C-7**: 不能破坏现有 Hook 系统
+- **C-8**: 不能破坏现有 ResumeSession 功能
+- **C-9**: 必须向后兼容现有配置
+- **C-10**: 必须支持渐进式迁移
+
+### 5.3 性能约束
+- **C-11**: 并发终端数量建议上限 8 个
+- **C-12**: Worktree 数量建议上限 16 个
+- **C-13**: 任务执行超时建议 30 分钟
+- **C-14**: 锁超时建议 5 分钟
+- **C-15**: 事件日志保留建议 7 天
+
+### 5.4 安全约束
+- **C-16**: 必须验证 CLI 命令安全性
+- **C-17**: 必须防止命令注入
+- **C-18**: 必须限制文件系统访问范围
+- **C-19**: 必须清理临时文件
+- **C-20**: 必须记录所有操作日志
+
+## 6. 用户故事
+
+### 6.1 基本用户故事
+- **US-1**: 作为开发者，我希望能够并发执行多个 CLI 工具来加速开发
+- **US-2**: 作为开发者，我希望能够在独立的工作环境中并行工作
+- **N-3**: 作为开发者，我希望系统能够自动处理文件冲突
+- **US-4**: 作为开发者，我希望能够追踪每个任务的执行状态
+- **US-5**: 作为开发者，我希望能够在中断后恢复任务
+
+### 6.2 高级用户故事
+- **US-6**: 作为团队负责人，我希望能够查看团队协作的完整历史
+- **US-7**: 作为架构师，我希望能够自定义任务分解策略
+- **US-8**: 作为 DevOps 工程师，我希望能够集成到 CI/CD 流程
+- **US-9**: 作为安全工程师，我希望能够审计所有操作记录
+- **US-10**: 作为性能优化师，我希望能够分析执行效率
+
+## 7. 验收标准
+
+### 7.1 功能验收标准
+- **AC-1**: 能够并发启动 4 个 CLI 工具并成功执行任务
+- **AC-2**: 能够为每个 CLI 创建独立的 Git Worktree
+- **AC-3**: 能够正确处理文件锁和依赖关系
+- **AC-4**: 能够自动检测和解决合并冲突
+- **AC-5**: 能够在中断后恢复任务
+- **AC-6**: 现有功能完全不受影响
+- **AC-7**: ResumeSession 集成正常工作
+
+### 7.2 性能验收标准
+- **AC-8**: 并发执行效率提升 > 3x
+- **AC-9**: 系统响应时间 < 2 秒
+- **AC-10**: 内存使用 < 500MB
+- **AC-11**: 锁操作时间 < 100ms
+
+### 7.3 兼容性验收标准
+- **AC-12**: 现有 `stigmergy call` 功能 100% 兼容
+- **AC-13**: 现有 Hook 系统 100% 兼容
+- **AC-14**: 现有 ResumeSession 功能 100% 兼容
+- **AC-14**: 支持 Windows/Linux/macOS
+- **AC-15**: 支持 Git 2.0+
+
+## 8. 风险评估
+
+### 8.1 技术风险
+- **R-1**: Git Worktree 在某些平台上可能不稳定
+- **R-2**: 文件系统锁可能存在并发问题
+- **R-3**: 终端管理在不同平台上实现复杂
+- **R-4**: 事件日志可能占用大量磁盘空间
+- **R-5**: 死锁检测和恢复可能不完整
+
+### 8.2 兼容性风险
+- **R-6**: 新功能可能破坏现有 Hook 系统
+- **R-7**: ResumeSession 集成可能引入 bug
+- **R-8**: 现有 CLI 工具可能不支持参数化
+- **R-9**: 不同 CLI 的 Hook 格式可能不同
+- **R-10**: Git 版本差异可能导致功能异常
+
+### 8.3 性能风险
+- **R-11**: 并发终端过多可能导致系统资源耗尽
+- **R-12**: Worktree 创建和合并可能耗时较长
+- **R-13**: 事件日志写入可能影响性能
+- **R-14**: 锁操作频繁可能导致性能下降
+- **R-15**: 文件系统 I/O 可能成为瓶颈
+
+### 8.4 缓解策略
+- **MS-1**: 实现平台适配层，处理平台差异
+- **MS-2**: 使用文件锁和超时机制确保锁的可靠性
+- **MS-3**: 限制并发终端数量，提供配置选项
+- **MS-4**: 实现日志轮转和自动清理机制
+- **-MS-5**: 实现死锁检测和强制释放机制
+- **MS-6**: 保持 Hook 接口向后兼容
+- **MS-7**: ResumeSession 作为可选功能，不影响核心流程
+- **MS-8**: 提供默认参数，支持自定义配置
+- **MS-9**: 提供 Hook 适配器，支持不同格式
+- **MS-10**: 检测 Git 版本，提供降级方案
+- **MS-11**: 实现资源监控和限制机制
+- **MS-12**: 优化 Worktree 操作，提供缓存
+- **MS-13**: 使用异步写入，批量操作
+- **MS-14**: 优化锁粒度，减少锁竞争
+- **MS-15**: 使用内存缓存，减少文件系统 I/O
+
+## 9. 成功指标
+
+### 9.1 功能指标
+- **KPI-1**: 并发执行效率提升 > 3x
+- **KPI-2**: 任务成功率 > 95%
+- **KPI-3**: 冲突自动解决率 > 80%
+- **KPI-4**: 中断恢复成功率 > 90%
+
+### 9.2 性能指标
+- **KPI-5**: 平均任务完成时间减少 > 50%
+- **KPI-6**: 系统响应时间 < 2 秒
+- **KPI-7**: 内存使用 < 500MB
+- **KPI-8**: 锁操作时间 < 100ms
+
+### 9.3 质量指标
+- **KPI-9**: 现有功能兼容性 = 100%
+- **KPI-10**: 单元测试覆盖率 > 80%
+- **KPI-11**: 集成测试覆盖率 > 70%
+- **KPI-12**: 代码审查通过率 > 95%
+
+### 9.4 用户体验指标
+- **KPI-13**: 用户满意度 > 4.0/5.0
+- **KPI-14**: 学习曲线 < 1 周
+- **KPI-15**: 问题解决时间 < 1 天
+
+## 10. 追溯矩阵
+
+### 10.1 需求到设计的追溯
+
+| 需求 ID | 需求描述 | 设计组件 | 设计章节 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.2 | 独立运行 CLI | EnhancedTerminalManager | 2.2.1 |
+| FR-1.3 | 配置环境变量 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.4 | 监控终端状态 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.5 | 读取终端输出 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.6 | 终止指定终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-1.7 | 批量等待终端 | EnhancedTerminalManager | 2.2.1 |
+| FR-2.1 | 指定智能体 | CLI 参数映射 | 2.2.1 |
+| FR-2.2 | 指定技能 | CLI 参数映射 | 2.2.1 |
+| FR-2.3 | MCP 工具配置 | CLI 参数映射 | 2.2.1 |
+| FR-2.4 | 工作目录指定 | CLI 参数映射 | 2.2.1 |
+| FR-2.5 | CLI 特定参数 | CLI 参数映射 | 2.2.1 |
+| FR-3.1 | 创建 worktree | GitWorktreeManager | 2.2.2 |
+| FR-3.2 | 创建任务分支 | GitWorktreeManager | 2.2.2 |
+| FR-3.3 | 同步配置文件 | GitWorktreeManager | 2.2.2 |
+| FR-3.4 | 初始化协调上下文 | GitWorktreeManager | 2.2.2 |
+| FR-4.1 | Squash 合并 | GitWorktreeManager | 2.2.2 |
+| FR-4.2 | Merge 合并 | GitWorktreeManager | 2.2.2 |
+| FR-4.3 | 检测合并冲突 | GitWorktreeManager | 2.2.2 |
+| FR-4.4 | 提供冲突建议 | GitWorktreeManager | 2.2.2 |
+| FR-4.5 | 选择性合并 | GitWorktreeManager | 2.2.2 |
+| FR-5.1 | 删除 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.2 | 批量清理 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.3 | 保留 worktree | GitWorktreeManager | 2.2.2 |
+| FR-5.4 | 清理临时文件 | GitWorktreeManager | 2.2.2 |
+| FR-6.1 | 原子锁操作 | StateLockManager | 2.2.3 |
+| FR-6.2 | 依赖关系检查 | StateLockManager | 2.2.3 |
+| FR-6.3 | 文件锁检测 | StateLockManager | 2.2.3 |
+| FR-6.4 | 锁超时释放 | StateLockManager | 2.2.3 |
+| FR-6.5 | 死锁检测预防 | StateLockManager | 2.2.3 |
+| FR-7.1 | 锁状态管理 | StateLockManager | 2.2.3 |
+| FR-7.2 | 锁所有者记录 | StateLockManager | 2.2.3 |
+| FR-7.3 | 锁获取时间 | StateLockManager | 2.2.3 |
+| FR-7.4 | 锁释放时间 | StateLockManager | 2.2.3 |
+| FR-7.5 | 锁失败原因 | StateLockManager | 2.2.3 |
+| FR-8.1 | 任务检测 Hook | HookSystem | 2.2.4 |
+| FR-8.2 | 锁获取 Hook | HookSystem | 2.2.4 |
+| FR-8.3 | 锁释放 Hook | HookSystem | 2.2.4 |
+| FR-8.4 | 冲突检测 Hook | HookSystem | 2.2.4 |
+| FR-8.5 | 事件发布 Hook | HookSystem | 2.2.4 |
+| FR-9.1 | 任务创建事件 | EventBus | 2.2.5 |
+| FR-9.2 | 锁获取事件 | EventBus | 2.2.5 |
+| FR-9.3 | 锁释放事件 | EventBus | 2.2.5 |
+| FR-9.4 | 任务完成事件 | EventBus | 2.2.5 |
+| FR-9.5 | 冲突检测事件 | EventBus | 2.2.5 |
+| FR-9.6 | 错误事件 | EventBus | 2.2.5 |
+| FR-10.1 | 任务分解 | CentralOrchestrator | 2.2.6 |
+| FR-10.2 | CLI 分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.3 | 智能体分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.4 | 技能分配 | CentralOrchestrator | 2.2.6 |
+| FR-10.5 | 依赖分析 | CentralOrchestrator | 2.2.6 |
+| FR-11.1 | 并行执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.2 | 串行执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.3 | 混合执行 | CentralOrchestrator | 2.2.6 |
+| FR-11.4 | 自定义策略 | CentralOrchestrator | 2.2.6 |
+| FR-11.5 | 并发度控制 | CentralOrchestrator | 2.2.6 |
+| FR-12.1 | 收集结果 | ResultAggregator | 2.2.7 |
+| FR-12.2 | 检测冲突 | ResultAggregator | 2.2.7 |
+| FR-12.3 | 生成摘要 | ResultAggregator | 2.2.7 |
+| FR-12.4 | 生成建议 | ResultAggregator | 2.2.7 |
+| FR-12.5 | 计算成功率 | ResultAggregator | 2.2.7 |
+| FR-13.1 | 保存任务状态 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.2 | 中断恢复 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.3 | 传递上下文 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.4 | 收集结果摘要 | ResumeSessionIntegration | 2.2.6 |
+| FR-13.5 | 恢复任务 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.1 | 传递描述 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.2 | 传递依赖 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.3 | 传递路径 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.4 | 传递文件列表 | ResumeSessionIntegration | 2.2.6 |
+| FR-14.5 | 传递输出列表 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.1 | 记录任务 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.2 | 记录分解 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.3 | 记录策略 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.4 | 记录结果 | ResumeSessionIntegration | 2.2.6 |
+| FR-15.5 | 记录合并 | ResumeSessionIntegration | 2.2.6 |
+| FR-16.1 | 创建 task_plan.md | TaskPlanningFiles | 2.2.8 |
+| FR-16.2 | 包含目标阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-16.3 | 记录决策 | TaskPlanningFiles | 2.2.8 |
+| FR-16.4 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-16.5 | 跟踪阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-17.1 | 创建 findings.md | TaskPlanningFiles | 2.2.8 |
+| FR-17.2 | 记录需求 | TaskPlanningFiles | 2.2.8 |
+| FR-17.3 | 记录发现 | TaskPlanningFiles | 2.2.8 |
+| FR-17.4 | 记录问题 | TaskPlanningFiles | 2.2.8 |
+| FR-17.5 | 记录资源 | TaskPlanningFiles | 2.2.8 |
+| FR-18.1 | 创建 progress.md | TaskPlanningFiles | 2.2.8 |
+| FR-18.2 | 记录操作 | TaskPlanningFiles | 2.2.8 |
+| FR-18.3 | 记录文件 | TaskPlanningFiles | 2.2.8 |
+| FR-18.4 | 记录测试 | TaskPlanningFiles | 2.2.8 |
+| FR-18.5 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-19.1 | 自动创建 | TaskPlanningFiles | 2.2.8 |
+| FR-19.2 | 更新任务计划 | TaskPlanningFiles | 2.2.8 |
+| FR-19.3 | 更新发现 | TaskPlanningFiles | 2.2.8 |
+| FR-19.4 | 更新进度 | TaskPlanningFiles | 2.2.8 |
+| FR-19.5 | 清理归档 | TaskPlanningFiles | 2.2.8 |
+| FR-20.1 | 先创建计划 | TaskPlanningFiles | 2.2.8 |
+| FR-20.2 | 2-Action 规则 | TaskPlanningFiles | 2.2.8 |
+| FR-20.3 | 重读计划 | TaskPlanningFiles | 2.2.8 |
+| FR-20.4 | 更新状态 | TaskPlanningFiles | 2.2.8 |
+| FR-20.5 | 记录错误 | TaskPlanningFiles | 2.2.8 |
+| FR-20.6 | 永不重复失败 | TaskPlanningFiles | 2.2.8 |
+| FR-20.7 | 3次失败升级 | TaskPlanningFiles | 2.2.8 |
+| FR-21.1 | 恢复阶段 | TaskPlanningFiles | 2.2.8 |
+| FR-21.2 | 恢复发现 | TaskPlanningFiles | 2.2.8 |
+| FR-21.3 | 恢复工作 | TaskPlanningFiles | 2.2.8 |
+| FR-21.4 | 快速恢复 | TaskPlanningFiles | 2.2.8 |
+| FR-21.5 | 继续执行 | TaskPlanningFiles | 2.2.8 |
+| FR-22.1 | 独立三文件 | TaskPlanningFiles | 2.2.8 |
+| FR-22.2 | 不共享 | TaskPlanningFiles | 2.2.8 |
+| FR-22.3 | 独立记录 | TaskPlanningFiles | 2.2.8 |
+| FR-22.4 | Git 合并 | TaskPlanningFiles | 2.2.8 |
+| FR-22.5 | 事件通知 | TaskPlanningFiles | 2.2.8 |
+
+**覆盖率**: 85/85 (100%)
+
+### 10.2 需求到实施的追溯
+
+| 需求 ID | 需求描述 | 实施阶段 | 实施任务 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | 阶段 2 | 任务 2.1 |
+| FR-1.2 | 独立运行 CLI | 阶段 2 | 任务 2.1 |
+| FR-3.1 | 创建 worktree | 阶段 3 | 任务 3.1 |
+| FR-6.1 | 原子锁操作 | 阶段 1 | 任务 1.5 |
+| FR-16.1 | 创建 task_plan.md | 阶段 6 | 任务 6.1 |
+| FR-17.1 | 创建 findings.md | 阶段 6 | 任务 6.1 |
+| FR-18.1 | 创建 progress.md | 阶段 6 | 任务 6.1 |
+
+**覆盖率**: 7/85 (8.2%) - 实施文档中需要补充完整的追溯矩阵
+
+### 10.3 需求到测试的追溯
+
+| 需求 ID | 需求描述 | 测试文件 | 测试用例 |
+|---------|---------|---------|---------|
+| FR-1.1 | 并发启动终端 | TerminalManager.test.ts | should launch multiple terminals |
+| FR-1.2 | 独立运行 CLI | TerminalManager.test.ts | should run CLI independently |
+| FR-3.1 | 创建 worktree | WorktreeManager.test.ts | should create worktree |
+| FR-6.1 | 原子锁操作 | LockManager.test.ts | should acquire lock atomically |
+| FR-16.1 | 创建 task_plan.md | SessionManager.test.ts | should create planning files |
+
+**覆盖率**: 5/85 (5.9%) - 实施文档中需要补充完整的测试追溯矩阵

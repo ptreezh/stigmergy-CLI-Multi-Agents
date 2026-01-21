@@ -1,0 +1,270 @@
+{
+  "generatedAt": "2026-01-15T09:26:34.129Z",
+  "architecture": {
+    "type": "Decentralized Coordination System",
+    "pattern": "Event-Driven + Intelligent Routing",
+    "components": {
+      "core": {
+        "count": 7,
+        "name": "Core Coordination Layer",
+        "list": [
+          "NaturalLanguageParser - Natural Language Parser",
+          "IntentRouter - Intent Router",
+          "CollaborationCoordinator - Collaboration Coordinator",
+          "CrossCLIExecutor - Cross CLI Executor",
+          "CLIAdapterRegistry - CLI Adapter Registry",
+          "ErrorHandler - Error Handler",
+          "Logger - Logger System"
+        ]
+      },
+      "nodejs": {
+        "count": 6,
+        "name": "Node.js Coordination Layer",
+        "list": [
+          "AdapterManager - Adapter Manager",
+          "CLCommunication - Cross CLI Communication",
+          "StatisticsCollector - Statistics Collector",
+          "HealthChecker - Health Checker",
+          "CLIIntegrationManager - CLI Integration Manager",
+          "HookDeploymentManager - Hook Deployment Manager"
+        ]
+      },
+      "python": {
+        "count": 4,
+        "name": "Python Support Layer",
+        "list": [
+          "PythonDetector - Python Detector",
+          "GracefulDegradation - Graceful Degradation",
+          "PythonCoordinationWrapper - Python Coordination Wrapper",
+          "PerformanceBenchmark - Performance Benchmark"
+        ]
+      }
+    },
+    "routing": {
+      "primary": "SmartRouter - Intelligent Router",
+      "default": "claude",
+      "mechanism": "Keyword and Pattern Matching"
+    }
+  },
+  "apiAnalysis": {
+    "restAPI": false,
+    "grpcAPI": false,
+    "websocketAPI": false,
+    "interfaces": [
+      "JavaScript/Node.js API (Internal Component Calls)",
+      "EventEmitter Event System",
+      "CLI Command Line Interface"
+    ],
+    "accessMethods": [
+      "Import components via require()",
+      "Listen to events via EventEmitter",
+      "Execute via CLI commands"
+    ]
+  },
+  "availability": {
+    "deploymentReady": true,
+    "testCoverage": "85%",
+    "componentsReady": 17,
+    "configFiles": [
+      "coordination-layer.config.json",
+      ".env.coordination"
+    ],
+    "scripts": [
+      "run-all-tests.js - Run all tests",
+      "module-load-verify.js - Module load verification",
+      "prepare-deployment.js - Deployment preparation"
+    ],
+    "directories": [
+      "logs",
+      "cache",
+      "config",
+      "data",
+      "backups"
+    ]
+  },
+  "useCases": [
+    {
+      "scenario": "Cross-CLI Tool Collaboration",
+      "description": "Coordinate multiple AI CLI tools to complete tasks together",
+      "example": "Let claude and qwen analyze a project together",
+      "components": [
+        "NaturalLanguageParser",
+        "IntentRouter",
+        "CollaborationCoordinator"
+      ]
+    },
+    {
+      "scenario": "Intelligent Task Routing",
+      "description": "Automatically select the most suitable CLI tool based on task type",
+      "example": "User inputs \"translate this text\", system selects claude",
+      "components": [
+        "SmartRouter",
+        "NaturalLanguageParser",
+        "IntentRouter"
+      ]
+    },
+    {
+      "scenario": "Task Delegation and Handoff",
+      "description": "Delegate or handoff tasks from one CLI tool to another",
+      "example": "Claude completes task, then hands off code review to codebuddy",
+      "components": [
+        "NaturalLanguageParser",
+        "IntentRouter",
+        "CrossCLIExecutor"
+      ]
+    },
+    {
+      "scenario": "Graceful Degradation",
+      "description": "Automatically degrade to alternative tools when CLI is unavailable",
+      "example": "Claude unavailable, automatically use qwen instead",
+      "components": [
+        "GracefulDegradation",
+        "PythonCoordinationWrapper"
+      ]
+    },
+    {
+      "scenario": "Multi-language Support",
+      "description": "Support Chinese and English natural language input",
+      "example": "Users can input commands in Chinese or English",
+      "components": [
+        "NaturalLanguageParser"
+      ]
+    },
+    {
+      "scenario": "Performance Monitoring",
+      "description": "Monitor system performance and resource usage",
+      "example": "Track response time, memory usage, CPU usage",
+      "components": [
+        "Logger",
+        "PerformanceBenchmark",
+        "StatisticsCollector"
+      ]
+    }
+  ],
+  "userStories": [
+    {
+      "role": "Developer",
+      "story": "As a developer, I want to interact with multiple AI CLI tools using natural language without remembering specific commands for each tool",
+      "benefit": "Improve productivity and reduce learning curve"
+    },
+    {
+      "role": "Project Manager",
+      "story": "As a project manager, I want to coordinate multiple AI tools to complete a complex project",
+      "benefit": "Improve project quality and delivery speed"
+    },
+    {
+      "role": "System Administrator",
+      "story": "As a system administrator, I want the system to automatically degrade and recover to ensure service availability",
+      "benefit": "Improve system stability and reliability"
+    },
+    {
+      "role": "Content Creator",
+      "story": "As a content creator, I want to interact with AI tools in Chinese or English",
+      "benefit": "Improve usability"
+    },
+    {
+      "role": "Performance Analyst",
+      "story": "As a performance analyst, I want to monitor system performance and resource usage",
+      "benefit": "Identify performance bottlenecks early"
+    }
+  ],
+  "coordinatorAnalysis": {
+    "current": {
+      "type": "No Primary Coordinator",
+      "description": "All CLI tools have equal status, coordinated via SmartRouter",
+      "advantages": [
+        "High flexibility",
+        "Load balancing",
+        "Strong fault tolerance",
+        "Lightweight"
+      ],
+      "disadvantages": [
+        "Lack of unified scheduling",
+        "Distributed decision making",
+        "Potential conflicts"
+      ]
+    },
+    "proposed": {
+      "type": "Optional Primary Coordinator",
+      "description": "Can configure a primary CLI as coordinator and decision center",
+      "options": [
+        "claude - Best suited as primary (default)",
+        "qwen - Strong Chinese language support",
+        "iflow - Good localization support",
+        "No primary - Keep current no-primary mode"
+      ],
+      "benefits": [
+        "Unified decision making",
+        "Clear responsibility",
+        "Simplified workflow",
+        "Improved coordination efficiency"
+      ],
+      "tradeoffs": [
+        "Increased complexity",
+        "Single point of failure risk",
+        "Reduced flexibility"
+      ]
+    }
+  },
+  "intelligenceSuggestions": [
+    {
+      "level": "Current",
+      "description": "Rule-based and pattern matching",
+      "features": [
+        "Keyword matching",
+        "CLI tool capability analysis",
+        "Natural language parsing"
+      ],
+      "pros": [
+        "Fast",
+        "Predictable",
+        "Easy to debug"
+      ],
+      "cons": [
+        "Not flexible enough",
+        "Requires rule maintenance"
+      ]
+    },
+    {
+      "level": "Enhanced",
+      "description": "Add machine learning or AI decision making",
+      "features": [
+        "Task history learning",
+        "Performance statistics optimization",
+        "User preference learning"
+      ],
+      "pros": [
+        "More intelligent",
+        "Adaptive",
+        "Continuous improvement"
+      ],
+      "cons": [
+        "Needs training data",
+        "Increased complexity"
+      ]
+    },
+    {
+      "level": "Advanced",
+      "description": "Complete AI decision system",
+      "features": [
+        "Multi-objective optimization",
+        "Dynamic scheduling",
+        "Predictive analysis"
+      ],
+      "pros": [
+        "Optimal decisions",
+        "High automation"
+      ],
+      "cons": [
+        "Complex implementation",
+        "High cost"
+      ]
+    }
+  ],
+  "summary": {
+    "systemStatus": "Completed and Ready for Deployment",
+    "architectureType": "Event-Driven + Intelligent Routing",
+    "apiStatus": "No REST API, only internal Node.js API",
+    "recommendation": "Maintain lightweight no-primary architecture, optionally enhance intelligence"
+  }
+}

@@ -1,0 +1,438 @@
+{
+  "enhanced_cli_config": {
+    "version": "2.0.0",
+    "last_updated": "2025-12-22",
+    "description": "Enhanced CLI configuration with agent and skill support",
+    "cli_patterns": {
+      "claude": {
+        "name": "Claude Code",
+        "command_format": "claude -p \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": false,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法", "马克思", "异化", "阶级"],
+        "examples": [
+          "claude -p \"请使用异化分析技能分析程序员异化现象\"",
+          "claude -p \"请使用数字马克思智能体进行阶级分析\"",
+          "claude -p \"使用技术分析技能分析AI对程序员的影响\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true
+        },
+        "performance": {
+          "success_rate": 0.95,
+          "quality_score": 0.9,
+          "response_time": "fast"
+        },
+        "limitations": [
+          "需要网络连接",
+          "可能需要API密钥配置"
+        ]
+      },
+      "iflow": {
+        "name": "iFlow CLI",
+        "command_format": "iflow -p \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": false,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法", "马克思", "异化", "阶级"],
+        "examples": [
+          "iflow -p \"请使用异化分析技能分析程序员异化现象\"",
+          "iflow -p \"请使用数字马克思智能体进行异化分析\"",
+          "iflow -p \"使用技术分析技能分析AI对程序员的影响\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true
+        },
+        "performance": {
+          "success_rate": 0.95,
+          "quality_score": 0.9,
+          "response_time": "fast"
+        },
+        "limitations": [
+          "需要网络连接",
+          "可能需要API密钥配置"
+        ]
+      },
+      "qwen": {
+        "name": "Qwen CLI",
+        "command_format": "qwen \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": true,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["智能体", "分析技能", "马克思", "异化", "阶级", "技能", "专家"],
+        "examples": [
+          "qwen \"使用数字马克思智能体进行异化分析，分析程序员的技术异化现象\"",
+          "qwen \"使用异化分析技能分析程序员在AI开发中的异化现象\"",
+          "qwen \"请数字马克思智能体分析技术对程序员的影响\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true,
+          "positional_args": true
+        },
+        "performance": {
+          "success_rate": 0.9,
+          "quality_score": 0.85,
+          "response_time": "medium"
+        },
+        "limitations": [
+          "使用位置参数，语法特殊",
+          "需要网络连接"
+        ]
+      },
+      "codebuddy": {
+        "name": "CodeBuddy CLI",
+        "command_format": "codebuddy -y -p \"{prompt}\"",
+        "agent_detection": false,
+        "skill_detection": true,
+        "natural_language_support": false,
+        "positional_args": false,
+        "skill_prefix_required": true,
+        "agent_types": ["skill"],
+        "skill_keywords": ["skill:", "技能", "分析", "异化", "马克思"],
+        "examples": [
+          "codebuddy -y -p \"skill:alienation-analysis 分析程序员异化现象\"",
+          "codebuddy -y -p \"skill:marxist-analysis 分析技术异化\"",
+          "codebuddy -y -p \"skill:tech-analysis 分析AI对程序员的影响\""
+        ],
+        "capabilities": {
+          "agent_support": false,
+          "skill_support": true,
+          "chinese_support": false,
+          "natural_language": false,
+          "skill_syntax": true,
+          "systematic_approach": true
+        },
+        "performance": {
+          "success_rate": 0.9,
+          "quality_score": 0.8,
+          "response_time": "medium"
+        },
+        "limitations": [
+          "需要skill:前缀语法",
+          "-y参数跳过权限检查",
+          "不支持自然语言智能体描述"
+        ]
+      },
+      "qodercli": {
+        "name": "Qoder CLI",
+        "command_format": "qodercli -p \"{prompt}\"",
+        "agent_detection": false,
+        "skill_detection": false,
+        "natural_language_support": false,
+        "positional_args": false,
+        "agent_types": ["basic"],
+        "skill_keywords": ["分析", "理解", "处理"],
+        "examples": [
+          "qodercli -p \"分析程序员在AI开发中的异化现象\"",
+          "qodercli -p \"进行技术异化的基础分析\"",
+          "qodercli -p \"理解程序员面临的技术挑战\""
+        ],
+        "capabilities": {
+          "agent_support": false,
+          "skill_support": false,
+          "chinese_support": true,
+          "natural_language": false,
+          "basic_ai_support": true,
+          "simple_analysis": true
+        },
+        "performance": {
+          "success_rate": 0.7,
+          "quality_score": 0.6,
+          "response_time": "fast"
+        },
+        "limitations": [
+          "基础AI理解能力",
+          "不支持高级智能体",
+          "技能功能有限"
+        ]
+      },
+      "gemini": {
+        "name": "Gemini CLI",
+        "command_format": "gemini -p \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": false,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法"],
+        "examples": [
+          "gemini -p \"请使用分析技能分析程序员异化现象\"",
+          "gemini -p \"使用智能体进行技术分析\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true
+        },
+        "performance": {
+          "success_rate": 0.85,
+          "quality_score": 0.8,
+          "response_time": "medium"
+        },
+        "limitations": [
+          "需要网络连接",
+          "可能需要API密钥配置"
+        ]
+      },
+      "copilot": {
+        "name": "GitHub Copilot CLI",
+        "command_format": "copilot \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": true,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法"],
+        "examples": [
+          "copilot \"请使用分析技能分析程序员异化现象\"",
+          "copilot \"使用智能体进行技术分析\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true
+        },
+        "performance": {
+          "success_rate": 0.8,
+          "quality_score": 0.75,
+          "response_time": "medium"
+        },
+        "limitations": [
+          "主要面向代码生成",
+          "需要GitHub账户"
+        ]
+      },
+      "codex": {
+        "name": "OpenAI Codex CLI",
+        "command_format": "codex -m gpt-5 \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": true,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法", "代码", "审查"],
+        "examples": [
+          "codex \"请使用异化分析技能分析程序员异化现象\"",
+          "codex exec \"使用数字马克思智能体分析代码库\"",
+          "codex review \"分析这段代码的异化现象\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true,
+          "code_generation": true,
+          "mcp_support": true,
+          "sandbox_execution": true,
+          "code_review": true
+        },
+        "performance": {
+          "success_rate": 0.85,
+          "quality_score": 0.9,
+          "response_time": "fast"
+        },
+        "limitations": [
+          "需要OpenAI API密钥",
+          "可能需要付费订阅",
+          "官方维护，功能强大"
+        ]
+      },
+      "kode": {
+        "name": "Kode CLI",
+        "command_format": "kode \"{prompt}\"",
+        "agent_detection": true,
+        "skill_detection": true,
+        "natural_language_support": true,
+        "positional_args": true,
+        "agent_types": ["expert", "skill", "analysis", "agent"],
+        "skill_keywords": ["技能", "智能体", "分析", "工具", "方法", "多模型", "协作"],
+        "examples": [
+          "kode \"请使用异化分析技能分析程序员异化现象\"",
+          "kode \"使用数字马克思智能体进行异化分析\"",
+          "kode \"@ask-claude-sonnet-4 分析这个问题\""
+        ],
+        "capabilities": {
+          "agent_support": true,
+          "skill_support": true,
+          "chinese_support": true,
+          "natural_language": true,
+          "context_understanding": true,
+          "multi_model": true,
+          "agent_delegation": true
+        },
+        "performance": {
+          "success_rate": 0.9,
+          "quality_score": 0.85,
+          "response_time": "fast"
+        },
+        "limitations": [
+          "需要配置API密钥",
+          "可能需要付费订阅"
+        ]
+      }
+    },
+    "skill_mapping": {
+      "异化分析": {
+        "description": "异化分析技能，专门分析技术对人的异化现象",
+        "claude": "异化分析技能",
+        "iflow": "异化分析技能",
+        "qwen": "异化分析技能",
+        "codebuddy": "alienation-analysis",
+        "gemini": "异化分析技能",
+        "copilot": "异化分析技能",
+        "codex": "alienation-analysis",
+        "kode": "异化分析技能"
+      },
+      "马克思分析": {
+        "description": "马克思主义分析技能，基于马克思理论的分析方法",
+        "claude": "数字马克思智能体",
+        "iflow": "数字马克思智能体",
+        "qwen": "数字马克思智能体",
+        "codebuddy": "marxist-analysis",
+        "gemini": "马克思分析技能",
+        "copilot": "马克思分析智能体",
+        "codex": "marxist-analysis",
+        "kode": "数字马克思智能体"
+      },
+      "技术分析": {
+        "description": "技术分析技能，分析技术对社会和个人影响",
+        "claude": "技术分析技能",
+        "iflow": "技术分析技能",
+        "qwen": "技术分析技能",
+        "codebuddy": "tech-analysis",
+        "gemini": "技术分析技能",
+        "copilot": "技术分析技能",
+        "codex": "tech-analysis",
+        "kode": "技术分析技能"
+      },
+      "阶级分析": {
+        "description": "阶级分析技能，分析社会阶级关系和冲突",
+        "claude": "阶级分析技能",
+        "iflow": "阶级分析技能",
+        "qwen": "阶级分析技能",
+        "codebuddy": "class-analysis",
+        "gemini": "阶级分析技能",
+        "copilot": "阶级分析技能",
+        "codex": "class-analysis",
+        "kode": "阶级分析技能"
+      }
+    },
+    "agent_types": {
+      "expert": {
+        "description": "专家智能体，具有特定领域专业知识",
+        "keywords": ["专家", "expert", "specialist", "马克思", "marxist", "数字马克思"],
+        "typical_use": "专业领域分析，如马克思主义分析、异化分析等"
+      },
+      "skill": {
+        "description": "技能型智能体，具备特定技能或方法",
+        "keywords": ["技能", "skill", "能力", "方法", "工具"],
+        "typical_use": "执行特定任务，如分析技能、写作技能等"
+      },
+      "analysis": {
+        "description": "分析型智能体，专门从事分析和评估",
+        "keywords": ["分析", "analysis", "解析", "评估", "研究"],
+        "typical_use": "深度分析任务，如数据分析、文本分析等"
+      },
+      "agent": {
+        "description": "通用智能体，能够处理多种任务",
+        "keywords": ["智能体", "agent", "助手", "助手"],
+        "typical_use": "一般性任务和咨询"
+      },
+      "basic": {
+        "description": "基础智能体，具备基本理解能力",
+        "keywords": ["基础", "basic", "简单", "初步"],
+        "typical_use": "简单分析和基础任务"
+      }
+    },
+    "routing_strategy": {
+      "priority_order": [
+        "claude",
+        "kode",
+        "iflow", 
+        "qwen",
+        "codebuddy",
+        "gemini",
+        "copilot",
+        "qodercli"
+      ],
+      "selection_criteria": [
+        "agent_skill_compatibility",
+        "natural_language_support",
+        "success_rate",
+        "quality_score",
+        "response_time"
+      ],
+      "fallback_rules": [
+        "当首选工具失败时，自动降级到下一优先级工具",
+        "根据错误类型选择相应的备用工具",
+        "记录失败历史，避免重复尝试已知失败的工具"
+      ]
+    },
+    "performance_metrics": {
+      "success_rates": {
+        "claude": 0.95,
+        "iflow": 0.95,
+        "qwen": 0.9,
+        "codebuddy": 0.9,
+        "gemini": 0.85,
+        "copilot": 0.8,
+        "qodercli": 0.7,
+        "kode": 0.9
+      },
+      "quality_scores": {
+        "claude": 0.9,
+        "iflow": 0.9,
+        "qwen": 0.85,
+        "codebuddy": 0.8,
+        "gemini": 0.8,
+        "copilot": 0.75,
+        "qodercli": 0.6,
+        "kode": 0.85
+      },
+      "response_times": {
+        "claude": "fast",
+        "iflow": "fast",
+        "qwen": "medium",
+        "codebuddy": "medium",
+        "gemini": "medium",
+        "copilot": "medium",
+        "qodercli": "fast",
+        "kode": "fast"
+      }
+    },
+    "configuration_options": {
+      "debug_mode": false,
+      "cache_enabled": true,
+      "cache_expiry_hours": 24,
+      "max_retries": 2,
+      "parallel_processing": true,
+      "max_concurrent_requests": 3,
+      "log_failures": true,
+      "performance_monitoring": true
+    }
+  }
+}

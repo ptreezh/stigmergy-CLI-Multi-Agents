@@ -1,0 +1,195 @@
+Stigmergy Skills 包管理使用指南
+================================
+
+## Skills 命令使用
+
+### 1. 列出所有已安装的技能
+```bash
+stigmergy skill list
+# 或使用别名
+stigmergy skill-l
+```
+
+输出示例：
+- 显示全局技能（stigmergy）
+- 显示特定CLI的技能（claude、qwen等）
+
+### 2. 读取技能详情
+```bash
+stigmergy skill read <skill-name>
+# 或使用别名
+stigmergy skill-r <skill-name>
+stigmergy skill-v <skill-name>
+```
+
+示例：
+```bash
+stigmergy skill read ant
+stigmergy skill read field-analysis
+stigmergy skill read mathematical-statistics
+```
+
+### 3. 安装技能
+```bash
+stigmergy skill install <skill-path>
+# 或使用别名
+stigmergy skill-i <skill-path>
+```
+
+### 4. 移除技能
+```bash
+stigmergy skill remove <skill-name>
+# 或使用别名
+stigmergy skill-d <skill-name>
+stigmergy skill-m <skill-name>
+```
+
+### 5. 同步技能
+```bash
+stigmergy skill sync
+```
+
+### 6. 验证技能
+```bash
+stigmergy skill validate <skill-path>
+```
+
+## 交互式模式使用
+
+### 启动交互式模式
+```bash
+stigmergy interactive
+# 或使用别名
+stigmergy i
+```
+
+### 交互式模式中的命令
+
+1. **发送消息到当前CLI**
+   ```
+   qwen> 你好，请帮我分析这段代码
+   ```
+
+2. **切换到特定CLI**
+   ```
+   qwen> use claude
+   claude> 
+   ```
+
+3. **询问特定CLI**
+   ```
+   qwen> ask gemini 什么是人工智能？
+   ```
+
+4. **智能路由**
+   ```
+   qwen> route 分析这个Python脚本
+   qwen> r 翻译这段英文
+   ```
+
+5. **查看帮助**
+   ```
+   qwen> help
+   ```
+
+6. **查看状态**
+   ```
+   qwen> status
+   ```
+
+7. **退出**
+   ```
+   qwen> exit
+   ```
+
+### 在交互式模式中使用Skills
+
+在交互式模式中，你可以直接引用已安装的技能：
+
+```
+qwen> 使用ant技能分析这个项目中的行动者网络
+qwen> 用field-analysis技能分析这个教育场域
+qwen> 请用mathematical-statistics技能进行统计分析
+```
+
+## 已安装的技能列表
+
+### 全局技能 (stigmergy)
+1. **ant** - 行动者网络理论分析
+2. **business-ecosystem-analysis** - 商业生态系统分析
+3. **conflict-resolution** - 冲突解决
+4. **digital-transformation** - 数字化转型分析
+5. **ecosystem-analysis** - 生态系统分析
+6. **field-analysis** - 布迪厄场域分析
+7. **field-expert** - 布迪厄场域理论专家
+8. **grounded-theory-expert** - 扎根理论专家
+9. **mathematical-statistics** - 数理统计分析
+10. **network-computation** - 社会网络计算
+11. **test-skill** - 测试技能
+12. **validity-reliability** - 信度效度分析
+
+### Claude CLI 技能
+1. **resumesession** - 会话恢复和历史管理
+2. **dev-browser** - 浏览器自动化
+
+## 使用示例
+
+### 示例1：查看技能详情
+```bash
+$ stigmergy skill read ant
+Reading: ant
+Base directory: C:\Users\Zhang\.stigmergy\skills\ant
+
+---
+name: ant
+description: 当用户需要执行行动者网络理论分析...
+---
+[显示完整的技能文档]
+```
+
+### 示例2：交互式模式中使用技能
+```bash
+$ stigmergy interactive
+Starting Stigmergy Interactive Mode...
+Available CLI Tools: qwen, iflow, claude, gemini, codebuddy, codex, qodercli, copilot
+
+qwen> 使用field-analysis技能分析这个教育研究项目
+[AI会使用field-analysis技能进行分析]
+
+qwen> use claude
+claude> 用network-computation技能分析这个社交网络数据
+[Claude会使用network-computation技能进行分析]
+```
+
+### 示例3：智能路由
+```bash
+qwen> route 用ant技能分析这个技术项目
+[系统会智能选择最合适的CLI并使用ant技能]
+```
+
+## 技能管理最佳实践
+
+1. **定期查看已安装技能**
+   ```bash
+   stigmergy skill list
+   ```
+
+2. **在使用前了解技能详情**
+   ```bash
+   stigmergy skill read <skill-name>
+   ```
+
+3. **在交互式模式中明确指定技能**
+   ```
+   qwen> 使用<skill-name>技能<任务描述>
+   ```
+
+4. **利用智能路由功能**
+   ```
+   qwen> route <包含技能名称的任务>
+   ```
+
+5. **定期同步技能**
+   ```bash
+   stigmergy skill sync
+   ```

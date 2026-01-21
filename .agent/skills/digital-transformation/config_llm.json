@@ -1,0 +1,297 @@
+# 基于LLM的数字化转型分析 - 技能配置文件
+
+{
+  "skill_name": "digital-transformation-llm",
+  "version": "2.0.0",
+  "skill_type": "analysis",
+  "requires_llm": true,
+  "progressive_disclosure": true,
+  "llm_support": {
+    "providers": ["openai", "anthropic", "ollama", "qwen"],
+    "default_provider": "openai",
+    "default_model": "gpt-4",
+    "api_key_env_vars": {
+      "openai": "OPENAI_API_KEY",
+      "anthropic": "ANTHROPIC_API_KEY",
+      "qwen": "DASHSCOPE_API_KEY",
+      "ollama": null
+    }
+  },
+  "skills": {
+    "performing-expert-digitization-deconstruction-analysis": {
+      "name": "数字化解构分析技能",
+      "description": "从六大专家视角解构业务的数字化环节，识别物理到数字的转换机会，发现效率边界突破的利基空间。使用LLM动态生成深度分析。",
+      "type": "deconstruction",
+      "layer": 1,
+      "context_requirements": {
+        "required": ["business_scenario", "company_name", "industry"],
+        "optional": ["transformation_objectives", "current_digitalization_level", "resource_constraints"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "deconstruct_digitization",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "collect_context",
+          "description": "收集业务场景和数字化现状信息",
+          "required_inputs": ["business_scenario", "company_name", "industry"],
+          "script": "scripts/data_integrator.py",
+          "function": "collect_company_context"
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行数字化解构分析",
+          "required_inputs": ["context_data"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "deconstruct_digitization"
+        },
+        {
+          "step": "visualization",
+          "description": "生成分析结果的可视化图表（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_digitization_deconstruction"
+        }
+      ]
+    },
+    "performing-expert-online-transformation-deconstruction-analysis": {
+      "name": "在线化解构分析技能",
+      "description": "解构线上线下融合机会，识别全场景数据采集点，发现实时服务创新利基。使用LLM动态生成深度分析。",
+      "type": "deconstruction",
+      "layer": 1,
+      "context_requirements": {
+        "required": ["business_scenario", "company_name", "online_presence"],
+        "optional": ["customer_touchpoints", "data_collection_points", "online_services"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "deconstruct_online_transformation",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "collect_context",
+          "description": "收集在线化现状和客户触点信息",
+          "required_inputs": ["business_scenario", "company_name"],
+          "script": "scripts/data_integrator.py",
+          "function": "collect_online_context"
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行在线化解构分析",
+          "required_inputs": ["context_data"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "deconstruct_online_transformation"
+        },
+        {
+          "step": "visualization",
+          "description": "生成在线化旅程图（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_online_journey"
+        }
+      ]
+    },
+    "performing-expert-intelligent-transformation-deconstruction-analysis": {
+      "name": "智能化解构分析技能",
+      "description": "解构AI和数据智能应用机会，识别智能决策和预测服务机会，发现自动化运营利基。使用LLM动态生成深度分析。",
+      "type": "deconstruction",
+      "layer": 1,
+      "context_requirements": {
+        "required": ["business_scenario", "company_name", "ai_capabilities"],
+        "optional": ["data_availability", "infrastructure", "team_expertise"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "deconstruct_intelligent_transformation",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "collect_context",
+          "description": "收集AI能力和数据基础信息",
+          "required_inputs": ["business_scenario", "company_name"],
+          "script": "scripts/data_integrator.py",
+          "function": "collect_ai_context"
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行智能化解构分析",
+          "required_inputs": ["context_data"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "deconstruct_intelligent_transformation"
+        },
+        {
+          "step": "visualization",
+          "description": "生成AI应用架构图（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_ai_architecture"
+        }
+      ]
+    },
+    "identifying-innovation-niche-opportunities-in-digital-transformation": {
+      "name": "创新利基识别技能",
+      "description": "整合三步曲解构结果识别创新机会，评估利基的多维度价值，进行优先级排序。使用LLM动态生成深度分析。",
+      "type": "identification",
+      "layer": 2,
+      "context_requirements": {
+        "required": ["digitization_result", "online_result", "intelligent_result"],
+        "optional": ["business_constraints", "resource_availability", "strategic_priorities"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "identify_innovation_niche",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "load_deconstruction_results",
+          "description": "加载三步曲解构分析结果",
+          "required_inputs": ["digitization_result", "online_result", "intelligent_result"],
+          "script": null,
+          "function": null
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行创新利基识别",
+          "required_inputs": ["deconstruction_results"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "identify_innovation_niche"
+        },
+        {
+          "step": "visualization",
+          "description": "生成利基机会矩阵图（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_niche_matrix"
+        }
+      ]
+    },
+    "reconstructing-business-model-through-digital-transformation-expertise": {
+      "name": "商业模式重构技能",
+      "description": "基于数智化技术重构商业模式，设计数据驱动的价值创造逻辑，构建智能化竞争优势。使用LLM动态生成深度分析。",
+      "type": "reconstruction",
+      "layer": 3,
+      "context_requirements": {
+        "required": ["identified_niches", "current_business_model"],
+        "optional": ["market_conditions", "competitive_landscape", "strategic_direction"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "reconstruct_business_model",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "load_niche_results",
+          "description": "加载创新利基识别结果",
+          "required_inputs": ["identified_niches"],
+          "script": null,
+          "function": null
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行商业模式重构",
+          "required_inputs": ["niche_results", "current_business_model"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "reconstruct_business_model"
+        },
+        {
+          "step": "visualization",
+          "description": "生成商业模式画布图（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_business_model_canvas"
+        }
+      ]
+    },
+    "planning-business-innovation-pathway-in-digital-transformation": {
+      "name": "业务创新路径规划技能",
+      "description": "设计分阶段的创新实施路径，规划资源配置和风险控制，建立价值实现和衡量体系。使用LLM动态生成深度分析。",
+      "type": "planning",
+      "layer": 3,
+      "context_requirements": {
+        "required": ["reconstructed_business_model", "innovation_objectives"],
+        "optional": ["resource_constraints", "timeline_requirements", "success_criteria"]
+      },
+      "script_path": "scripts/digital_transformation_analyzer_llm.py",
+      "script_function": "plan_business_innovation_pathway",
+      "output_format": "json",
+      "progressive_steps": [
+        {
+          "step": "load_reconstruction_result",
+          "description": "加载商业模式重构结果",
+          "required_inputs": ["reconstructed_business_model"],
+          "script": null,
+          "function": null
+        },
+        {
+          "step": "llm_analysis",
+          "description": "调用LLM进行创新路径规划",
+          "required_inputs": ["reconstruction_result", "innovation_objectives"],
+          "script": "scripts/digital_transformation_analyzer_llm.py",
+          "function": "plan_business_innovation_pathway"
+        },
+        {
+          "step": "visualization",
+          "description": "生成转型路径时间线图（可选）",
+          "required_inputs": ["analysis_result"],
+          "optional": true,
+          "script": "scripts/transformation_visualizer.py",
+          "function": "plot_transformation_pathway"
+        }
+      ]
+    }
+  },
+  "integration_scripts": {
+    "data_integrator": {
+      "script_path": "scripts/data_integrator.py",
+      "description": "数据集成脚本，支持从多个数据源收集企业、行业、生态系统数据",
+      "data_sources": ["baidu_search", "company_website", "news_media", "government_info", "industry_report"]
+    },
+    "ecosystem_data_integrator": {
+      "script_path": "../ecosystem-analysis/scripts/ecosystem_data_integrator.py",
+      "description": "生态系统数据集成脚本，支持收集生态系统实体、关系、市场数据"
+    },
+    "ecosystem_visualizer": {
+      "script_path": "../ecosystem-analysis/scripts/ecosystem_visualizer.py",
+      "description": "生态系统可视化脚本，生成生态系统网络图、关系矩阵等"
+    },
+    "transformation_visualizer": {
+      "script_path": "scripts/transformation_visualizer.py",
+      "description": "转型路径可视化脚本，生成转型路径图、时间线图、商业模式图等"
+    }
+  },
+  "execution_config": {
+    "llm_temperature": 0.8,
+    "llm_max_tokens": 4000,
+    "retry_on_failure": true,
+    "max_retries": 3,
+    "timeout": 300,
+    "cache_llm_responses": true,
+    "cache_duration": 86400
+  },
+  "dependencies": {
+    "required": [
+      "llm_client.py",
+      "digital_transformation_analyzer_llm.py"
+    ],
+    "optional": [
+      "data_integrator.py",
+      "transformation_visualizer.py"
+    ],
+    "python_packages": [
+      "openai>=1.0.0",
+      "anthropic>=0.18.0",
+      "requests>=2.31.0"
+    ]
+  },
+  "metadata": {
+    "author": "数字化转型智能体团队",
+    "created_date": "2024-01-06",
+    "last_updated": "2024-01-06",
+    "version": "2.0.0",
+    "changelog": [
+      "2.0.0 - 重构为基于真实LLM的实现，支持信息渐进式披露",
+      "1.0.0 - 初始版本，基于预定义框架"
+    ]
+  }
+}

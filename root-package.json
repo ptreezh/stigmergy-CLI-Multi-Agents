@@ -1,0 +1,36 @@
+{
+  "name": "stigmergy-monorepo-root",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root package for Stigmergy CLI monorepo",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap": "npm install && npm run install --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "install-all": "npm install && npm run install --workspaces --if-present"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "collaboration",
+    "multi-agents",
+    "nodejs-first",
+    "ansi-encoding",
+    "cross-cli",
+    "monorepo",
+    "stigmergy"
+  ],
+  "author": "Stigmergy CLI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "lerna": "^8.0.0"
+  }
+}

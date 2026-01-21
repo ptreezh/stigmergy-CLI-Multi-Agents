@@ -1,0 +1,171 @@
+{
+  "field_analysis_workflow": {
+    "version": "1.0.0",
+    "description": "场域分析工作流目录结构规范",
+    
+    "root_directory": "test_data/{project}/field_analysis/{analysis_type}",
+    
+    "directory_structure": {
+      "input": {
+        "description": "输入数据目录",
+        "structure": [
+          "raw/           # 原始数据",
+          "processed/     # 预处理后的数据"
+        ]
+      },
+      "intermediate": {
+        "description": "中间结果目录",
+        "structure": [
+          "01_boundary/   # 边界分析结果",
+          "02_capital/    # 资本分析结果",
+          "03_habitus/    # 习性分析结果",
+          "04_dynamics/   # 动力学分析结果"
+        ]
+      },
+      "output": {
+        "description": "最终输出目录",
+        "structure": [
+          "reports/       # HTML报告",
+          "json/          # JSON结果",
+          "summary/       # 摘要文件"
+        ]
+      },
+      "logs": {
+        "description": "日志目录",
+        "structure": [
+          "execution.log  # 执行日志",
+          "errors.log     # 错误日志"
+        ]
+      }
+    },
+    
+    "file_naming_convention": {
+      "input_files": {
+        "grounded_theory": "grounded_theory_data.json",
+        "social_network": "social_network_data.json",
+        "esoc_framework": "esoc_framework_data.json",
+        "combined_input": "combined_input.json"
+      },
+      "intermediate_files": {
+        "boundary_raw": "boundary_analysis_raw.json",
+        "boundary_visual": "boundary_visualization.json",
+        "capital_matrix": "capital_distribution_matrix.json",
+        "capital_conversion": "capital_conversion_paths.json",
+        "habitus_patterns": "habitus_patterns.json",
+        "symbolic_violence": "symbolic_violence_analysis.json",
+        "field_dynamics": "field_dynamics_analysis.json"
+      },
+      "output_files": {
+        "comprehensive_json": "comprehensive_analysis.json",
+        "field_report": "field_analysis_report.html",
+        "executive_summary": "executive_summary.txt",
+        "data_summary": "data_summary.json"
+      }
+    },
+    
+    "data_format": {
+      "input": {
+        "grounded_theory": {
+          "format": "JSON",
+          "structure": {
+            "propositions": "array of ESOC-R propositions",
+            "nodes": "array of actor nodes",
+            "relationships": "array of relationship edges"
+          }
+        },
+        "social_network": {
+          "format": "JSON",
+          "structure": {
+            "nodes": "array of {id, name, betweenness, degree}",
+            "edges": "array of {source, target, weight}",
+            "stages": "array of {stage, node_count, description}"
+          }
+        }
+      },
+      "intermediate": {
+        "boundary_analysis": {
+          "format": "JSON",
+          "structure": {
+            "fields": "array of identified fields",
+            "boundaries": "array of boundary definitions",
+            "gatekeepers": "array of gatekeeper actors",
+            "dynamics": "array of boundary changes over time"
+          }
+        },
+        "capital_analysis": {
+          "format": "JSON",
+          "structure": {
+            "capital_types": "object mapping types to measures",
+            "distribution": "object mapping actors to capital values",
+            "conversion_paths": "array of {from, to, mechanism}"
+          }
+        },
+        "habitus_analysis": {
+          "format": "JSON",
+          "structure": {
+            "actors": "array of {id, habitus_type, patterns}",
+            "symbolic_violence": "array of mechanisms",
+            "field_habitus_fit": "array of {actor, field, fit_score}"
+          }
+        }
+      },
+      "output": {
+        "comprehensive": {
+          "format": "JSON",
+          "structure": {
+            "summary": "executive summary",
+            "boundary_analysis": "full boundary results",
+            "capital_analysis": "full capital results",
+            "habitus_analysis": "full habitus results",
+            "recommendations": "array of recommendations"
+          }
+        }
+      }
+    },
+    
+    "workflow_steps": [
+      {
+        "step": 1,
+        "name": "数据准备",
+        "input": "input/raw/grounded_theory_data.json",
+        "output": "input/processed/combined_input.json",
+        "script": "01_prepare_data.py"
+      },
+      {
+        "step": 2,
+        "name": "边界分析",
+        "input": "input/processed/combined_input.json",
+        "output": "intermediate/01_boundary/boundary_results.json",
+        "script": "02_boundary_analysis.py"
+      },
+      {
+        "step": 3,
+        "name": "资本分析",
+        "input": "input/processed/combined_input.json",
+        "output": "intermediate/02_capital/capital_results.json",
+        "script": "03_capital_analysis.py"
+      },
+      {
+        "step": 4,
+        "name": "习性分析",
+        "input": "input/processed/combined_input.json",
+        "output": "intermediate/03_habitus/habitus_results.json",
+        "script": "04_habitus_analysis.py"
+      },
+      {
+        "step": 5,
+        "name": "动力学分析",
+        "input": "intermediate/*/*_results.json",
+        "output": "intermediate/04_dynamics/dynamics_results.json",
+        "script": "05_dynamics_analysis.py"
+      },
+      {
+        "step": 6,
+        "name": "生成报告",
+        "input": "intermediate/*/*_results.json",
+        "output": "output/reports/field_analysis_report.html",
+        "script": "06_generate_report.py"
+      }
+    ]
+  }
+}

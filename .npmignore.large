@@ -1,0 +1,5 @@
+# Add large directories to exclude
+sscisubagent-skills/
+test-projects/
+logs/
+*.tgz

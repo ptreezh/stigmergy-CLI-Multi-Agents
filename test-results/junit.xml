@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="17" failures="0" errors="0" time="123.298">
+  <testsuite name="CLIPathDetector" errors="0" failures="0" skipped="0" timestamp="2026-01-21T05:52:02" time="121.987" tests="17">
+    <testcase classname="CLIPathDetector › detectAllCLIPaths()" name="应该检测已安装的CLI工具" time="13.913">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectAllCLIPaths()" name="应该返回包含正确属性的CLI工具对象" time="14.669">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectAllCLIPaths()" name="应该正确识别已安装和未安装的CLI" time="14.845">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectAllCLIPaths()" name="应该扫描PATH环境变量中的路径" time="0.002">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectAllCLIPaths()" name="应该处理检测错误" time="14.97">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectCLIPath()" name="应该返回已安装CLI的路径" time="16.459">
+    </testcase>
+    <testcase classname="CLIPathDetector › detectCLIPath()" name="应该返回未安装CLI的null" time="1.521">
+    </testcase>
+    <testcase classname="CLIPathDetector › getDetectedPath()" name="应该返回已缓存的CLI路径" time="14.965">
+    </testcase>
+    <testcase classname="CLIPathDetector › getDetectedPath()" name="应该处理不存在的工具名称" time="0.002">
+    </testcase>
+    <testcase classname="CLIPathDetector › getPathStatusReport()" name="应该返回路径状态报告" time="0.002">
+    </testcase>
+    <testcase classname="CLIPathDetector › platform compatibility" name="should handle Windows paths correctly" time="0.002">
+    </testcase>
+    <testcase classname="CLIPathDetector › platform compatibility" name="should handle Unix paths correctly" time="0.002">
+    </testcase>
+    <testcase classname="CLIPathDetector › platform compatibility" name="should handle path delimiter differences" time="0.001">
+    </testcase>
+    <testcase classname="CLIPathDetector › error handling" name="should handle constructor correctly" time="0.001">
+    </testcase>
+    <testcase classname="CLIPathDetector › error handling" name="should handle method calls gracefully" time="14.875">
+    </testcase>
+    <testcase classname="CLIPathDetector › performance tests" name="detection time should be reasonable" time="5.677">
+    </testcase>
+    <testcase classname="CLIPathDetector › performance tests" name="should have consistent behavior across multiple calls" time="8.783">
+    </testcase>
+  </testsuite>
+</testsuites>

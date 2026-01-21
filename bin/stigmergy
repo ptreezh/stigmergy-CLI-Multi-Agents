@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const fs = require('fs');
+
+// Get the correct path to index.js
+const binDir = __dirname;
+const indexFile = path.resolve(binDir, '..', 'src', 'index.js');
+
+// Check if file exists
+if (!fs.existsSync(indexFile)) {
+  console.error(`Error: Cannot find index.js at ${indexFile}`);
+  process.exit(1);
+}
+
+// Load the module
+const stigmergy = require(indexFile);
+
+// Call the main function directly
+if (stigmergy.main) {
+  stigmergy.main().catch((error) => {
+    console.error('[FATAL] Unhandled error in Stigmergy CLI:', error);
+    process.exit(1);
+  });
+}

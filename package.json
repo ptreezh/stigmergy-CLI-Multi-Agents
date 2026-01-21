@@ -1,0 +1,98 @@
+{
+  "name": "stigmergy",
+  "version": "1.3.69-beta.0",
+  "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
+  "main": "src/index.js",
+  "bin": {
+    "stigmergy": "./bin/stigmergy"
+  },
+  "files": [
+    "bin/**",
+    "src/**",
+    "config/**",
+    "dist/orchestration/**",
+    "skills/resumesession/**",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run build:orchestration && npm run verify:package",
+    "start": "node src/index.js",
+    "build:orchestration": "tsc --project tsconfig.build.json",
+    "verify:package": "node scripts/verify-package-content.js",
+    "concurrent": "node src/index.js concurrent",
+    "interactive": "node src/index.js interactive",
+    "status": "node src/index.js status",
+    "scan": "node src/index.js scan",
+    "install": "node src/index.js install",
+    "init": "node src/index.js init",
+    "setup": "node src/index.js setup",
+    "call": "node src/index.js call",
+    "clean": "node cleanup.js",
+    "test": "node scripts/run-tests.js",
+    "test:unit": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e",
+    "test:automation": "jest tests/automation",
+    "test:functional": "jest tests/functional",
+    "test:all": "node scripts/run-tests.js all",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:report": "jest --coverage --coverageReporters=html",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write src/**/*.js"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "collaboration",
+    "multi-agents",
+    "nodejs-first",
+    "cross-cli",
+    "claude-cli",
+    "gemini-cli",
+    "qwen-cli",
+    "iflow-cli",
+    "real-testing",
+    "python-free"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^14.0.2",
+    "inquirer": "^13.1.0",
+    "js-yaml": "^4.1.1",
+    "semver": "^7.7.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.0.9",
+    "babel-jest": "^30.2.0",
+    "eslint": "^9.39.2",
+    "fs-extra": "^11.3.3",
+    "jest": "^30.2.0",
+    "jest-junit": "^16.0.0",
+    "prettier": "^3.7.4",
+    "rimraf": "^6.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
+  },
+  "author": "Stigmergy CLI Team",
+  "contributors": [
+    "Claude",
+    "Qwen",
+    "iFlow",
+    "QoderCLI",
+    "GLM4.5",
+    "Other AI Systems"
+  ],
+  "license": "MIT"
+}

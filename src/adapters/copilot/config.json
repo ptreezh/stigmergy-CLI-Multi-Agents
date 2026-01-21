@@ -1,0 +1,69 @@
+{
+  "name": "copilot",
+  "displayName": "GitHub Copilot CLI",
+  "version": "1.0.0",
+  "integration_type": "mcp_server",
+  "config_file": "~/.config/copilot/config.json",
+  "global_doc": "copilot.md",
+  "description": "GitHub Copilot CLI MCP Server Integration Adapter",
+  "mcp_config": {
+    "server_name": "stigmergy-copilot-integration",
+    "command": "python",
+    "args": ["src/adapters/copilot/mcp_server.py"],
+    "environment": {
+      "PYTHONPATH": ".",
+      "STIGMERGY_CONFIG_PATH": "~/.stigmergy",
+      "COPILOT_ADAPTER_MODE": "cross_cli"
+    },
+    "health_check_interval": 30,
+    "timeout": 60
+  },
+  "custom_agents": {
+    "cross_cli_caller": {
+      "name": "CrossCLICaller",
+      "description": "Cross-CLI Tool Calling Agent",
+      "version": "1.0.0",
+      "tools": ["cross_cli_execute", "get_available_clis", "check_cli_status"],
+      "permissions": ["execute_external_cli", "read_config", "write_logs"]
+    }
+  },
+  "supported_cli_tools": [
+    "claude",
+    "gemini",
+    "qwencode",
+    "iflow",
+    "qoder",
+    "codebuddy",
+    "codex"
+  ],
+  "permissions": {
+    "execute_external_cli": {
+      "description": "Execute external CLI tools",
+      "level": "high",
+      "requires_approval": false
+    },
+    "read_config": {
+      "description": "Read CLI config files",
+      "level": "medium",
+      "requires_approval": false
+    },
+    "write_logs": {
+      "description": "Write to log files",
+      "level": "low",
+      "requires_approval": false
+    }
+  },
+  "adapter": {
+    "name": "Copilot MCP Integration Adapter",
+    "version": "1.0.0",
+    "type": "mcp_server",
+    "module_path": "src.adapters.copilot.mcp_adapter",
+    "class_name": "CopilotMCPIntegrationAdapter",
+    "features": [
+      "cross_cli_detection",
+      "command_routing",
+      "result_formatting",
+      "collaboration_tracking"
+    ]
+  }
+}

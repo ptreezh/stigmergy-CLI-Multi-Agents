@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "description": "Predefined skill collections for easy installation",
+  "collections": {
+    "anthropics": {
+      "name": "Anthropic Official Skills",
+      "description": "Official skills from Anthropic for Claude and other AI tools",
+      "source": "anthropics/skills",
+      "category": "official",
+      "tags": ["official", "claude", "ai-tools"],
+      "recommended": true
+    },
+    "vercel": {
+      "name": "Vercel Agent Skills",
+      "description": "Agent skills from Vercel Labs for development workflows",
+      "source": "vercel-labs/agent-skills",
+      "category": "agent-tools",
+      "tags": ["agent", "development", "workflow"],
+      "recommended": true
+    },
+    "productivity": {
+      "name": "Productivity Skills",
+      "description": "Skills for productivity and workflow automation",
+      "source": "anthropics/skills",
+      "category": "productivity",
+      "tags": ["productivity", "automation", "workflow"],
+      "subset": ["calendar", "email", "todo", "search"],
+      "recommended": true
+    },
+    "coding": {
+      "name": "Coding Skills",
+      "description": "Skills for coding and development tasks",
+      "source": "anthropics/skills",
+      "category": "development",
+      "tags": ["coding", "development", "programming"],
+      "subset": ["code-executor", "search", "terminal", "git"],
+      "recommended": true
+    },
+    "research": {
+      "name": "Research Skills",
+      "description": "Skills for research and analysis tasks",
+      "source": "anthropics/skills",
+      "category": "research",
+      "tags": ["research", "analysis", "data"],
+      "subset": ["search", "pdf", "web-scraping", "document-analyzer"],
+      "recommended": true
+    },
+    "academic": {
+      "name": "Academic Skills",
+      "description": "Skills for academic research and writing",
+      "source": "anthropics/skills",
+      "category": "research",
+      "tags": ["academic", "writing", "citation"],
+      "subset": ["pdf", "search", "document-analyzer", "reference-manager"],
+      "recommended": false
+    },
+    "social-sciences": {
+      "name": "Social Sciences Skills",
+      "description": "Skills for social science research",
+      "source": "anthropics/skills",
+      "category": "research",
+      "tags": ["social-sciences", "research", "analysis"],
+      "subset": ["document-analyzer", "data-analyzer", "search"],
+      "recommended": false
+    },
+    "business": {
+      "name": "Business Skills",
+      "description": "Skills for business analysis and reporting",
+      "source": "anthropics/skills",
+      "category": "business",
+      "tags": ["business", "analysis", "reporting"],
+      "subset": ["data-analyzer", "document-analyzer", "search"],
+      "recommended": false
+    },
+    "creative": {
+      "name": "Creative Skills",
+      "description": "Skills for creative tasks and content generation",
+      "source": "anthropics/skills",
+      "category": "creative",
+      "tags": ["creative", "content", "design"],
+      "subset": ["image-generator", "document-analyzer", "search"],
+      "recommended": false
+    },
+    "stigmergy-basics": {
+      "name": "Stigmergy Basic Skills",
+      "description": "Basic skills for cross-CLI collaboration",
+      "source": "ptreezh/stigmergy-skills",
+      "category": "builtin",
+      "tags": ["stigmergy", "collaboration", "cross-cli"],
+      "recommended": true
+    }
+  },
+  "metadata": {
+    "lastUpdated": "2026-01-19",
+    "totalCollections": 10,
+    "recommendedCount": 6
+  }
+}

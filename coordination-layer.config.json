@@ -1,0 +1,52 @@
+{
+  "name": "coordination-layer",
+  "version": "1.0.0",
+  "description": "Dual coordination layer system for cross-CLI collaboration",
+  "main": "src/core/coordination/index.js",
+  "scripts": {
+    "test": "node run-all-tests.js",
+    "test:unit": "npx jest tests/unit --verbose",
+    "test:integration": "npx jest tests/integration --verbose",
+    "test:performance": "npx jest tests/performance --verbose",
+    "verify": "node module-load-verify.js",
+    "start": "node src/core/coordination/index.js"
+  },
+  "dependencies": {
+    "events": "^1.1.1",
+    "child_process": "^1.0.2",
+    "os": "^0.1.2"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "config": {
+    "coordination": {
+      "enablePython": true,
+      "enableFallback": true,
+      "enableCaching": true,
+      "cacheTTL": 60000,
+      "detectionTimeout": 5000,
+      "fallbackTimeout": 30000,
+      "maxDegradationLevel": 3,
+      "autoRecovery": true,
+      "recoveryInterval": 60000
+    },
+    "logging": {
+      "enableConsole": true,
+      "enableFileLogging": false,
+      "logLevel": "INFO",
+      "logPath": "./logs",
+      "enableMetrics": true,
+      "enableDashboard": false
+    },
+    "performance": {
+      "enableCpuMonitoring": true,
+      "enableMemoryMonitoring": true,
+      "sampleInterval": 1000,
+      "maxSamples": 1000
+    }
+  }
+}
