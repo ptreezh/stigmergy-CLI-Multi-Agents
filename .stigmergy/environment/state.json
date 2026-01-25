@@ -1,0 +1,224 @@
+{
+  "sessionId": "05b202f8df159c74f72595d15d6052f5",
+  "startTime": 1769270917621,
+  "cliAgents": [
+    [
+      "test-cli-1",
+      {
+        "name": "test-cli-1",
+        "registeredAt": 1769270954002,
+        "capabilities": [
+          "code",
+          "analysis"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "test-cli-2",
+      {
+        "name": "test-cli-2",
+        "registeredAt": 1769270954004,
+        "capabilities": [
+          "documentation",
+          "writing"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "qwen",
+      {
+        "name": "qwen",
+        "registeredAt": 1769270954038,
+        "capabilities": [
+          "code",
+          "chinese",
+          "analysis",
+          "documentation"
+        ],
+        "status": "active",
+        "tasksCompleted": 1
+      }
+    ],
+    [
+      "iflow",
+      {
+        "name": "iflow",
+        "registeredAt": 1769270954039,
+        "capabilities": [
+          "code",
+          "analysis",
+          "interactive"
+        ],
+        "status": "active",
+        "tasksCompleted": 1
+      }
+    ],
+    [
+      "claude",
+      {
+        "name": "claude",
+        "registeredAt": 1769270954041,
+        "capabilities": [
+          "analysis",
+          "documentation",
+          "reasoning",
+          "complex"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "gemini",
+      {
+        "name": "gemini",
+        "registeredAt": 1769270954042,
+        "capabilities": [
+          "multilingual",
+          "creative",
+          "writing",
+          "design"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "codebuddy",
+      {
+        "name": "codebuddy",
+        "registeredAt": 1769270954044,
+        "capabilities": [
+          "completion",
+          "refactoring",
+          "optimization",
+          "quality"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "codex",
+      {
+        "name": "codex",
+        "registeredAt": 1769270954045,
+        "capabilities": [
+          "debugging",
+          "bug-fixing",
+          "error-handling"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "copilot",
+      {
+        "name": "copilot",
+        "registeredAt": 1769270954046,
+        "capabilities": [
+          "best-practices",
+          "suggestions",
+          "patterns",
+          "architecture"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ],
+    [
+      "qodercli",
+      {
+        "name": "qodercli",
+        "registeredAt": 1769270954048,
+        "capabilities": [
+          "code",
+          "general"
+        ],
+        "status": "active",
+        "tasksCompleted": 0
+      }
+    ]
+  ],
+  "fileModifications": [],
+  "taskAssignments": [
+    {
+      "taskId": "task_1769270954050",
+      "cliName": "qwen",
+      "assignedAt": 1769270954051,
+      "status": "completed",
+      "taskDetails": {
+        "task": "用一句话说明什么是递归",
+        "retry": 0
+      },
+      "completedAt": 1769270968146,
+      "result": {
+        "cli": "qwen",
+        "success": true,
+        "output": "递归是一种函数调用自身来解决问题的编程技术，通过将复杂问题分解为相同类型的更小子问题来实现。\n",
+        "executionTime": 14093
+      }
+    },
+    {
+      "taskId": "task_1769270954050",
+      "cliName": "iflow",
+      "assignedAt": 1769270954084,
+      "status": "completed",
+      "taskDetails": {
+        "task": "用一句话说明什么是递归",
+        "retry": 0
+      },
+      "completedAt": 1769270971308,
+      "result": {
+        "cli": "iflow",
+        "success": true,
+        "output": "递归是指一个函数直接或间接地调用自身来解决问题的方法。\n",
+        "executionTime": 17221
+      }
+    }
+  ],
+  "resultsCache": [
+    [
+      "task_1769270954050:qwen",
+      {
+        "taskId": "task_1769270954050",
+        "cliName": "qwen",
+        "result": {
+          "cli": "qwen",
+          "success": true,
+          "output": "递归是一种函数调用自身来解决问题的编程技术，通过将复杂问题分解为相同类型的更小子问题来实现。\n",
+          "executionTime": 14093
+        },
+        "timestamp": 1769270971310,
+        "sessionId": "05b202f8df159c74f72595d15d6052f5"
+      }
+    ],
+    [
+      "task_1769270954050:iflow",
+      {
+        "taskId": "task_1769270954050",
+        "cliName": "iflow",
+        "result": {
+          "cli": "iflow",
+          "success": true,
+          "output": "递归是指一个函数直接或间接地调用自身来解决问题的方法。\n",
+          "executionTime": 17221
+        },
+        "timestamp": 1769270971311,
+        "sessionId": "05b202f8df159c74f72595d15d6052f5"
+      }
+    ]
+  ],
+  "conflicts": [],
+  "metrics": {
+    "totalTasks": 2,
+    "completedTasks": 2,
+    "conflictsDetected": 0,
+    "collaborations": 5
+  }
+}

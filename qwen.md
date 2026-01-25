@@ -147,7 +147,97 @@ Base directory will be provided for resolving bundled resources.
 <location>claude</location>
 </skill>
 
-</available_skills>
+
+<skill>
+<name>alienation-analysis</name>
+<description>Test skill from local deployment test</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>brainstorming</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>dispatching-parallel-agents</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>executing-plans</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>finishing-a-development-branch</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>grounded-theory</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>planning-with-files</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>pptx</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>receiving-code-review</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>requesting-code-review</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>subagent-driven-development</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>systematic-debugging</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>test-driven-development</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>using-git-worktrees</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>using-superpowers</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>verification-before-completion</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>writing-plans</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill>
+<skill>
+<name>writing-skills</name>
+<description>Skill deployed from Stigmergy CLI coordination layer</description>
+<location>stigmergy</location>
+</skill></available_skills>
 
 </skills_system>
 <!-- SKILLS_END -->

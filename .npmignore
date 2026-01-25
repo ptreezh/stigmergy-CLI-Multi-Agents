@@ -23,8 +23,7 @@ tsconfig*.json
 *.map
 *.ts.map
 
-# Scripts
-scripts/
+# Keep scripts/ directory for postinstall
 cleanup.js
 postuninstall.js
 preuninstall.js

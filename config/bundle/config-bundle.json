@@ -1,0 +1,33 @@
+{
+  "sourceCLI": "iflow",
+  "targetCLIs": [
+    "iflow",
+    "codebuddy",
+    "qwen",
+    "claude",
+    "qodercli"
+  ],
+  "generatedAt": "2026-01-25T03:58:44.635Z",
+  "platform": "win32",
+  "summary": {
+    "totalItems": 1
+  },
+  "configs": {
+    "iflow": {
+      "agents": {
+        "items": []
+      },
+      "skills": {
+        "items": [
+          {
+            "path": "skills/test-unified-skill/skill.md",
+            "content": "# Test Skill\n\nThis is a test skill."
+          }
+        ]
+      },
+      "markdown": {
+        "exists": false
+      }
+    }
+  }
+}

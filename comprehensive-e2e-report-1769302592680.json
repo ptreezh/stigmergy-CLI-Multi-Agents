@@ -1,0 +1,259 @@
+{
+  "timestamp": "2026-01-25T00:56:32.680Z",
+  "summary": {
+    "total": 38,
+    "passed": 28,
+    "failed": 10,
+    "skipped": 0
+  },
+  "availableCLIs": [
+    "claude",
+    "qwen",
+    "gemini",
+    "iflow",
+    "qodercli",
+    "codebuddy",
+    "copilot",
+    "codex"
+  ],
+  "results": [
+    {
+      "name": "Clean npm cache",
+      "status": "passed",
+      "duration": 2032,
+      "category": "Environment Prep"
+    },
+    {
+      "name": "Clean project cache",
+      "status": "passed",
+      "duration": 1695,
+      "category": "Environment Prep"
+    },
+    {
+      "name": "Clean temporary files",
+      "status": "passed",
+      "duration": 5,
+      "category": "Environment Prep"
+    },
+    {
+      "name": "stigmergy --version",
+      "status": "failed",
+      "duration": 1826,
+      "error": "Command failed: node bin/stigmergy --version\n[FATAL] Global Uncaught Exception: Error: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\iconv-lite\\\\lib\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\@inquirer\\\\external-editor\\\\dist\\\\commonjs\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\prompts\\\\editor.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\inquirer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\core\\\\installer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\commands\\\\install.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\router-beta.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\index.js'\n  ]\n}\n[2026-01-25T00:56:03.357Z] [ERROR] [UNKNOWN_ERROR] Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n[CONTEXT] global_uncaughtException\nError: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)\n",
+      "category": "Core Commands"
+    },
+    {
+      "name": "stigmergy --help",
+      "status": "failed",
+      "duration": 1539,
+      "error": "Command failed: node bin/stigmergy --help\n[FATAL] Global Uncaught Exception: Error: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\iconv-lite\\\\lib\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\@inquirer\\\\external-editor\\\\dist\\\\commonjs\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\prompts\\\\editor.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\inquirer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\core\\\\installer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\commands\\\\install.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\router-beta.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\index.js'\n  ]\n}\n[2026-01-25T00:56:04.890Z] [ERROR] [UNKNOWN_ERROR] Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n[CONTEXT] global_uncaughtException\nError: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)\n",
+      "category": "Core Commands"
+    },
+    {
+      "name": "stigmergy diagnostic",
+      "status": "failed",
+      "duration": 1751,
+      "error": "Command failed: node bin/stigmergy d",
+      "category": "Core Commands"
+    },
+    {
+      "name": "stigmergy status",
+      "status": "failed",
+      "duration": 1542,
+      "error": "Command failed: node bin/stigmergy status",
+      "category": "Core Commands"
+    },
+    {
+      "name": "skill list (full command)",
+      "status": "failed",
+      "duration": 1644,
+      "error": "Command failed: node bin/stigmergy skill list",
+      "category": "Skill Commands"
+    },
+    {
+      "name": "skill-l (short command)",
+      "status": "failed",
+      "duration": 1637,
+      "error": "Command failed: node bin/stigmergy skill-l",
+      "category": "Skill Commands"
+    },
+    {
+      "name": "skill sync (full command)",
+      "status": "failed",
+      "duration": 1510,
+      "error": "Command failed: node bin/stigmergy skill sync",
+      "category": "Skill Commands"
+    },
+    {
+      "name": "skill (short command - default sync)",
+      "status": "failed",
+      "duration": 1569,
+      "error": "Command failed: node bin/stigmergy skill",
+      "category": "Skill Commands"
+    },
+    {
+      "name": "skill-r (read skill)",
+      "status": "failed",
+      "duration": 1538,
+      "error": "Command failed: node bin/stigmergy skill-l\n[FATAL] Global Uncaught Exception: Error: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\iconv-lite\\\\lib\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\@inquirer\\\\external-editor\\\\dist\\\\commonjs\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\prompts\\\\editor.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\inquirer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\core\\\\installer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\commands\\\\install.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\router-beta.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\index.js'\n  ]\n}\n[2026-01-25T00:56:16.096Z] [ERROR] [UNKNOWN_ERROR] Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n[CONTEXT] global_uncaughtException\nError: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)\n",
+      "category": "Skill Commands"
+    },
+    {
+      "name": "skill-v (validate skill)",
+      "status": "passed",
+      "duration": 1574,
+      "category": "Skill Commands"
+    },
+    {
+      "name": "Verify AGENTS.md sync",
+      "status": "passed",
+      "duration": 6,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify claude.md sync",
+      "status": "passed",
+      "duration": 1,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify qwen.md sync",
+      "status": "passed",
+      "duration": 2,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify gemini.md sync",
+      "status": "passed",
+      "duration": 2,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify iflow.md sync",
+      "status": "passed",
+      "duration": 1,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify qodercli.md sync",
+      "status": "passed",
+      "duration": 2,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify codebuddy.md sync",
+      "status": "passed",
+      "duration": 2,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify copilot.md sync",
+      "status": "passed",
+      "duration": 1,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Verify codex.md sync",
+      "status": "passed",
+      "duration": 3,
+      "category": "Config Sync"
+    },
+    {
+      "name": "Check claude CLI",
+      "status": "passed",
+      "duration": 274,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check qwen CLI",
+      "status": "passed",
+      "duration": 236,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check gemini CLI",
+      "status": "passed",
+      "duration": 238,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check iflow CLI",
+      "status": "passed",
+      "duration": 238,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check qodercli CLI",
+      "status": "passed",
+      "duration": 257,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check codebuddy CLI",
+      "status": "passed",
+      "duration": 254,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check copilot CLI",
+      "status": "passed",
+      "duration": 227,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Check codex CLI",
+      "status": "passed",
+      "duration": 237,
+      "category": "CLI Availability"
+    },
+    {
+      "name": "Cross-call claude",
+      "status": "passed",
+      "duration": 1984,
+      "category": "CLI Cross-Call"
+    },
+    {
+      "name": "Cross-call qwen",
+      "status": "passed",
+      "duration": 2265,
+      "category": "CLI Cross-Call"
+    },
+    {
+      "name": "Cross-call gemini",
+      "status": "passed",
+      "duration": 2254,
+      "category": "CLI Cross-Call"
+    },
+    {
+      "name": "Read skill from local",
+      "status": "failed",
+      "duration": 2110,
+      "error": "Command failed: node bin/stigmergy skill-l\n[FATAL] Global Uncaught Exception: Error: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\iconv-lite\\\\lib\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\@inquirer\\\\external-editor\\\\dist\\\\commonjs\\\\index.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\prompts\\\\editor.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\node_modules\\\\inquirer\\\\lib\\\\inquirer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\core\\\\installer.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\commands\\\\install.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\cli\\\\router-beta.js',\n    'D:\\\\stigmergy-CLI-Multi-Agents\\\\src\\\\index.js'\n  ]\n}\n[2026-01-25T00:56:28.257Z] [ERROR] [UNKNOWN_ERROR] Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n[CONTEXT] global_uncaughtException\nError: Cannot find module './extend-node'\nRequire stack:\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\@inquirer\\external-editor\\dist\\commonjs\\index.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\prompts\\editor.js\n- D:\\stigmergy-CLI-Multi-Agents\\node_modules\\inquirer\\lib\\inquirer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\core\\installer.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\install.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\router-beta.js\n- D:\\stigmergy-CLI-Multi-Agents\\src\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (D:\\stigmergy-CLI-Multi-Agents\\node_modules\\iconv-lite\\lib\\index.js:148:5)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)\n",
+      "category": "Skill Usage"
+    },
+    {
+      "name": "Skill install test (simulated)",
+      "status": "passed",
+      "duration": 2178,
+      "category": "Skill Usage"
+    },
+    {
+      "name": "SkillParser unit test",
+      "status": "passed",
+      "duration": 428,
+      "category": "Unit Tests"
+    },
+    {
+      "name": "Integration test",
+      "status": "passed",
+      "duration": 808,
+      "category": "Integration Tests"
+    },
+    {
+      "name": "Sync functionality test",
+      "status": "passed",
+      "duration": 844,
+      "category": "Integration Tests"
+    }
+  ]
+}
