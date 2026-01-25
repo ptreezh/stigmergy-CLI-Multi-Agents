@@ -231,10 +231,11 @@ class ConfigDeployer {
 
   /**
    * 获取CLI的.md文档路径
+   * 返回用户全局配置目录中的 .md 文档
    */
   getCLIDocPath(cliName) {
-    // CLI的.md文档在项目根目录
-    return path.join(process.cwd(), `${cliName}.md`);
+    // CLI的.md文档在用户全局配置目录: ~/.cli-name/cli-name.md
+    return path.join(os.homedir(), `.${cliName}`, `${cliName}.md`);
   }
 
   /**
