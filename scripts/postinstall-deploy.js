@@ -52,6 +52,7 @@ async function postInstallDeploy() {
     // 创建 deployer 实例
     const deployer = new ConfigDeployer({
       packageDir: bundleDir,
+      force: true,  // 强制覆盖，确保首次安装时正确部署
       verbose: false,  // 静默模式，不干扰安装
       dryRun: false
     });
