@@ -254,6 +254,7 @@ class ConfigDeployer {
 
   /**
    * 在.md文档中注册skill
+   * 如果 skills section 不存在，会自动创建
    */
   async registerSkillsInCLIDoc(cliName, skillNames) {
     console.log(chalk.blue(`\n  Registering ${skillNames.length} skill(s) in ${cliName}.md...`));
@@ -273,6 +274,48 @@ class ConfigDeployer {
 
     let updatedContent = content;
 
+    // 检查是否存在 skills section
+    const hasSkillsSection = updatedContent.includes('</available_skills>');
+
+    // 如果不存在，创建完整的 skills section
+    if (!hasSkillsSection) {
+      console.log(chalk.yellow(`  No skills section found, creating one...`));
+
+      const skillsSectionTemplate = `
+
+<!-- SKILLS_START -->
+<skills_system priority="1">
+
+## Stigmergy Skills
+
+<usage>
+Load skills using Stigmergy skill manager:
+
+Direct call (current CLI):
+  Bash("stigmergy skill read <skill-name>")
+
+Cross-CLI call (specify CLI):
+  Bash("stigmergy use <cli-name> skill <skill-name>")
+
+Smart routing (auto-select best CLI):
+  Bash("stigmergy call skill <skill-name>")
+
+The skill content will load with detailed instructions.
+Base directory will be provided for resolving bundled resources.
+</usage>
+
+<available_skills>
+
+</available_skills>
+
+</skills_system>
+<!-- SKILLS_END -->`;
+
+      // 在文件末尾添加
+      updatedContent = updatedContent.trimEnd() + skillsSectionTemplate;
+    }
+
+    // 现在注册每个 skill
     for (const skillName of skillNames) {
       // 检查是否已经注册
       if (updatedContent.includes(`<name>${skillName}</name>`)) {
@@ -303,13 +346,20 @@ class ConfigDeployer {
     }
 
     // 写入更新后的内容
-    if (results.successCount > 0) {
+    if (results.successCount > 0 || !hasSkillsSection) {
       if (this.dryRun) {
         console.log(chalk.gray(`  [DRY RUN] Would update ${docPath}`));
       } else {
         try {
           await fs.writeFile(docPath, updatedContent, 'utf8');
-          console.log(chalk.green(`  ✓ Updated ${cliName}.md (${results.successCount} skill(s) registered)`));
+
+          if (!hasSkillsSection) {
+            console.log(chalk.green(`  ✓ Created skills section in ${cliName}.md`));
+          }
+
+          if (results.successCount > 0) {
+            console.log(chalk.green(`  ✓ Updated ${cliName}.md (${results.successCount} skill(s) registered)`));
+          }
         } catch (error) {
           console.error(chalk.red(`  [ERROR] Failed to write ${docPath}: ${error.message}`));
           results.successCount = 0;
