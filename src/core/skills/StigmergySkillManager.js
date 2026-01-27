@@ -224,6 +224,15 @@ export class StigmergySkillManager {
         // Define CLI skill directories
         const cliSkillDirs = [
             { name: 'Claude', path: path.join(os.homedir(), '.claude', 'skills') },
+            { name: 'CodeBuddy', path: path.join(os.homedir(), '.codebuddy', 'skills') },
+            { name: 'Gemini', path: path.join(os.homedir(), '.config', 'gemini', 'skills') },
+            { name: 'Qwen', path: path.join(os.homedir(), '.qwen', 'skills') },
+            { name: 'iFlow', path: path.join(os.homedir(), '.iflow', 'skills') },
+            { name: 'QoderCLI', path: path.join(os.homedir(), '.qoder', 'skills') },
+            { name: 'Copilot', path: path.join(os.homedir(), '.copilot', 'skills') },
+            { name: 'Codex', path: path.join(os.homedir(), '.config', 'codex', 'skills') },
+            { name: 'Kode', path: path.join(os.homedir(), '.kode', 'skills') },
+            { name: 'OpenCode', path: path.join(os.homedir(), '.opencode', 'skills') },
             { name: 'Universal', path: path.join(process.cwd(), '.agent', 'skills') },
             { name: 'Universal (global)', path: path.join(os.homedir(), '.agent', 'skills') }
         ];
@@ -289,9 +298,55 @@ export class StigmergySkillManager {
             if (entry.isDirectory()) {
                 await this.copyDirectoryRecursive(srcPath, destPath);
             } else {
-                await fsPromises.copyFile(srcPath, destPath);
+                // Check if this is a text file that might contain path variables
+                const isTextFile = this.isTextFile(entry.name);
+                
+                if (isTextFile) {
+                    // Read the file content and replace path variables
+                    let content = await fsPromises.readFile(srcPath, 'utf-8');
+                    content = this.replacePathVariables(content);
+                    await fsPromises.writeFile(destPath, content, 'utf-8');
+                } else {
+                    // Copy binary files as-is
+                    await fsPromises.copyFile(srcPath, destPath);
+                }
             }
         }
+    }
+    
+    /**
+     * Check if a file is a text file that might contain path variables
+     * @private
+     * @param {string} filename - Filename to check
+     * @returns {boolean} - True if the file is a text file
+     */
+    isTextFile(filename) {
+        const textExtensions = ['.js', '.json', '.md', '.txt', '.yaml', '.yml', '.xml', '.html', '.css', '.py', '.skill', '.skil'];
+        const ext = path.extname(filename).toLowerCase();
+        return textExtensions.includes(ext) || filename.toLowerCase().includes('skill') || filename.toLowerCase().endsWith('md');
+    }
+    
+    /**
+     * Replace path variables in content
+     * @private
+     * @param {string} content - Content to process
+     * @returns {string} - Processed content with path variables replaced
+     */
+    replacePathVariables(content) {
+        // Replace $USERPROFILE with actual user profile path on Windows
+        // and environment variables on other platforms
+        const userProfile = os.homedir();
+        
+        // Replace $USERPROFILE on all platforms (Windows-style)
+        content = content.replace(/\$USERPROFILE/g, userProfile);
+        
+        // Also replace %USERPROFILE% on Windows-style
+        content = content.replace(/%USERPROFILE%/g, userProfile);
+        
+        // Replace ~ with user home directory
+        content = content.replace(/~(?=\/|\\|$)/g, userProfile);
+        
+        return content;
     }
     
     /**

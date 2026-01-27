@@ -4,10 +4,20 @@
  */
 
 const readline = require('readline');
+const path = require('path');
 const { EventEmitter } = require('events');
 // 🔒 使用带文件锁保护的编排器
 const { CentralOrchestrator } = require('../../dist/orchestration/core/CentralOrchestrator');
 const CLIPathDetector = require('../core/cli_path_detector');
+const { CLI_ADAPTERS } = require('../core/cli_adapters');
+// 🔥 新增：持久进程池
+const { PersistentCLIPool } = require('./PersistentCLIPool');
+// 🔥 新增：项目全局状态看板
+const { ProjectStatusBoard } = require('../core/ProjectStatusBoard');
+
+function getCLIAdapter(cliName) {
+  return CLI_ADAPTERS[cliName];
+}
 
 class InteractiveModeController extends EventEmitter {
   constructor(options = {}) {
@@ -41,6 +51,26 @@ class InteractiveModeController extends EventEmitter {
     // CLI registry for concurrent execution (will be updated by scanning)
     this.cliRegistry = {};
 
+    // 🔥 新增：跨 CLI 上下文管理
+    this.cliContexts = {}; // { qwen: [{role, content, timestamp}], iflow: [...], ... }
+    this.sharedContext = {
+      sessionId: this._generateSessionId(),
+      startTime: Date.now(),
+      projectContext: {},
+      taskHistory: [],
+      crossCLIRefs: []
+    };
+
+    // 🔥 新增：持久进程池（实现真正的持续交互）
+    this.cliPool = new PersistentCLIPool({
+      autoRestart: true,
+      healthCheckInterval: 30000,
+      maxIdleTime: 300000 // 5 分钟无活动后关闭
+    });
+
+    // 🔥 新增：项目全局状态看板（实现跨会话间接协同）
+    this.statusBoard = new ProjectStatusBoard();
+
     // Initialize components
     this.commandParser = new CommandParser();
     this.sessionManager = new SessionManager(this.options);
@@ -65,6 +95,13 @@ class InteractiveModeController extends EventEmitter {
     }
 
     this.isActive = true;
+
+    // 🔥 初始化项目状态看板
+    await this.statusBoard.initialize({
+      name: path.basename(process.cwd()),
+      sessionId: this.sharedContext.sessionId,
+      phase: 'active'
+    });
 
     // Scan for installed CLI tools
     await this._scanInstalledCLITools();
@@ -93,29 +130,33 @@ class InteractiveModeController extends EventEmitter {
     if (!this.isActive) {
       return;
     }
-    
+
     this.isActive = false;
-    
+
     // Close readline interface
     if (this.readlineInterface) {
       this.readlineInterface.close();
       this.readlineInterface = null;
     }
-    
+
     // Stop auto-save
     if (this.saveIntervalId) {
       clearInterval(this.saveIntervalId);
       this.saveIntervalId = null;
     }
-    
+
+    // 🔥 新增：关闭所有持久 CLI 进程
+    console.log('\n[POOL] Shutting down persistent CLI processes...');
+    await this.cliPool.shutdownAll();
+
     // Save session
     if (this.options.autoSave) {
       await this.sessionManager.saveSession();
     }
-    
+
     // Display goodbye message
     this._displayGoodbye();
-    
+
     this.emit('stopped');
   }
   
@@ -147,6 +188,12 @@ class InteractiveModeController extends EventEmitter {
           break;
         case 'status':
           result = await this._executeStatus();
+          break;
+        case 'context':  // 🔥 新增：查看上下文状态
+          result = await this._executeContextStatus();
+          break;
+        case 'clear':  // 🔥 新增：清除上下文
+          result = await this._executeClearContext(command);
           break;
         case 'delegate':
           result = await this._executeDelegate(command);
@@ -221,18 +268,22 @@ class InteractiveModeController extends EventEmitter {
     console.log('Welcome to Stigmergy Interactive Mode!');
     console.log('');
     console.log(`Current CLI: ${this.currentCLI}`);
+    console.log(`Session ID: ${this.sharedContext.sessionId}`);
     console.log('');
     console.log('Available CLI Tools:');
     console.log(`  ${availableCLIs || 'No CLI tools detected'}`);
     console.log('');
     console.log('Available commands:');
-    console.log('  <your message>       - Send message to current CLI');
+    console.log('  <your message>       - Send message to current CLI (with context)');
     console.log('  use <cli>            - Switch to specific CLI (e.g., use iflow)');
     console.log('  ask <cli> <message>  - Ask specific CLI (e.g., ask qwen hello)');
     console.log('  route <message>      - Smart routing to best CLI (e.g., route analyze this code)');
     console.log('  r <message>          - Shortcut for route (e.g., r analyze this code)');
     console.log('  parallel <message>   - Execute with multiple CLIs concurrently');
     console.log('  concurrent <message> - Same as parallel');
+    console.log('  status              - Show project status board (tasks, findings, decisions)');
+    console.log('  context / ctx        - Show cross-CLI context status');
+    console.log('  clear [cli]          - Clear context (specific CLI or all)');
     console.log('  resume [cli] [limit] - Resume session from CLI history');
     console.log('  skill <cmd> [args]   - Skills management (install/list/read/validate/remove)');
     console.log('  skill-i <source>     - Install a skill');
@@ -241,8 +292,18 @@ class InteractiveModeController extends EventEmitter {
     console.log('  skill-v <path/name>  - Validate/read a skill');
     console.log('  skill-d <name>       - Remove a skill');
     console.log('  help                - Show this help');
-    console.log('  status              - Show status');
     console.log('  exit                - Exit interactive mode');
+    console.log('');
+    console.log('📊 Status Board Features:');
+    console.log('  - Project status board: .stigmergy/status/PROJECT_STATUS.md');
+    console.log('  - Cross-session collaboration through shared state');
+    console.log('  - Automatic context injection into each task');
+    console.log('  - Each project directory has independent status board');
+    console.log('');
+    console.log('🔥 Context Features:');
+    console.log('  - Conversation history is maintained per CLI');
+    console.log('  - Context is automatically injected into each task');
+    console.log('  - Switch CLIs seamlessly without losing context');
     console.log('');
     console.log('Type your message or "exit" to quit.');
     console.log('========================================');
@@ -491,6 +552,86 @@ class InteractiveModeController extends EventEmitter {
   }
   
   /**
+   * 🔥 新增：管理 CLI 上下文 - 添加消息
+   */
+  _addToCLIContext(cliName, role, content) {
+    if (!this.cliContexts[cliName]) {
+      this.cliContexts[cliName] = [];
+    }
+
+    this.cliContexts[cliName].push({
+      role,
+      content,
+      timestamp: Date.now()
+    });
+
+    // 限制历史记录数量（最多保留 20 条）
+    if (this.cliContexts[cliName].length > 20) {
+      this.cliContexts[cliName] = this.cliContexts[cliName].slice(-20);
+    }
+
+    // 添加到共享上下文
+    this.sharedContext.taskHistory.push({
+      cli: cliName,
+      role,
+      content: content.substring(0, 200), // 摘要
+      timestamp: Date.now()
+    });
+  }
+
+  /**
+   * 🔥 新增：获取 CLI 的上下文历史
+   */
+  _getCLIContext(cliName, maxItems = 5) {
+    const context = this.cliContexts[cliName] || [];
+    return context.slice(-maxItems);
+  }
+
+  /**
+   * 🔥 新增：构建包含上下文的增强任务（优先使用状态看板）
+   */
+  async _buildContextualTask(cliName, task) {
+    // 🔥 优先使用项目状态看板的上下文（跨会话持久化）
+    const statusContext = await this.statusBoard.getContextSummary({
+      maxHistory: 10,
+      includeFindings: true,
+      includeDecisions: true
+    });
+
+    // 获取本地 CLI 上下文（最近 3 条对话）
+    const localContext = this._getCLIContext(cliName, 3);
+
+    // 构建完整的上下文
+    let fullContext = '';
+
+    // 1. 项目全局上下文（来自状态看板）
+    if (statusContext && statusContext.trim().length > 0) {
+      fullContext += `# Project Status Board (Cross-Session Context):\n${statusContext}\n\n`;
+    }
+
+    // 2. 本地 CLI 上下文（最近对话）
+    if (localContext.length > 0) {
+      const localContextStr = localContext
+        .map(msg => `[${msg.role}]: ${msg.content}`)
+        .join('\n');
+
+      fullContext += `# Recent Conversation (${cliName}):\n${localContextStr}\n\n`;
+    }
+
+    // 如果没有上下文，直接返回原任务
+    if (!fullContext.trim()) {
+      return task;
+    }
+
+    // 返回增强的任务
+    return `
+${fullContext}
+# Current Task (${cliName}):
+${task}
+    `.trim();
+  }
+
+  /**
    * Select the best CLI for a given task
    */
   _selectBestCLI(task) {
@@ -573,148 +714,176 @@ class InteractiveModeController extends EventEmitter {
     // 如果没有匹配，返回默认 CLI
     return 'qwen';
   }
-  
+
+  /**
+   * Execute task using one-shot mode (spawn new process)
+   * 🔥 用于 qwen 等不支持持久 stdin 的 CLI
+   * @private
+   */
+  async _executeOneShot(cliName, task) {
+    const { spawn } = require('child_process');
+    const adapter = getCLIAdapter(cliName);
+
+    return new Promise((resolve, reject) => {
+      const args = adapter.interactive ? adapter.interactive(task) : [task];
+      const proc = spawn(cliName, args, {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true
+      });
+
+      let stdout = '';
+      let stderr = '';
+      const startTime = Date.now();
+      let timeoutHandle;
+
+      // Set timeout based on CLI (qwen needs 20s, others 30s)
+      const timeout = cliName === 'qwen' ? 20000 : 30000;
+
+      timeoutHandle = setTimeout(() => {
+        proc.kill();
+      }, timeout);
+
+      proc.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      proc.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      proc.on('close', (code) => {
+        clearTimeout(timeoutHandle);
+        const executionTime = Date.now() - startTime;
+
+        // 过滤 qwen 的启动警告
+        const filteredStderr = stderr
+          .split('\n')
+          .filter(line =>
+            !line.includes('ImportProcessor') &&
+            !line.includes('extension') &&
+            !line.includes('Skipping extension')
+          )
+          .join('\n');
+
+        resolve({
+          success: true, // Consider success if we got any output
+          cli: cliName,
+          output: stdout,
+          error: filteredStderr,
+          executionTime: Math.round(executionTime),
+          exitCode: code
+        });
+      });
+
+      proc.on('error', (error) => {
+        clearTimeout(timeoutHandle);
+        reject(new Error(`Failed to spawn ${cliName}: ${error.message}`));
+      });
+    });
+  }
+
   /**
    * Execute task with specific CLI
+   * 🔥 重写：混合策略 - qwen 用 one-shot，其他用持久池
    */
   async _executeWithCLI(cliName, task) {
-    const { spawn } = require('child_process');
-    
+    const startTime = Date.now();
+
     try {
-      console.log(`\nExecuting with ${cliName}...`);
+      console.log(`\n[${cliName}] Executing task...`);
       console.log(`Task: ${task}`);
       console.log('');
-      
-      // 构建命令参数
-      // qwen: 使用位置参数 + -y (YOLO mode)
-      // iflow: 使用位置参数 + -y (YOLO mode)
-      // qodercli: 使用位置参数 + -y (YOLO mode)
-      // gemini: 使用位置参数 + -y (YOLO mode)
-      // codebuddy: 使用 -p 参数 + -y (YOLO mode)
-      // codex: 使用 -p 参数 + -y (YOLO mode)
-      // copilot: 使用 -p 参数 + --allow-all-tools (允许所有工具包括shell)
-      // claude: 使用 -p 参数 + --dangerously-skip-permissions + --allowed-tools (允许所有工具包括Bash)
-      // 其他: 使用 -p 参数
-      let args;
-      if (cliName === 'qwen' || cliName === 'iflow' || cliName === 'qodercli' || cliName === 'gemini') {
-        args = [task, '-y'];
-      } else if (cliName === 'codebuddy' || cliName === 'codex') {
-        args = ['-p', task, '-y'];
-      } else if (cliName === 'copilot') {
-        // --allow-all-tools 允许所有工具包括 shell
-        args = ['-p', task, '--allow-all-tools'];
-      } else if (cliName === 'claude') {
-        // --dangerously-skip-permissions 跳过权限检查
-        // --allowed-tools 指定允许的工具，包括 Bash
-        args = ['-p', task, '--dangerously-skip-permissions', '--allowed-tools', 'Bash,Edit,Read,Write,RunCommand,ComputerTools'];
-      } else {
-        args = ['-p', task];
+
+      // 🔥 记录到项目状态看板
+      await this.statusBoard.recordTask(cliName, task);
+
+      // 🔥 记录用户输入到上下文
+      this._addToCLIContext(cliName, 'user', task);
+
+      // 🔥 构建包含上下文的增强任务（优先使用状态看板的上下文）
+      const contextualTask = await this._buildContextualTask(cliName, task);
+      const finalTask = contextualTask !== task ? contextualTask : task;
+
+      if (process.env.DEBUG === 'true' && contextualTask !== task) {
+        console.log('[DEBUG] Using contextual task with conversation history');
       }
-      
-      return new Promise((resolve, reject) => {
-        const startTime = Date.now();
-        let output = '';
-        let errorOutput = '';
-        
-        // 启动CLI进程
-        const process = spawn(cliName, args, {
-          stdio: ['ignore', 'pipe', 'pipe'],
-          shell: true
-        });        
-        // 收集stdout
-        process.stdout.on('data', (data) => {
-          output += data.toString();
-          process.stdout.write(data);
-        });
-        
-        // 收集stderr
-        process.stderr.on('data', (data) => {
-          errorOutput += data.toString();
-          process.stderr.write(data);
-        });
-        
-        // 处理进程退出
-        process.on('close', (code) => {
-          const executionTime = Date.now() - startTime;
-          
-          console.log('');
-          console.log(`Execution completed in ${executionTime}ms`);
-          console.log(`Exit code: ${code}`);
-          
-          if (code === 0) {
-            resolve({
-              success: true,
-              cli: cliName,
-              task: task,
-              output: output,
-              executionTime: executionTime,
-              exitCode: code
-            });
-          } else {
-            // 如果qwen失败，尝试iflow
-            if (cliName === 'qwen') {
-              console.log(`\n${cliName} failed, trying iflow...`);
-              this._executeWithCLI('iflow', task).then(resolve).catch(reject);
-            } else {
-              reject({
-                success: false,
-                cli: cliName,
-                task: task,
-                error: errorOutput || `Process exited with code ${code}`,
-                exitCode: code
-              });
-            }
-          }
-        });
-        
-        // 处理错误
-        process.on('error', (error) => {
-          // 如果qwen失败，尝试iflow
-          if (cliName === 'qwen') {
-            console.log(`\n${cliName} error, trying iflow...`);
-            this._executeWithCLI('iflow', task).then(resolve).catch(reject);
-          } else {
-            reject({
-              success: false,
-              cli: cliName,
-              task: task,
-              error: error.message
-            });
-          }
-        });
-        
-        // 不设置超时，允许长时间运行的任务
-        // const timeout = this.options.cliTimeout;
-        // if (timeout > 0) {
-        //   setTimeout(() => {
-        //     process.kill();
-        //     // 如果qwen超时，尝试iflow
-        //     if (cliName === 'qwen') {
-        //       console.log(`\n${cliName} timeout, trying iflow...`);
-        //       this._executeWithCLI('iflow', task).then(resolve).catch(reject);
-        //     } else {
-        //       reject({
-        //         success: false,
-        //         cli: cliName,
-        //         task: task,
-        //         error: `Timeout after ${timeout}ms`
-        //       });
-        //     }
-        //   }, timeout);
-        // }
-      });
-      
-    } catch (error) {
-      // 如果qwen失败，尝试iflow
+
+      let result;
+
+      // 🔥 混合策略：qwen 使用 spawn (one-shot)，其他 CLI 使用持久池
       if (cliName === 'qwen') {
-        console.log(`\n${cliName} exception, trying iflow...`);
-        return await this._executeWithCLI('iflow', task);
+        // qwen 不支持持久 stdin，使用 one-shot 模式
+        result = await this._executeOneShot(cliName, finalTask);
       } else {
-        throw error;
+        // 其他 CLI 使用持久进程池
+        result = await this.cliPool.executeTask(cliName, finalTask, {
+          timeout: this.options.cliTimeout || 30000,
+          verbose: process.env.DEBUG === 'true'
+        });
       }
+
+      // 🔥 记录 CLI 响应到上下文
+      if (result.output && result.output.trim()) {
+        this._addToCLIContext(cliName, 'assistant', result.output.trim());
+      }
+
+      // 🔥 记录结果到状态看板
+      await this.statusBoard.recordTask(cliName, task, result);
+
+      // 显示执行结果
+      console.log('');
+      console.log(`[${cliName}] Response received in ${result.executionTime}ms`);
+
+      // 显示上下文状态
+      const contextCount = this.cliContexts[cliName]?.length || 0;
+      if (contextCount > 2) {
+        console.log(`[${cliName}] Context: ${contextCount} messages maintained`);
+      }
+
+      return {
+        ...result,
+        task: task,
+        hasContext: contextCount > 1
+      };
+
+    } catch (error) {
+      console.error(`\n[${cliName}] Execution failed:`, error.message);
+
+      // 🔥 记录失败到状态看板
+      await this.statusBoard.recordTask(cliName, task, { success: false, error: error.message });
+
+      // 🔥 改进：如果 CLI 失败，尝试其他 CLI
+      if (cliName === 'qwen') {
+        console.log(`[${cliName}] Trying fallback to iflow...`);
+
+        try {
+          const fallbackResult = await this.cliPool.executeTask('iflow', task, {
+            timeout: this.options.cliTimeout || 30000
+          });
+
+          // 记录到 iflow 的上下文
+          this._addToCLIContext('iflow', 'user', task);
+          if (fallbackResult.output) {
+            this._addToCLIContext('iflow', 'assistant', fallbackResult.output.trim());
+          }
+
+          console.log(`\n[iflow] Fallback successful!`);
+
+          return {
+            ...fallbackResult,
+            task: task,
+            fallback: true,
+            originalCLI: cliName
+          };
+        } catch (fallbackError) {
+          console.error(`[iflow] Fallback also failed:`, fallbackError.message);
+        }
+      }
+
+      throw error;
     }
   }
-  
+
   /**
    * Execute exit command
    */
@@ -732,13 +901,15 @@ class InteractiveModeController extends EventEmitter {
   async _executeHelp() {
     console.log('');
     console.log('Available commands:');
-    console.log('  <your message>       - Send message to current CLI');
+    console.log('  <your message>       - Send message to current CLI (with context)');
     console.log('  use <cli>            - Switch to specific CLI (e.g., use iflow)');
     console.log('  ask <cli> <message>  - Ask specific CLI (e.g., ask qwen hello)');
     console.log('  route <message>      - Smart routing to best CLI (e.g., route analyze this code)');
     console.log('  r <message>          - Shortcut for route (e.g., r analyze this code)');
     console.log('  parallel <message>   - Execute with multiple CLIs concurrently (e.g., parallel analyze this code)');
     console.log('  concurrent <message> - Same as parallel (e.g., concurrent refactor this project)');
+    console.log('  context / ctx        - Show cross-CLI context status');
+    console.log('  clear [cli]          - Clear context for specific CLI or all');
     console.log('  help                - Show this help');
     console.log('  status              - Show current status');
     console.log('  exit                - Exit interactive mode');
@@ -746,7 +917,14 @@ class InteractiveModeController extends EventEmitter {
     console.log('CLI Tools:');
     console.log('  qwen, iflow, claude, gemini, codebuddy, codex, qodercli, copilot');
     console.log('');
-    
+    console.log('🔥 Context Features:');
+    console.log('  - Each CLI maintains its own conversation history');
+    console.log('  - History is automatically included in tasks');
+    console.log('  - Switch between CLIs seamlessly');
+    console.log('  - Use "context" to view status');
+    console.log('  - Use "clear" to reset history');
+    console.log('');
+
     return {
       success: true,
       message: 'Help displayed'
@@ -837,19 +1015,15 @@ async _executeConcurrent(command) {
   
   /**
    * Execute status command
+   * 🔥 显示项目全局状态看板
    */
   async _executeStatus() {
-    const session = this.sessionManager.getCurrentSession();
-    const context = this.contextManager.getContext();
-    
+    const report = await this.statusBoard.generateReport();
+    console.log('\n' + report);
+
     return {
       success: true,
-      status: {
-        active: this.isActive,
-        currentCLI: this.currentCLI,
-        session: session,
-        context: context
-      }
+      message: 'Status displayed'
     };
   }
   
@@ -862,6 +1036,117 @@ async _executeConcurrent(command) {
       success: true,
       message: 'Delegation command executed'
     };
+  }
+
+  /**
+   * 🔥 查看上下文状态（显示项目状态看板）
+   */
+  async _executeContextStatus() {
+    console.log('');
+    console.log('========================================');
+    console.log('  项目全局状态看板');
+    console.log('========================================\n');
+
+    // 1. 显示会话信息
+    console.log('📋 会话信息:');
+    console.log(`  Session ID: ${this.sharedContext.sessionId}`);
+    console.log(`  开始时间: ${new Date(this.sharedContext.startTime).toLocaleString('zh-CN')}`);
+    console.log(`  当前CLI: ${this.currentCLI}`);
+    console.log('');
+
+    // 2. 显示状态看板路径
+    console.log('📁 状态文件:');
+    console.log(`  ${this.statusBoard.statusFilePath}`);
+    console.log('');
+
+    // 3. 显示本地上下文（内存中）
+    console.log('💾 本地上下文 (内存中):');
+    let totalMessages = 0;
+    for (const [cliName, messages] of Object.entries(this.cliContexts)) {
+      const count = messages?.length || 0;
+      totalMessages += count;
+      console.log(`  ${cliName}: ${count} 条消息`);
+    }
+    console.log(`  总计: ${totalMessages} 条消息`);
+    console.log('');
+
+    // 4. 显示项目状态看板摘要
+    const statusSummary = await this.statusBoard.getContextSummary({
+      maxHistory: 5,
+      includeFindings: true,
+      includeDecisions: true
+    });
+
+    if (statusSummary && statusSummary.trim().length > 0) {
+      console.log('📊 状态看板摘要 (持久化):');
+      console.log('─'.repeat(50));
+      console.log(statusSummary);
+      console.log('─'.repeat(50));
+      console.log('');
+    }
+
+    console.log('💡 提示:');
+    console.log('  - 所有 CLI 会话共享同一个状态看板');
+    console.log('  - 状态文件会自动保存，下次会话可恢复');
+    console.log('  - 使用 "status" 查看完整报告');
+    console.log('');
+
+    console.log('Shared Context:');
+    console.log(`  Task History: ${this.sharedContext.taskHistory.length} items`);
+    console.log(`  Cross-CLI References: ${this.sharedContext.crossCLIRefs.length} items`);
+    console.log('========================================');
+    console.log('');
+
+    return {
+      success: true,
+      message: 'Context status displayed'
+    };
+  }
+
+  /**
+   * 🔥 新增：清除 CLI 上下文
+   */
+  async _executeClearContext(command) {
+    const cliName = command.cli;
+
+    if (cliName) {
+      // 清除特定 CLI 的上下文
+      if (this.cliContexts[cliName]) {
+        const count = this.cliContexts[cliName].length;
+        delete this.cliContexts[cliName];
+        console.log(`✓ Cleared context for ${cliName} (${count} messages removed)`);
+      } else {
+        console.log(`ℹ  No context found for ${cliName}`);
+      }
+    } else {
+      // 清除所有上下文
+      let totalMessages = 0;
+      for (const [cliName, messages] of Object.entries(this.cliContexts)) {
+        totalMessages += messages?.length || 0;
+      }
+      this.cliContexts = {};
+      this.sharedContext = {
+        sessionId: this._generateSessionId(),
+        startTime: Date.now(),
+        projectContext: {},
+        taskHistory: [],
+        crossCLIRefs: []
+      };
+      console.log(`✓ Cleared all context (${totalMessages} messages removed)`);
+      console.log(`✓ New session started: ${this.sharedContext.sessionId}`);
+    }
+
+    return {
+      success: true,
+      message: 'Context cleared'
+    };
+  }
+
+  /**
+   * 🔥 新增：生成会话 ID
+   */
+  _generateSessionId() {
+    return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   
   /**
@@ -879,15 +1164,22 @@ async _executeConcurrent(command) {
         console.log(`Task: ${result.task}`);
         console.log(`Execution Time: ${result.executionTime}ms`);
         console.log(`Exit Code: ${result.exitCode}`);
+
+        // 🔥 新增：显示上下文信息
+        const contextCount = this.cliContexts[result.cli]?.length || 0;
+        if (contextCount > 2) {
+          console.log(`Context: ${contextCount} messages (conversation history maintained)`);
+        }
+
         console.log('');
-        
+
         if (result.output) {
           console.log('Response:');
           console.log('----------------------------------------');
           console.log(result.output);
           console.log('----------------------------------------');
         }
-        
+
         console.log('========================================');
         console.log('');
       } else if (result.message) {
@@ -921,6 +1213,8 @@ class CommandParser {
       { type: 'exit', pattern: /^(exit|quit|bye)$/i },
       { type: 'help', pattern: /^(help|\?|h)$/i },
       { type: 'status', pattern: /^status$/i },
+      { type: 'context', pattern: /^(context|ctx)$/i },  // 🔥 新增：查看上下文
+      { type: 'clear', pattern: /^clear(\s+(qwen|iflow|claude|gemini|codebuddy|codex|qodercli|copilot))?$/i },  // 🔥 新增：清除上下文
       { type: 'terminal', pattern: /^terminal/i },
       { type: 'delegate', pattern: /^delegate/i },
       { type: 'use', pattern: /^use\s+(qwen|iflow|claude|gemini|codebuddy|codex|qodercli|copilot)$/i },
@@ -980,6 +1274,13 @@ class CommandParser {
           return {
             type: 'concurrent',
             task: match[2]
+          };
+        } else if (pattern.type === 'clear') {
+          // 🔥 新增：处理 clear 命令
+          const match = trimmedInput.match(/^clear(\s+(qwen|iflow|claude|gemini|codebuddy|codex|qodercli|copilot))?$/i);
+          return {
+            type: 'clear',
+            cli: match[2] ? match[2].toLowerCase() : null
           };
         } else {
           return {

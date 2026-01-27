@@ -36,6 +36,7 @@ const { handleSkillMainCommand, printSkillsHelp } = require('./commands/skills')
 const { handleErrorsCommand } = require('./commands/errors');
 const { handleAutoInstallCommand } = require('./commands/autoinstall');
 const { handleResumeCommand, printResumeHelp } = require('./commands/stigmergy-resume');
+const { handleSkillsHubCommand } = require('../commands/skills-hub');
 const { getCLIPath } = require('../core/cli_tools');
 const { handleUpgradeCommand,
   handleDeployCommand,
@@ -189,7 +190,7 @@ async function main() {
   program
     .command('interactive')
     .alias('i')
-    .description('Start interactive dialogue mode with AI CLI tools')
+    .description('Start interactive mode with project status board for cross-session collaboration')
     .option('-t, --timeout <ms>', 'CLI execution timeout in milliseconds (default: 0, no timeout)')
     .option('--no-save', 'Disable auto-save of session history')
     .option('-v, --verbose', 'Verbose output')
@@ -338,6 +339,20 @@ async function main() {
     .option('-f, --force', 'Force installation')
     .action(async (options) => {
       await handleAutoInstallCommand(options);
+    });
+
+  // Skills Hub command - Centralized meta-skill management
+  program
+    .command('skills-hub')
+    .description('Centralized meta-skill management (init|sync|status|update)')
+    .argument('[action]', 'Action to perform: init, sync, status, update')
+    .option('--tool <id>', 'Sync to specific tool (for sync action)')
+    .option('--force', 'Sync even if tool not detected')
+    .option('--dry-run', 'Show what would be done without doing it')
+    .option('--auto-sync', 'Auto-sync after update (for update action)')
+    .option('-v, --verbose', 'Verbose output')
+    .action(async (action, options) => {
+      await handleSkillsHubCommand(action, options);
     });
 
   // Resume session command

@@ -79,23 +79,26 @@ const CLI_ADAPTERS = {
    *
    * Documentation:
    * - Default: Interactive CLI
-   * - -p, --prompt: One-shot (deprecated)
-   * - -i, --prompt-interactive: Execute prompt then stay interactive
+   * - -p, --prompt: One-shot with prompt
+   * - -i, --prompt-interactive: Execute prompt then stay interactive (NOT compatible with piped stdin!)
    *
    * Examples:
-   * - Interactive: qwen -i "prompt" or just qwen
-   * - One-time: qwen -p "prompt" (deprecated) or qwen "prompt" (positional, one-shot)
+   * - Interactive: qwen "prompt" (positional arg)
+   * - One-time: qwen -p "prompt"
+   *
+   * ⚠️ IMPORTANT: -i flag doesn't work with piped stdin!
+   * Use positional argument or -p flag instead.
    */
   qwen: {
     interactive: (prompt) => {
-      // Use -i flag for "prompt-interactive" mode
-      // This executes the prompt and then keeps the CLI running
-      return prompt ? ['-i', prompt] : [];
+      // 🔥 不能使用 -i，因为它不支持 piped stdin
+      // Error: "The --prompt-interactive flag cannot be used when input is piped from stdin"
+      // 使用位置参数代替
+      return prompt ? [prompt] : [];
     },
 
     oneTime: (prompt) => {
-      // Use -p for one-shot mode (though deprecated, still works)
-      // Or could use positional prompt (which defaults to one-shot)
+      // 使用 -p 参数执行 one-shot 模式
       return ['-p', prompt];
     },
 
@@ -167,14 +170,24 @@ const CLI_ADAPTERS = {
   /**
    * iFlow CLI Adapter
    *
-   * Note: Behavior to be verified
+   * Documentation:
+   * - Default: Interactive mode (TUI)
+   * - -i, --prompt-interactive: Execute prompt and keep interactive
+   * - -p, --prompt: Non-interactive (one-shot mode)
+   *
+   * Examples:
+   * - Interactive: iflow or iflow -i "prompt"
+   * - One-time: iflow -p "prompt"
    */
   iflow: {
     interactive: (prompt) => {
-      return prompt ? [prompt] : [];
+      // Use -i flag for "prompt-interactive" mode
+      // This executes the prompt and then keeps the CLI running
+      return prompt ? ['-i', prompt] : [];
     },
 
     oneTime: (prompt) => {
+      // Use -p for one-shot (non-interactive) mode
       return ['-p', prompt];
     },
 
@@ -184,7 +197,7 @@ const CLI_ADAPTERS = {
     supportsInteractive: true,
     supportsOneTime: true,
     defaultMode: 'interactive',
-    verified: false
+    verified: true
   },
 
   /**

@@ -35,7 +35,7 @@ A comprehensive system for seamless collaboration between multiple AI CLI tools.
 npm install -g stigmergy@beta
 
 # Or install specific version
-npm install -g stigmergy@1.3.54-beta.0
+npm install -g stigmergy@1.3.76-beta.0
 ```
 
 #### Windows (PowerShell as Administrator)
@@ -232,16 +232,16 @@ Stigmergy intelligently parses 7+ GitHub URL formats:
 
 ---
 
-## 🆕 What's New in v1.3.54-beta.0
+## 🆕 What's New in v1.3.76-beta.0
 
 ### Major Features
 
-- 🔄 **Enhanced Smart Routing**: Improved task analysis and tool selection
-- 📦 **Unified Skill Manager**: Compatible with all agent skill repositories
+- 🎯 **Project Status Board**: Persistent state management for cross-session collaboration
+- 📊 **Interactive Mode Integration**: Status-driven collaboration with automatic context injection
+- 🔄 **Hierarchical Status Boards**: Support for single and multi-board modes
+- 🌳 **Directory Isolation**: Each project directory has independent status board
 - 🧠 **ResumeSession v1.2.1**: Advanced session recovery with cross-CLI memory
-- ⚡ **Optimized Package Size**: Reduced dependencies, faster installation
-- 🔍 **Better CLI Discovery**: Enhanced path detection for all platforms
-- 🌐 **Multi-Language Patterns**: Improved support for 12 languages
+- 📦 **Unified Skill Manager**: Compatible with all agent skill repositories
 
 ### Improvements
 
@@ -249,21 +249,156 @@ Stigmergy intelligently parses 7+ GitHub URL formats:
 - 📊 Enhanced status checking and reporting
 - 🔗 Improved hook deployment system
 - 🧪 Better test coverage and reliability
+- 🌐 Multi-Language Patterns: Improved support for 12 languages
 
 ---
 
 ## 📚 Advanced Usage
 
-### Interactive Mode
+### Interactive Mode with Project Status Board
+
+Stigmergy's interactive mode features a **Project Status Board** that enables cross-session collaboration through persistent shared state. Different CLI sessions automatically collaborate based on the project status, with automatic context injection.
 
 ```bash
 # Start interactive session
 stigmergy interactive
+# or use the alias
+stigmergy i
+```
 
-# Then use commands interactively
-> claude "write a function"
-> gemini "translate text"
+Once in interactive mode, you can use these commands:
+
+#### Interactive Commands
+
+```bash
+# View project status board
+> status
+# Shows: tasks, findings, decisions, collaboration history
+
+# Show cross-CLI context
+> context
+# Displays context from all CLI tools
+
+# Switch to specific CLI
+> use qwen
+> use claude
+> use iflow
+> use gemini
+
+# Execute task with automatic context injection
+> your task here
+
+# Exit interactive mode
 > exit
+```
+
+#### Key Features
+
+**📊 Project Status Board**
+- Each project directory has its own independent status board
+- Stored in `.stigmergy/status/PROJECT_STATUS.md`
+- Tracks tasks, findings, decisions, and collaboration history
+- Automatically updates as you work
+
+**🔄 Cross-Session Collaboration**
+- Different sessions read/write to the same status board
+- Automatic context injection from previous work
+- Shared memory across CLI tools and sessions
+
+**🌳 Directory Isolation**
+- Each project directory = independent status board
+- Working in `/projectA` won't affect `/projectB`
+- Subdirectories can have independent boards (optional)
+
+**Example Session:**
+
+```bash
+$ stigmergy interactive
+
+========================================
+  Stigmergy Interactive Mode
+========================================
+Session ID: session-abc123
+Use 'status' to view project state
+Use 'help' for available commands
+
+# View current status
+> status
+========================================
+  项目全局状态看板
+========================================
+
+📋 任务统计:
+  待处理: 5
+  进行中: 2
+  已完成: 10
+
+💡 发现: 8条
+🎯 决策: 3条
+🤝 协作记录: 25条
+========================================
+
+# Switch to qwen CLI
+> use qwen
+[qwen] Switched to qwen CLI
+
+# Work on a task (context auto-injected)
+> design user authentication system
+[qwen] Executing task...
+[qwen] Context: 8 findings, 3 decisions loaded
+[qwen] Response received in 2.3s
+
+# Record finding manually
+> finding: Using JWT for stateless authentication
+✓ Finding recorded to status board
+
+# Make decision
+> decision: Use PostgreSQL as primary database
+✓ Decision recorded to status board
+
+# Exit
+> exit
+[POOL] Shutting down persistent CLI processes...
+✓ Session saved to status board
+```
+
+#### Single vs Multi-Board Mode
+
+**Single Board Mode (Default)**
+- Best for small projects (< 10 modules)
+- One status board for entire project
+- Simple, unified perspective
+
+```bash
+cd my-small-project/
+stigmergy i
+> All work recorded to: .stigmergy/status/PROJECT_STATUS.md
+```
+
+**Multi-Board Mode (Optional)**
+- Best for large projects or microservices
+- Each subdirectory has independent board
+- Enables parallel team development
+
+```bash
+cd my-large-project/
+stigmergy i
+> board init multi
+> board create backend ./backend
+> board create frontend ./frontend
+
+cd backend/
+stigmergy i
+> use qwen
+qwen> design database schema
+✓ Recorded to: backend/.stigmergy/status/PROJECT_STATUS.md
+```
+
+**Directory Isolation Guaranteed:**
+```
+projectA/.stigmergy/status/PROJECT_STATUS.md  ← Project A's board
+projectB/.stigmergy/status/PROJECT_STATUS.md  ← Project B's board
+# Complete isolation, no mixing
 ```
 
 ### Resume Sessions
