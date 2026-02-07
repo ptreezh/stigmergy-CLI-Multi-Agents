@@ -152,3 +152,8 @@ test_*/
 *test*.json
 baseline-test-results*.json
 test_results*.txt
+
+# Worktrees (isolated development workspaces)
+worktrees/
+.worktrees/
+
