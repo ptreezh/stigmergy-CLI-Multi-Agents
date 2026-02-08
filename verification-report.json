@@ -1,0 +1,195 @@
+{
+  "timestamp": "2026-01-27T03:33:37.803Z",
+  "totalTests": 31,
+  "passedTests": 31,
+  "failedTests": 0,
+  "passRate": 100,
+  "results": [
+    {
+      "name": "package.json 存在",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.537Z"
+    },
+    {
+      "name": "version 字段已更新",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "files 字段包含 src/**",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "files 字段包含 scripts/**",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "files 字段包含 skills/** (所有技能)",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "files 字段不再只包含 resumesession",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "skills 目录存在",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "技能 planning-with-files 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\skills\\planning-with-files",
+      "timestamp": "2026-01-27T03:33:37.539Z"
+    },
+    {
+      "name": "技能 planning-with-files 包含 SKILL.md",
+      "passed": true,
+      "details": "✓ 找到技能文件",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 resumesession 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\skills\\resumesession",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 resumesession 包含 SKILL.md",
+      "passed": true,
+      "details": "✓ 找到技能文件",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 using-superpowers 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\skills\\using-superpowers",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 using-superpowers 包含 SKILL.md",
+      "passed": true,
+      "details": "✓ 找到技能文件",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 strict-test-skill 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\skills\\strict-test-skill",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "技能 strict-test-skill 包含 SKILL.md",
+      "passed": true,
+      "details": "✓ 找到技能文件",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "PluginDeployer 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\core\\plugins\\PluginDeployer.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "HookManager 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\core\\plugins\\HookManager.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "ContextInjector 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\core\\plugins\\ContextInjector.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "Superpowers 部署脚本 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\scripts\\deploy-complete-superpowers.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "BuiltinSkillsDeployer 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\core\\skills\\BuiltinSkillsDeployer.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "SkillSyncManager 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\core\\skills\\SkillSyncManager.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "Concurrent 命令处理器 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\src\\cli\\commands\\concurrent.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "CentralOrchestrator-WithLock 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\dist\\orchestration\\core\\CentralOrchestrator-WithLock.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "EnhancedTerminalManager 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\dist\\orchestration\\managers\\EnhancedTerminalManager.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "concurrent 命令已注册",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "handleConcurrentCommand 已导入",
+      "passed": true,
+      "details": "",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "部署脚本 deploy-iflow-workflow-v2.js 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\scripts\\deploy-iflow-workflow-v2.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "部署脚本 deploy-qwen-extension-v2.js 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\scripts\\deploy-qwen-extension-v2.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "部署脚本 deploy-codebuddy-buddies-v2.js 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\scripts\\deploy-codebuddy-buddies-v2.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "部署脚本 deploy-complete-superpowers.js 存在",
+      "passed": true,
+      "details": "D:\\stigmergy-CLI-Multi-Agents\\scripts\\deploy-complete-superpowers.js",
+      "timestamp": "2026-01-27T03:33:37.540Z"
+    },
+    {
+      "name": "stigmergy --version 可执行",
+      "passed": true,
+      "details": "1.3.77-beta.0\n",
+      "timestamp": "2026-01-27T03:33:37.803Z"
+    }
+  ]
+}

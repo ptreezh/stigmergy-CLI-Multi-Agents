@@ -37,16 +37,16 @@ const CLI_ADAPTERS = {
     // Execute prompt and exit (return control to caller)
     oneTime: (prompt) => {
       // Use -p flag for non-interactive output
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--permission-mode', 'bypassPermissions', '--print'],
+    autoMode: () => ["--permission-mode", "bypassPermissions", "--print"],
 
     // Check if tool supports this mode
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive'
+    defaultMode: "interactive",
   },
 
   /**
@@ -62,16 +62,16 @@ const CLI_ADAPTERS = {
 
     oneTime: (prompt) => {
       // Assuming -p for print mode (to be verified)
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--approval-mode', 'auto-edit'],
+    autoMode: () => ["--approval-mode", "auto-edit"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false  // Needs testing
+    defaultMode: "interactive",
+    verified: false, // Needs testing
   },
 
   /**
@@ -99,16 +99,16 @@ const CLI_ADAPTERS = {
 
     oneTime: (prompt) => {
       // 使用 -p 参数执行 one-shot 模式
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--approval-mode', 'yolo'],
+    autoMode: () => ["--approval-mode", "yolo"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: true
+    defaultMode: "interactive",
+    verified: true,
   },
 
   /**
@@ -123,16 +123,16 @@ const CLI_ADAPTERS = {
 
     oneTime: (prompt) => {
       // Assuming -p for print mode (to be verified)
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--yolo'],
+    autoMode: () => ["--yolo"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false
+    defaultMode: "interactive",
+    verified: false,
   },
 
   /**
@@ -155,16 +155,16 @@ const CLI_ADAPTERS = {
 
     oneTime: (prompt) => {
       // Use 'exec' subcommand for non-interactive execution
-      return ['exec', prompt];
+      return ["exec", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--yolo'],
+    autoMode: () => ["--yolo"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: true
+    defaultMode: "interactive",
+    verified: true,
   },
 
   /**
@@ -183,21 +183,21 @@ const CLI_ADAPTERS = {
     interactive: (prompt) => {
       // Use -i flag for "prompt-interactive" mode
       // This executes the prompt and then keeps the CLI running
-      return prompt ? ['-i', prompt] : [];
+      return prompt ? ["-i", prompt] : [];
     },
 
     oneTime: (prompt) => {
       // Use -p for one-shot (non-interactive) mode
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--yolo'],
+    autoMode: () => ["--yolo"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: true
+    defaultMode: "interactive",
+    verified: true,
   },
 
   /**
@@ -211,13 +211,13 @@ const CLI_ADAPTERS = {
     },
 
     oneTime: (prompt) => {
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false
+    defaultMode: "interactive",
+    verified: false,
   },
 
   /**
@@ -231,16 +231,16 @@ const CLI_ADAPTERS = {
     },
 
     oneTime: (prompt) => {
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
-    autoMode: () => ['--yolo'],
+    autoMode: () => ["--yolo"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false
+    defaultMode: "interactive",
+    verified: false,
   },
 
   /**
@@ -260,17 +260,17 @@ const CLI_ADAPTERS = {
     },
 
     oneTime: (prompt) => {
-      return ['run', prompt];
+      return ["run", prompt];
     },
 
     // 🔥 自动模式参数（用于并发和路由模式）
     // OpenCode 的 run 命令本身就是非交互模式，相当于 YOLO 模式
-    autoMode: () => ['run'],
+    autoMode: () => ["run"],
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false
+    defaultMode: "interactive",
+    verified: false,
   },
 
   /**
@@ -284,14 +284,46 @@ const CLI_ADAPTERS = {
     },
 
     oneTime: (prompt) => {
-      return ['-p', prompt];
+      return ["-p", prompt];
     },
 
     supportsInteractive: true,
     supportsOneTime: true,
-    defaultMode: 'interactive',
-    verified: false
-  }
+    defaultMode: "interactive",
+    verified: false,
+  },
+
+  /**
+   * KiloCode CLI Adapter
+   *
+   * Documentation:
+   * - Default: Interactive TUI mode
+   * - -p, --print: Non-interactive (print and exit)
+   *
+   * Examples:
+   * - Interactive: kilo or kilo "prompt"
+   * - One-time: kilo -p "prompt"
+   */
+  kilocode: {
+    interactive: (prompt) => {
+      // KiloCode defaults to interactive mode
+      // If prompt provided, pass it with -i for interactive prompt
+      return prompt ? ["-i", prompt] : [];
+    },
+
+    oneTime: (prompt) => {
+      // Use -p flag for non-interactive output
+      return ["-p", prompt];
+    },
+
+    // 🔥 自动模式参数（用于并发和路由模式）
+    autoMode: () => ["--yolo", "--print"],
+
+    supportsInteractive: true,
+    supportsOneTime: true,
+    defaultMode: "interactive",
+    verified: false,
+  },
 };
 
 /**
@@ -319,11 +351,11 @@ class CLIAdapterManager {
     }
 
     // Normalize mode name: 'one-time' -> 'oneTime', 'interactive' -> 'interactive'
-    const normalizedMode = mode === 'one-time' ? 'oneTime' : mode;
+    const normalizedMode = mode === "one-time" ? "oneTime" : mode;
 
     const modeFunction = adapter[normalizedMode];
 
-    if (typeof modeFunction !== 'function') {
+    if (typeof modeFunction !== "function") {
       throw new Error(`Tool ${toolName} does not support ${mode} mode`);
     }
 
@@ -369,7 +401,7 @@ class CLIAdapterManager {
    */
   getDefaultMode(toolName) {
     const adapter = this.adapters[toolName];
-    return adapter ? adapter.defaultMode : 'one-time';
+    return adapter ? adapter.defaultMode : "one-time";
   }
 
   /**
@@ -413,19 +445,29 @@ class CLIAdapterManager {
     }
 
     console.log(`[ADAPTER] ${toolName} Configuration:`);
-    console.log(`  - Supports Interactive: ${adapter.supportsInteractive ? '✅' : '❌'}`);
-    console.log(`  - Supports One-Time: ${adapter.supportsOneTime ? '✅' : '❌'}`);
+    console.log(
+      `  - Supports Interactive: ${adapter.supportsInteractive ? "✅" : "❌"}`,
+    );
+    console.log(
+      `  - Supports One-Time: ${adapter.supportsOneTime ? "✅" : "❌"}`,
+    );
     console.log(`  - Default Mode: ${adapter.defaultMode}`);
-    console.log(`  - Verified: ${adapter.verified ? '✅' : '⚠️  (needs testing)'}`);
+    console.log(
+      `  - Verified: ${adapter.verified ? "✅" : "⚠️  (needs testing)"}`,
+    );
 
     if (verbose && adapter.supportsInteractive && adapter.supportsOneTime) {
-      console.log(`  - Interactive Example: ${toolName} ${this.getArguments(toolName, 'interactive', 'your prompt').join(' ')}`);
-      console.log(`  - One-Time Example: ${toolName} ${this.getArguments(toolName, 'one-time', 'your prompt').join(' ')}`);
+      console.log(
+        `  - Interactive Example: ${toolName} ${this.getArguments(toolName, "interactive", "your prompt").join(" ")}`,
+      );
+      console.log(
+        `  - One-Time Example: ${toolName} ${this.getArguments(toolName, "one-time", "your prompt").join(" ")}`,
+      );
     }
   }
 }
 
 module.exports = {
   CLI_ADAPTERS,
-  CLIAdapterManager
+  CLIAdapterManager,
 };

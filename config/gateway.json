@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "name": "Stigmergy Gateway",
+  "description": "多平台统一网关配置",
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "workdir": null
+  },
+  "tunnel": {
+    "enabled": true,
+    "provider": "ngrok",
+    "region": "us",
+    "autostart": true
+  },
+  "platforms": {
+    "feishu": {
+      "enabled": false,
+      "webhook_url": "",
+      "secret": ""
+    },
+    "telegram": {
+      "enabled": false,
+      "bot_token": "",
+      "proxy_url": ""
+    },
+    "slack": {
+      "enabled": false,
+      "webhook_url": "",
+      "signing_secret": "",
+      "bot_token": ""
+    },
+    "discord": {
+      "enabled": false,
+      "webhook_url": "",
+      "bot_token": ""
+    }
+  },
+  "commands": {
+    "route": {
+      "enabled": true,
+      "default_cli": "auto"
+    },
+    "concurrent": {
+      "enabled": true,
+      "default_clis": ["claude", "qwen", "iflow"],
+      "concurrency": 3
+    },
+    "ask": {
+      "enabled": true
+    },
+    "status": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "json"
+  }
+}

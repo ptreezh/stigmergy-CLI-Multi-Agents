@@ -1,23 +1,41 @@
 // ResumeSession Extension Generator
 // 专门负责生成各CLI的ResumeSession扩展文件
 
-const path = require('path');
+const path = require("path");
 
 class ResumeSessionGenerator {
   constructor() {
     this.supportedCLIs = [
-      'claude', 'gemini', 'qwen', 'codebuddy', 'codex',
-      'iflow', 'qodercli', 'copilot', 'kode', 'opencode',
-      'oh-my-opencode', 'resumesession'
+      "claude",
+      "gemini",
+      "qwen",
+      "codebuddy",
+      "codex",
+      "iflow",
+      "qodercli",
+      "copilot",
+      "kode",
+      "kilocode",
+      "opencode",
+      "oh-my-opencode",
+      "resumesession",
     ];
   }
 
   generateForCLI(cliName) {
-    const needsSlashPrefix = ['claude', 'codebuddy'].includes(cliName.toLowerCase());
-    const commandName = needsSlashPrefix ? '/stigmergy-resume' : 'stigmergy-resume';
+    const needsSlashPrefix = ["claude", "codebuddy"].includes(
+      cliName.toLowerCase(),
+    );
+    const commandName = needsSlashPrefix
+      ? "/stigmergy-resume"
+      : "stigmergy-resume";
     const currentProjectPath = process.cwd();
 
-    return this.generateExtensionContent(cliName, commandName, currentProjectPath);
+    return this.generateExtensionContent(
+      cliName,
+      commandName,
+      currentProjectPath,
+    );
   }
 
   generateExtensionContent(cliName, commandName, projectPath) {
@@ -32,16 +50,17 @@ const os = require('os');
 // Embedded path configuration for CLI session paths
 const getAllCLISessionPaths = () => {
   const homeDir = os.homedir();
-  return {
-    claude: [path.join(homeDir, '.claude', 'projects')],
-    gemini: [path.join(homeDir, '.config', 'gemini', 'tmp')],
-    qwen: [path.join(homeDir, '.qwen', 'projects')],
-    iflow: [path.join(homeDir, '.iflow', 'projects')],
-    qodercli: [path.join(homeDir, '.qoder', 'projects')],
-    codebuddy: [path.join(homeDir, '.codebuddy')],
-    codex: [path.join(homeDir, '.config', 'codex')],
-    kode: [path.join(homeDir, '.kode', 'projects')]
-  };
+    return {
+      claude: [path.join(homeDir, '.claude', 'projects')],
+      gemini: [path.join(homeDir, '.config', 'gemini', 'tmp')],
+      qwen: [path.join(homeDir, '.qwen', 'projects')],
+      iflow: [path.join(homeDir, '.iflow', 'projects')],
+      qodercli: [path.join(homeDir, '.qoder', 'projects')],
+      codebuddy: [path.join(homeDir, '.codebuddy')],
+      codex: [path.join(homeDir, '.config', 'codex')],
+      kode: [path.join(homeDir, '.kode', 'projects')],
+      kilocode: [path.join(homeDir, '.kilocode', 'projects')]
+    };
 };
 
 // Embedded ResumeSession Core Functionality
@@ -586,8 +605,8 @@ ${this.generateCLIRegistrationCode(cliName, commandName, projectPath)}
 
   generateCLIRegistrationCode(cliName, commandName, projectPath) {
     switch (cliName.toLowerCase()) {
-      case 'claude':
-      case 'codebuddy':
+      case "claude":
+      case "codebuddy":
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 
@@ -670,7 +689,7 @@ module.exports = {
   parseCommandOptions
 };`;
 
-      case 'gemini':
+      case "gemini":
         return `
 class GeminiHistoryHandler {
   constructor() {
@@ -744,9 +763,10 @@ if (typeof geminiCLI !== 'undefined') {
   geminiCLI.addCommandHandler(cmdName, handler.handleCommand.bind(handler));
 }`;
 
-      case 'qwen':
-      case 'qodercli':
-      case 'kode':
+      case "qwen":
+      case "qodercli":
+      case "kode":
+      case "kilocode":
         return `
 // ${cliName.charAt(0).toUpperCase() + cliName.slice(1)} CLI integration
 
@@ -909,7 +929,7 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }`;
 
-      case 'opencode':
+      case "opencode":
         return `
 // OpenCode CLI ResumeSession Integration
 // 专门为 OpenCode 实现的会话恢复功能
@@ -1209,20 +1229,20 @@ if (typeof module !== 'undefined' && module.exports) {
 
   getFileName(cliName) {
     switch (cliName.toLowerCase()) {
-      case 'claude':
-      case 'gemini':
-      case 'qwen':
-      case 'codebuddy':
-      case 'codex':
-      case 'kode':
-      case 'resumesession':
-        return 'resumesession-history.js';
-      case 'qodercli':
-        return 'history.js';
-      case 'opencode':
-        return 'opencode-resume.js';
+      case "claude":
+      case "gemini":
+      case "qwen":
+      case "codebuddy":
+      case "codex":
+      case "kode":
+      case "resumesession":
+        return "resumesession-history.js";
+      case "qodercli":
+        return "history.js";
+      case "opencode":
+        return "opencode-resume.js";
       default:
-        return 'resumesession-history.js';
+        return "resumesession-history.js";
     }
   }
 }

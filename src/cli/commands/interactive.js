@@ -3,7 +3,10 @@
  * Handles the interactive mode for Stigmergy CLI
  */
 
-const { InteractiveModeController } = require('../../interactive/InteractiveModeController');
+const path = require("path");
+const { InteractiveModeController } = require(
+  path.join(__dirname, "..", "..", "interactive", "InteractiveModeController"),
+);
 
 /**
  * Handle interactive mode command
@@ -12,21 +15,20 @@ const { InteractiveModeController } = require('../../interactive/InteractiveMode
 async function handleInteractiveCommand(options) {
   try {
     const controller = new InteractiveModeController({
-      autoEnterLoop: true,  // 自动进入命令循环
-      cliTimeout: options.timeout || 0,  // 默认无超时限制
-      autoSave: options.save !== false
+      autoEnterLoop: true, // 自动进入命令循环
+      cliTimeout: options.timeout || 0, // 默认无超时限制
+      autoSave: options.save !== false,
     });
 
-    console.log('Starting Stigmergy Interactive Mode...\n');
+    console.log("Starting Stigmergy Interactive Mode...\n");
 
     await controller.start();
-
   } catch (error) {
-    console.error('Failed to start interactive mode:', error.message);
+    console.error("Failed to start interactive mode:", error.message);
     process.exit(1);
   }
 }
 
 module.exports = {
-  handleInteractiveCommand
+  handleInteractiveCommand,
 };

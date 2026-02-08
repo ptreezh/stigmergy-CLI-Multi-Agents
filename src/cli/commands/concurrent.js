@@ -1,224 +1,286 @@
 /**
  * Handle concurrent command - Execute task with multiple AI tools concurrently
- * 集成 EnhancedTerminalManager 和 GitWorktreeManager
+ * With shared context coordination using FileLock
  */
 
-const chalk = require('chalk');
-const path = require('path');
+const path = require("path");
+const { spawn } = require("child_process");
+const fs = require("fs");
+const chalk = require("chalk");
+const projectRoot = path.resolve(__dirname, "..", "..");
+const FileLock = require(path.join(projectRoot, "interactive", "FileLock"));
+const { ProjectStatusBoard } = require(
+  path.join(projectRoot, "core", "ProjectStatusBoard"),
+);
+const MemoryManager = require(path.join(projectRoot, "core", "memory_manager"));
+
+const STIGMERGY_FILE = "STIGMERGY.md";
 
 async function handleConcurrentCommand(prompt, options = {}) {
   try {
-    console.log(chalk.bold.cyan('\n========================================'));
-    console.log(chalk.bold.cyan('  Stigmergy 并发执行'));
-    console.log(chalk.bold.cyan('========================================\n'));
+    console.log(chalk.bold.cyan("\n========================================"));
+    console.log(chalk.bold.cyan("  Stigmergy 并发执行"));
+    console.log(chalk.bold.cyan("========================================\n"));
 
     console.log(`📋 任务: ${prompt}`);
     console.log(`⚙️  选项:`);
     console.log(`   并发数: ${options.concurrency || 3}`);
-    console.log(`   超时: ${options.timeout || '无'} ms`);
-    console.log(`   模式: ${options.mode || 'parallel'}`);
-    console.log(`   文件锁: ${options.noLock ? '❌ 禁用' : '✅ 启用'}`);
-    console.log(`   Worktree: ${options.noWorktree ? '❌ 禁用' : '✅ 启用'}`);
-    console.log(`   新终端窗口: ${options.noTerminal ? '❌ 禁用' : '✅ 启用'}`);
-    console.log(chalk.gray('─'.repeat(70) + '\n'));
+    console.log(`   超时: ${options.timeout || "无"} ms`);
+    console.log(`   模式: ${options.mode || "parallel"}`);
+    console.log(chalk.gray("─".repeat(70) + "\n"));
 
-    // 导入必要的模块
-    const { CentralOrchestrator } = require('../../../dist/orchestration/core/CentralOrchestrator-WithLock');
-    const { EnhancedTerminalManager } = require('../../../dist/orchestration/managers/EnhancedTerminalManager');
-    const { GitWorktreeManager } = require('../../../dist/orchestration/managers/GitWorktreeManager');
+    const availableCLIs = [
+      "qwen",
+      "codebuddy",
+      "kilo",
+      "iflow",
+      "opencode",
+      "qodercli",
+      "claude",
+      "gemini",
+    ].slice(0, parseInt(options.concurrency) || 3);
 
-    // 创建管理器实例
-    const orchestrator = new CentralOrchestrator({
-      concurrency: parseInt(options.concurrency) || 3,
-      workDir: process.cwd()
-    });
+    console.log(`🤖 选中 CLI: ${availableCLIs.join(", ")}`);
 
-    const terminalManager = new EnhancedTerminalManager();
-    const worktreeManager = new GitWorktreeManager();
+    const projectDir = process.cwd();
+    const contextFile = path.join(projectDir, STIGMERGY_FILE);
+    const fileLock = new FileLock({ timeout: 5000 });
 
-    // 生成任务 ID
-    const taskId = `task-${Date.now()}`;
+    console.log(`\n🚀 初始化共享上下文...`);
 
-    // 选择可用的 CLI
-    const availableCLIs = orchestrator._selectAvailableCLIs(parseInt(options.concurrency) || 3);
-    console.log(`🤖 选中 CLI: ${availableCLIs.join(', ')}`);
+    const statusBoard = new ProjectStatusBoard(projectDir);
+    await statusBoard.initialize({ phase: "concurrent-execution" });
 
-    // 创建子任务定义
-    const subtasks = availableCLIs.map((cliName, index) => ({
-      id: `subtask-${index}`,
-      taskId: taskId,
-      description: prompt,
-      type: 'implementation',
-      priority: 'medium',
-      dependencies: [],
-      requiredSkills: [],
-      requiredAgent: cliName,
-      mcpTools: [],
-      requiredFiles: [],
-      outputFiles: [],
-      assignedCLI: cliName
-    }));
+    const memoryManager = new MemoryManager();
+    await memoryManager.updateGlobalMemory((mem) => mem);
 
-    // 为每个子任务创建 worktree（如果启用）
-    let worktrees = {};
-    if (!options.noWorktree) {
-      console.log(`\n🌳 创建 Git Worktree...`);
-      for (const subtask of subtasks) {
-        try {
-          const worktree = await worktreeManager.createWorktree({
-            taskId: subtask.taskId,
-            subtaskId: subtask.id,
-            subtask: subtask,
-            projectPath: process.cwd()
-          });
-          worktrees[subtask.id] = worktree;
-          console.log(`   ✅ ${subtask.assignedCLI}: ${worktree.worktreePath}`);
-        } catch (error) {
-          console.log(`   ❌ ${subtask.assignedCLI}: ${error.message}`);
-          worktrees[subtask.id] = { worktreePath: process.cwd() };
-        }
+    // 初始化/更新 STIGMERGY.md
+    fileLock.acquire(contextFile);
+    try {
+      if (!fs.existsSync(contextFile)) {
+        fs.writeFileSync(
+          contextFile,
+          `# Stigmergy 项目状态
+
+## 任务历史
+
+## 决策记录
+
+## 待办事项
+
+## 共享上下文
+
+`,
+        );
       }
-    } else {
-      // 如果禁用 worktree，所有 CLI 在当前目录执行
-      for (const subtask of subtasks) {
-        worktrees[subtask.id] = { worktreePath: process.cwd() };
-      }
+      const content = fs.readFileSync(contextFile, "utf8");
+      const timestamp = new Date().toLocaleString();
+      fs.writeFileSync(
+        contextFile,
+        content +
+          `\n## 并发任务 - ${Date.now()}\n**任务**: ${prompt}\n**时间**: ${timestamp}\n**参与者**: ${availableCLIs.join(", ")}\n\n`,
+      );
+    } finally {
+      fileLock.release(contextFile);
     }
 
-    // 在新终端窗口中执行 CLI（如果启用）
-    if (!options.noTerminal) {
-      console.log(`\n🖥️  启动终端窗口...`);
-      const strategy = {
-        mode: options.mode || 'parallel',
-        concurrencyLimit: parseInt(options.concurrency) || 3,
-        timeout: parseInt(options.timeout) || 0
-      };
+    console.log(`   ✅ 状态看板: ${statusBoard.statusFilePath}`);
+    console.log(`   ✅ 共享上下文: ${contextFile}`);
+    console.log(`\n🚀 启动 CLI 进程 (带上下文协调)...`);
 
-      const terminalResults = await terminalManager.launchTerminalsForTask(
-        { subtasks },
-        strategy,
-        worktrees
+    const processes = [];
+    const taskId = `concurrent-${Date.now()}`;
+
+    // 初始化/读取上下文
+    fileLock.acquire(contextFile);
+    try {
+      if (!fs.existsSync(contextFile)) {
+        fs.writeFileSync(
+          contextFile,
+          `# Stigmergy 项目状态\n\n## 任务历史\n\n## 决策记录\n\n## 待办事项\n\n## 共享上下文\n`,
+        );
+      }
+      // 记录任务开始
+      const content = fs.readFileSync(contextFile, "utf8");
+      fs.writeFileSync(
+        contextFile,
+        content +
+          `\n## 并发任务 - ${taskId}\n**任务**: ${prompt}\n**时间**: ${new Date().toLocaleString()}\n**参与者**: ${availableCLIs.join(", ")}\n\n`,
       );
+    } finally {
+      fileLock.release(contextFile);
+    }
 
-      console.log(`\n📊 终端启动结果:`);
-      terminalResults.forEach((result, i) => {
-        if (result.success) {
-          console.log(`   ✅ ${availableCLIs[i]}: 终端 ID ${result.terminalId}`);
-        } else {
-          console.log(`   ❌ ${availableCLIs[i]}: ${result.error}`);
-        }
+    // 启动所有 CLI 进程
+    for (const cliName of availableCLIs) {
+      let args = [];
+      switch (cliName) {
+        case "claude":
+        case "iflow":
+        case "gemini":
+        case "kilo":
+          args = ["-p", prompt];
+          break;
+        case "qwen":
+        case "copilot":
+        case "kode":
+          args = [prompt];
+          break;
+        case "codebuddy":
+          args = ["-y", "-p", prompt];
+          break;
+        case "qodercli":
+          args = ["-p", prompt];
+          break;
+        case "codex":
+          args = ["-m", "gpt-5", prompt];
+          break;
+        default:
+          args = [prompt];
+      }
+
+      console.log(`   📡 启动 ${cliName}...`);
+
+      const childProcess = spawn(cliName, args, {
+        shell: true,
+        cwd: projectDir,
+        env: {
+          ...process.env,
+          STIGMERGY_TASK_ID: taskId,
+          STIGMERGY_CLI_NAME: cliName,
+          STIGMERGY_CONTEXT_FILE: contextFile,
+          STIGMERGY_MODE: "concurrent",
+        },
       });
 
-      // 等待所有终端完成
-      console.log(`\n⏳ 等待所有终端完成...`);
-      const terminalIds = terminalResults
-        .filter(r => r.success && r.terminalId)
-        .map(r => r.terminalId);
-      await terminalManager.waitForAllTerminals(terminalIds);
+      processes.push({
+        cliName,
+        process: childProcess,
+        output: "",
+        error: "",
+        completed: false,
+        success: false,
+      });
 
-      // 收集结果
-      const results = [];
-      for (const terminalId of terminalIds) {
-        const terminal = terminalManager.terminals.get(terminalId);
-        if (terminal) {
-          const output = terminalManager.outputBuffers.get(terminalId) || '';
-          results.push({
-            cli: terminal.terminal.cliName,
-            success: terminal.terminal.status === 'completed',
-            output: output,
-            executionTime: Date.now() - terminal.terminal.createdAt.getTime()
-          });
-        }
-      }
+      childProcess.stdout?.on("data", (data) => {
+        const output = data.toString();
+        process.stdout.write(`[${cliName}] ${output}`);
+        const procInfo = processes.find((p) => p.cliName === cliName);
+        if (procInfo) procInfo.output += output;
+      });
 
-      // 显示结果汇总
-      console.log(chalk.bold.green('\n========================================'));
-      console.log(chalk.bold.green('  执行完成'));
-      console.log(chalk.bold.green('========================================\n'));
+      childProcess.stderr?.on("data", (data) => {
+        const error = data.toString();
+        process.stderr.write(`[${cliName}] ${error}`);
+        const procInfo = processes.find((p) => p.cliName === cliName);
+        if (procInfo) procInfo.error += error;
+      });
 
-      const successCount = results.filter(r => r.success).length;
-      const failedCount = results.filter(r => !r.success).length;
+      childProcess.on("close", (code) => {
+        const procInfo = processes.find((p) => p.cliName === cliName);
+        if (procInfo) {
+          procInfo.completed = true;
+          procInfo.success = code === 0;
 
-      console.log(`📊 总计: ${results.length} 个 CLI`);
-      console.log(`✅ 成功: ${successCount}`);
-      console.log(`❌ 失败: ${failedCount}\n`);
-
-      // 显示详细结果（如果 verbose）
-      if (options.verbose) {
-        console.log(chalk.bold('详细结果:\n'));
-        results.forEach((r, i) => {
-          if (r.success) {
-            console.log(chalk.green(`[${i + 1}] ${r.cli}: 成功`));
-            if (r.output) {
-              const preview = r.output.substring(0, 200);
-              console.log(chalk.gray(`   输出: ${preview}${r.output.length > 200 ? '...' : ''}`));
-            }
-          } else {
-            console.log(chalk.red(`[${i + 1}] ${r.cli}: 失败`));
-          }
-        });
-      }
-
-      // 清理 worktree（如果启用）
-      if (!options.noWorktree) {
-        console.log(`\n🧹 清理 Worktree...`);
-        for (const subtask of subtasks) {
+          // 写入结果到共享文件
+          fileLock.acquire(contextFile);
           try {
-            await worktreeManager.removeWorktree(subtask.taskId, subtask.id);
-            console.log(`   ✅ ${subtask.assignedCLI}`);
-          } catch (error) {
-            console.log(`   ❌ ${subtask.assignedCLI}: ${error.message}`);
+            const fileContent = fs.readFileSync(contextFile, "utf8");
+            const resultSection = `\n### ${cliName} 结果\n**状态**: ${code === 0 ? "✅ 成功" : "❌ 失败"}\n**输出**: ${procInfo.output.substring(0, 500).replace(/\n/g, " ")}\n`;
+            fs.writeFileSync(contextFile, fileContent + resultSection);
+          } finally {
+            fileLock.release(contextFile);
           }
         }
-      }
-
-      return { success: true, result: { totalResults: results.length, successCount, failedCount, results } };
-    } else {
-      // 如果禁用终端窗口，使用原有的并发执行方式
-      console.log(`\n🚀 使用原有并发执行方式...`);
-      const result = await orchestrator.executeConcurrent(prompt, {
-        mode: options.mode || 'parallel',
-        concurrencyLimit: parseInt(options.concurrency) || 3,
-        timeout: parseInt(options.timeout) || 0
       });
+    }
 
-      // 显示结果汇总
-      console.log(chalk.bold.green('\n========================================'));
-      console.log(chalk.bold.green('  执行完成'));
-      console.log(chalk.bold.green('========================================\n'));
+    // 等待所有进程完成
+    console.log(`\n⏳ 等待所有 CLI 完成...\n`);
 
-      console.log(`📊 总计: ${result.totalResults} 个 CLI`);
-      console.log(`✅ 成功: ${result.successCount}`);
-      console.log(`❌ 失败: ${result.failedCount}`);
-      if (result.skippedCount > 0) {
-        console.log(`⏭️  跳过: ${result.skippedCount}`);
-      }
-      console.log(`⏱️  总耗时: ${result.totalTime}ms\n`);
+    const timeout = parseInt(options.timeout) || 60000;
+    await Promise.all(
+      processes.map(
+        (procInfo) =>
+          new Promise((resolve) => {
+            const timer = setTimeout(() => {
+              procInfo.process.kill();
+              procInfo.completed = true;
+              procInfo.success = false;
+              procInfo.error = "Timeout";
+              resolve();
+            }, timeout);
 
-      // 显示详细结果（如果 verbose）
-      if (options.verbose) {
-        console.log(chalk.bold('详细结果:\n'));
-        result.results.forEach((r, i) => {
-          if (r.skipped) {
-            console.log(chalk.gray(`[${i + 1}] ${r.cli}: 跳过 (${r.error})`));
-          } else if (r.success) {
-            console.log(chalk.green(`[${i + 1}] ${r.cli}: 成功`));
-            if (r.output && typeof r.output === 'string') {
-              const preview = r.output.substring(0, 200);
-              console.log(chalk.gray(`   输出: ${preview}${r.output.length > 200 ? '...' : ''}`));
-            }
-          } else {
-            console.log(chalk.red(`[${i + 1}] ${r.cli}: 失败`));
+            procInfo.process.on("close", () => {
+              clearTimeout(timer);
+              resolve();
+            });
+          }),
+      ),
+    );
+
+    // 收集结果
+    const results = [];
+    for (const procInfo of processes) {
+      results.push({
+        cli: procInfo.cliName,
+        success: procInfo.success,
+        output: procInfo.output,
+        error: procInfo.error,
+        executionTime: 0,
+      });
+    }
+
+    // 显示结果汇总
+    console.log(chalk.bold.green("\n========================================"));
+    console.log(chalk.bold.green("  执行完成"));
+    console.log(chalk.bold.green("========================================\n"));
+
+    const successCount = results.filter((r) => r.success).length;
+    const failedCount = results.filter((r) => !r.success).length;
+
+    console.log(`📊 总计: ${results.length} 个 CLI`);
+    console.log(`✅ 成功: ${successCount}`);
+    console.log(`❌ 失败: ${failedCount}\n`);
+
+    // 显示上下文摘要
+    console.log(chalk.cyan("📝 上下文已更新到 STIGMERGY.md\n"));
+
+    if (options.verbose) {
+      console.log(chalk.bold("详细结果:\n"));
+      results.forEach((r, i) => {
+        if (r.success) {
+          console.log(chalk.green(`[${i + 1}] ${r.cli}: 成功`));
+          if (r.output) {
+            const preview = r.output.substring(0, 200);
+            console.log(
+              chalk.gray(
+                `   输出: ${preview}${r.output.length > 200 ? "..." : ""}`,
+              ),
+            );
+          }
+        } else {
+          console.log(chalk.red(`[${i + 1}] ${r.cli}: 失败`));
+          if (r.error) {
             console.log(chalk.gray(`   错误: ${r.error}`));
           }
-        });
-      }
-
-      return { success: true, result };
+        }
+      });
     }
 
+    return {
+      success: true,
+      result: {
+        taskId,
+        totalResults: results.length,
+        successCount,
+        failedCount,
+        results,
+        contextFile: contextFile,
+      },
+    };
   } catch (error) {
-    console.error(chalk.bold.red('\n❌ 并发执行失败:'), error.message);
+    console.error(chalk.bold.red("\n❌ 并发执行失败:"), error.message);
     console.error(chalk.gray(error.stack));
 
     return { success: false, error: error.message };

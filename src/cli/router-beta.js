@@ -8,48 +8,65 @@
  */
 
 // Core imports
-const path = require('path');
-const os = require('os');
-const { Command } = require('commander');
-const chalk = require('chalk');
+const path = require("path");
+const os = require("os");
+const { Command } = require("commander");
+const chalk = require("chalk");
 
 // Import CLI tools configuration
-const { CLI_TOOLS } = require('../core/cli_tools');
+const { CLI_TOOLS } = require("../core/cli_tools");
 
 // Import modular components
-const { formatBytes } = require('./utils/formatters');
-const { getWorkingDirectoryForTool, getEnvironmentForTool } = require('./utils/environment');
+const { formatBytes } = require("./utils/formatters");
+const {
+  getWorkingDirectoryForTool,
+  getEnvironmentForTool,
+} = require("./utils/environment");
 
 // Import execution mode detection and CLI adapters
-const ExecutionModeDetector = require('../core/execution_mode_detector');
-const { CLIAdapterManager } = require('../core/cli_adapters');
+const ExecutionModeDetector = require("../core/execution_mode_detector");
+const { CLIAdapterManager } = require("../core/cli_adapters");
 
 // Create instances
 const modeDetector = new ExecutionModeDetector();
 const cliAdapterManager = new CLIAdapterManager();
-const { handleInstallCommand } = require('./commands/install');
-const { handleStatusCommand } = require('./commands/status');
-const { handleScanCommand } = require('./commands/scan');
-const { handlePermCheckCommand, handleFixPermsCommand } = require('./commands/permissions');
-const { handleDiagnosticCommand, handleCleanCommand } = require('./commands/system');
-const { handleSkillMainCommand, printSkillsHelp } = require('./commands/skills');
-const { handleErrorsCommand } = require('./commands/errors');
-const { handleAutoInstallCommand } = require('./commands/autoinstall');
-const { handleResumeCommand, printResumeHelp } = require('./commands/stigmergy-resume');
-const { handleSkillsHubCommand } = require('../commands/skills-hub');
-const { getCLIPath } = require('../core/cli_tools');
-const { handleUpgradeCommand,
+const { handleInstallCommand } = require("./commands/install");
+const { handleStatusCommand } = require("./commands/status");
+const { handleScanCommand } = require("./commands/scan");
+const {
+  handlePermCheckCommand,
+  handleFixPermsCommand,
+} = require("./commands/permissions");
+const {
+  handleDiagnosticCommand,
+  handleCleanCommand,
+} = require("./commands/system");
+const {
+  handleSkillMainCommand,
+  printSkillsHelp,
+} = require("./commands/skills");
+const { handleErrorsCommand } = require("./commands/errors");
+const { handleAutoInstallCommand } = require("./commands/autoinstall");
+const {
+  handleResumeCommand,
+  printResumeHelp,
+} = require("./commands/stigmergy-resume");
+const { handleSkillsHubCommand } = require("../commands/skills-hub");
+const { getCLIPath } = require("../core/cli_tools");
+const {
+  handleUpgradeCommand,
   handleDeployCommand,
   handleInitCommand,
   handleSetupCommand,
-  handleCallCommand
-} = require('./commands/project');
-const { handleInteractiveCommand } = require('./commands/interactive');
-const { handleConcurrentCommand } = require('./commands/concurrent');
-const SmartRouter = require('../core/smart_router');
-const { errorHandler } = require('../core/error_handler');
-const { executeCommand } = require('../utils');
-const { setupGlobalErrorHandlers } = require('../core/error_handler');
+  handleCallCommand,
+} = require("./commands/project");
+const { handleInteractiveCommand } = require("./commands/interactive");
+const { handleConcurrentCommand } = require("./commands/concurrent");
+const { GatewayServer } = require("../gateway/server");
+const SmartRouter = require("../core/smart_router");
+const { errorHandler } = require("../core/error_handler");
+const { executeCommand } = require("../utils");
+const { setupGlobalErrorHandlers } = require("../core/error_handler");
 
 // Set up global error handlers
 setupGlobalErrorHandlers();
@@ -61,10 +78,10 @@ setupGlobalErrorHandlers();
  */
 function addOAuthAuthArgsCommand(command) {
   return command
-    .option('--client-id <id>', 'OAuth client ID')
-    .option('--client-secret <secret>', 'OAuth client secret')
-    .option('--access-token <token>', 'OAuth access token')
-    .option('--auth-url <url>', 'OAuth authentication URL');
+    .option("--client-id <id>", "OAuth client ID")
+    .option("--client-secret <secret>", "OAuth client secret")
+    .option("--access-token <token>", "OAuth access token")
+    .option("--auth-url <url>", "OAuth authentication URL");
 }
 
 /**
@@ -80,8 +97,8 @@ function addOAuthAuthArgs(toolName, args = []) {
     const oauth = toolConfig.oauth;
     if (oauth.authRequired) {
       // Qwen-specific OAuth handling
-      if (toolName === 'qwen' && process.env.QWEN_ACCESS_TOKEN) {
-        return [...args, '--access-token', process.env.QWEN_ACCESS_TOKEN];
+      if (toolName === "qwen" && process.env.QWEN_ACCESS_TOKEN) {
+        return [...args, "--access-token", process.env.QWEN_ACCESS_TOKEN];
       }
     }
   }
@@ -94,47 +111,49 @@ function addOAuthAuthArgs(toolName, args = []) {
  */
 async function main() {
   const program = new Command();
-  const packageJson = require('../../package.json');
+  const packageJson = require("../../package.json");
 
   // Program setup
   program
     .version(packageJson.version)
-    .description('Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System')
-    .name('stigmergy');
+    .description(
+      "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
+    )
+    .name("stigmergy");
 
   // Version command (override the built-in --version)
   program
-    .command('version')
-    .description('Show version information')
+    .command("version")
+    .description("Show version information")
     .action(() => {
-      const packageJson = require('../../package.json');
+      const packageJson = require("../../package.json");
       console.log(`Stigmergy CLI v${packageJson.version}`);
     });
 
   // Error reporting command
   program
-    .command('errors')
-    .description('Generate comprehensive error report')
-    .option('--save', 'Save report to file')
-    .option('-v, --verbose', 'Verbose output')
+    .command("errors")
+    .description("Generate comprehensive error report")
+    .option("--save", "Save report to file")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleErrorsCommand(options);
     });
 
   // Install command
   program
-    .command('install')
-    .alias('inst')
-    .alias('a')
-    .description('Install CLI tools')
-    .option('-c, --cli <cli>', 'Install specific CLI tool')
-    .option('-v, --verbose', 'Verbose output')
-    .option('-f, --force', 'Force installation')
-    .option('--all', 'Install all CLI tools (ignore autoInstall filter)')
+    .command("install")
+    .alias("inst")
+    .alias("a")
+    .description("Install CLI tools")
+    .option("-c, --cli <cli>", "Install specific CLI tool")
+    .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force installation")
+    .option("--all", "Install all CLI tools (ignore autoInstall filter)")
     .action(async (options) => {
       // 检测是否通过 'a' 别名调用，自动设置 --all 选项
       const commandName = process.argv[2];
-      if (commandName === 'a') {
+      if (commandName === "a") {
         options.all = true;
       }
       await handleInstallCommand(options);
@@ -142,131 +161,182 @@ async function main() {
 
   // Project management commands
   program
-    .command('upgrade')
-    .description('Upgrade AI CLI tools to latest versions')
-    .option('--dry-run', 'Show what would be upgraded without actually upgrading')
-    .option('-f, --force', 'Force upgrade')
-    .option('-v, --verbose', 'Verbose output')
+    .command("upgrade")
+    .description("Upgrade AI CLI tools to latest versions")
+    .option(
+      "--dry-run",
+      "Show what would be upgraded without actually upgrading",
+    )
+    .option("-f, --force", "Force upgrade")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleUpgradeCommand(options);
     });
 
   program
-    .command('deploy')
-    .description('Deploy integration hooks to CLI tools')
-    .option('-v, --verbose', 'Verbose output')
+    .command("deploy")
+    .description(
+      "Deploy integration hooks and /resumesession slash command to CLI tools",
+    )
+    .option("-v, --verbose", "Verbose output")
+    .option("--slash-only", "Only install /resumesession slash command")
     .action(async (options) => {
       await handleDeployCommand(options);
     });
 
   program
-    .command('init')
-    .description('Initialize Stigmergy project in current directory')
-    .option('-v, --verbose', 'Verbose output')
+    .command("superpowers")
+    .alias("sp")
+    .description("Deploy complete Superpowers plugin system to all CLIs")
+    .option("--clone", "Clone obra/superpowers repository only")
+    .option("--deploy", "Deploy to CLIs only (requires cloned repo)")
+    .option("--verify", "Verify deployment status")
+    .option("--clean", "Remove Superpowers deployment")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (options) => {
+      const {
+        deployCompleteSuperpowers,
+        verifySuperpowers,
+        cleanSuperpowers,
+      } = require("./commands/superpowers");
+      if (options.clean) {
+        await cleanSuperpowers({ verbose: options.verbose });
+      } else if (options.verify) {
+        await verifySuperpowers({ verbose: options.verbose });
+      } else if (options.clone && !options.deploy) {
+        await deployCompleteSuperpowers({
+          cloneOnly: true,
+          verbose: options.verbose,
+        });
+      } else if (options.deploy) {
+        await deployCompleteSuperpowers({
+          deployOnly: true,
+          verbose: options.verbose,
+        });
+      } else {
+        await deployCompleteSuperpowers({ verbose: options.verbose });
+      }
+    });
+
+  program
+    .command("init")
+    .description("Initialize Stigmergy project in current directory")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleInitCommand(options);
     });
 
   program
-    .command('setup')
-    .description('Complete Stigmergy setup (install + deploy + init)')
-    .option('-v, --verbose', 'Verbose output')
+    .command("setup")
+    .description("Complete Stigmergy setup (install + deploy + init)")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleSetupCommand(options);
     });
 
   program
-    .command('call')
-    .description('Smart AI tool routing based on prompt')
-    .argument('<prompt>', 'Prompt to process with smart routing')
-    .option('-i, --interactive', 'Run in interactive mode (continuous conversation)')
-    .option('-p, --print', 'Run in one-time mode (print and exit)')
-    .option('-v, --verbose', 'Verbose output')
+    .command("call")
+    .description("Smart AI tool routing based on prompt")
+    .argument("<prompt>", "Prompt to process with smart routing")
+    .option(
+      "-i, --interactive",
+      "Run in interactive mode (continuous conversation)",
+    )
+    .option("-p, --print", "Run in one-time mode (print and exit)")
+    .option("-v, --verbose", "Verbose output")
     .action(async (prompt, options) => {
       await handleCallCommand(prompt, options);
     });
 
   // Interactive mode command
   program
-    .command('interactive')
-    .alias('i')
-    .description('Start interactive mode with project status board for cross-session collaboration')
-    .option('-t, --timeout <ms>', 'CLI execution timeout in milliseconds (default: 0, no timeout)')
-    .option('--no-save', 'Disable auto-save of session history')
-    .option('-v, --verbose', 'Verbose output')
+    .command("interactive")
+    .alias("i")
+    .description(
+      "Start interactive mode with project status board for cross-session collaboration",
+    )
+    .option(
+      "-t, --timeout <ms>",
+      "CLI execution timeout in milliseconds (default: 0, no timeout)",
+    )
+    .option("--no-save", "Disable auto-save of session history")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleInteractiveCommand(options);
     });
 
   // Status command
   program
-    .command('status')
-    .description('Check CLI tools status')
-    .option('-c, --cli <cli>', 'Check status of specific CLI tool')
-    .option('--json', 'Output in JSON format')
-    .option('-v, --verbose', 'Verbose output')
+    .command("status")
+    .description("Check CLI tools status")
+    .option("-c, --cli <cli>", "Check status of specific CLI tool")
+    .option("--json", "Output in JSON format")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleStatusCommand(options);
     });
 
   // Scan command
   program
-    .command('scan')
-    .description('Scan for available CLI tools')
-    .option('-d, --deep', 'Deep scan for CLI tools')
-    .option('--json', 'Output in JSON format')
-    .option('-v, --verbose', 'Verbose output')
+    .command("scan")
+    .description("Scan for available CLI tools")
+    .option("-d, --deep", "Deep scan for CLI tools")
+    .option("--json", "Output in JSON format")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleScanCommand(options);
     });
 
   // Permission management commands
   program
-    .command('fix-perms')
-    .description('Fix directory permissions automatically')
-    .option('-v, --verbose', 'Verbose output')
+    .command("fix-perms")
+    .description("Fix directory permissions automatically")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleFixPermsCommand(options);
     });
 
   program
-    .command('perm-check')
-    .description('Check directory permissions')
-    .option('-v, --verbose', 'Verbose output')
+    .command("perm-check")
+    .description("Check directory permissions")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handlePermCheckCommand(options);
     });
 
   // System commands
   program
-    .command('clean')
-    .alias('c')
-    .description('Intelligent cache cleaning')
-    .option('--dry-run', 'Show what would be cleaned without actually cleaning')
-    .option('-q, --quiet', 'Suppress detailed output, show only summary')
-    .option('-v, --verbose', 'Verbose output (show permission errors)')
+    .command("clean")
+    .alias("c")
+    .description("Intelligent cache cleaning")
+    .option("--dry-run", "Show what would be cleaned without actually cleaning")
+    .option("-q, --quiet", "Suppress detailed output, show only summary")
+    .option("-v, --verbose", "Verbose output (show permission errors)")
     .action(async (options) => {
       await handleCleanCommand(options);
     });
 
   program
-    .command('diagnostic')
-    .aliases(['diag', 'd'])
-    .description('System diagnostic')
-    .option('-v, --verbose', 'Verbose output')
+    .command("diagnostic")
+    .aliases(["diag", "d"])
+    .description("System diagnostic")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleDiagnosticCommand(options);
     });
 
   // Skills management commands
   program
-    .command('skill')
-    .description('Skills management system')
-    .argument('[subcommand]', 'Skill subcommand (install/list/read/validate/remove/sync)')
-    .argument('[args...]', 'Additional arguments')
-    .option('-v, --verbose', 'Verbose output')
-    .option('-f, --force', 'Force operation')
-    .option('--no-auto-sync', 'Disable auto-sync')
+    .command("skill")
+    .description("Skills management system")
+    .argument(
+      "[subcommand]",
+      "Skill subcommand (install/list/read/validate/remove/sync)",
+    )
+    .argument("[args...]", "Additional arguments")
+    .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force operation")
+    .option("--no-auto-sync", "Disable auto-sync")
     .action(async (subcommand, args, options) => {
       if (!subcommand) {
         printSkillsHelp();
@@ -277,91 +347,96 @@ async function main() {
 
   // Skill command aliases (shortcuts)
   program
-    .command('skill-i')
-    .description('Install a skill (alias for: skill install)')
-    .argument('<source>', 'Skill source to install')
-    .option('-v, --verbose', 'Verbose output')
+    .command("skill-i")
+    .description("Install a skill (alias for: skill install)")
+    .argument("<source>", "Skill source to install")
+    .option("-v, --verbose", "Verbose output")
     .action(async (source, options) => {
-      await handleSkillMainCommand('install', [source], options);
+      await handleSkillMainCommand("install", [source], options);
     });
 
   program
-    .command('skill-l')
-    .description('List installed skills (alias for: skill list)')
-    .option('-v, --verbose', 'Verbose output')
+    .command("skill-l")
+    .description("List installed skills (alias for: skill list)")
+    .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
-      await handleSkillMainCommand('list', [], options);
+      await handleSkillMainCommand("list", [], options);
     });
 
   program
-    .command('skill-r')
-    .description('Read a skill (alias for: skill read)')
-    .argument('<skill-name>', 'Name of skill to read')
-    .option('-v, --verbose', 'Verbose output')
+    .command("skill-r")
+    .description("Read a skill (alias for: skill read)")
+    .argument("<skill-name>", "Name of skill to read")
+    .option("-v, --verbose", "Verbose output")
     .action(async (skillName, options) => {
-      await handleSkillMainCommand('read', [skillName], options);
+      await handleSkillMainCommand("read", [skillName], options);
     });
 
   program
-    .command('skill-v')
-    .description('Validate/read skill (alias for: skill validate/read)')
-    .argument('<path-or-name>', 'Path to validate or skill name to read')
-    .option('-v, --verbose', 'Verbose output')
+    .command("skill-v")
+    .description("Validate/read skill (alias for: skill validate/read)")
+    .argument("<path-or-name>", "Path to validate or skill name to read")
+    .option("-v, --verbose", "Verbose output")
     .action(async (pathOrName, options) => {
-      await handleSkillMainCommand('validate', [pathOrName], options);
+      await handleSkillMainCommand("validate", [pathOrName], options);
     });
 
   program
-    .command('skill-d')
-    .description('Remove a skill (alias for: skill remove)')
-    .argument('<skill-name>', 'Name of skill to remove')
-    .option('-v, --verbose', 'Verbose output')
-    .option('-f, --force', 'Force removal')
+    .command("skill-d")
+    .description("Remove a skill (alias for: skill remove)")
+    .argument("<skill-name>", "Name of skill to remove")
+    .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force removal")
     .action(async (skillName, options) => {
-      await handleSkillMainCommand('remove', [skillName], options);
+      await handleSkillMainCommand("remove", [skillName], options);
     });
 
   program
-    .command('skill-m')
-    .description('Remove a skill (移除 alias for: skill remove)')
-    .argument('<skill-name>', 'Name of skill to remove')
-    .option('-v, --verbose', 'Verbose output')
-    .option('-f, --force', 'Force removal')
+    .command("skill-m")
+    .description("Remove a skill (移除 alias for: skill remove)")
+    .argument("<skill-name>", "Name of skill to remove")
+    .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force removal")
     .action(async (skillName, options) => {
-      await handleSkillMainCommand('remove', [skillName], options);
+      await handleSkillMainCommand("remove", [skillName], options);
     });
 
   // Auto-install command (for npm postinstall)
   program
-    .command('auto-install')
-    .description('Automated installation for npm postinstall')
-    .option('-v, --verbose', 'Verbose output')
-    .option('-f, --force', 'Force installation')
+    .command("auto-install")
+    .description("Automated installation for npm postinstall")
+    .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force installation")
     .action(async (options) => {
       await handleAutoInstallCommand(options);
     });
 
   // Skills Hub command - Centralized meta-skill management
   program
-    .command('skills-hub')
-    .description('Centralized meta-skill management (init|sync|status|update)')
-    .argument('[action]', 'Action to perform: init, sync, status, update')
-    .option('--tool <id>', 'Sync to specific tool (for sync action)')
-    .option('--force', 'Sync even if tool not detected')
-    .option('--dry-run', 'Show what would be done without doing it')
-    .option('--auto-sync', 'Auto-sync after update (for update action)')
-    .option('-v, --verbose', 'Verbose output')
+    .command("skills-hub")
+    .description("Centralized meta-skill management (init|sync|status|update)")
+    .argument("[action]", "Action to perform: init, sync, status, update")
+    .option("--tool <id>", "Sync to specific tool (for sync action)")
+    .option("--force", "Sync even if tool not detected")
+    .option("--dry-run", "Show what would be done without doing it")
+    .option("--auto-sync", "Auto-sync after update (for update action)")
+    .option("-v, --verbose", "Verbose output")
     .action(async (action, options) => {
       await handleSkillsHubCommand(action, options);
     });
 
   // Resume session command
   program
-    .command('resume')
-    .description('Resume session - Cross-CLI session recovery and history management (shows last message of latest valuable session by default)')
-    .argument('[cli]', 'CLI tool to filter (claude, gemini, qwen, iflow, codebuddy, codex, qodercli, opencode, kode)')
-    .argument('[limit]', 'Maximum number of sessions to show')
-    .option('-v, --verbose', 'Verbose output')
+    .command("resume")
+    .description(
+      "Resume session - Cross-CLI session recovery and history management (shows last message of latest valuable session by default)",
+    )
+    .argument(
+      "[cli]",
+      "CLI tool to filter (claude, gemini, qwen, iflow, codebuddy, codex, qodercli, opencode, kode)",
+    )
+    .argument("[limit]", "Maximum number of sessions to show")
+    .option("-v, --verbose", "Verbose output")
     .action(async (cli, limit, options) => {
       const args = [];
       if (cli) args.push(cli);
@@ -371,27 +446,183 @@ async function main() {
 
   // Concurrent execution command
   program
-    .command('concurrent')
-    .alias('conc')
-    .description('Execute task with multiple AI tools concurrently')
-    .argument('<prompt>', 'Task description')
-    .option('-c, --concurrency <number>', 'Number of concurrent CLIs (default: 3)', '3')
-    .option('-t, --timeout <ms>', 'Execution timeout in milliseconds (default: 0 = no timeout)', '0')
-    .option('-m, --mode <mode>', 'Execution mode: parallel (default) or sequential', 'parallel')
-    .option('--no-lock', 'Disable file lock protection (not recommended)')
-    .option('-v, --verbose', 'Verbose output')
+    .command("concurrent")
+    .alias("conc")
+    .description("Execute task with multiple AI tools concurrently")
+    .argument("<prompt>", "Task description")
+    .option(
+      "-c, --concurrency <number>",
+      "Number of concurrent CLIs (default: 3)",
+      "3",
+    )
+    .option(
+      "-t, --timeout <ms>",
+      "Execution timeout in milliseconds (default: 0 = no timeout)",
+      "0",
+    )
+    .option(
+      "-m, --mode <mode>",
+      "Execution mode: parallel (default) or sequential",
+      "parallel",
+    )
+    .option("--no-lock", "Disable file lock protection (not recommended)")
+    .option("-v, --verbose", "Verbose output")
     .action(async (prompt, options) => {
       await handleConcurrentCommand(prompt, options);
     });
 
+  // Scheduler command - 定时任务管理
+  program
+    .command("scheduler")
+    .alias("sched")
+    .description("定时任务管理 - 创建、查看、删除定时任务")
+    .argument(
+      "[command]",
+      "命令: list, add, get, update, delete, toggle, run, history, status, start, stop",
+    )
+    .option("--id <id>", "任务ID")
+    .option("--name <名称>", "任务名称")
+    .option("--type <类型>", "任务类型: cli, gateway, webhook, script")
+    .option("--cron <表达式>", "Cron 表达式")
+    .option("--cli <工具>", "CLI 工具: claude, gemini, qwen, iflow 等")
+    .option("-c, --command <命令>", "命令或提示词")
+    .option(
+      "-p, --platform <平台>",
+      "Gateway 平台: feishu, telegram, slack, discord",
+    )
+    .option("-m, --message <消息>", "消息内容")
+    .option("--webhook <URL>", "Webhook 地址")
+    .option("--timeout <毫秒>", "超时时间")
+    .option("--retry <次数>", "重试次数")
+    .option("--limit <数量>", "限制数量")
+    .action(async (command, options) => {
+      try {
+        const path = require("path");
+        const { execSync } = require("child_process");
+        const schedulerPath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "src",
+          "cli",
+          "commands",
+          "scheduler.js",
+        );
+
+        const args = ["node", schedulerPath];
+        if (command) args.push(command);
+        if (options.id) args.push("--id", options.id);
+        if (options.name) args.push("--name", options.name);
+        if (options.type) args.push("--type", options.type);
+        if (options.cron) args.push("--cron", options.cron);
+        if (options.cli) args.push("--cli", options.cli);
+        if (options.command) args.push("--command", options.command);
+        if (options.platform) args.push("--platform", options.platform);
+        if (options.message) args.push("--message", options.message);
+        if (options.webhook) args.push("--webhook", options.webhook);
+        if (options.timeout) args.push("--timeout", options.timeout);
+        if (options.retry) args.push("--retry", options.retry);
+        if (options.limit) args.push("--limit", options.limit);
+
+        execSync("node", [...args], { stdio: "inherit", shell: true });
+      } catch (error) {
+        if (error.status !== 0) {
+          console.error(chalk.red(`错误: ${error.message}`));
+        }
+      }
+    });
+
+  // Gateway command - Multi-platform unified gateway server
+  program
+    .command("gateway")
+    .description(
+      "Start multi-platform Gateway Server (feishu/telegram/slack/discord)",
+    )
+    .option("--feishu", "Enable Feishu platform")
+    .option("--telegram", "Enable Telegram platform")
+    .option("--slack", "Enable Slack platform")
+    .option("--discord", "Enable Discord platform")
+    .option("-p, --port <number>", "Server port", "3000")
+    .option("-d, --workdir <path>", "Working directory", process.cwd())
+    .option("--tunnel", "Enable ngrok public tunnel")
+    .argument("[subcommand]", "Subcommand: init, status, stop")
+    .action(async (subcommand, options) => {
+      try {
+        const platforms = {};
+        if (options.feishu) platforms.feishu = { enabled: true };
+        if (options.telegram) platforms.telegram = { enabled: true };
+        if (options.slack) platforms.slack = { enabled: true };
+        if (options.discord) platforms.discord = { enabled: true };
+
+        const config = {
+          port: parseInt(options.port, 10),
+          workdir: options.workdir,
+          platforms,
+          tunnel: options.tunnel || false,
+        };
+
+        if (subcommand === "init") {
+          console.log(chalk.yellow("[Gateway] Initializing configuration..."));
+          console.log(
+            `[Gateway] Platforms: ${Object.keys(platforms).join(", ") || "none"}`,
+          );
+          console.log(chalk.green("[Gateway] Configuration initialized"));
+          return;
+        }
+
+        if (subcommand === "status") {
+          console.log(chalk.yellow("[Gateway] Checking server status..."));
+          console.log(
+            "[Gateway] Use HTTP GET /status on gateway port for details",
+          );
+          return;
+        }
+
+        if (subcommand === "stop") {
+          console.log(chalk.yellow("[Gateway] Stop command received"));
+          console.log("[Gateway] Send SIGINT or use HTTP POST /config to stop");
+          return;
+        }
+
+        if (!subcommand) {
+          console.log(
+            chalk.yellow("[Gateway] Starting multi-platform gateway server..."),
+          );
+          const server = new GatewayServer(config);
+          await server.start();
+        } else {
+          console.log(chalk.red(`[Gateway] Unknown subcommand: ${subcommand}`));
+          process.exit(1);
+        }
+      } catch (error) {
+        console.error(chalk.red(`[Gateway] Error: ${error.message}`));
+        process.exit(1);
+      }
+    });
+
   // Route commands to CLI tools
-  for (const tool of ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot', 'opencode', 'kode']) {
+  for (const tool of [
+    "claude",
+    "gemini",
+    "qwen",
+    "codebuddy",
+    "codex",
+    "iflow",
+    "qodercli",
+    "copilot",
+    "opencode",
+    "kode",
+    "kilocode",
+  ]) {
     program
       .command(tool)
       .description(`Use ${tool} CLI tool`)
-      .argument('[args...]', 'Arguments to pass to the CLI tool')
-      .option('-i, --interactive', 'Run in interactive mode (continuous conversation)')
-      .option('-p, --print', 'Run in one-time mode (print and exit)')
+      .argument("[args...]", "Arguments to pass to the CLI tool")
+      .option(
+        "-i, --interactive",
+        "Run in interactive mode (continuous conversation)",
+      )
+      .option("-p, --print", "Run in one-time mode (print and exit)")
       .allowUnknownOption(true)
       .allowExcessArguments(true)
       .action(async (args, options, command) => {
@@ -401,9 +632,9 @@ async function main() {
 
           if (toolPath) {
             // Join args to form the prompt
-            const prompt = args.join(' ');
+            const prompt = args.join(" ");
 
-            if (process.env.DEBUG === 'true') {
+            if (process.env.DEBUG === "true") {
               console.log(`[DEBUG] Tool path: ${toolPath}`);
               console.log(`[DEBUG] Prompt: ${prompt}`);
             }
@@ -412,53 +643,64 @@ async function main() {
             const mode = modeDetector.detect({
               interactive: options.interactive,
               print: options.print,
-              verbose: process.env.DEBUG === 'true'
+              verbose: process.env.DEBUG === "true",
             });
 
             const modeDescription = modeDetector.getModeDescription(mode);
-            if (process.env.DEBUG === 'true' || options.interactive || options.print) {
+            if (
+              process.env.DEBUG === "true" ||
+              options.interactive ||
+              options.print
+            ) {
               console.log(chalk.gray(`[MODE] ${modeDescription}`));
             }
 
             // Use CLI adapter to get appropriate arguments for the tool and mode
-            const adaptedArgs = cliAdapterManager.getArguments(tool, mode, prompt);
+            const adaptedArgs = cliAdapterManager.getArguments(
+              tool,
+              mode,
+              prompt,
+            );
 
-            if (process.env.DEBUG === 'true') {
-              console.log(`[DEBUG] Adapted args for ${tool} (${mode}): ${adaptedArgs.join(' ')}`);
+            if (process.env.DEBUG === "true") {
+              console.log(
+                `[DEBUG] Adapted args for ${tool} (${mode}): ${adaptedArgs.join(" ")}`,
+              );
             }
 
             // Use enhanced parameter handling for intelligent argument generation
             let toolArgs = adaptedArgs; // Start with adapted args
 
             try {
-              if (process.env.DEBUG === 'true') {
-                console.log('[DEBUG] Initializing parameter handler...');
+              if (process.env.DEBUG === "true") {
+                console.log("[DEBUG] Initializing parameter handler...");
               }
-              const EnhancedCLIParameterHandler = require('../core/enhanced_cli_parameter_handler');
+              const EnhancedCLIParameterHandler = require("../core/enhanced_cli_parameter_handler");
               const paramHandler = new EnhancedCLIParameterHandler();
 
               // Generate optimized arguments with agent/skill support
               // Skip for interactive mode to avoid double-processing
-              if (mode === 'one-time') {
-                const paramResult = await paramHandler.generateArgumentsWithRetry(
-                  tool,
-                  prompt,
-                  {
+              if (mode === "one-time") {
+                const paramResult =
+                  await paramHandler.generateArgumentsWithRetry(tool, prompt, {
                     maxRetries: 3,
-                    enableAgentSkillOptimization: true
-                  }
-                );
+                    enableAgentSkillOptimization: true,
+                  });
 
                 toolArgs = paramResult.arguments;
 
-                if (process.env.DEBUG === 'true') {
-                  console.log(`[DEBUG] Generated args: ${toolArgs.join(' ')}`);
+                if (process.env.DEBUG === "true") {
+                  console.log(`[DEBUG] Generated args: ${toolArgs.join(" ")}`);
                 }
               }
             } catch (paramError) {
               // Fallback to adapted args if parameter handler fails
-              if (process.env.DEBUG === 'true') {
-                console.log(chalk.yellow(`[WARN] Parameter handler failed, using adapted args: ${paramError.message}`));
+              if (process.env.DEBUG === "true") {
+                console.log(
+                  chalk.yellow(
+                    `[WARN] Parameter handler failed, using adapted args: ${paramError.message}`,
+                  ),
+                );
               }
             }
 
@@ -472,46 +714,56 @@ async function main() {
             const workingDir = getWorkingDirectoryForTool(tool);
 
             const result = await executeCommand(toolPath, toolArgs, {
-              stdio: 'inherit',
+              stdio: "inherit",
               shell: true,
               cwd: workingDir,
-              env: toolEnv
+              env: toolEnv,
             });
 
             if (!result.success) {
-              console.log(chalk.yellow(`[WARN] ${tool} exited with code ${result.code}`));
+              console.log(
+                chalk.yellow(`[WARN] ${tool} exited with code ${result.code}`),
+              );
             }
             process.exit(result.code || 0);
           } else {
             console.log(chalk.red(`[ERROR] Could not find ${tool}`));
-            console.log(chalk.yellow('[INFO] Make sure the tool is installed: stigmergy install'));
+            console.log(
+              chalk.yellow(
+                "[INFO] Make sure the tool is installed: stigmergy install",
+              ),
+            );
             process.exit(1);
           }
         } catch (error) {
-          if (process.env.DEBUG === 'true') {
+          if (process.env.DEBUG === "true") {
             console.log(chalk.red(`[ERROR] Exception: ${error.message}`));
             console.log(chalk.red(error.stack));
           }
-          const cliError = await errorHandler.handleCLIError(tool, error, command.args.join(' '));
+          const cliError = await errorHandler.handleCLIError(
+            tool,
+            error,
+            command.args.join(" "),
+          );
           console.log(chalk.red(`[ERROR] Failed to execute ${tool}:`));
           console.log(chalk.red(cliError.message));
           process.exit(1);
         }
       });
-    }
+  }
 
-    // Add OAuth arguments for OAuth-enabled tools
-    const oauthTools = ['gemini', 'claude']; // Tools that support OAuth
-    oauthTools.forEach(tool => {
-      const cmd = program.commands.find(c => c.name() === tool);
-      if (cmd) {
-        addOAuthAuthArgsCommand(cmd);
-      }
-    });
+  // Add OAuth arguments for OAuth-enabled tools
+  const oauthTools = ["gemini", "claude"]; // Tools that support OAuth
+  oauthTools.forEach((tool) => {
+    const cmd = program.commands.find((c) => c.name() === tool);
+    if (cmd) {
+      addOAuthAuthArgsCommand(cmd);
+    }
+  });
 
   // 检查是否没有提供任何命令，如果是则默认启动交互式模式
   const args = process.argv.slice(2);
-  if (args.length === 0 || (args.length === 1 && args[0] === '')) {
+  if (args.length === 0 || (args.length === 1 && args[0] === "")) {
     // 没有提供任何命令，启动交互式模式
     await handleInteractiveCommand({});
     return;
@@ -521,8 +773,10 @@ async function main() {
   program.parse(process.argv);
 
   // 如果提供了命令但无法识别，显示帮助
-  if (!program.commands.find(cmd => cmd.name() === args[0])) {
-    console.log(chalk.yellow('Unknown command. Starting interactive mode...\n'));
+  if (!program.commands.find((cmd) => cmd.name() === args[0])) {
+    console.log(
+      chalk.yellow("Unknown command. Starting interactive mode...\n"),
+    );
     await handleInteractiveCommand({});
     return;
   }

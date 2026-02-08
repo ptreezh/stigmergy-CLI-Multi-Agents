@@ -1,0 +1,20 @@
+{
+  "mode": "single",
+  "subBoards": {
+    "backend": {
+      "path": "./backend",
+      "independent": true,
+      "createdAt": "2026-01-27T02:40:29.083Z"
+    },
+    "frontend": {
+      "path": "./frontend",
+      "independent": true,
+      "createdAt": "2026-01-27T02:40:29.086Z"
+    },
+    "docs": {
+      "path": "./docs",
+      "independent": true,
+      "createdAt": "2026-01-27T02:40:29.089Z"
+    }
+  }
+}

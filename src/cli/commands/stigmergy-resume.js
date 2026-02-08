@@ -725,6 +725,88 @@ class ResumeSessionCommand {
       return 1;
     }
   }
+
+  // Execute resume command with enhanced functionality
+  executeEnhanced(args) {
+    try {
+      const options = this.parseOptions(args);
+
+      // For default mode (no specific options), use the enhanced independent-resume.js
+      // This provides the improved filtering and formatting we added
+      if (!options.cli && !options.limit && !options.showAll && !options.search &&
+          !options.timeRange && !options.format && args.length === 0) {
+        // Call the enhanced independent-resume.js script directly
+        const { spawnSync } = require('child_process');
+        const path = require('path');
+
+        const scriptPath = path.join(__dirname, '../../../..', 'skills', 'resumesession', 'independent-resume.js');
+        const result = spawnSync('node', [scriptPath], {
+          stdio: 'pipe',
+          encoding: 'utf-8',
+          cwd: process.cwd()
+        });
+
+        if (result.status === 0) {
+          console.log(result.stdout);
+          return 0;
+        } else {
+          // If the enhanced version fails, fall back to the original implementation
+          console.error('Enhanced resumesession failed, falling back to original implementation');
+        }
+      }
+
+      // Fall back to original implementation
+      const allSessions = this.scanAllCLISessions(this.projectPath);
+      const filteredSessions = this.applyFilters(allSessions, options, this.projectPath);
+
+      let response;
+
+      // 默认模式：显示最近的会话上下文
+      if (options.format === 'context' && !options.limit && !options.showAll) {
+        // 找到最近的会话
+        let session = filteredSessions[0] || null;
+
+        // 如果最近的会话内容为空，尝试上一个会话
+        if (session && !this.hasContent(session) && filteredSessions.length > 1) {
+          for (let i = 1; i < filteredSessions.length; i++) {
+            if (this.hasContent(filteredSessions[i])) {
+              session = filteredSessions[i];
+              break;
+            }
+          }
+        }
+
+        if (!session) {
+          response = ` sorell ${options.showAll ? '暂无会话记录' : '当前项目暂无会话记录'}\n\n💡 **提示:** 尝试: stigmergy resume --all 查看所有项目的会话`;
+        } else {
+          response = this.formatContext(session, options.full);
+        }
+      } else {
+        // 列表模式或其他格式
+        switch (options.format) {
+          case 'timeline':
+            response = this.formatTimeline(filteredSessions);
+            break;
+          case 'detailed':
+            response = this.formatDetailed(filteredSessions);
+            break;
+          case 'context':
+            response = this.formatContext(filteredSessions[0] || null, options.full);
+            break;
+          case 'summary':
+          default:
+            response = this.formatSummary(filteredSessions);
+            break;
+        }
+      }
+
+      console.log(response);
+      return 0;
+    } catch (error) {
+      console.error(`❌ 历史查询失败: ${error.message}`);
+      return 1;
+    }
+  }
 }
 
 // Export for use as module
@@ -732,8 +814,47 @@ module.exports = ResumeSessionCommand;
 
 // Export handler function for router
 module.exports.handleResumeCommand = async function(args, options) {
-  const command = new ResumeSessionCommand();
-  return command.execute(args);
+  // Always use the enhanced resumesession functionality
+  const { spawnSync } = require('child_process');
+  const path = require('path');
+
+  // Try to find the independent-resume.js script in different possible locations
+  const possiblePaths = [
+    path.join(__dirname, '../../../..', 'skills', 'resumesession', 'independent-resume.js'), // Development path
+    path.join(__dirname, '../../..', 'skills', 'resumesession', 'independent-resume.js'),    // Global install path
+    path.join(__dirname, '../..', 'skills', 'resumesession', 'independent-resume.js'),       // Alternative global path
+    path.join(__dirname, '..', 'skills', 'resumesession', 'independent-resume.js')          // Another alternative
+  ];
+
+  let scriptPath = null;
+  for (const p of possiblePaths) {
+    try {
+      require.resolve(p);
+      scriptPath = p;
+      break;
+    } catch (e) {
+      // Path doesn't exist, try the next one
+    }
+  }
+
+  if (!scriptPath) {
+    console.error('Could not find independent-resume.js script in any expected location');
+    return 1;
+  }
+
+  const result = spawnSync('node', [scriptPath], {
+    stdio: 'pipe',
+    encoding: 'utf-8',
+    cwd: process.cwd()
+  });
+
+  if (result.status === 0) {
+    console.log(result.stdout);
+    return 0;
+  } else {
+    console.error('Enhanced resumesession failed:', result.stderr);
+    return 1;
+  }
 };
 
 // Export help function

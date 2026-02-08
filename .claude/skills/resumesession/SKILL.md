@@ -20,23 +20,29 @@ This skill enables Claude CLI to quickly recover the latest session from previou
 To quickly recover latest session for current project from any CLI:
 
 ```javascript
-// Cross-platform approach - uses os.homedir() to automatically adapt to platform
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js")
+// Use stigmergy command directly (recommended)
+Bash("stigmergy resume");
 ```
 
-Alternative approaches for cross-platform compatibility:
+Alternative approaches:
+
 ```bash
-# Use the stigmergy command directly (recommended for cross-platform compatibility)
-Bash("stigmergy resume")
+# Use quick-resume (simpler, works in Claude CLI directly)
+Bash("node ~/.claude/skills/resumesession/quick-resume.js")
+```
 
-# Use the opencode-specific resume for OpenCode CLI sessions
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/opencode-resume.js")
+Alternative approaches:
 
-# Use the simple resume for quick recovery
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/simple-resume.js")
+```bash
+# Use npx to run without global installation
+Bash("npx stigmergy-CLI-Multi-Agents resume")
+
+# Direct path approach (Windows compatible via __dirname)
+Bash("node -e \"require('path').join(require('os').homedir(), '.claude/skills/resumesession/independent-resume.js')\"")
 ```
 
 This command:
+
 - Automatically detects the current project
 - Finds the latest session across all CLI tools (Claude, Gemini, Qwen, iFlow, CodeBuddy, Codex, QoderCLI, OpenCode)
 - Displays session summary and recent conversation content
@@ -46,26 +52,14 @@ This command:
 
 For more detailed session exploration:
 
-```javascript
-// Show 5 most recent sessions from any CLI
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js 5")
+```bash
+# Show sessions from specific CLI (e.g., claude)
+Bash("stigmergy resume --cli claude")
 
-// Show sessions from specific CLI (e.g., iflow)
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js iflow")
+# List all recent sessions
+Bash("stigmergy resume --list")
 
-// Show all sessions from current project
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js --all")
-
-// Show all sessions from all projects
-Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js --complete")
-
-// Show timeline of all Claude sessions
-Bash("stigmergy resume --cli claude --format timeline")
-
-// Show today's sessions only
-Bash("stigmergy resume --cli claude --today")
-
-// Search sessions by content
+# Search sessions by content
 Bash("stigmergy resume --search <keyword>")
 ```
 
@@ -73,13 +67,19 @@ Bash("stigmergy resume --search <keyword>")
 
 When a user asks to recover a previous conversation (e.g., "恢复 Claude 的上次对话"):
 
-1. **Execute the simple command**:
+1. **Execute the resume command**:
+
    ```javascript
-   // Cross-platform approach using os.homedir()
-   Bash("node " + require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js")
+   Bash("stigmergy resume");
    ```
 
-2. **Display the result directly to the user** without showing intermediate steps
+2. **Display the result directly** (concise format):
+
+   ```
+   [2026/2/6 14:30] CLAUDE
+   👤 请保存版本，更新库，推送到远程库
+   🤖 Git Commit: Cognitive Bias Tests & Challenges
+   ```
 
 3. **Continue the conversation** based on the recovered context
 
@@ -88,17 +88,19 @@ When a user asks to recover a previous conversation (e.g., "恢复 Claude 的上
 This skill is designed to work across different operating systems:
 
 ### Windows, macOS, and Linux Support
+
 - Uses `require("os").homedir()` to dynamically determine user home directory
 - On Windows: `C:\Users\Username`
 - On macOS/Linux: `/home/username` or `/Users/username`
 - Then appends the standardized path: `/.claude/skills/resumesession/`
 
 ### Platform-Specific Path Resolution
+
 ```javascript
 // This resolves to the correct path on any platform:
 // Windows: C:\Users\Username\.claude\skills\resumesession\independent-resume.js
 // macOS/Linux: /home/username/.claude/skills/resumesession/independent-resume.js
-require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js"
+require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js";
 ```
 
 ## Features
@@ -119,8 +121,9 @@ require("os").homedir() + "/.claude/skills/resumesession/independent-resume.js"
 The skill automatically detects the current project path and scans session directories for all supported CLI tools.
 
 Session paths are automatically detected across platforms using cross-platform logic:
+
 - `~/.claude/projects` or `~\AppData\Roaming\claude\projects` (Claude)
-- `~/.config/gemini/tmp` or `~\AppData\Roaming\gemini\tmp` (Gemini)  
+- `~/.config/gemini/tmp` or `~\AppData\Roaming\gemini\tmp` (Gemini)
 - `~/.qwen/projects` or `~\AppData\Roaming\qwen\projects` (Qwen)
 - `~/.iflow/projects` or `~\AppData\Roaming\iflow\projects` (iFlow)
 - `~/.codebuddy` or `~\AppData\Roaming\codebuddy` (CodeBuddy)

@@ -19,7 +19,17 @@
       },
       "deployment": {
         "autoDeploy": true,
-        "targetCLIs": ["claude", "codex", "iflow", "qwen", "qodercli", "codebuddy"],
+        "targetCLIs": [
+          "claude",
+          "codex",
+          "iflow",
+          "qwen",
+          "qodercli",
+          "codebuddy",
+          "kilocode",
+          "kode",
+          "opencode"
+        ],
         "files": [
           {
             "source": "skills/resumesession/SKILL.md",
@@ -30,8 +40,8 @@
             "destination": "skills/resumesession/__init__.py"
           },
           {
-            "source": "skills/resumesession/independent-resume.js",
-            "destination": "skills/resumesession/independent-resume.js"
+            "source": "skills/resumesession/resume.js",
+            "destination": "skills/resumesession/resume.js"
           }
         ]
       },
@@ -41,6 +51,91 @@
           "description": "Resume session - Cross-CLI session recovery and history management",
           "handler": "src/cli/commands/simple-resume.js"
         }
+      }
+    },
+    {
+      "name": "planning-with-files",
+      "displayName": "Planning with Files",
+      "description": "Manus-style file-based planning for complex tasks",
+      "version": "1.0.0",
+      "author": "stigmergy",
+      "type": "builtin",
+      "category": "task-management",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": [
+          "claude",
+          "qwen",
+          "gemini",
+          "iflow",
+          "codebuddy",
+          "kilocode",
+          "opencode"
+        ],
+        "files": [
+          {
+            "source": "skills/planning-with-files/SKILL.md",
+            "destination": "skills/planning-with-files/SKILL.md"
+          },
+          {
+            "source": "skills/planning-with-files/examples.md",
+            "destination": "skills/planning-with-files/examples.md"
+          },
+          {
+            "source": "skills/planning-with-files/reference.md",
+            "destination": "skills/planning-with-files/reference.md"
+          }
+        ]
+      }
+    },
+    {
+      "name": "skill-from-masters",
+      "displayName": "Skill from Masters",
+      "description": "Learn best practices from expert methodologies - grounded theory, ANT, field analysis",
+      "version": "1.0.0",
+      "author": "stigmergy",
+      "type": "builtin",
+      "category": "research",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": ["claude", "qwen", "gemini", "iflow"],
+        "files": [
+          {
+            "source": "skills/skill-from-masters/SKILL.md",
+            "destination": "skills/skill-from-masters/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "name": "using-superpowers",
+      "displayName": "Using Superpowers",
+      "description": "Superpowers Meta-Skill - Mandatory First Response Protocol",
+      "version": "1.0.0",
+      "author": "superpowers",
+      "type": "builtin",
+      "category": "meta",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": [
+          "claude",
+          "qwen",
+          "gemini",
+          "iflow",
+          "codebuddy",
+          "codex",
+          "copilot",
+          "kode",
+          "kilocode",
+          "opencode",
+          "qodercli"
+        ],
+        "files": [
+          {
+            "source": "skills/using-superpowers/skill.md",
+            "destination": "skills/using-superpowers/skill.md"
+          }
+        ]
       }
     }
   ]

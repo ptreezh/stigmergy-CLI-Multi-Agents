@@ -1,0 +1,308 @@
+#!/usr/bin/env node
+/**
+ * Stigmergy Gateway - 多平台统一网关启动脚本
+ *
+ * 用法：
+ *   stigmergy gateway init          - 初始化配置
+ *   stigmergy gateway --feishu    - 启动飞书网关
+ *   stigmergy gateway --telegram  - 启动 Telegram 网关
+ *   stigmergy gateway --slack     - 启动 Slack 网关
+ *   stigmergy gateway --discord   - 启动 Discord 网关
+ *   stigmergy gateway --all       - 启动所有启用的平台
+ *   stigmergy gateway status      - 查看状态
+ *   stigmergy gateway stop        - 停止网关
+ */
+
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
+const GATEWAY_CONFIG_PATH = path.join(os.homedir(), '.stigmergy', 'gateway.json');
+const DEFAULT_CONFIG = {
+  version: '1.0.0',
+  server: { port: 3000, host: '0.0.0.0' },
+  tunnel: { enabled: true, provider: 'ngrok', region: 'us', autostart: true },
+  platforms: {
+    feishu: { enabled: false, webhook_url: '', secret: '' },
+    telegram: { enabled: false, bot_token: '', proxy_url: '' },
+    slack: { enabled: false, webhook_url: '', signing_secret: '', bot_token: '' },
+    discord: { enabled: false, webhook_url: '', bot_token: '' }
+  }
+};
+
+async function main() {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const flags = args.slice(1);
+
+  if (command === 'init' || command === 'configure') {
+    await initConfig();
+    return;
+  }
+
+  if (command === 'status' || command === '--status') {
+    await showStatus();
+    return;
+  }
+
+  if (command === 'stop' || command === '--stop') {
+    await stopGateway();
+    return;
+  }
+
+  if (command === 'help' || command === '--help' || command === '-h') {
+    showHelp();
+    return;
+  }
+
+  const config = loadConfig();
+
+  if (command === '--all') {
+    for (const platform of ['feishu', 'telegram', 'slack', 'discord']) {
+      if (config.platforms[platform]?.enabled) {
+        await startGateway(platform, config);
+      }
+    }
+    return;
+  }
+
+  const platform = detectPlatform(flags) || 'feishu';
+  config.platforms[platform].enabled = true;
+  saveConfig(config);
+  await startGateway(platform, config);
+}
+
+function showHelp() {
+  console.log(`
+🦸 Stigmergy Gateway - 多平台统一网关
+
+用法:
+  stigmergy gateway <命令> [选项]
+
+命令:
+  init                - 初始化配置
+  status              - 查看运行状态
+  stop                - 停止网关
+
+选项:
+  --feishu           - 启用飞书平台
+  --telegram         - 启用 Telegram 平台
+  --slack            - 启用 Slack 平台
+  --discord          - 启用 Discord 平台
+  --all              - 启动所有启用的平台
+  --port <端口>      - 指定端口
+  --workdir <目录>   - 指定工作目录
+  --no-tunnel        - 禁用 ngrok 隧道
+
+示例:
+  stigmergy gateway init
+  stigmergy gateway --feishu
+  stigmergy gateway --telegram --port 3001
+  stigmergy gateway --all
+  stigmergy gateway status
+
+配置位置: ${GATEWAY_CONFIG_PATH}
+`);
+}
+
+async function initConfig() {
+  console.log('\n🦸 Stigmergy Gateway 初始化\n');
+  console.log('='.repeat(50));
+
+  const inquirer = await import('inquirer');
+
+  const answers = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'workdir',
+      message: '工作目录 (默认当前目录):',
+      default: process.cwd()
+    },
+    {
+      type: 'confirm',
+      name: 'enableTunnel',
+      message: '启用 ngrok 隧道 (内网穿透)?',
+      default: true
+    },
+    {
+      type: 'list',
+      name: 'region',
+      message: '选择 ngrok 区域:',
+      choices: ['us', 'eu', 'ap', 'au', 'sa', 'jp', 'in'],
+      default: 'us',
+      when: (answers) => answers.enableTunnel
+    },
+    {
+      type: 'confirm',
+      name: 'enableFeishu',
+      message: '启用飞书?',
+      default: false
+    },
+    {
+      type: 'input',
+      name: 'feishuWebhook',
+      message: '飞书 Webhook URL:',
+      when: (answers) => answers.enableFeishu,
+      validate: (url) => url.startsWith('https://') ? true : '请输入有效的 URL'
+    },
+    {
+      type: 'confirm',
+      name: 'enableTelegram',
+      message: '启用 Telegram?',
+      default: false
+    },
+    {
+      type: 'input',
+      name: 'telegramToken',
+      message: 'Telegram Bot Token:',
+      when: (answers) => answers.enableTelegram,
+      validate: (token) => token.includes(':') ? true : '请输入有效的 Bot Token'
+    },
+    {
+      type: 'confirm',
+      name: 'enableSlack',
+      message: '启用 Slack?',
+      default: false
+    },
+    {
+      type: 'input',
+      name: 'slackWebhook',
+      message: 'Slack Webhook URL:',
+      when: (answers) => answers.enableSlack,
+      validate: (url) => url.includes('hooks.slack.com') ? true : '请输入有效的 Slack Webhook URL'
+    },
+    {
+      type: 'confirm',
+      name: 'enableDiscord',
+      message: '启用 Discord?',
+      default: false
+    },
+    {
+      type: 'input',
+      name: 'discordWebhook',
+      message: 'Discord Webhook URL:',
+      when: (answers) => answers.enableDiscord,
+      validate: (url) => url.includes('discord.com') ? true : '请输入有效的 Discord Webhook URL'
+    }
+  ]);
+
+  const config = {
+    ...DEFAULT_CONFIG,
+    server: { port: 3000, host: '0.0.0.0', workdir: answers.workdir },
+    tunnel: { enabled: answers.enableTunnel, provider: 'ngrok', region: answers.region || 'us', autostart: true },
+    platforms: {
+      feishu: { enabled: answers.enableFeishu, webhook_url: answers.feishuWebhook || '', secret: '' },
+      telegram: { enabled: answers.enableTelegram, bot_token: answers.telegramToken || '', proxy_url: '' },
+      slack: { enabled: answers.enableSlack, webhook_url: answers.slackWebhook || '', signing_secret: '', bot_token: '' },
+      discord: { enabled: answers.enableDiscord, webhook_url: answers.discordWebhook || '', bot_token: '' }
+    }
+  };
+
+  const configDir = path.dirname(GATEWAY_CONFIG_PATH);
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
+  fs.writeFileSync(GATEWAY_CONFIG_PATH, JSON.stringify(config, null, 2));
+
+  console.log('\n' + '='.repeat(50));
+  console.log('✅ 配置已保存到:', GATEWAY_CONFIG_PATH);
+  console.log('\n启动网关:');
+  console.log('  stigmergy gateway --feishu');
+  console.log('  stigmergy gateway --telegram');
+  console.log('  stigmergy gateway --all\n');
+}
+
+function loadConfig() {
+  if (fs.existsSync(GATEWAY_CONFIG_PATH)) {
+    try {
+      return JSON.parse(fs.readFileSync(GATEWAY_CONFIG_PATH, 'utf8'));
+    } catch (e) {
+      console.warn('[Gateway] Config parse error, using defaults');
+    }
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+}
+
+function saveConfig(config) {
+  const configDir = path.dirname(GATEWAY_CONFIG_PATH);
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+  fs.writeFileSync(GATEWAY_CONFIG_PATH, JSON.stringify(config, null, 2));
+}
+
+function detectPlatform(flags) {
+  const platforms = ['feishu', 'telegram', 'slack', 'discord'];
+  for (const platform of platforms) {
+    if (flags.includes(`--${platform}`)) {
+      return platform;
+    }
+  }
+  return null;
+}
+
+async function startGateway(platform, config) {
+  console.log(`\n🚀 启动 ${platform} Gateway...`);
+
+  try {
+    const { GatewayServer } = require('./src/gateway/server');
+    const { NgrokManager } = require('./src/tunnel/ngrok');
+
+    const serverConfig = {
+      port: parseInt(flags.find(f => f.startsWith('--port='))?.split('=')[1]) || config.server.port || 3000,
+      workdir: config.server.workdir || process.cwd(),
+      platforms: {
+        [platform]: config.platforms[platform]
+      }
+    };
+
+    const server = new GatewayServer(serverConfig);
+
+    if (config.tunnel?.enabled && platform === 'feishu') {
+      const ngrok = new NgrokManager({
+        autostart: true,
+        region: config.tunnel.region || 'us'
+      });
+
+      if (!ngrok.isInstalled()) {
+        console.log('📦 安装 ngrok...');
+        await ngrok.download();
+      }
+
+      const publicUrl = await ngrok.start(serverConfig.port);
+      console.log(`🔗 公网 URL: ${publicUrl}/webhook/${platform}`);
+    }
+
+    await server.start();
+    console.log(`✅ ${platform} Gateway 运行中`);
+
+    process.on('SIGINT', () => {
+      console.log('\n🛑 停止网关...');
+      server.stop();
+      process.exit(0);
+    });
+
+  } catch (error) {
+    console.error(`❌ 启动失败:`, error.message);
+    process.exit(1);
+  }
+}
+
+async function showStatus() {
+  const config = loadConfig();
+  console.log('\n📊 Stigmergy Gateway 状态\n');
+  console.log('配置:', GATEWAY_CONFIG_PATH);
+  console.log('平台:');
+
+  for (const [name, p] of Object.entries(config.platforms)) {
+    const status = p.enabled ? '✅ 启用' : '⚪ 未启用';
+    console.log(`  ${name}: ${status}`);
+  }
+}
+
+async function stopGateway() {
+  console.log('\n🛑 停止所有网关...\n');
+}
+
+main().catch(console.error);

@@ -1,30 +1,32 @@
 /**
  * Smart Router - 智能路由器，根据用户输入选择最合适的 CLI 工具
- * 
+ *
  * 📚 参考文档：
  * - CLI Help Analyzer 重构：REFACTORING_CLI_HELP_ANALYZER.md
- * 
+ *
  * 🔗 依赖关系：
  * - 依赖 CLIHelpAnalyzer 的 getEnhancedCLIPattern() 方法
  * - 重构后调用方式保持不变，完全向后兼容
- * 
+ *
  * @module SmartRouter
  */
-const CLIHelpAnalyzer = require('./cli_help_analyzer');
-const { CLI_TOOLS, validateCLITool } = require('./cli_tools');
-const { errorHandler } = require('./error_handler');
+const CLIHelpAnalyzer = require("./cli_help_analyzer");
+const { CLI_TOOLS, validateCLITool, getPathDetector } = require("./cli_tools");
+const { errorHandler } = require("./error_handler");
 
 // Valid CLI tools whitelist - excludes helper functions attached to CLI_TOOLS
 const VALID_CLI_TOOLS = [
-  'claude',
-  'gemini',
-  'qwen',
-  'iflow',
-  'codebuddy',
-  'codex',
-  'qodercli',
-  'copilot',
-  'kode'
+  "claude",
+  "gemini",
+  "qwen",
+  "iflow",
+  "codebuddy",
+  "codex",
+  "qodercli",
+  "copilot",
+  "kode",
+  "opencode",
+  "kilocode",
 ];
 
 class SmartRouter {
@@ -35,23 +37,32 @@ class SmartRouter {
       this.analyzer = new CLIHelpAnalyzer();
       this.analyzer.setCLITools(this.tools);
     } catch (error) {
-      errorHandler.logError(error, 'ERROR', 'SmartRouter.constructor');
+      errorHandler.logError(error, "ERROR", "SmartRouter.constructor");
       throw error;
     }
     this.routeKeywords = [
-      'use',
-      'help',
-      'please',
-      'write',
-      'generate',
-      'explain',
-      'analyze',
-      'translate',
-      'article',
+      "use",
+      "help",
+      "please",
+      "write",
+      "generate",
+      "explain",
+      "analyze",
+      "translate",
+      "article",
     ];
-    this.defaultTool = 'claude';
+    this.defaultTool = "claude";
     // Track recently failed tools to avoid repeated analysis attempts
     this.recentFailures = new Map();
+  }
+
+  /**
+   * Get list of installed CLI tools from cache
+   */
+  async getInstalledTools() {
+    const detector = getPathDetector();
+    await detector.loadDetectedPaths();
+    return detector.detectedPaths;
   }
 
   /**
@@ -65,7 +76,7 @@ class SmartRouter {
    * Check if input should be routed to a specific CLI tool
    */
   shouldRoute(userInput) {
-    if (!userInput || typeof userInput !== 'string') {
+    if (!userInput || typeof userInput !== "string") {
       return false;
     }
 
@@ -73,13 +84,23 @@ class SmartRouter {
 
     // Check for route keywords
     const routePatterns = [
-      'use', 'using', 'with',
-      'help', 'please', 'assist',
-      'write', 'generate', 'explain', 'analyze',
-      'translate', 'article', 'create', 'code'
+      "use",
+      "using",
+      "with",
+      "help",
+      "please",
+      "assist",
+      "write",
+      "generate",
+      "explain",
+      "analyze",
+      "translate",
+      "article",
+      "create",
+      "code",
     ];
 
-    return routePatterns.some(pattern => input.includes(pattern));
+    return routePatterns.some((pattern) => input.includes(pattern));
   }
 
   /**
@@ -91,9 +112,15 @@ class SmartRouter {
     const input = userInput.trim();
     const inputLower = input.toLowerCase();
 
+    // Get installed tools to filter out unavailable ones
+    const installedTools = await this.getInstalledTools();
+
     // First, check for exact tool name matches (higher priority)
     // Only iterate through valid CLI tools (exclude helper functions)
     for (const toolName of this.validTools) {
+      // Skip tools that are not installed
+      if (!installedTools[toolName]) continue;
+
       try {
         // Validate tool configuration
         validateCLITool(toolName);
@@ -101,8 +128,8 @@ class SmartRouter {
         if (inputLower.includes(toolName)) {
           // Extract clean parameters when the tool name itself is mentioned
           const cleanInput = input
-            .replace(new RegExp(`.*${toolName}\\s*`, 'gi'), '')
-            .replace(/^(use|please|help|using|with)\s*/i, '')
+            .replace(new RegExp(`.*${toolName}\\s*`, "gi"), "")
+            .replace(/^(use|please|help|using|with)\s*/i, "")
             .trim();
           return { tool: toolName, prompt: cleanInput };
         }
@@ -110,11 +137,11 @@ class SmartRouter {
         // Only log error if it's a real issue, not just a missing pattern
         if (
           error.message &&
-          !error.message.includes('no such file or directory')
+          !error.message.includes("no such file or directory")
         ) {
           await errorHandler.logError(
             error,
-            'WARN',
+            "WARN",
             `SmartRouter.smartRoute.${toolName}`,
           );
         }
@@ -127,10 +154,13 @@ class SmartRouter {
     // Only analyze tools that are likely to match to reduce overhead
     const potentialMatches = [];
     for (const toolName of this.validTools) {
+      // Skip tools that are not installed
+      if (!installedTools[toolName]) continue;
+
       // Quick check: if the input is very short, only analyze a few key tools
       if (input.length < 20) {
         // For short inputs, only analyze commonly used tools
-        const commonTools = ['claude', 'gemini', 'qwen'];
+        const commonTools = ["claude", "gemini", "qwen"];
         if (!commonTools.includes(toolName)) {
           continue;
         }
@@ -159,8 +189,8 @@ class SmartRouter {
           ) {
             // Extract clean parameters
             const cleanInput = input
-              .replace(new RegExp(`.*${keyword}\\s*`, 'gi'), '')
-              .replace(/^(use|please|help|using|with)\s*/i, '')
+              .replace(new RegExp(`.*${keyword}\\s*`, "gi"), "")
+              .replace(/^(use|please|help|using|with)\s*/i, "")
               .trim();
             return { tool: toolName, prompt: cleanInput };
           }
@@ -169,11 +199,11 @@ class SmartRouter {
         // Only log error if it's a real issue, not just a missing pattern
         if (
           error.message &&
-          !error.message.includes('no such file or directory')
+          !error.message.includes("no such file or directory")
         ) {
           await errorHandler.logError(
             error,
-            'WARN',
+            "WARN",
             `SmartRouter.smartRoute.${toolName}`,
           );
         }
@@ -184,7 +214,7 @@ class SmartRouter {
 
     // Default routing
     const cleanInput = input
-      .replace(/^(use|please|help|using|with)\s*/i, '')
+      .replace(/^(use|please|help|using|with)\s*/i, "")
       .trim();
     return { tool: this.defaultTool, prompt: cleanInput };
   }
@@ -200,7 +230,7 @@ class SmartRouter {
 
       // If there was a recent failure (less than 1 hour ago), skip analysis entirely
       if (failedAttempt && this.isRecentFailure(failedAttempt.timestamp)) {
-        if (process.env.DEBUG === 'true') {
+        if (process.env.DEBUG === "true") {
           console.log(
             `[INFO] Skipping analysis for ${toolName} due to recent failure`,
           );
@@ -222,8 +252,8 @@ class SmartRouter {
       // Only log serious errors, suppress file not found errors
       if (
         error.message &&
-        !error.message.includes('ENOENT') &&
-        !error.message.includes('no such file or directory')
+        !error.message.includes("ENOENT") &&
+        !error.message.includes("no such file or directory")
       ) {
         console.warn(`[WARN] Unable to get help information for ${toolName}`);
       }
@@ -249,15 +279,15 @@ class SmartRouter {
 
     // Add tool-specific keywords
     const toolSpecificKeywords = {
-      claude: ['claude', 'anthropic'],
-      gemini: ['gemini', 'google'],
-      qwen: ['qwen', 'alibaba', 'tongyi'],
-      iflow: ['iflow', 'workflow', 'intelligent'],
-      qodercli: ['qoder', 'code'], // 'code' is specifically for qodercli only
-      codebuddy: ['codebuddy', 'buddy', 'assistant'],
-      copilot: ['copilot', 'github', 'gh'],
-      codex: ['codex', 'openai', 'gpt'], // Remove 'code' from here to avoid conflicts
-      kode: ['kode', 'multi-model', 'collaboration', 'multi模型']
+      claude: ["claude", "anthropic"],
+      gemini: ["gemini", "google"],
+      qwen: ["qwen", "alibaba", "tongyi"],
+      iflow: ["iflow", "workflow", "intelligent"],
+      qodercli: ["qoder", "code"], // 'code' is specifically for qodercli only
+      codebuddy: ["codebuddy", "buddy", "assistant"],
+      copilot: ["copilot", "github", "gh"],
+      codex: ["codex", "openai", "gpt"], // Remove 'code' from here to avoid conflicts
+      kode: ["kode", "multi-model", "collaboration", "multi模型"],
     };
 
     if (toolSpecificKeywords[toolName]) {
@@ -291,7 +321,7 @@ class SmartRouter {
   async smartRouteEnhanced(userInput, options = {}) {
     const input = userInput.trim();
     const inputLower = input.toLowerCase();
-    
+
     // Enhanced routing priorities based on agent/skill detection
     const routingResults = [];
 
@@ -301,7 +331,10 @@ class SmartRouter {
         validateCLITool(toolName);
 
         // Get compatibility score for this tool
-        const compatibility = await this.getAgentSkillCompatibilityScore(toolName, input);
+        const compatibility = await this.getAgentSkillCompatibilityScore(
+          toolName,
+          input,
+        );
 
         // Check for exact tool name matches (highest priority)
         let matchScore = 0;
@@ -316,7 +349,10 @@ class SmartRouter {
           const enhancedPattern = await this.getEnhancedCLIPattern(toolName);
 
           // Generate optimized command
-          const optimizedCall = this.analyzer.generateOptimizedCall(toolName, input);
+          const optimizedCall = this.analyzer.generateOptimizedCall(
+            toolName,
+            input,
+          );
 
           routingResults.push({
             tool: toolName,
@@ -324,7 +360,7 @@ class SmartRouter {
             compatibility,
             pattern: enhancedPattern,
             optimizedCall,
-            reasons: this.getRoutingReasons(toolName, input, compatibility)
+            reasons: this.getRoutingReasons(toolName, input, compatibility),
           });
         }
       } catch (error) {
@@ -346,22 +382,25 @@ class SmartRouter {
         compatibility: bestMatch.compatibility,
         optimizedCall: bestMatch.optimizedCall,
         routingReasons: bestMatch.reasons,
-        alternativeOptions: routingResults.slice(1, 3) // Top 2 alternatives
+        alternativeOptions: routingResults.slice(1, 3), // Top 2 alternatives
       };
     }
 
     // Default routing with enhanced pattern
     const cleanInput = input
-      .replace(/^(use|please|help|using|with)\s*/i, '')
+      .replace(/^(use|please|help|using|with)\s*/i, "")
       .trim();
-    
+
     return {
       tool: this.defaultTool,
       prompt: cleanInput,
       confidence: 0.3,
-      compatibility: await this.getAgentSkillCompatibilityScore(this.defaultTool, input),
-      routingReasons: ['默认路由'],
-      alternativeOptions: []
+      compatibility: await this.getAgentSkillCompatibilityScore(
+        this.defaultTool,
+        input,
+      ),
+      routingReasons: ["默认路由"],
+      alternativeOptions: [],
     };
   }
 
@@ -374,13 +413,16 @@ class SmartRouter {
         return this.analyzer.getAgentSkillCompatibilityScore(toolName, prompt);
       }
     } catch (error) {
-      if (process.env.DEBUG === 'true') {
-        console.log(`Error getting compatibility score for ${toolName}:`, error.message);
+      if (process.env.DEBUG === "true") {
+        console.log(
+          `Error getting compatibility score for ${toolName}:`,
+          error.message,
+        );
       }
     }
-    
+
     // Fallback scoring
-    return { score: 0.5, reasons: ['基础兼容性'] };
+    return { score: 0.5, reasons: ["基础兼容性"] };
   }
 
   /**
@@ -392,11 +434,14 @@ class SmartRouter {
         return await this.analyzer.getEnhancedCLIPattern(toolName);
       }
     } catch (error) {
-      if (process.env.DEBUG === 'true') {
-        console.log(`Error getting enhanced pattern for ${toolName}:`, error.message);
+      if (process.env.DEBUG === "true") {
+        console.log(
+          `Error getting enhanced pattern for ${toolName}:`,
+          error.message,
+        );
       }
     }
-    
+
     // Fallback to regular pattern
     return await this.getOptimizedCLIPattern(toolName);
   }
@@ -420,11 +465,11 @@ class SmartRouter {
 
     // CLI-specific advantages
     const cliAdvantages = {
-      'claude': ['高质量输出', '自然语言理解'],
-      'iflow': ['智能工作流', '中文优化'],
-      'qwen': ['优秀的中文语义理解', '位置参数支持'],
-      'codebuddy': ['明确的技能语法', '系统性强'],
-      'qodercli': ['基础分析能力']
+      claude: ["高质量输出", "自然语言理解"],
+      iflow: ["智能工作流", "中文优化"],
+      qwen: ["优秀的中文语义理解", "位置参数支持"],
+      codebuddy: ["明确的技能语法", "系统性强"],
+      qodercli: ["基础分析能力"],
     };
 
     if (cliAdvantages[toolName]) {
@@ -447,17 +492,21 @@ class SmartRouter {
       }
 
       try {
-        const compatibility = await this.getAgentSkillCompatibilityScore(toolName, primaryRoute.prompt);
+        const compatibility = await this.getAgentSkillCompatibilityScore(
+          toolName,
+          primaryRoute.prompt,
+        );
         const enhancedPattern = await this.getEnhancedCLIPattern(toolName);
 
-        if (compatibility.score > 0.3) { // Only consider reasonably compatible tools
+        if (compatibility.score > 0.3) {
+          // Only consider reasonably compatible tools
           fallbackRoutes.push({
             tool: toolName,
             prompt: primaryRoute.prompt,
             confidence: compatibility.score * 0.8, // Reduce confidence for fallbacks
             compatibility,
             pattern: enhancedPattern,
-            reason: `备用选项 (原工具失败: ${error.message.substring(0, 50)}...)`
+            reason: `备用选项 (原工具失败: ${error.message.substring(0, 50)}...)`,
           });
         }
       } catch (routeError) {
@@ -467,7 +516,7 @@ class SmartRouter {
 
     // Sort by compatibility score
     fallbackRoutes.sort((a, b) => b.confidence - a.confidence);
-    
+
     return fallbackRoutes.slice(0, 3); // Return top 3 fallbacks
   }
 
@@ -480,36 +529,45 @@ class SmartRouter {
 
     while (retryCount <= maxRetries) {
       try {
-        if (process.env.DEBUG === 'true') {
-          console.log(`[DEBUG] Executing route: ${currentRoute.tool} with confidence ${currentRoute.confidence}`);
+        if (process.env.DEBUG === "true") {
+          console.log(
+            `[DEBUG] Executing route: ${currentRoute.tool} with confidence ${currentRoute.confidence}`,
+          );
         }
 
         // Return the successful route
         return currentRoute;
-
       } catch (error) {
         retryCount++;
-        
+
         if (retryCount > maxRetries) {
           // All retries failed, throw the error
-          throw new Error(`Route execution failed after ${maxRetries} retries: ${error.message}`);
+          throw new Error(
+            `Route execution failed after ${maxRetries} retries: ${error.message}`,
+          );
         }
 
-        if (process.env.DEBUG === 'true') {
-          console.log(`[DEBUG] Route failed, generating fallback (attempt ${retryCount}):`, error.message);
+        if (process.env.DEBUG === "true") {
+          console.log(
+            `[DEBUG] Route failed, generating fallback (attempt ${retryCount}):`,
+            error.message,
+          );
         }
 
         // Generate fallback routes
-        const fallbackRoutes = await this.generateFallbackRoutes(currentRoute, error);
-        
+        const fallbackRoutes = await this.generateFallbackRoutes(
+          currentRoute,
+          error,
+        );
+
         if (fallbackRoutes.length === 0) {
-          throw new Error('No fallback routes available');
+          throw new Error("No fallback routes available");
         }
 
         // Use the best fallback route
         currentRoute = fallbackRoutes[0];
-        
-        if (process.env.DEBUG === 'true') {
+
+        if (process.env.DEBUG === "true") {
           console.log(`[DEBUG] Using fallback route: ${currentRoute.tool}`);
         }
       }
@@ -531,7 +589,9 @@ class SmartRouter {
       }
 
       for (const batch of batches) {
-        const batchPromises = batch.map(input => this.smartRouteEnhanced(input));
+        const batchPromises = batch.map((input) =>
+          this.smartRouteEnhanced(input),
+        );
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
       }

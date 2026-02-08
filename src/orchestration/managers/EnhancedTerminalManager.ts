@@ -136,17 +136,30 @@ export class EnhancedTerminalManager {
       this.outputBuffers.set(terminalId, '');
       
       // 5. 设置输出监听
+      // 🔥 新增：实时显示输出，让用户看到CLI的实时活动
+      const cliName = terminal.cliName || 'unknown';
+
       childProcess.stdout?.on('data', (data: Buffer) => {
         const output = data.toString();
+
+        // 立即显示给用户（实时反馈）
+        process.stdout.write(`[${cliName}] ${output}`);
+
+        // 同时存储到缓冲区（用于最终收集）
         this.outputBuffers.set(
           terminalId,
           (this.outputBuffers.get(terminalId) || '') + output
         );
         terminal.output += output;
       });
-      
+
       childProcess.stderr?.on('data', (data: Buffer) => {
         const error = data.toString();
+
+        // 立即显示错误输出（用红色前缀）
+        process.stderr.write(`[${cliName}] ${error}`);
+
+        // 同时存储到缓冲区
         terminal.error = (terminal.error || '') + error;
       });
       

@@ -1,3 +1,12 @@
+## v1.3.77-beta.1 - 2026-02-05
+### Features
+- 增强 resumesession 技能功能
+  - 实现智能累积机制，当会话内容不足时自动追加更多会话
+  - 只显示用户输入、模型输出和时间戳信息，去除冗余格式
+  - 添加内容过滤功能，剔除无意义内容（如API超限提示）
+  - 按日期分组显示，标注每组的起始和结束时间
+  - 当没有会话时返回"无"
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

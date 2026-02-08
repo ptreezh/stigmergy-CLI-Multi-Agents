@@ -5,15 +5,15 @@
  * to resolve common installation issues on different platforms.
  */
 
-const { spawnSync } = require('child_process');
-const fs = require('fs/promises');
-const path = require('path');
-const os = require('os');
+const { spawnSync } = require("child_process");
+const fs = require("fs/promises");
+const path = require("path");
+const os = require("os");
 
 class CLIPathDetector {
   constructor() {
-    this.configDir = path.join(os.homedir(), '.stigmergy', 'cli-paths');
-    this.pathCacheFile = path.join(this.configDir, 'detected-paths.json');
+    this.configDir = path.join(os.homedir(), ".stigmergy", "cli-paths");
+    this.pathCacheFile = path.join(this.configDir, "detected-paths.json");
     this.detectedPaths = {};
     this.platform = os.platform();
 
@@ -22,16 +22,17 @@ class CLIPathDetector {
 
     // CLI tool name mappings (actual command vs expected)
     this.cliNameMap = {
-      'claude': ['claude'],
-      'gemini': ['gemini'],
-      'qwen': ['qwen'],
-      'iflow': ['iflow'],
-      'qodercli': ['qodercli'],
-      'codebuddy': ['codebuddy'],
-      'copilot': ['copilot'],
-      'codex': ['codex'],
-      'kode': ['kode'],
-      'opencode': ['opencode']
+      claude: ["claude"],
+      gemini: ["gemini"],
+      qwen: ["qwen"],
+      iflow: ["iflow"],
+      qodercli: ["qodercli"],
+      codebuddy: ["codebuddy"],
+      copilot: ["copilot"],
+      codex: ["codex"],
+      kode: ["kode"],
+      kilocode: ["kilo"],
+      opencode: ["opencode"],
     };
   }
 
@@ -41,59 +42,59 @@ class CLIPathDetector {
   getNPMGlobalPaths() {
     const paths = [];
 
-    if (this.platform === 'win32') {
+    if (this.platform === "win32") {
       // Windows paths
       paths.push(
-        path.join(os.homedir(), 'AppData', 'Roaming', 'npm'), // User npm
-        'C:/npm_global', // Custom global
-        'C:/Program Files/nodejs/npm', // System npm
-        path.join(process.env.ProgramFiles || 'C:/Program Files', 'npm')
+        path.join(os.homedir(), "AppData", "Roaming", "npm"), // User npm
+        "C:/npm_global", // Custom global
+        "C:/Program Files/nodejs/npm", // System npm
+        path.join(process.env.ProgramFiles || "C:/Program Files", "npm"),
       );
     } else {
       // Unix-like paths - comprehensive coverage
       paths.push(
         // User-specific npm global paths
-        path.join(os.homedir(), '.npm-global', 'bin'), // User local with custom prefix
-        path.join(os.homedir(), '.npm', 'bin'), // User npm
-        path.join(os.homedir(), 'node_modules', '.bin'), // Local node_modules bin
+        path.join(os.homedir(), ".npm-global", "bin"), // User local with custom prefix
+        path.join(os.homedir(), ".npm", "bin"), // User npm
+        path.join(os.homedir(), "node_modules", ".bin"), // Local node_modules bin
 
         // System-wide paths
-        '/usr/local/bin', // Common system location
-        '/usr/bin', // System binaries
-        '/opt/node/bin', // Node.js installed to /opt
-        '/opt/nodejs/bin', // Alternative system installation
+        "/usr/local/bin", // Common system location
+        "/usr/bin", // System binaries
+        "/opt/node/bin", // Node.js installed to /opt
+        "/opt/nodejs/bin", // Alternative system installation
 
         // Root-specific paths (when running as root)
-        '/root/.npm-global/bin', // Root user custom prefix
-        '/root/.npm/bin', // Root user npm
-        '/root/node_modules/.bin', // Root local node_modules
-        '/root/.nvm/versions/node/*/bin', // NVM installations for root
+        "/root/.npm-global/bin", // Root user custom prefix
+        "/root/.npm/bin", // Root user npm
+        "/root/node_modules/.bin", // Root local node_modules
+        "/root/.nvm/versions/node/*/bin", // NVM installations for root
 
         // NVM (Node Version Manager) paths for regular users
-        path.join(os.homedir(), '.nvm', 'versions', 'node', '*', 'bin'), // NVM user installations
-        path.join(os.homedir(), '.nvm', 'current', 'bin'), // NVM current version
+        path.join(os.homedir(), ".nvm", "versions", "node", "*", "bin"), // NVM user installations
+        path.join(os.homedir(), ".nvm", "current", "bin"), // NVM current version
 
         // NodeSource installation paths
-        '/usr/bin/nodejs', // NodeSource package installations
-        '/usr/local/share/npm/bin', // npm share location
+        "/usr/bin/nodejs", // NodeSource package installations
+        "/usr/local/share/npm/bin", // npm share location
 
         // Homebrew (macOS) paths
-        path.join(os.homedir(), '.brew', 'node', 'bin'), // Custom Homebrew
-        '/opt/homebrew/bin', // Apple Silicon Homebrew
-        '/usr/local/bin', // Intel Homebrew
+        path.join(os.homedir(), ".brew", "node", "bin"), // Custom Homebrew
+        "/opt/homebrew/bin", // Apple Silicon Homebrew
+        "/usr/local/bin", // Intel Homebrew
 
         // pkg-config and other package managers
-        path.join(os.homedir(), '.local', 'bin'), // User local binaries
-        '/snap/bin', // Snap packages (Ubuntu)
-        '/var/lib/snapd/snap/bin' // Snap system
+        path.join(os.homedir(), ".local", "bin"), // User local binaries
+        "/snap/bin", // Snap packages (Ubuntu)
+        "/var/lib/snapd/snap/bin", // Snap system
       );
     }
 
     // Filter paths, handling wildcards for NVM
-    return paths.filter(p => {
+    return paths.filter((p) => {
       try {
         // Handle wildcard paths (NVM versions)
-        if (p.includes('*')) {
+        if (p.includes("*")) {
           return this.expandWildcardPath(p);
         }
         return fs.existsSync(p);
@@ -108,18 +109,22 @@ class CLIPathDetector {
    */
   expandWildcardPath(wildcardPath) {
     try {
-      const { spawnSync } = require('child_process');
+      const { spawnSync } = require("child_process");
 
       // Use shell to expand wildcards
-      const result = spawnSync('bash', ['-c', `ls -d ${wildcardPath} 2>/dev/null`], {
-        encoding: 'utf8',
-        shell: true
-      });
+      const result = spawnSync(
+        "bash",
+        ["-c", `ls -d ${wildcardPath} 2>/dev/null`],
+        {
+          encoding: "utf8",
+          shell: true,
+        },
+      );
 
       if (result.status === 0 && result.stdout.trim()) {
         // Check if any of the expanded paths exist
-        const expandedPaths = result.stdout.trim().split('\n');
-        return expandedPaths.some(p => {
+        const expandedPaths = result.stdout.trim().split("\n");
+        return expandedPaths.some((p) => {
           try {
             return fs.existsSync(p.trim());
           } catch {
@@ -137,7 +142,7 @@ class CLIPathDetector {
    * Get current PATH environment variable
    */
   getCurrentPath() {
-    return (process.env.PATH || process.env.Path || '').split(path.delimiter);
+    return (process.env.PATH || process.env.Path || "").split(path.delimiter);
   }
 
   /**
@@ -147,8 +152,8 @@ class CLIPathDetector {
     const fullPath = path.join(dir, command);
 
     // Windows: check .cmd, .ps1, .exe files
-    if (this.platform === 'win32') {
-      const extensions = ['.cmd', '.ps1', '.exe', ''];
+    if (this.platform === "win32") {
+      const extensions = [".cmd", ".ps1", ".exe", ""];
       for (const ext of extensions) {
         const fileWithExt = fullPath + ext;
         try {
@@ -174,13 +179,13 @@ class CLIPathDetector {
    */
   findCommandInPath(command) {
     try {
-      const result = spawnSync('where', [command], {
-        encoding: 'utf8',
-        shell: true
+      const result = spawnSync("where", [command], {
+        encoding: "utf8",
+        shell: true,
       });
 
       if (result.status === 0 && result.stdout.trim()) {
-        return result.stdout.trim().split('\n')[0]; // Return first match
+        return result.stdout.trim().split("\n")[0]; // Return first match
       }
     } catch {}
 
@@ -235,8 +240,13 @@ class CLIPathDetector {
       }
 
       // Method 3: Check common installation locations
-      if (this.platform === 'win32') {
-        const userNPMPath = path.join(os.homedir(), 'AppData', 'Roaming', 'npm');
+      if (this.platform === "win32") {
+        const userNPMPath = path.join(
+          os.homedir(),
+          "AppData",
+          "Roaming",
+          "npm",
+        );
         pathFound = this.checkCommandInDir(command, userNPMPath);
         if (pathFound) {
           console.log(`[DETECTOR] Found ${toolName} in user npm: ${pathFound}`);
@@ -245,13 +255,13 @@ class CLIPathDetector {
       } else {
         // Check multiple Unix-like locations
         const unixPaths = [
-          path.join(os.homedir(), '.npm-global', 'bin'),
-          path.join(os.homedir(), '.npm', 'bin'),
-          '/usr/local/bin',
-          '/usr/bin',
-          path.join(os.homedir(), '.local', 'bin'),
-          '/root/.npm-global/bin',
-          '/root/.npm/bin'
+          path.join(os.homedir(), ".npm-global", "bin"),
+          path.join(os.homedir(), ".npm", "bin"),
+          "/usr/local/bin",
+          "/usr/bin",
+          path.join(os.homedir(), ".local", "bin"),
+          "/root/.npm-global/bin",
+          "/root/.npm/bin",
         ];
 
         for (const dir of unixPaths) {
@@ -273,22 +283,22 @@ class CLIPathDetector {
    */
   async findCommandViaNPM(command) {
     try {
-      const { spawnSync } = require('child_process');
+      const { spawnSync } = require("child_process");
 
       // Get npm global prefix
-      const npmPrefixResult = spawnSync('npm', ['config', 'get', 'prefix'], {
-        encoding: 'utf8',
-        shell: true
+      const npmPrefixResult = spawnSync("npm", ["config", "get", "prefix"], {
+        encoding: "utf8",
+        shell: true,
       });
 
       if (npmPrefixResult.status === 0 && npmPrefixResult.stdout.trim()) {
         const npmPrefix = npmPrefixResult.stdout.trim();
         let binDir;
 
-        if (this.platform === 'win32') {
+        if (this.platform === "win32") {
           binDir = npmPrefix; // Windows: prefix already points to the directory with executables
         } else {
-          binDir = path.join(npmPrefix, 'bin'); // Unix: bin subdirectory
+          binDir = path.join(npmPrefix, "bin"); // Unix: bin subdirectory
         }
 
         const commandPath = this.checkCommandInDir(command, binDir);
@@ -296,7 +306,6 @@ class CLIPathDetector {
           return commandPath;
         }
       }
-
     } catch (error) {
       console.log(`[DETECTOR] npm query failed: ${error.message}`);
       return null;
@@ -307,7 +316,7 @@ class CLIPathDetector {
    * Detect all CLI tool paths
    */
   async detectAllCLIPaths() {
-    console.log('[DETECTOR] Starting comprehensive CLI path detection...');
+    console.log("[DETECTOR] Starting comprehensive CLI path detection...");
 
     const allPaths = {};
 
@@ -329,22 +338,24 @@ class CLIPathDetector {
       await fs.mkdir(this.configDir, { recursive: true });
 
       const cacheData = {
-        version: '1.0.0',
+        version: "1.0.0",
         timestamp: new Date().toISOString(),
         platform: this.platform,
         npmGlobalPaths: this.npmGlobalPaths,
-        detectedPaths: this.detectedPaths
+        detectedPaths: this.detectedPaths,
       };
 
       await fs.writeFile(
         this.pathCacheFile,
         JSON.stringify(cacheData, null, 2),
-        'utf8'
+        "utf8",
       );
 
       console.log(`[DETECTOR] Saved path cache to: ${this.pathCacheFile}`);
     } catch (error) {
-      console.log(`[DETECTOR] Warning: Could not save path cache: ${error.message}`);
+      console.log(
+        `[DETECTOR] Warning: Could not save path cache: ${error.message}`,
+      );
     }
   }
 
@@ -353,8 +364,13 @@ class CLIPathDetector {
    */
   async loadDetectedPaths() {
     try {
-      if (await fs.access(this.pathCacheFile).then(() => true).catch(() => false)) {
-        const data = await fs.readFile(this.pathCacheFile, 'utf8');
+      if (
+        await fs
+          .access(this.pathCacheFile)
+          .then(() => true)
+          .catch(() => false)
+      ) {
+        const data = await fs.readFile(this.pathCacheFile, "utf8");
         const cacheData = JSON.parse(data);
 
         // Check if cache is too old (older than 1 hour) and skip loading if so
@@ -363,15 +379,21 @@ class CLIPathDetector {
 
         if (cacheAge < maxCacheAge) {
           this.detectedPaths = cacheData.detectedPaths || {};
-          console.log(`[DETECTOR] Loaded ${Object.keys(this.detectedPaths).length} paths from cache (age: ${Math.floor(cacheAge/1000)}s)`);
+          console.log(
+            `[DETECTOR] Loaded ${Object.keys(this.detectedPaths).length} paths from cache (age: ${Math.floor(cacheAge / 1000)}s)`,
+          );
           return this.detectedPaths;
         } else {
-          console.log(`[DETECTOR] Cache is too old (${Math.floor(cacheAge/1000)}s), skipping cache`);
+          console.log(
+            `[DETECTOR] Cache is too old (${Math.floor(cacheAge / 1000)}s), skipping cache`,
+          );
           return {};
         }
       }
     } catch (error) {
-      console.log(`[DETECTOR] Warning: Could not load path cache: ${error.message}`);
+      console.log(
+        `[DETECTOR] Warning: Could not load path cache: ${error.message}`,
+      );
     }
 
     return {};
@@ -381,7 +403,7 @@ class CLIPathDetector {
    * Update PATH environment variable if needed
    */
   async updatePATHIfMissing() {
-    console.log('[DETECTOR] Checking PATH configuration...');
+    console.log("[DETECTOR] Checking PATH configuration...");
 
     const currentPath = this.getCurrentPath();
     const missingPaths = [];
@@ -393,8 +415,12 @@ class CLIPathDetector {
     }
 
     if (missingPaths.length > 0) {
-      console.log(`[DETECTOR] Found ${missingPaths.length} missing npm global directories in PATH`);
-      console.log('[DETECTOR] Automatically updating PATH for persistent access...');
+      console.log(
+        `[DETECTOR] Found ${missingPaths.length} missing npm global directories in PATH`,
+      );
+      console.log(
+        "[DETECTOR] Automatically updating PATH for persistent access...",
+      );
 
       // Create PATH update script first (as backup)
       await this.createPATHUpdateScript(missingPaths);
@@ -405,16 +431,18 @@ class CLIPathDetector {
       return {
         updated: updateResult.success,
         missingPaths,
-        message: updateResult.success ? 'PATH automatically updated' : `PATH update failed: ${updateResult.error}`,
+        message: updateResult.success
+          ? "PATH automatically updated"
+          : `PATH update failed: ${updateResult.error}`,
         scriptCreated: true,
         autoUpdateAttempted: true,
-        scriptPath: path.join(this.configDir, 'setup-scripts')
+        scriptPath: path.join(this.configDir, "setup-scripts"),
       };
     }
 
     return {
       updated: true,
-      message: 'PATH already contains all npm global directories'
+      message: "PATH already contains all npm global directories",
     };
   }
 
@@ -422,10 +450,10 @@ class CLIPathDetector {
    * Create script to update PATH
    */
   async createPATHUpdateScript(missingPaths) {
-    const scriptDir = path.join(this.configDir, 'setup-scripts');
+    const scriptDir = path.join(this.configDir, "setup-scripts");
     await fs.mkdir(scriptDir, { recursive: true });
 
-    if (this.platform === 'win32') {
+    if (this.platform === "win32") {
       // Windows PowerShell script
       const ps1Script = `
 # Stigmergy CLI PATH Update Script
@@ -434,7 +462,7 @@ class CLIPathDetector {
 Write-Host "Adding npm global directories to PATH..." -ForegroundColor Green
 
 $missingPaths = @(
-${missingPaths.map(p => `    "${p}"`).join(',\n')}
+${missingPaths.map((p) => `    "${p}"`).join(",\n")}
 )
 
 $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
@@ -446,9 +474,9 @@ Write-Host "Please restart your terminal or run 'refreshenv' to apply changes" -
       `;
 
       await fs.writeFile(
-        path.join(scriptDir, 'update-path.ps1'),
+        path.join(scriptDir, "update-path.ps1"),
         ps1Script,
-        'utf8'
+        "utf8",
       );
 
       // Windows CMD script
@@ -458,21 +486,20 @@ REM Stigmergy CLI PATH Update Script
 REM Run this as Administrator
 
 echo Adding npm global directories to PATH...
-setx PATH "%PATH%;${missingPaths.join(';')}"
+setx PATH "%PATH%;${missingPaths.join(";")}"
 echo PATH updated successfully!
 echo Please restart your terminal to apply changes
 pause
       `;
 
       await fs.writeFile(
-        path.join(scriptDir, 'update-path.bat'),
+        path.join(scriptDir, "update-path.bat"),
         cmdScript,
-        'utf8'
+        "utf8",
       );
-
     } else {
       // Unix/Linux/Mac script
-      const missingPathsArray = missingPaths.map(p => `"${p}"`).join('\n');
+      const missingPathsArray = missingPaths.map((p) => `"${p}"`).join("\n");
       const shScript = `#!/bin/bash
 # Stigmergy CLI PATH Update Script
 # Run this script: source update-path.sh
@@ -504,13 +531,13 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
       `;
 
       await fs.writeFile(
-        path.join(scriptDir, 'update-path.sh'),
+        path.join(scriptDir, "update-path.sh"),
         shScript,
-        'utf8'
+        "utf8",
       );
 
       // Make script executable
-      await fs.chmod(path.join(scriptDir, 'update-path.sh'), '755');
+      await fs.chmod(path.join(scriptDir, "update-path.sh"), "755");
     }
 
     console.log(`[DETECTOR] Created PATH update scripts in: ${scriptDir}`);
@@ -521,7 +548,7 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
    */
   async performAutoPATHUpdate(missingPaths) {
     try {
-      if (this.platform === 'win32') {
+      if (this.platform === "win32") {
         return await this.performWindowsPATHUpdate(missingPaths);
       } else {
         return await this.performUnixPATHUpdate(missingPaths);
@@ -529,7 +556,7 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
     } catch (error) {
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -539,15 +566,17 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
    */
   async performWindowsPATHUpdate(missingPaths) {
     try {
-      const { spawnSync } = require('child_process');
+      const { spawnSync } = require("child_process");
 
-      console.log('[DETECTOR] Windows: Updating user PATH environment variable...');
+      console.log(
+        "[DETECTOR] Windows: Updating user PATH environment variable...",
+      );
 
       // Use PowerShell to update user PATH permanently
-      const pathsToAdd = missingPaths.join(';');
+      const pathsToAdd = missingPaths.join(";");
       const psCommand = `
         $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-        $newPaths = @(${missingPaths.map(p => `"${p}"`).join(',')})
+        $newPaths = @(${missingPaths.map((p) => `"${p}"`).join(",")})
         foreach ($path in $newPaths) {
           if ($currentPath -notlike "*$path*") {
             $currentPath = $currentPath + ";" + $path
@@ -557,23 +586,25 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
         Write-Output "PATH updated successfully"
       `;
 
-      const result = spawnSync('powershell', ['-Command', psCommand], {
-        stdio: 'pipe',
+      const result = spawnSync("powershell", ["-Command", psCommand], {
+        stdio: "pipe",
         shell: true,
-        encoding: 'utf8',
-        timeout: 30000
+        encoding: "utf8",
+        timeout: 30000,
       });
 
       if (result.status === 0) {
-        console.log('[DETECTOR] ✓ Windows PATH updated successfully');
-        console.log('[DETECTOR] ℹ Note: Restart terminal or run refreshenv to apply changes');
+        console.log("[DETECTOR] ✓ Windows PATH updated successfully");
+        console.log(
+          "[DETECTOR] ℹ Note: Restart terminal or run refreshenv to apply changes",
+        );
         return { success: true };
       } else {
-        console.log('[DETECTOR] ✗ Windows PATH update failed');
+        console.log("[DETECTOR] ✗ Windows PATH update failed");
         console.log(`[DETECTOR] Error: ${result.stderr || result.stdout}`);
         return {
           success: false,
-          error: result.stderr || result.stdout || 'Unknown PowerShell error'
+          error: result.stderr || result.stdout || "Unknown PowerShell error",
         };
       }
     } catch (error) {
@@ -586,10 +617,10 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
    */
   async performUnixPATHUpdate(missingPaths) {
     try {
-      const fs = require('fs').promises;
-      const { spawnSync } = require('child_process');
+      const fs = require("fs").promises;
+      const { spawnSync } = require("child_process");
 
-      console.log('[DETECTOR] Unix: Updating shell profile...');
+      console.log("[DETECTOR] Unix: Updating shell profile...");
 
       // Determine which shell profile to update
       const shellProfile = await this.determineShellProfile();
@@ -597,37 +628,45 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
       if (!shellProfile) {
         return {
           success: false,
-          error: 'Could not determine shell profile to update'
+          error: "Could not determine shell profile to update",
         };
       }
 
       // Read existing profile
-      let profileContent = '';
+      let profileContent = "";
       try {
-        profileContent = await fs.readFile(shellProfile, 'utf8');
+        profileContent = await fs.readFile(shellProfile, "utf8");
       } catch (error) {
         // File doesn't exist, create it
-        profileContent = '';
+        profileContent = "";
       }
 
       // Add missing paths to profile
-      const pathExports = missingPaths.map(path => `export PATH="$PATH:${path}"`).join('\n');
+      const pathExports = missingPaths
+        .map((path) => `export PATH="$PATH:${path}"`)
+        .join("\n");
 
       // Check if paths are already in the profile
-      const pathsToAdd = missingPaths.filter(path => !profileContent.includes(path));
+      const pathsToAdd = missingPaths.filter(
+        (path) => !profileContent.includes(path),
+      );
 
       if (pathsToAdd.length === 0) {
-        console.log('[DETECTOR] ✓ All paths already present in shell profile');
+        console.log("[DETECTOR] ✓ All paths already present in shell profile");
         return { success: true };
       }
 
-      const newPathExports = pathsToAdd.map(path => `export PATH="$PATH:${path}"`).join('\n');
+      const newPathExports = pathsToAdd
+        .map((path) => `export PATH="$PATH:${path}"`)
+        .join("\n");
       const contentToAdd = `\n# Added by Stigmergy CLI - ${new Date().toISOString()}\n${newPathExports}\n`;
 
-      await fs.writeFile(shellProfile, profileContent + contentToAdd, 'utf8');
+      await fs.writeFile(shellProfile, profileContent + contentToAdd, "utf8");
 
       console.log(`[DETECTOR] ✓ Updated ${shellProfile} with PATH additions`);
-      console.log('[DETECTOR] ℹ Note: Restart terminal or run source ~/.bashrc to apply changes');
+      console.log(
+        "[DETECTOR] ℹ Note: Restart terminal or run source ~/.bashrc to apply changes",
+      );
 
       return { success: true };
     } catch (error) {
@@ -639,24 +678,24 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
    * Determine which shell profile to update
    */
   async determineShellProfile() {
-    const fs = require('fs').promises;
-    const os = require('os');
+    const fs = require("fs").promises;
+    const os = require("os");
 
     const homeDir = os.homedir();
     const possibleProfiles = [
-      path.join(homeDir, '.bashrc'),
-      path.join(homeDir, '.zshrc'),
-      path.join(homeDir, '.profile'),
-      path.join(homeDir, '.bash_profile')
+      path.join(homeDir, ".bashrc"),
+      path.join(homeDir, ".zshrc"),
+      path.join(homeDir, ".profile"),
+      path.join(homeDir, ".bash_profile"),
     ];
 
     // First check which shell is currently being used
     const shellEnv = process.env.SHELL;
     if (shellEnv) {
-      if (shellEnv.includes('zsh')) {
-        return path.join(homeDir, '.zshrc');
-      } else if (shellEnv.includes('bash')) {
-        return path.join(homeDir, '.bashrc');
+      if (shellEnv.includes("zsh")) {
+        return path.join(homeDir, ".zshrc");
+      } else if (shellEnv.includes("bash")) {
+        return path.join(homeDir, ".bashrc");
       }
     }
 
@@ -671,7 +710,7 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
     }
 
     // Default to .bashrc for most systems
-    return path.join(homeDir, '.bashrc');
+    return path.join(homeDir, ".bashrc");
   }
 
   /**
@@ -692,8 +731,8 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
       summary: {
         total: Object.keys(this.cliNameMap).length,
         found: Object.values(this.detectedPaths).filter(Boolean).length,
-        missing: Object.values(this.detectedPaths).filter(v => !v).length
-      }
+        missing: Object.values(this.detectedPaths).filter((v) => !v).length,
+      },
     };
 
     return report;
@@ -702,4 +741,4 @@ echo "Please restart your terminal or run 'source $shell_rc' to apply changes"
 
 // Export the CLIPathDetector class
 module.exports = CLIPathDetector;
-module.exports.default = CLIPathDetector;  // For compatibility with different import styles
+module.exports.default = CLIPathDetector; // For compatibility with different import styles

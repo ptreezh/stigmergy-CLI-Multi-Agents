@@ -1,6 +1,10 @@
 # Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
 
-A comprehensive system for seamless collaboration between multiple AI CLI tools. Enables intelligent task routing, cross-CLI communication, and unified skill management.
+**English**: A comprehensive system for seamless collaboration between multiple AI CLI tools. Enables intelligent task routing, cross-CLI communication, and unified skill management.
+
+**中文**: 多AI命令行工具协作系统，实现智能任务路由、跨CLI通信和统一技能管理。
+
+**SEO Keywords**: AI CLI, multi-agent collaboration, Claude CLI, Gemini CLI, Qwen CLI, stigmergy, stigmergy gateway, cross-AI orchestration, AI tool manager, command line AI, AI assistant CLI, multi-model AI, AI agents, remote CLI orchestration, AI gateway, chat-to-CLI
 
 [![npm version](https://badge.fury.io/js/stigmergy.svg)](https://www.npmjs.com/package/stigmergy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -16,6 +20,144 @@ A comprehensive system for seamless collaboration between multiple AI CLI tools.
 - ⚡ **Smart Routing**: Auto-choose the best tool based on task analysis
 - 🌐 **12-Language Support**: English, Chinese, Japanese, German, French, Spanish, Italian, Russian, Korean, Turkish, Portuguese, Arabic
 - 🔄 **Cross-CLI Skill Sharing**: Skills installed once work across all AI tools
+- 🌐 **Stigmergy Gateway**: Remote CLI orchestration via Feishu, Telegram, Slack, Discord - control AI agents from anywhere
+
+---
+
+## 🚀 Stigmergy Gateway - Remote CLI Orchestration
+
+**Stigmergy Gateway** is Stigmergy's remote orchestration feature that lets you control AI CLI tools from chat platforms like Feishu, Telegram, Slack, and Discord. Manage your entire AI team from anywhere!
+
+### 🎯 What is Stigmergy Gateway?
+
+Stigmergy Gateway transforms Stigmergy into a powerful remote AI orchestration system:
+
+- **📱 Chat-to-CLI Bridge**: Send messages on Feishu/Telegram/Slack/Discord → Execute AI CLI commands
+- **🌍 Remote Control**: Manage AI agents from your phone or web chat
+- **👥 Team Collaboration**: Share AI capabilities across your team via familiar chat tools
+- **🔄 Cross-Platform**: Unified interface for 11+ AI CLI tools
+
+### 📋 Stigmergy Gateway Supported Platforms
+
+| Platform          | Status   | Use Case                      |
+| ----------------- | -------- | ----------------------------- |
+| **Feishu (飞书)** | ✅ Ready | Team collaboration in China   |
+| **Telegram**      | ✅ Ready | Global users, bot integration |
+| **Slack**         | ✅ Ready | Enterprise teams              |
+| **Discord**       | ✅ Ready | Developer communities         |
+
+### 🚀 Quick Start - Stigmergy Gateway
+
+```bash
+# Start Gateway with Feishu integration
+stigmergy gateway --feishu --port 3000
+
+# Start with Telegram bot
+stigmergy gateway --telegram --port 3000
+
+# Enable public access via ngrok tunnel
+stigmergy gateway --feishu --tunnel
+
+# Multi-platform mode
+stigmergy gateway --feishu --telegram --slack --port 3000
+
+# Set custom working directory
+stigmergy gateway --feishu --workdir ./my-project
+```
+
+### 🎮 Stigmergy Gateway Usage Examples
+
+#### Send Commands via Feishu
+
+```
+User: @AI-Stigmergy write a Python REST API
+Stigmergy Bot: ✅ Executing with Claude CLI...
+[Claude] Created: api.py with REST endpoints
+```
+
+#### Multi-Agent Task via Telegram
+
+```
+User: /concurrent analyze this codebase and generate docs
+Stigmergy Bot: 🎯 Routing to Claude, Gemini, Qwen...
+[Claude] Analysis complete
+[Gemini] Docs generated
+[Qwen] Summary: 3 files analyzed
+```
+
+### 🔧 Stigmergy Gateway Commands
+
+```bash
+# Initialize gateway configuration
+stigmergy gateway init --feishu
+
+# Check gateway status
+stigmergy gateway status
+
+# Stop gateway server
+stigmergy gateway stop
+
+# Start with all platforms
+stigmergy gateway --feishu --telegram --slack --discord --tunnel
+```
+
+### 🌐 Stigmergy Gateway API Endpoints
+
+When Gateway is running, access:
+
+| Endpoint             | Method | Description                     |
+| -------------------- | ------ | ------------------------------- |
+| `/status`            | GET    | Server status and platform info |
+| `/webhook/:platform` | POST   | Receive messages from platforms |
+| `/execute`           | POST   | Execute CLI commands remotely   |
+
+### 🔐 Stigmergy Gateway Security
+
+- **Token Validation**: All incoming webhooks validated
+- **Command Whitelist**: Configurable command restrictions
+- **Audit Logging**: All commands logged for review
+- **Rate Limiting**: Prevent abuse with request limits
+
+### 📊 Stigmergy Gateway Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Stigmergy Gateway                          │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │  Feishu  │  │ Telegram │  │  Slack   │  │ Discord  │   │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
+│       │            │            │            │          │
+│       └────────────┴────────────┴────────────┘          │
+│                        │                                │
+│                ┌───────▼───────┐                        │
+│                │  Message      │                        │
+│                │  Parser       │                        │
+│                └───────┬───────┘                        │
+│                        │                                │
+│                ┌───────▼───────┐                        │
+│                │  Command      │                        │
+│                │  Router       │                        │
+│                └───────┬───────┘                        │
+│                        │                                │
+│        ┌───────────────┼───────────────┐               │
+│        │               │               │               │
+│  ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐         │
+│  │   Claude  │  │   Gemini  │  │   Qwen    │         │
+│  └───────────┘  └───────────┘  └───────────┘         │
+│                      ...                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 💡 Stigmergy Gateway Use Cases
+
+1. **Remote Team Management**: Control AI agents from chat while commuting
+2. **Multi-Channel Notifications**: AI results delivered to Slack/Discord
+3. **Voice-to-CLI**: Use voice input via Telegram bots
+4. **API Integration**: Build custom workflows with webhook endpoints
+5. **CI/CD Pipeline**: Trigger AI tasks from chat commands
+
+- 🌐 **Stigmergy Gateway**: Remote CLI orchestration via Feishu, Telegram, Slack, Discord - control AI agents from anywhere
 
 ---
 
@@ -75,6 +217,7 @@ stigmergy setup
 ```
 
 This command will:
+
 - ✅ Scan for available AI CLI tools
 - ✅ Deploy integration hooks to all found tools
 - ✅ Install built-in skills (ResumeSession)
@@ -96,6 +239,9 @@ stigmergy deploy hooks
 
 # Initialize project for session recovery
 stigmergy init
+
+# Start Stigmergy Gateway for remote orchestration
+stigmergy gateway --feishu --port 3000
 ```
 
 ### 3️⃣ Verify Installation
@@ -123,6 +269,10 @@ stigmergy claude "write a Python function to calculate fibonacci"
 stigmergy gemini "translate this text to Japanese"
 stigmergy qwen "analyze this code for security issues"
 stigmergy kode "use digital marxist agent to analyze worker alienation"
+
+# Remote orchestration via Stigmergy Gateway
+stigmergy gateway --feishu --tunnel  # Control AI from Feishu
+stigmergy gateway --telegram --port 3000  # Control AI from Telegram
 ```
 
 ### Smart Routing (Auto-Select Best Tool)
@@ -295,17 +445,20 @@ Once in interactive mode, you can use these commands:
 #### Key Features
 
 **📊 Project Status Board**
+
 - Each project directory has its own independent status board
 - Stored in `.stigmergy/status/PROJECT_STATUS.md`
 - Tracks tasks, findings, decisions, and collaboration history
 - Automatically updates as you work
 
 **🔄 Cross-Session Collaboration**
+
 - Different sessions read/write to the same status board
 - Automatic context injection from previous work
 - Shared memory across CLI tools and sessions
 
 **🌳 Directory Isolation**
+
 - Each project directory = independent status board
 - Working in `/projectA` won't affect `/projectB`
 - Subdirectories can have independent boards (optional)
@@ -365,6 +518,7 @@ Use 'help' for available commands
 #### Single vs Multi-Board Mode
 
 **Single Board Mode (Default)**
+
 - Best for small projects (< 10 modules)
 - One status board for entire project
 - Simple, unified perspective
@@ -376,6 +530,7 @@ stigmergy i
 ```
 
 **Multi-Board Mode (Optional)**
+
 - Best for large projects or microservices
 - Each subdirectory has independent board
 - Enables parallel team development
@@ -395,6 +550,7 @@ qwen> design database schema
 ```
 
 **Directory Isolation Guaranteed:**
+
 ```
 projectA/.stigmergy/status/PROJECT_STATUS.md  ← Project A's board
 projectB/.stigmergy/status/PROJECT_STATUS.md  ← Project B's board
@@ -461,11 +617,13 @@ export STIGMERGY_AUTO_INSTALL=true
 ### Permission Errors
 
 **Windows:**
+
 ```powershell
 npm install -g stigmergy@beta --force
 ```
 
 **macOS/Linux:**
+
 ```bash
 sudo npm install -g stigmergy@beta --unsafe-perm=true --allow-root
 ```
@@ -493,6 +651,19 @@ stigmergy deploy hooks --force
 
 # Check hook status
 stigmergy status
+```
+
+### Stigmergy Gateway Issues
+
+```bash
+# Gateway not starting
+stigmergy gateway --feishu --verbose
+
+# Check port availability
+netstat -ano | findstr :3000
+
+# Verify ngrok tunnel
+stigmergy gateway --feishu --tunnel --verbose
 ```
 
 ### Skills Not Working
@@ -574,4 +745,4 @@ If you find this project useful, please consider giving it a ⭐ on [GitHub](htt
 
 **Made with ❤️ by the Stigmergy CLI Team and AI collaborators**
 
-*Version: 1.3.54-beta.0 | Published: 2026-01-17*
+_Version: 1.3.54-beta.0 | Published: 2026-01-17_

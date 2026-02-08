@@ -876,25 +876,323 @@ function main() {
     return;
   }
   
-  // 无参数: 恢复当前项目目录的最新会话
+  // 无参数: 恢复当前项目目录的最新会话，如果内容不足则追加更多会话
   if (!firstArg) {
     if (currentProjectSessions.length === 0) {
-      console.log('当前项目未找到相关会话。');
-      console.log('\n提示: 使用 --complete 查看所有项目的会话。');
+      console.log('无');
       return;
     }
-    
+
     const sortedSessions = sortSessionsByTime(currentProjectSessions);
-    const latestSession = sortedSessions[0];
-    
-    console.log('\n当前工作目录:', getCurrentProjectPath());
-    displayFullSession(latestSession);
+
+    // 从最新的会话开始
+    let accumulatedContent = '';
+    let processedSessions = 0;
+
+    for (const session of sortedSessions) {
+      const sessionContent = readSessionContent(session);
+
+      if (sessionContent) {
+        // 解析会话内容，只保留用户输入、模型输出和日期时间信息
+        let parsedContent = '';
+
+        try {
+          // 尝试解析为JSON格式（适用于大多数CLI工具的会话格式）
+          const sessionData = JSON.parse(sessionContent);
+
+          if (sessionData.messages && Array.isArray(sessionData.messages)) {
+            // 处理 messages 数组
+            for (const message of sessionData.messages) {
+              const role = message.role || 'unknown';
+              let content = message.content || '';
+              const timestamp = message.timestamp || session.lastModified.toLocaleString('zh-CN');
+
+              if (role === 'user' || role === 'assistant' || role === 'model') {
+                // 过滤无意义的内容（如API超限提示）
+                if (shouldIncludeContent(content)) {
+                  // 只保留用户和AI的交互内容
+                  parsedContent += `[${timestamp}] ${role.toUpperCase()}:\n${content}\n\n`;
+                }
+              }
+            }
+          } else if (sessionData.conversation && Array.isArray(sessionData.conversation)) {
+            // 处理 conversation 数组
+            for (const message of sessionData.conversation) {
+              const role = message.role || 'unknown';
+              let content = message.content || '';
+              const timestamp = message.timestamp || session.lastModified.toLocaleString('zh-CN');
+
+              if (role === 'user' || role === 'assistant' || role === 'model') {
+                // 过滤无意义的内容（如API超限提示）
+                if (shouldIncludeContent(content)) {
+                  // 只保留用户和AI的交互内容
+                  parsedContent += `[${timestamp}] ${role.toUpperCase()}:\n${content}\n\n`;
+                }
+              }
+            }
+          } else if (sessionData.entries && Array.isArray(sessionData.entries)) {
+            // 处理Claude等工具的entries格式
+            for (const entry of sessionData.entries) {
+              let firstPrompt = entry.firstPrompt || '';
+              let summary = entry.summary || '';
+              const timestamp = new Date(entry.created).toLocaleString('zh-CN') || session.lastModified.toLocaleString('zh-CN');
+
+              // 过滤无意义的内容
+              if (firstPrompt && shouldIncludeContent(firstPrompt)) {
+                parsedContent += `[${timestamp}] USER:\n${firstPrompt}\n\n`;
+              }
+              if (summary && shouldIncludeContent(summary)) {
+                parsedContent += `[${timestamp}] ASSISTANT:\n${summary}\n\n`;
+              }
+            }
+          } else {
+            // 如果不是标准格式，尝试从readSessionContent函数获取已解析的内容
+            const extractedContent = readSessionContent(session);
+            if (extractedContent) {
+              // 提取时间戳和角色信息
+              parsedContent += `[${session.lastModified.toLocaleString('zh-CN')}] ${session.cliName}:\n${extractedContent}\n\n`;
+            } else {
+              // 使用原始内容但添加时间戳
+              parsedContent += `[${session.lastModified.toLocaleString('zh-CN')}] ${session.cliName}:\n${sessionContent}\n\n`;
+            }
+          }
+        } catch (e) {
+          // 如果不是JSON格式，尝试从readSessionContent函数获取已解析的内容
+          const extractedContent = readSessionContent(session);
+          if (extractedContent) {
+            // 提取时间戳和角色信息
+            parsedContent += `[${session.lastModified.toLocaleString('zh-CN')}] ${session.cliName}:\n${extractedContent}\n\n`;
+          } else {
+            // 使用原始内容但添加时间戳
+            parsedContent += `[${session.lastModified.toLocaleString('zh-CN')}] ${session.cliName}:\n${sessionContent}\n\n`;
+          }
+        }
+
+        // 添加解析后的内容
+        accumulatedContent += parsedContent;
+        processedSessions++;
+
+        // 检查累积内容长度 - 如果达到1024字节或处理了最多5个会话，则停止
+        if (Buffer.byteLength(accumulatedContent, 'utf8') >= 1024 || processedSessions >= 5) {
+          break;
+        }
+      }
+    }
+
+    // 输出累积的内容
+    if (accumulatedContent) {
+      // 过滤、去重并合并内容
+      const filteredContent = filterAndMergeContent(accumulatedContent);
+      console.log(filteredContent.trim());
+    } else {
+      console.log('无');
+    }
+
     return;
   }
   
   // 未知参数
   console.log(`未知参数: ${firstArg}`);
   console.log('使用 --help 查看帮助信息。');
+}
+
+// 判断内容是否有意义，应该被包含
+function shouldIncludeContent(content) {
+  if (!content) return false;
+
+  const trimmedContent = content.trim();
+
+  // 定义无意义内容的关键字（包括中英文）
+  const meaninglessKeywords = [
+    // API 限制相关
+    'API Usage Limit Reached',
+    'API Rate Limit Reached',
+    'API Limit Reached',
+    'Rate Limit Exceeded',
+    'API Usage Limit Exceeded',
+    'API Rate Limit Exceeded',
+    '已达到 5 小时的使用上限',
+    'API Error: 429',
+    '5小时API',
+    'API Usage Limit',
+    'Quota Reset',
+    'API Model Error',
+    'Invalid Model Code',
+
+    // 技能相关错误
+    'Unknown skill',
+    'Missing Skill',
+    'Skill Not Found',
+    'Skill System Testing',
+    'Test Skill',
+    'Skill Activation Verification',
+    'Missing Strict-Test-Skill',
+
+    // 任务通知
+    '<task-notification>',
+    'output-file',
+    'status>completed',
+
+    // 其他无意义内容
+    'No prompt',
+    'hello',
+    'What is your name?',
+    'Say hello',
+    'Echo',
+    'echo',
+    'Hello',
+    'Say hello in Chinese',
+    'Say hello in different languages',
+    'Basic Greeting Exchange',
+    'Initial greeting and assistance request',
+    'Claude Introduces Himself as AI Assistant',
+    'Claude Agent Introduction CLI',
+    'Introducing Claude in Stigmergy CLI Project',
+    'Simple Bash Command Execution'
+  ];
+
+  const lowerContent = trimmedContent.toLowerCase();
+
+  // 检查是否包含无意义关键字
+  for (const keyword of meaninglessKeywords) {
+    if (lowerContent.includes(keyword.toLowerCase())) {
+      return false;
+    }
+  }
+
+  // 检查是否是纯URL或文件路径
+  if (/^https?:\/\//.test(trimmedContent) || /\\[\w\-]+\.json[l]?$/g.test(trimmedContent) || /\/[\w\-]+\.json[l]?$/g.test(trimmedContent)) {
+    return false;
+  }
+
+  // 检查内容长度，过短的内容可能是无意义的
+  if (trimmedContent.length < 5) {
+    return false;
+  }
+
+  // 检查是否是纯数字或简单的任务编号
+  if (/^\d+$/.test(trimmedContent) || /^task\d*$/i.test(trimmedContent) || /^analyze$/i.test(trimmedContent)) {
+    return false;
+  }
+
+  // 检查是否包含API错误信息
+  if (lowerContent.includes('api limit') || lowerContent.includes('rate limit') || lowerContent.includes('quota reset') ||
+      lowerContent.includes('api usage') || lowerContent.includes('error') || lowerContent.includes('limit hit')) {
+    return false;
+  }
+
+  // 检查是否是重复的技能调用或测试
+  if ((lowerContent.includes('skill') && (lowerContent.includes('test') || lowerContent.includes('mechanism') || lowerContent.includes('activation'))) ||
+      lowerContent.includes('skill system testing') || lowerContent.includes('test skill invocation')) {
+    return false;
+  }
+
+  return true;
+}
+
+// 过滤、去重并合并内容
+function filterAndMergeContent(rawContent) {
+  // 按行分割内容
+  const lines = rawContent.split('\n');
+  const entries = [];
+  let currentEntry = null;
+
+  // 解析每一行，重组为条目
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // 检查是否是时间戳行，格式为 [YYYY/MM/DD HH:MM:SS]
+    const timeMatch = line.match(/^\[(\d{4}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{2}:\d{2})\] ([A-Z]+):$/);
+
+    if (timeMatch) {
+      // 如果已有当前条目，先保存
+      if (currentEntry) {
+        entries.push(currentEntry);
+      }
+
+      // 创建新条目
+      currentEntry = {
+        timestamp: timeMatch[1],
+        role: timeMatch[2],
+        content: ''
+      };
+    } else if (currentEntry && line.trim() !== '') {
+      // 如果当前行不是时间戳也不是空行，则属于当前条目的内容
+      if (currentEntry.content) {
+        currentEntry.content += '\n' + line;
+      } else {
+        currentEntry.content = line;
+      }
+    } else if (line.trim() === '' && currentEntry) {
+      // 空行表示条目结束
+      entries.push(currentEntry);
+      currentEntry = null;
+    }
+  }
+
+  // 添加最后一个条目（如果有）
+  if (currentEntry) {
+    entries.push(currentEntry);
+  }
+
+  // 过滤有意义的内容
+  const meaningfulEntries = entries.filter(entry =>
+    shouldIncludeContent(entry.content)
+  );
+
+  // 按日期分组
+  const groupedByDate = {};
+  for (const entry of meaningfulEntries) {
+    const date = entry.timestamp.split(' ')[0]; // 提取日期部分
+
+    if (!groupedByDate[date]) {
+      groupedByDate[date] = {
+        date: date,
+        startTime: entry.timestamp,
+        endTime: entry.timestamp,
+        entries: []
+      };
+    }
+
+    // 更新结束时间
+    if (entry.timestamp > groupedByDate[date].endTime) {
+      groupedByDate[date].endTime = entry.timestamp;
+    }
+
+    groupedByDate[date].entries.push({
+      role: entry.role,
+      content: entry.content
+    });
+  }
+
+  // 生成输出
+  let output = '';
+  const dates = Object.keys(groupedByDate).sort((a, b) => a.localeCompare(b)); // 按日期排序
+
+  for (const date of dates) {
+    const group = groupedByDate[date];
+
+    // 只有当该日期组中有有效的用户输入时才显示
+    const hasUserInput = group.entries.some(entry => entry.role === 'USER');
+    if (hasUserInput) {
+      output += `【${group.date} | ${group.startTime} - ${group.endTime}】\n`;
+
+      for (const entry of group.entries) {
+        // 进一步过滤，只显示有意义的条目
+        if (shouldIncludeContent(entry.content)) {
+          output += `${entry.role}: ${entry.content}\n`;
+        }
+      }
+      output += '\n';
+    }
+  }
+
+  // 如果没有有效内容，返回空字符串，让外层函数输出'无'
+  if (!output.trim()) {
+    return '无';
+  }
+
+  return output.trim();
 }
 
 // 运行主函数

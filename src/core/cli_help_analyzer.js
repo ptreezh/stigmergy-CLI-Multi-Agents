@@ -1,206 +1,252 @@
 /**
  * Enhanced CLI Help Analyzer with better pattern extraction
- * 
+ *
  * 📚 参考文档：
  * - 重构文档：REFACTORING_CLI_HELP_ANALYZER.md
  * - 实现清单：IMPLEMENTATION_CHECKLIST_CLI_HELP_ANALYZER_REFACTOR.md
  * - 设计文档：DESIGN_CLI_HELP_ANALYZER_REFACTOR.md
  * - 规格说明：SPECS_CLI_HELP_ANALYZER_REFACTOR.md
- * 
+ *
  * 🎯 重构说明（v1.4.0）：
  * - 统一 analyzeCLI() 入口点，支持 options 参数
  * - 提取 addEnhancedInfo() 方法，实现不可变对象模式
  * - 简化包装器方法（getCLIPattern, getEnhancedCLIPattern, analyzeCLIEnhanced）
  * - 所有方法保持向后兼容，已添加 @deprecated 注释
- * 
+ *
  * 🧪 测试覆盖：36/36 测试通过（23单元测试 + 13集成测试）
  */
-const { spawnSync } = require('child_process');
-const fs = require('fs/promises');
-const path = require('path');
-const os = require('os');
-const { CLI_TOOLS } = require('./cli_tools');
-const { errorHandler } = require('./error_handler');
+const { spawnSync } = require("child_process");
+const fs = require("fs/promises");
+const path = require("path");
+const os = require("os");
+const { CLI_TOOLS } = require("./cli_tools");
+const { errorHandler } = require("./error_handler");
 
 class CLIHelpAnalyzer {
   constructor() {
-    this.configDir = path.join(os.homedir(), '.stigmergy', 'cli-patterns');
-    this.persistentConfig = path.join(this.configDir, 'cli-patterns.json');
-    this.lastAnalysisFile = path.join(this.configDir, 'last-analysis.json');
+    this.configDir = path.join(os.homedir(), ".stigmergy", "cli-patterns");
+    this.persistentConfig = path.join(this.configDir, "cli-patterns.json");
+    this.lastAnalysisFile = path.join(this.configDir, "last-analysis.json");
     this.cliTools = CLI_TOOLS;
 
     // Enhanced CLI Agent and Skill Patterns Configuration
     this.enhancedPatterns = {
-      'claude': {
+      claude: {
         commandFormat: 'claude -p "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: ["技能", "智能体", "分析", "工具", "方法"],
         examples: [
           'claude -p "请使用异化分析技能分析程序员异化现象"',
-          'claude -p "请使用数字马克思智能体进行阶级分析"'
-        ]
+          'claude -p "请使用数字马克思智能体进行阶级分析"',
+        ],
       },
-      'iflow': {
+      iflow: {
         commandFormat: 'iflow -p "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: ["技能", "智能体", "分析", "工具", "方法"],
         examples: [
           'iflow -p "请使用异化分析技能分析程序员异化现象"',
-          'iflow -p "请使用数字马克思智能体进行异化分析"'
-        ]
+          'iflow -p "请使用数字马克思智能体进行异化分析"',
+        ],
       },
-      'qwen': {
+      qwen: {
         commandFormat: 'qwen "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
         positionalArgs: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['智能体', '分析技能', '马克思', '异化', '阶级'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: ["智能体", "分析技能", "马克思", "异化", "阶级"],
         examples: [
           'qwen "使用数字马克思智能体进行异化分析，分析程序员的技术异化现象"',
-          'qwen "使用异化分析技能分析程序员在AI开发中的异化现象"'
-        ]
+          'qwen "使用异化分析技能分析程序员在AI开发中的异化现象"',
+        ],
       },
-      'codebuddy': {
+      codebuddy: {
         commandFormat: 'codebuddy -y -p "{prompt}"',
         agentDetection: false,
         skillDetection: true,
         skillPrefixRequired: true,
-        agentTypes: ['skill'],
-        skillKeywords: ['skill:', '技能', '分析'],
+        agentTypes: ["skill"],
+        skillKeywords: ["skill:", "技能", "分析"],
         examples: [
           'codebuddy -y -p "skill:alienation-analysis 分析程序员异化现象"',
-          'codebuddy -y -p "skill:marxist-analysis 分析技术异化"'
-        ]
+          'codebuddy -y -p "skill:marxist-analysis 分析技术异化"',
+        ],
       },
-      'qodercli': {
+      qodercli: {
         commandFormat: 'qodercli -p "{prompt}"',
         agentDetection: false,
         skillDetection: false,
         basicAISupport: true,
-        agentTypes: ['basic'],
-        skillKeywords: ['分析', '理解'],
+        agentTypes: ["basic"],
+        skillKeywords: ["分析", "理解"],
         examples: [
           'qodercli -p "分析程序员在AI开发中的异化现象"',
-          'qodercli -p "进行技术异化的基础分析"'
-        ]
+          'qodercli -p "进行技术异化的基础分析"',
+        ],
       },
-      'gemini': {
+      gemini: {
         commandFormat: 'gemini -p "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: ["技能", "智能体", "分析", "工具", "方法"],
         examples: [
           'gemini -p "请使用分析技能分析程序员异化现象"',
-          'gemini -p "使用智能体进行技术分析"'
-        ]
+          'gemini -p "使用智能体进行技术分析"',
+        ],
       },
-      'copilot': {
+      copilot: {
         commandFormat: 'copilot "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
         positionalArgs: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: ["技能", "智能体", "分析", "工具", "方法"],
         examples: [
           'copilot "请使用分析技能分析程序员异化现象"',
-          'copilot "使用智能体进行技术分析"'
-        ]
+          'copilot "使用智能体进行技术分析"',
+        ],
       },
-      'codex': {
+      codex: {
         commandFormat: 'codex -m gpt-5 "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
         positionalArgs: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法', '代码', '审查'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: [
+          "技能",
+          "智能体",
+          "分析",
+          "工具",
+          "方法",
+          "代码",
+          "审查",
+        ],
         examples: [
           'codex "请使用异化分析技能分析程序员异化现象"',
           'codex exec "使用数字马克思智能体分析代码库"',
-          'codex review "分析这段代码的异化现象"'
-        ]
+          'codex review "分析这段代码的异化现象"',
+        ],
       },
-      'kode': {
+      kode: {
         commandFormat: 'kode -p "{prompt}"',
         agentDetection: true,
         skillDetection: true,
         naturalLanguageSupport: true,
         positionalArgs: true,
-        agentTypes: ['expert', 'skill', 'analysis', 'agent'],
-        skillKeywords: ['技能', '智能体', '分析', '工具', '方法', '多模型', '协作'],
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: [
+          "技能",
+          "智能体",
+          "分析",
+          "工具",
+          "方法",
+          "多模型",
+          "协作",
+        ],
         examples: [
           'kode -p "请使用异化分析技能分析程序员异化现象"',
           'kode -p "使用数字马克思智能体进行异化分析"',
-          'kode -p "@ask-claude-sonnet-4 分析这个问题"'
-        ]
-      }
+          'kode -p "@ask-claude-sonnet-4 分析这个问题"',
+        ],
+      },
+      kilocode: {
+        commandFormat: 'kilo -p "{prompt}"',
+        agentDetection: true,
+        skillDetection: true,
+        naturalLanguageSupport: true,
+        positionalArgs: false,
+        agentTypes: ["expert", "skill", "analysis", "agent"],
+        skillKeywords: [
+          "技能",
+          "智能体",
+          "分析",
+          "工具",
+          "方法",
+          "多模型",
+          "协作",
+          "kilo",
+        ],
+        examples: [
+          'kilo -p "请使用异化分析技能分析程序员异化现象"',
+          'kilo -p "使用数字马克思智能体进行异化分析"',
+          'kilo -p "分析这个代码库结构"',
+        ],
+      },
     };
 
     // Agent and Skill Recognition Patterns
     this.agentSkillPatterns = {
       // Agent type detection patterns
       agentTypes: {
-        'expert': ['专家', 'expert', 'specialist', '马克思', 'marxist', '数字马克思'],
-        'skill': ['技能', 'skill', '能力', '方法', '工具'],
-        'analysis': ['分析', 'analysis', '解析', '评估'],
-        'agent': ['智能体', 'agent', '助手', '助手'],
-        'basic': ['基础', 'basic', '简单', '初步']
+        expert: [
+          "专家",
+          "expert",
+          "specialist",
+          "马克思",
+          "marxist",
+          "数字马克思",
+        ],
+        skill: ["技能", "skill", "能力", "方法", "工具"],
+        analysis: ["分析", "analysis", "解析", "评估"],
+        agent: ["智能体", "agent", "助手", "助手"],
+        basic: ["基础", "basic", "简单", "初步"],
       },
-      
+
       // Skill name patterns for different CLIs
       skillMapping: {
-        '异化分析': {
-          'claude': '异化分析技能',
-          'iflow': '异化分析技能',
-          'qwen': '异化分析技能',
-          'codebuddy': 'alienation-analysis',
-          'gemini': '异化分析技能',
-          'copilot': '异化分析技能',
-          'codex': 'alienation-analysis',
-          'kode': '异化分析技能'
+        异化分析: {
+          claude: "异化分析技能",
+          iflow: "异化分析技能",
+          qwen: "异化分析技能",
+          codebuddy: "alienation-analysis",
+          gemini: "异化分析技能",
+          copilot: "异化分析技能",
+          codex: "alienation-analysis",
+          kode: "异化分析技能",
         },
-        '马克思分析': {
-          'claude': '数字马克思智能体',
-          'iflow': '数字马克思智能体',
-          'qwen': '数字马克思智能体',
-          'codebuddy': 'marxist-analysis',
-          'gemini': '马克思分析技能',
-          'copilot': '马克思分析智能体',
-          'codex': 'marxist-analysis',
-          'kode': '数字马克思智能体'
+        马克思分析: {
+          claude: "数字马克思智能体",
+          iflow: "数字马克思智能体",
+          qwen: "数字马克思智能体",
+          codebuddy: "marxist-analysis",
+          gemini: "马克思分析技能",
+          copilot: "马克思分析智能体",
+          codex: "marxist-analysis",
+          kode: "数字马克思智能体",
         },
-        '技术分析': {
-          'claude': '技术分析技能',
-          'iflow': '技术分析技能',
-          'qwen': '技术分析技能',
-          'codebuddy': 'tech-analysis',
-          'gemini': '技术分析技能',
-          'copilot': '技术分析技能',
-          'codex': 'tech-analysis',
-          'kode': '技术分析技能'
+        技术分析: {
+          claude: "技术分析技能",
+          iflow: "技术分析技能",
+          qwen: "技术分析技能",
+          codebuddy: "tech-analysis",
+          gemini: "技术分析技能",
+          copilot: "技术分析技能",
+          codex: "tech-analysis",
+          kode: "技术分析技能",
         },
-        '阶级分析': {
-          'claude': '阶级分析技能',
-          'iflow': '阶级分析技能',
-          'qwen': '阶级分析技能',
-          'codebuddy': 'class-analysis',
-          'gemini': '阶级分析技能',
-          'copilot': '阶级分析技能',
-          'codex': 'class-analysis',
-          'kode': '阶级分析技能'
-        }
-      }
+        阶级分析: {
+          claude: "阶级分析技能",
+          iflow: "阶级分析技能",
+          qwen: "阶级分析技能",
+          codebuddy: "class-analysis",
+          gemini: "阶级分析技能",
+          copilot: "阶级分析技能",
+          codex: "class-analysis",
+          kode: "阶级分析技能",
+        },
+      },
     };
 
     // Pattern recognition rules for different CLI types
@@ -247,7 +293,7 @@ class CLIHelpAnalyzer {
       const configExists = await this.fileExists(this.persistentConfig);
       if (!configExists) {
         const initialConfig = {
-          version: '1.0.0',
+          version: "1.0.0",
           lastUpdated: new Date().toISOString(),
           cliPatterns: {},
           failedAttempts: {},
@@ -258,13 +304,13 @@ class CLIHelpAnalyzer {
         } catch (createError) {
           // Only show error if it's not a permissions issue or similar expected issue
           if (
-            !createError.message.includes('EACCES') &&
-            !createError.message.includes('EPERM')
+            !createError.message.includes("EACCES") &&
+            !createError.message.includes("EPERM")
           ) {
             await errorHandler.logError(
               createError,
-              'ERROR',
-              'CLIHelpAnalyzer.initialize',
+              "ERROR",
+              "CLIHelpAnalyzer.initialize",
             );
           }
         }
@@ -273,11 +319,11 @@ class CLIHelpAnalyzer {
     } catch (error) {
       // Don't spam error messages on initialization issues
       // These are often expected on first run
-      if (process.env.DEBUG === 'true') {
+      if (process.env.DEBUG === "true") {
         await errorHandler.logError(
           error,
-          'ERROR',
-          'CLIHelpAnalyzer.initialize',
+          "ERROR",
+          "CLIHelpAnalyzer.initialize",
         );
       }
       return false;
@@ -294,32 +340,35 @@ class CLIHelpAnalyzer {
   async analyzeAllCLI(options = {}) {
     const results = {};
     const cliNames = Object.keys(this.cliTools);
-    
+
     // 优化：并行分析所有 CLI，添加超时保护
     const analysisPromises = cliNames.map(async (cliName) => {
       try {
-        if (process.env.DEBUG === 'true') {
+        if (process.env.DEBUG === "true") {
           console.log(`Analyzing ${cliName}...`);
         }
         // 添加超时保护，单个 CLI 分析最多 60 秒（因为需要尝试多个 help 方法）
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Analysis timeout')), 60000)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Analysis timeout")), 60000),
         );
-        const result = await Promise.race([this.analyzeCLI(cliName, options), timeoutPromise]);
+        const result = await Promise.race([
+          this.analyzeCLI(cliName, options),
+          timeoutPromise,
+        ]);
         return { cliName, result };
       } catch (error) {
         // Only log important errors, suppress expected file not found errors
         if (
-          !error.message.includes('ENOENT') &&
-          !error.message.includes('no such file or directory') &&
+          !error.message.includes("ENOENT") &&
+          !error.message.includes("no such file or directory") &&
           !error.message.includes(
-            'not recognized as an internal or external command',
+            "not recognized as an internal or external command",
           ) &&
-          !error.message.includes('Analysis timeout')
+          !error.message.includes("Analysis timeout")
         ) {
           await errorHandler.logError(
             error,
-            'WARN',
+            "WARN",
             `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
           );
         }
@@ -328,16 +377,19 @@ class CLIHelpAnalyzer {
     });
 
     // 等待所有分析完成，添加整体超时保护
-    const overallTimeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Overall analysis timeout')), 120000)
+    const overallTimeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Overall analysis timeout")), 120000),
     );
-    const analysisResults = await Promise.race([Promise.all(analysisPromises), overallTimeoutPromise]);
-    
+    const analysisResults = await Promise.race([
+      Promise.all(analysisPromises),
+      overallTimeoutPromise,
+    ]);
+
     // 整理结果
     for (const { cliName, result } of analysisResults) {
       results[cliName] = result;
     }
-    
+
     return results;
   }
 
@@ -362,11 +414,19 @@ class CLIHelpAnalyzer {
         const cachedAnalysis = await this.getCachedAnalysis(cliName);
         if (cachedAnalysis && cachedAnalysis.success) {
           // 获取当前版本
-          const currentVersion = await this.getCurrentVersion(cliName, cliConfig);
+          const currentVersion = await this.getCurrentVersion(
+            cliName,
+            cliConfig,
+          );
           // 如果版本未变化，使用缓存
-          if (currentVersion === cachedAnalysis.version && !this.isCacheExpired(cachedAnalysis.timestamp)) {
-            if (process.env.DEBUG === 'true') {
-              console.log(`[DEBUG] ${cliName}: 使用缓存的分析结果 (版本: ${cachedAnalysis.version})`);
+          if (
+            currentVersion === cachedAnalysis.version &&
+            !this.isCacheExpired(cachedAnalysis.timestamp)
+          ) {
+            if (process.env.DEBUG === "true") {
+              console.log(
+                `[DEBUG] ${cliName}: 使用缓存的分析结果 (版本: ${cachedAnalysis.version})`,
+              );
             }
             // 添加增强信息
             if (enhanced) {
@@ -374,13 +434,15 @@ class CLIHelpAnalyzer {
             }
             return cachedAnalysis;
           } else {
-            if (process.env.DEBUG === 'true') {
-              console.log(`[DEBUG] ${cliName}: 版本变化 (${cachedAnalysis.version} -> ${currentVersion}) 或缓存过期，重新分析`);
+            if (process.env.DEBUG === "true") {
+              console.log(
+                `[DEBUG] ${cliName}: 版本变化 (${cachedAnalysis.version} -> ${currentVersion}) 或缓存过期，重新分析`,
+              );
             }
           }
         }
       }
-      
+
       // Get help information
       const helpInfo = await this.getHelpInfo(cliName, cliConfig);
       // Detect CLI type
@@ -418,9 +480,9 @@ class CLIHelpAnalyzer {
       // Only throw if it's not an expected "tool not installed" error
       if (
         !error.message.includes(
-          'not recognized as an internal or external command',
+          "not recognized as an internal or external command",
         ) &&
-        !error.message.includes('command not found')
+        !error.message.includes("command not found")
       ) {
         throw error;
       }
@@ -443,21 +505,22 @@ class CLIHelpAnalyzer {
    */
   addEnhancedInfo(analysis, cliName) {
     const enhancedPatterns = this.enhancedPatterns[cliName] || {};
-    
+
     // 使用展开运算符创建新对象，不修改原对象
     return {
       ...analysis,
       agentSkillSupport: {
         supportsAgents: enhancedPatterns.agentDetection || false,
         supportsSkills: enhancedPatterns.skillDetection || false,
-        naturalLanguageSupport: enhancedPatterns.naturalLanguageSupport || false,
+        naturalLanguageSupport:
+          enhancedPatterns.naturalLanguageSupport || false,
         skillPrefixRequired: enhancedPatterns.skillPrefixRequired || false,
         positionalArgs: enhancedPatterns.positionalArgs || false,
         agentTypes: enhancedPatterns.agentTypes || [],
         skillKeywords: enhancedPatterns.skillKeywords || [],
         commandFormat: enhancedPatterns.commandFormat || "",
-        examples: enhancedPatterns.examples || []
-      }
+        examples: enhancedPatterns.examples || [],
+      },
     };
   }
 
@@ -466,32 +529,32 @@ class CLIHelpAnalyzer {
    */
   async getHelpInfo(cliName, cliConfig) {
     // Special handling for codex to avoid opening files or executing commands
-    if (cliName === 'codex') {
+    if (cliName === "codex") {
       return await this.getCodexHelpInfo(cliConfig);
     }
 
     const helpMethods = [
-      ['--help'],  // 最常用
-      ['-h'],      // 常用
+      ["--help"], // 最常用
+      ["-h"], // 常用
     ];
-    let rawHelp = '';
-    let version = 'unknown';
-    let method = 'unknown';
+    let rawHelp = "";
+    let version = "unknown";
+    let method = "unknown";
     // Try different help commands
     for (const helpArgs of helpMethods) {
       try {
         const result = spawnSync(cliName, helpArgs, {
-          encoding: 'utf8',
+          encoding: "utf8",
           timeout: 5000,
           shell: true,
         });
         if (result.status === 0 && result.stdout) {
           rawHelp = result.stdout;
-          method = `${cliName} ${helpArgs.join(' ')}`;
+          method = `${cliName} ${helpArgs.join(" ")}`;
           break;
         } else if (result.stderr) {
           rawHelp = result.stderr;
-          method = `${cliName} ${helpArgs.join(' ')} (stderr)`;
+          method = `${cliName} ${helpArgs.join(" ")} (stderr)`;
           break;
         }
       } catch (error) {
@@ -502,12 +565,13 @@ class CLIHelpAnalyzer {
     // Try to get version separately
     if (cliConfig.version) {
       try {
-        const versionCmd = cliConfig.version.split(' ');
+        const versionCmd = cliConfig.version.split(" ");
         const versionResult = spawnSync(versionCmd[0], versionCmd.slice(1), {
-                encoding: 'utf8',
-                timeout: 3000, // 优化：减少超时时间从 10 秒到 3 秒
-                shell: true,
-              });        if (versionResult.status === 0) {
+          encoding: "utf8",
+          timeout: 3000, // 优化：减少超时时间从 10 秒到 3 秒
+          shell: true,
+        });
+        if (versionResult.status === 0) {
           version = versionResult.stdout.trim() || versionResult.stderr.trim();
         }
       } catch (error) {
@@ -526,29 +590,29 @@ class CLIHelpAnalyzer {
   async getCodexHelpInfo(cliConfig) {
     try {
       // Check if codex is likely installed by checking common installation paths
-      const os = require('os');
-      const path = require('path');
-      const fs = require('fs');
+      const os = require("os");
+      const path = require("path");
+      const fs = require("fs");
 
       // Common Codex installation paths
       const possiblePaths = [
-        path.join(os.homedir(), '.codex'),
-        path.join(os.homedir(), '.config', 'codex'),
+        path.join(os.homedir(), ".codex"),
+        path.join(os.homedir(), ".config", "codex"),
         path.join(
           os.homedir(),
-          'AppData',
-          'Roaming',
-          'npm',
-          'node_modules',
-          '@openai/codex',
+          "AppData",
+          "Roaming",
+          "npm",
+          "node_modules",
+          "@openai/codex",
         ),
-        path.join('/usr/local/lib/node_modules/@openai/codex'),
-        path.join('/usr/lib/node_modules/@openai/codex'),
+        path.join("/usr/local/lib/node_modules/@openai/codex"),
+        path.join("/usr/lib/node_modules/@openai/codex"),
       ];
 
       // Check if any of these paths exist
       let codexInstalled = false;
-      let configPath = '';
+      let configPath = "";
 
       for (const possiblePath of possiblePaths) {
         if (fs.existsSync(possiblePath)) {
@@ -560,16 +624,16 @@ class CLIHelpAnalyzer {
 
       // If Codex is not installed, throw an error without trying to execute commands
       if (!codexInstalled) {
-        throw new Error('Codex CLI not found in standard installation paths');
+        throw new Error("Codex CLI not found in standard installation paths");
       }
 
       // If Codex appears to be installed, return minimal help information
       // without actually executing any commands
       return {
         rawHelp:
-          'Codex CLI - OpenAI Codex Command Line Interface\nUsage: codex [options] [prompt]\n\nOptions:\n  --help, -h     Show help\n  --version      Show version\n  --model        Specify model to use\n  --temperature  Set temperature for generation',
-        version: 'unknown',
-        method: 'path-detection',
+          "Codex CLI - OpenAI Codex Command Line Interface\nUsage: codex [options] [prompt]\n\nOptions:\n  --help, -h     Show help\n  --version      Show version\n  --model        Specify model to use\n  --temperature  Set temperature for generation",
+        version: "unknown",
+        method: "path-detection",
       };
     } catch (error) {
       throw new Error(
@@ -585,58 +649,58 @@ class CLIHelpAnalyzer {
     const text = helpText.toLowerCase();
     const name = cliName.toLowerCase();
     // Detect based on CLI name
-    if (name.includes('claude') || name.includes('anthropic')) {
-      return 'anthropic';
+    if (name.includes("claude") || name.includes("anthropic")) {
+      return "anthropic";
     }
-    if (name.includes('gemini') || name.includes('google')) {
-      return 'google';
+    if (name.includes("gemini") || name.includes("google")) {
+      return "google";
     }
     if (
-      name.includes('codex') ||
-      name.includes('openai') ||
-      name.includes('chatgpt')
+      name.includes("codex") ||
+      name.includes("openai") ||
+      name.includes("chatgpt")
     ) {
-      return 'openai';
+      return "openai";
     }
     // Detect based on help content patterns
-    if (text.includes('anthropic') || text.includes('claude')) {
-      return 'anthropic';
+    if (text.includes("anthropic") || text.includes("claude")) {
+      return "anthropic";
     }
     if (
-      text.includes('google') ||
-      text.includes('gemini') ||
-      text.includes('vertex')
+      text.includes("google") ||
+      text.includes("gemini") ||
+      text.includes("vertex")
     ) {
-      return 'google';
+      return "google";
     }
     if (
-      text.includes('openai') ||
-      text.includes('gpt') ||
-      text.includes('codex')
+      text.includes("openai") ||
+      text.includes("gpt") ||
+      text.includes("codex")
     ) {
-      return 'openai';
+      return "openai";
     }
     if (
-      text.includes('qwen') ||
-      text.includes('alibaba') ||
-      text.includes('tongyi')
+      text.includes("qwen") ||
+      text.includes("alibaba") ||
+      text.includes("tongyi")
     ) {
-      return 'alibaba';
+      return "alibaba";
     }
-    if (text.includes('iflow') || text.includes('intelligent')) {
-      return 'iflow';
+    if (text.includes("iflow") || text.includes("intelligent")) {
+      return "iflow";
     }
-    if (text.includes('copilot') || text.includes('github')) {
-      return 'github';
+    if (text.includes("copilot") || text.includes("github")) {
+      return "github";
     }
-    if (text.includes('codebuddy') || text.includes('buddy')) {
-      return 'codebuddy';
+    if (text.includes("codebuddy") || text.includes("buddy")) {
+      return "codebuddy";
     }
-    if (text.includes('qoder') || text.includes('code')) {
-      return 'qoder';
+    if (text.includes("qoder") || text.includes("code")) {
+      return "qoder";
     }
     // Default to generic
-    return 'generic';
+    return "generic";
   }
 
   /**
@@ -670,13 +734,13 @@ class CLIHelpAnalyzer {
     // Try to identify non-interactive flag
     const nonInteractiveFlags = patterns.options.filter(
       (option) =>
-        option.includes('non-interactive') ||
-        option.includes('batch') ||
-        option.includes('no-input') ||
-        option.includes('stdin') ||
-        option.includes('print') ||  // For CLI tools like kode with --print flag
-        option.includes('pipe') ||    // Pipes mentioned in description
-        option.includes('exit'),      // Exit after execution
+        option.includes("non-interactive") ||
+        option.includes("batch") ||
+        option.includes("no-input") ||
+        option.includes("stdin") ||
+        option.includes("print") || // For CLI tools like kode with --print flag
+        option.includes("pipe") || // Pipes mentioned in description
+        option.includes("exit"), // Exit after execution
     );
     patterns.nonInteractiveFlag =
       nonInteractiveFlags.length > 0 ? nonInteractiveFlags[0] : null;
@@ -684,18 +748,18 @@ class CLIHelpAnalyzer {
     // Try to identify prompt flag
     const promptFlags = patterns.options.filter(
       (option) =>
-        option.includes('prompt') ||
-        option.includes('input') ||
-        option.includes('query') ||
-        option.includes('question'),
+        option.includes("prompt") ||
+        option.includes("input") ||
+        option.includes("query") ||
+        option.includes("question"),
     );
     patterns.promptFlag = promptFlags.length > 0 ? promptFlags[0] : null;
 
     // Identify required flags
     patterns.requiredFlags = patterns.options.filter(
       (option) =>
-        option.includes('<') || // Angle brackets indicate required parameters
-        option.includes('*'), // Asterisk indicates required
+        option.includes("<") || // Angle brackets indicate required parameters
+        option.includes("*"), // Asterisk indicates required
     );
 
     return patterns;
@@ -706,16 +770,16 @@ class CLIHelpAnalyzer {
    */
   analyzeCommandStructure(patterns) {
     const structure = {
-      primaryCommand: '',
-      commandFormat: 'cli [args]',
-      argumentStyle: '',
-      optionStyle: '',
+      primaryCommand: "",
+      commandFormat: "cli [args]",
+      argumentStyle: "",
+      optionStyle: "",
       interactiveMode: false,
       hasSubcommands: patterns.subcommands.length > 0,
-      complexity: 'simple',
+      complexity: "simple",
       nonInteractiveSupport: !!patterns.nonInteractiveFlag,
-      promptStyle: patterns.promptFlag ? 'flag' : 'argument',
-      executionPattern: 'interactive-default',
+      promptStyle: patterns.promptFlag ? "flag" : "argument",
+      executionPattern: "interactive-default",
       nonInteractiveFlag: patterns.nonInteractiveFlag,
       promptFlag: patterns.promptFlag,
       requiredFlags: patterns.requiredFlags,
@@ -724,16 +788,16 @@ class CLIHelpAnalyzer {
 
     // Determine complexity
     if (patterns.subcommands.length > 5) {
-      structure.complexity = 'complex';
+      structure.complexity = "complex";
     } else if (patterns.subcommands.length > 0) {
-      structure.complexity = 'moderate';
+      structure.complexity = "moderate";
     }
 
     // Determine execution pattern
     if (patterns.nonInteractiveFlag) {
-      structure.executionPattern = 'flag-based';
+      structure.executionPattern = "flag-based";
     } else if (patterns.promptFlag) {
-      structure.executionPattern = 'prompt-flag';
+      structure.executionPattern = "prompt-flag";
     }
 
     return structure;
@@ -762,21 +826,21 @@ class CLIHelpAnalyzer {
 
     // Check for explicit non-interactive support
     if (patterns.nonInteractiveFlag) {
-      return 'non-interactive';
+      return "non-interactive";
     }
 
     // Check for stdin support
-    if (helpText.includes('stdin') || helpText.includes('pipe')) {
-      return 'stdin-support';
+    if (helpText.includes("stdin") || helpText.includes("pipe")) {
+      return "stdin-support";
     }
 
     // Check for batch mode
-    if (helpText.includes('batch') || helpText.includes('script')) {
-      return 'batch-mode';
+    if (helpText.includes("batch") || helpText.includes("script")) {
+      return "batch-mode";
     }
 
     // Default to interactive
-    return 'interactive';
+    return "interactive";
   }
 
   /**
@@ -790,11 +854,11 @@ class CLIHelpAnalyzer {
       await this.savePersistentConfig(config);
     } catch (error) {
       // Don't spam errors for cache issues
-      if (process.env.DEBUG === 'true') {
+      if (process.env.DEBUG === "true") {
         await errorHandler.logError(
           error,
-          'WARN',
-          'CLIHelpAnalyzer.cacheAnalysis',
+          "WARN",
+          "CLIHelpAnalyzer.cacheAnalysis",
         );
       }
     }
@@ -811,7 +875,7 @@ class CLIHelpAnalyzer {
       return null;
     }
   }
-  
+
   /**
    * 获取CLI模式（包装器方法）
    * @deprecated 此方法已弃用，请使用 analyzeCLI(cliName, { enhanced: false }) 代替
@@ -841,18 +905,18 @@ class CLIHelpAnalyzer {
       const configExists = await this.fileExists(this.persistentConfig);
       if (!configExists) {
         return {
-          version: '1.0.0',
+          version: "1.0.0",
           lastUpdated: new Date().toISOString(),
           cliPatterns: {},
           failedAttempts: {},
         };
       }
-      const configData = await fs.readFile(this.persistentConfig, 'utf8');
+      const configData = await fs.readFile(this.persistentConfig, "utf8");
       return JSON.parse(configData);
     } catch (error) {
       // Return default config if loading fails
       return {
-        version: '1.0.0',
+        version: "1.0.0",
         lastUpdated: new Date().toISOString(),
         cliPatterns: {},
         failedAttempts: {},
@@ -880,19 +944,23 @@ class CLIHelpAnalyzer {
   async getCurrentVersion(cliName, cliConfig) {
     try {
       const versionCmd = cliConfig.version || `${cliName} --version`;
-      const result = spawnSync(versionCmd.split(' ')[0], versionCmd.split(' ').slice(1), {
-        encoding: 'utf8',
-        shell: true,
-        timeout: 3000,
-        stdio: ['ignore', 'pipe', 'pipe']
-      });
-      
+      const result = spawnSync(
+        versionCmd.split(" ")[0],
+        versionCmd.split(" ").slice(1),
+        {
+          encoding: "utf8",
+          shell: true,
+          timeout: 3000,
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      );
+
       if (result.status === 0) {
-        return (result.stdout.trim() || result.stderr.trim()).split('\n')[0];
+        return (result.stdout.trim() || result.stderr.trim()).split("\n")[0];
       }
-      return 'unknown';
+      return "unknown";
     } catch (error) {
-      return 'unknown';
+      return "unknown";
     }
   }
 
@@ -910,11 +978,11 @@ class CLIHelpAnalyzer {
       await this.savePersistentConfig(config);
     } catch (saveError) {
       // Don't spam errors for failed attempt recording
-      if (process.env.DEBUG === 'true') {
+      if (process.env.DEBUG === "true") {
         await errorHandler.logError(
           saveError,
-          'WARN',
-          'CLIHelpAnalyzer.recordFailedAttempt',
+          "WARN",
+          "CLIHelpAnalyzer.recordFailedAttempt",
         );
       }
     }
@@ -925,7 +993,7 @@ class CLIHelpAnalyzer {
    */
   async updatePatternOnFailure(cliName, error, attemptedCommand) {
     // Only log in debug mode to reduce console noise
-    if (process.env.DEBUG === 'true') {
+    if (process.env.DEBUG === "true") {
       console.log(
         `Updating pattern for ${cliName} due to failure:`,
         error.message,
@@ -945,7 +1013,7 @@ class CLIHelpAnalyzer {
       return newAnalysis;
     } catch (analysisError) {
       // Only log analysis errors in debug mode
-      if (process.env.DEBUG === 'true') {
+      if (process.env.DEBUG === "true") {
         console.error(
           `Failed to re-analyze ${cliName}:`,
           analysisError.message,
@@ -1001,9 +1069,9 @@ class CLIHelpAnalyzer {
     // Check for agent keywords
     if (enhancedPattern.agentDetection) {
       const agentKeywords = [
-        ...this.agentSkillPatterns.agentTypes['expert'],
-        ...this.agentSkillPatterns.agentTypes['agent'],
-        ...enhancedPattern.skillKeywords
+        ...this.agentSkillPatterns.agentTypes["expert"],
+        ...this.agentSkillPatterns.agentTypes["agent"],
+        ...enhancedPattern.skillKeywords,
       ];
 
       for (const keyword of agentKeywords) {
@@ -1018,7 +1086,7 @@ class CLIHelpAnalyzer {
     // Check for skill keywords
     if (enhancedPattern.skillDetection) {
       const skillKeywords = enhancedPattern.skillKeywords;
-      
+
       for (const keyword of skillKeywords) {
         if (inputLower.includes(keyword.toLowerCase())) {
           hasSkill = true;
@@ -1028,14 +1096,17 @@ class CLIHelpAnalyzer {
       }
 
       // Special check for skill: prefix (codebuddy)
-      if (enhancedPattern.skillPrefixRequired && inputLower.includes('skill:')) {
+      if (
+        enhancedPattern.skillPrefixRequired &&
+        inputLower.includes("skill:")
+      ) {
         hasSkill = true;
         confidence += 0.6;
       }
     }
 
     // Boost confidence based on CLI-specific patterns
-    if (cliName === 'qwen' && enhancedPattern.positionalArgs) {
+    if (cliName === "qwen" && enhancedPattern.positionalArgs) {
       // Qwen CLI has higher confidence for natural language
       confidence *= 1.2;
     }
@@ -1055,20 +1126,19 @@ class CLIHelpAnalyzer {
     let optimizedPrompt = prompt;
 
     // Apply skill mapping if applicable
-    for (const [chineseSkill, mapping] of Object.entries(this.agentSkillPatterns.skillMapping)) {
+    for (const [chineseSkill, mapping] of Object.entries(
+      this.agentSkillPatterns.skillMapping,
+    )) {
       if (prompt.includes(chineseSkill) && mapping[cliName]) {
-        if (enhancedPattern.skillPrefixRequired && !prompt.includes('skill:')) {
+        if (enhancedPattern.skillPrefixRequired && !prompt.includes("skill:")) {
           // For codebuddy, add skill: prefix
           optimizedPrompt = prompt.replace(
-            chineseSkill, 
-            `skill:${mapping[cliName]}`
+            chineseSkill,
+            `skill:${mapping[cliName]}`,
           );
         } else if (enhancedPattern.naturalLanguageSupport) {
           // For CLIs that support natural language, use the mapped term
-          optimizedPrompt = prompt.replace(
-            chineseSkill, 
-            mapping[cliName]
-          );
+          optimizedPrompt = prompt.replace(chineseSkill, mapping[cliName]);
         }
         break;
       }
@@ -1090,17 +1160,28 @@ class CLIHelpAnalyzer {
   /**
    * Analyze call success and update patterns accordingly
    */
-  async updatePatternOnAgentSkillFailure(cliName, error, attemptedCommand, userPrompt) {
-    if (process.env.DEBUG === 'true') {
-      console.log(`Updating agent/skill pattern for ${cliName} due to failure:`, error.message);
+  async updatePatternOnAgentSkillFailure(
+    cliName,
+    error,
+    attemptedCommand,
+    userPrompt,
+  ) {
+    if (process.env.DEBUG === "true") {
+      console.log(
+        `Updating agent/skill pattern for ${cliName} due to failure:`,
+        error.message,
+      );
     }
 
     try {
       // Re-analyze with enhanced capabilities
       const newAnalysis = await this.analyzeCLIEnhanced(cliName);
-      
+
       // Add failure context with agent/skill information
-      const detectedMentions = this.detectAgentSkillMentions(userPrompt, cliName);
+      const detectedMentions = this.detectAgentSkillMentions(
+        userPrompt,
+        cliName,
+      );
       newAnalysis.lastFailure = {
         error: error.message,
         attemptedCommand,
@@ -1113,8 +1194,11 @@ class CLIHelpAnalyzer {
       await this.cacheAnalysis(cliName, newAnalysis);
       return newAnalysis;
     } catch (analysisError) {
-      if (process.env.DEBUG === 'true') {
-        console.error(`Failed to re-analyze ${cliName}:`, analysisError.message);
+      if (process.env.DEBUG === "true") {
+        console.error(
+          `Failed to re-analyze ${cliName}:`,
+          analysisError.message,
+        );
       }
       return null;
     }
@@ -1126,7 +1210,7 @@ class CLIHelpAnalyzer {
   getAgentSkillCompatibilityScore(cliName, prompt) {
     const enhancedPattern = this.enhancedPatterns[cliName];
     if (!enhancedPattern) {
-      return { score: 0, reasons: ['CLI not supported'] };
+      return { score: 0, reasons: ["CLI not supported"] };
     }
 
     const detectedMentions = this.detectAgentSkillMentions(prompt, cliName);
@@ -1136,46 +1220,46 @@ class CLIHelpAnalyzer {
     // Base compatibility
     if (enhancedPattern.agentDetection) {
       score += 0.2;
-      reasons.push('支持智能体检测');
+      reasons.push("支持智能体检测");
     }
-    
+
     if (enhancedPattern.skillDetection) {
       score += 0.2;
-      reasons.push('支持技能检测');
+      reasons.push("支持技能检测");
     }
 
     // Detection results
     if (detectedMentions.hasAgent) {
       score += 0.1;
-      reasons.push('检测到智能体提及');
+      reasons.push("检测到智能体提及");
     }
 
     if (detectedMentions.hasSkill) {
       score += 0.1;
-      reasons.push('检测到技能提及');
+      reasons.push("检测到技能提及");
     }
 
     // CLI-specific advantages
-    if (cliName === 'qwen' && enhancedPattern.positionalArgs) {
+    if (cliName === "qwen" && enhancedPattern.positionalArgs) {
       score += 0.1;
-      reasons.push('位置参数支持，自然语言理解优秀');
+      reasons.push("位置参数支持，自然语言理解优秀");
     }
 
-    if (cliName === 'codebuddy' && enhancedPattern.skillPrefixRequired) {
+    if (cliName === "codebuddy" && enhancedPattern.skillPrefixRequired) {
       score += 0.1;
-      reasons.push('明确的技能语法支持');
+      reasons.push("明确的技能语法支持");
     }
 
     // Penalty for mismatches
     if (enhancedPattern.skillPrefixRequired && !detectedMentions.hasSkill) {
       score -= 0.2;
-      reasons.push('需要技能语法但未检测到技能');
+      reasons.push("需要技能语法但未检测到技能");
     }
 
-    return { 
-      score: Math.max(0, Math.min(1, score)), 
+    return {
+      score: Math.max(0, Math.min(1, score)),
       reasons,
-      detected: detectedMentions
+      detected: detectedMentions,
     };
   }
 
@@ -1190,45 +1274,52 @@ class CLIHelpAnalyzer {
 
     // Optimize the prompt
     const detectedMentions = this.detectAgentSkillMentions(userPrompt, cliName);
-    const optimizedPrompt = this.optimizePromptForCLI(userPrompt, cliName, detectedMentions);
+    const optimizedPrompt = this.optimizePromptForCLI(
+      userPrompt,
+      cliName,
+      detectedMentions,
+    );
 
     // Generate command based on CLI format
     let command;
     let args;
 
     switch (cliName) {
-      case 'qwen':
+      case "qwen":
         // Qwen uses positional arguments
-        command = 'qwen';
+        command = "qwen";
         args = [optimizedPrompt];
         break;
-        
-      case 'codebuddy':
+
+      case "codebuddy":
         // Codebuddy requires -y flag and skill prefix
-        command = 'codebuddy';
-        args = ['-y', '-p', optimizedPrompt];
+        command = "codebuddy";
+        args = ["-y", "-p", optimizedPrompt];
         break;
-        
-      case 'claude':
-      case 'iflow':
-      case 'qodercli':
+
+      case "claude":
+      case "iflow":
+      case "qodercli":
         // These use -p flag
         command = cliName;
-        args = ['-p', optimizedPrompt];
+        args = ["-p", optimizedPrompt];
         break;
-        
+
       default:
         command = cliName;
-        args = ['-p', optimizedPrompt];
+        args = ["-p", optimizedPrompt];
     }
 
     return {
       command,
       args,
-      fullCommand: `${command} ${args.join(' ')}`,
+      fullCommand: `${command} ${args.join(" ")}`,
       optimizedPrompt,
       detectedMentions,
-      compatibilityScore: this.getAgentSkillCompatibilityScore(cliName, userPrompt)
+      compatibilityScore: this.getAgentSkillCompatibilityScore(
+        cliName,
+        userPrompt,
+      ),
     };
   }
 }
