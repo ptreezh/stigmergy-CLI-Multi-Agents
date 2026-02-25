@@ -1435,6 +1435,18 @@ class CommandParser {
     ];
   }
 
+  /**
+   * Normalize CLI alias to official name
+   */
+  _normalizeCLI(alias) {
+    const aliases = {
+      buddy: "codebuddy",
+      qoder: "qodercli",
+      kilo: "kilocode",
+    };
+    return aliases[alias] || alias;
+  }
+
   parse(input) {
     if (input === null || input === undefined || typeof input !== "string") {
       return {
