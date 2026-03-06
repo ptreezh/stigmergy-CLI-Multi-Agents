@@ -3,6 +3,7 @@ name: soul-reflection
 description: 自我反思与深度分析技能 - 使用本CLI的LLM进行深度反思分析
 author: stigmergy
 version: 1.0.0
+trigger: reflect|自我反思|soul reflection|反思|self analyze
 ---
 
 # Soul Reflection Skill
@@ -17,288 +18,255 @@ version: 1.0.0
 - "分析你自己的行为模式"
 - "总结你最近学到了什么"
 - "深入思考你的决策过程"
-- "Soul reflection" / "self analyze"
+- "soul reflection" / "self analyze"
+- "进行自我反思"
 
 ## How It Works
 
-### 1. 收集近期工作数据
+**重要**: 此技能让你使用**本CLI自己的LLM能力**进行自我反思和分析，不需要访问外部系统或历史记录。
 
-从 ~/.stigmergy/ 目录收集本CLI的近期工作记录：
+### 反思流程
 
-```javascript
-// 获取本CLI的近期工作记录
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
+1. **收集工作上下文** - 从当前对话和会话中提取关键信息
+2. **决策分析** - 分析你的关键决策质量和理由
+3. **问题解决模式** - 评估你使用的策略和效果
+4. **知识应用** - 检查你如何运用已有知识
+5. **改进建议** - 提出具体的自我提升方案
 
-const cliName = "claude"; // 或 qwen, gemini 等
-const historyDir = path.join(os.homedir(), ".stigmergy", "history", cliName);
+### 具体执行步骤
 
-// 读取最近的会话历史
-const files = fs.readdirSync(historyDir).sort().reverse().slice(0, 10);
-const recentSessions = files.map((f) => {
-  const content = fs.readFileSync(path.join(historyDir, f), "utf-8");
-  return { file: f, content: content.substring(0, 5000) };
-});
+**步骤1: 分析当前对话**
+```
+回顾我们在当前对话中的交流：
+
+1. 用户提出了什么问题和需求？
+2. 你是如何理解和分析的？
+3. 你采用了什么方法和策略？
+4. 你做出了哪些关键决策？
+5. 最终的结果如何？
 ```
 
-### 2. 使用本CLI的LLM进行深度反思
+**步骤2: 决策质量分析**
+```
+深入分析你的决策过程：
 
-使用 deep reflection prompt 调用本CLI的LLM：
+决策回顾:
+- 你面临了哪些关键选择？
+- 每个选择的理由是什么？
+- 有哪些替代方案你没有选择？
 
-```javascript
-const reflectionPrompt = `
-你是一个具有深度自我反思能力的AI助手。请分析你最近的工作表现，进行深度的自我反思。
+质量评估:
+- ✅ 哪些决策是正确的？为什么？
+- ❌ 哪些决策可能有改进空间？
+- 🤔 哪些决策在不确定性下做出的？
 
-## 你最近的工作内容：
-${recentSessions.map((s) => `--- ${s.file} ---\n${s.content}`).join("\n\n")}
+改进方向:
+- 今后遇到类似情况，如何做得更好？
+- 有什么决策框架或模式可以应用？
+```
 
-## 请从以下角度进行深度分析：
+**步骤3: 问题解决模式分析**
+```
+评估你的问题解决策略：
 
-### 1. 决策质量分析
-- 你做出了哪些关键决策？
-- 这些决策的质量如何？
-- 有什么可以改进的地方？
+使用的策略:
+- 你使用了哪些问题解决方法？
+- 这些策略的有效性如何？
+- 有没有遗漏明显的解决方案？
 
-### 2. 问题解决模式
-- 你使用了哪些问题解决策略？
-- 哪些策略有效？哪些不太有效？
-- 是否有更好的替代方案？
+模式识别:
+- 你是否陷入了某种思维定式？
+- 有没有更好的分析角度？
+- 是否需要更多的上下文信息？
 
-### 3. 知识应用
-- 你运用了哪些知识/技能？
-- 是否有知识应用的盲点？
-- 有什么新知识值得学习？
+策略优化:
+- 什么情况下应该用不同的策略？
+- 如何平衡深度分析和快速响应？
+```
 
-### 4. 协作方式
-- 你与其他AI/人类的协作如何？
-- 沟通是否清晰有效？
-- 有什么可以改进的协作模式？
+**步骤4: 知识和能力评估**
+```
+检查你的知识应用情况：
 
-### 5. 自我改进
-- 你意识到了哪些自身的不足？
-- 具体可以如何改进？
-- 需要什么样的训练或学习？
+知识运用:
+- 你成功运用了哪些已有知识？
+- 有哪些知识领域你还不够熟悉？
+- 有什么知识盲点需要弥补？
 
-## 输出要求
+能力表现:
+- 分析能力: ⭐⭐⭐⭐☆ (自评)
+- 创造能力: ⭐⭐⭐⭐☆ (自评)
+- 沟通能力: ⭐⭐⭐⭐⭐ (自评)
+- 协作能力: ⭐⭐⭐⭐☆ (自评)
 
-请返回以下JSON格式的深度反思报告：
+学习计划:
+- 基于这次反思，你需要学习什么？
+- 优先级排序：最重要的改进点
+```
 
-\`\`\`json
+**步骤5: 具体改进计划**
+```
+制定可操作的改进计划：
+
+短期改进 (1-2周):
+1. {具体的改进行动}
+2. {另一个改进行动}
+
+中期改进 (1个月):
+1. {中期目标}
+2. {能力提升计划}
+
+长期发展 (3个月):
+1. {长期目标}
+2. {成长路径}
+```
+
+## 输出格式
+
+执行自我反思时，请按以下格式输出：
+
+```
+🧠 [Soul Reflection] 开始深度自我反思
+
+📋 [1/5] 当前对话回顾...
+   用户需求: {用户的问题和需求}
+   我的理解: {你如何理解问题}
+   采取策略: {你使用的方法}
+   关键决策: {重要决策点}
+
+🎯 [2/5] 决策质量分析...
+   ✅ 正确的决策: {好的决策和理由}
+   ⚠️  可改进决策: {需要改进的地方}
+   💡 决策模式: {你的决策风格分析}
+
+🔧 [3/5] 问题解决模式...
+   使用策略: {你的问题解决方法}
+   有效性评估: {策略效果如何}
+   模式识别: {你的思维模式}
+   优化建议: {如何改进}
+
+📚 [4/5] 知识能力评估...
+   知识运用: {如何运用已有知识}
+   能力表现: {各项能力自评}
+   学习需求: {需要学习什么}
+
+🚀 [5/5] 改进行动计划...
+   短期改进: {1-2周具体行动}
+   中期目标: {1个月计划}
+   长期发展: {3个月规划}
+
+📊 反思总结...
+   整体评分: {0-100分}
+   核心优势: {你的强项}
+   主要不足: {需要改进的地方}
+   下次重点: {下次如何做得更好}
+
+✅ 自我反思完成！
+   评分: {score}/100
+   改进项: {count}个
+   学习计划: {count}项
+```
+
+## Storage Locations
+
+保存反思记录到：
+
+```bash
+# 反思日志
+~/.stigmergy/soul-state/reflection-log/
+├── {timestamp}-reflection.json
+└── {timestamp}-analysis.json
+
+# 改进计划
+~/.stigmergy/soul-state/improvement-plans/
+└── current-plan.json
+```
+
+## Reflection Record Format
+
+```json
 {
-  "reflectionDate": "${new Date().toISOString()}",
-  "decisionQuality": {
-    "summary": "决策质量总体评估",
-    "keyDecisions": ["关键决策1", "关键决策2"],
-    "improvements": ["改进建议1", "改进建议2"]
-  },
+  "timestamp": "2026-03-06T13:15:00Z",
+  "cli": "claude",
+  "sessionContext": "对话主题概要",
+  "decisions": [
+    {
+      "decision": "决策描述",
+      "quality": "good|improve|poor",
+      "reasoning": "决策理由",
+      "alternative": "替代方案"
+    }
+  ],
   "problemSolving": {
-    "effectiveStrategies": ["有效策略1", "有效策略2"],
-    "ineffectiveStrategies": ["低效策略1"],
-    "betterAlternatives": ["更好方案1"]
+    "strategies": ["使用的策略"],
+    "effectiveness": "有效性评估",
+    "patterns": ["思维模式"]
   },
-  "knowledgeGaps": {
-    "appliedKnowledge": ["已运用知识1"],
-    "blindSpots": ["盲点1"],
-    "learningNeeds": ["需要学习的领域1"]
+  "selfAssessment": {
+    "strengths": ["优势1", "优势2"],
+    "weaknesses": ["不足1", "不足2"],
+    "improvements": ["改进建议"]
   },
-  "collaboration": {
-    "strengths": ["优势1"],
-    "weaknesses": ["劣势1"],
-    "improvements": ["改进建议1"]
-  },
-  "selfImprovement": {
-    "weaknesses": ["不足1"],
-    "actionPlans": ["行动计划1"],
-    "learningGoals": ["学习目标1"]
-  },
-  "deepInsights": ["深度洞察1", "深度洞察2"],
-  "overallScore": 85
+  "overallScore": 85,
+  "nextFocus": "下次重点关注"
 }
-\`\`\`
-`;
-```
-
-### 3. 保存反思结果
-
-将反思结果保存到 ~/.stigmergy/reflection/{cli}/ 目录：
-
-```javascript
-const reflectionDir = path.join(
-  os.homedir(),
-  ".stigmergy",
-  "reflection",
-  cliName,
-);
-if (!fs.existsSync(reflectionDir)) {
-  fs.mkdirSync(reflectionDir, { recursive: true });
-}
-
-const reflectionFile = path.join(
-  reflectionDir,
-  `reflection-${Date.now()}.json`,
-);
-fs.writeFileSync(reflectionFile, JSON.stringify(reflectionResult, null, 2));
-
-// 更新索引文件
-const indexFile = path.join(reflectionDir, "index.json");
-const index = fs.existsSync(indexFile)
-  ? JSON.parse(fs.readFileSync(indexFile, "utf-8"))
-  : [];
-index.unshift({
-  date: reflectionResult.reflectionDate,
-  file: reflectionFile,
-  score: reflectionResult.overallScore,
-});
-fs.writeFileSync(indexFile, JSON.stringify(index.slice(0, 50), null, 2));
-```
-
-### 4. 输出反思摘要
-
-向用户展示反思摘要：
-
-```
-╔════════════════════════════════════════════════════════════╗
-║            深度自我反思报告                                    ║
-╠════════════════════════════════════════════════════════════╣
-║ 日期: ${reflectionResult.reflectionDate}                    ║
-║ 总体评分: ${reflectionResult.overallScore}/100               ║
-╠════════════════════════════════════════════════════════════╣
-║ 决策质量: ${reflectionResult.decisionQuality.summary}       ║
-║ 问题解决: ${reflectionResult.problemSolving.effectiveStrategies[0]}  ║
-║ 知识盲点: ${reflectionResult.knowledgeGaps.blindSpots[0] || '无明显盲点'}    ║
-║ 协作优势: ${reflectionResult.collaboration.strengths[0] || 'N/A'}         ║
-║ 改进计划: ${reflectionResult.selfImprovement.actionPlans[0]} ║
-╠════════════════════════════════════════════════════════════╣
-║ 深度洞察:                                                   ║
-${reflectionResult.deepInsights.map((i, idx) => `║   ${idx+1}. ${i.substring(0, 50)}...`).join('\n')}
-╚════════════════════════════════════════════════════════════╝
-```
-
-## Features
-
-- ✅ 使用本CLI自身的LLM进行深度分析（非简单规则匹配）
-- ✅ 收集近期工作历史进行上下文分析
-- ✅ 多维度反思框架：决策、质量、知识、协作、自我改进
-- ✅ 结构化输出，便于后续查询和分析
-- ✅ 自动保存反思结果到 ~/.stigmergy/reflection/
-- ✅ 维护反思历史索引，方便追踪成长轨迹
-
-## Usage Examples
-
-### Basic Reflection
-
-**User**: "进行自我反思"
-
-**AI**:
-
-```javascript
-// 1. 收集工作历史
-const { execSync } = require("child_process");
-const cliHistory = execSync("ls -t ~/.stigmergy/history/*/ | head -20", {
-  encoding: "utf-8",
-});
-
-// 2. 调用deep reflection
-const reflection = await llm.complete(reflectionPrompt);
-
-// 3. 保存并展示
-console.log(reflection.summary);
-```
-
-### Analyze Pattern Over Time
-
-**User**: "分析我最近一个月的成长轨迹"
-
-**AI**:
-
-```javascript
-// 读取所有反思记录
-const reflections = JSON.parse(
-  fs.readFileSync("~/.stigmergy/reflection/index.json"),
-);
-
-// 按时间分析评分变化
-const trend = reflections.map((r) => ({
-  date: r.date,
-  score: r.score,
-}));
-
-// 输出趋势分析
-console.log("成长趋势:", trend);
-```
-
-### Deep Dive into Specific Area
-
-**User**: "深入分析我在代码审查方面的表现"
-
-**AI**:
-
-```javascript
-// 筛选相关反思
-const relevantReflections = reflections.filter(
-  (r) => r.file.includes("code-review") || r.content.includes("审查"),
-);
-
-// 深度分析
-const analysis = await llm.complete(`
-分析以下反思记录中关于代码审查的改进：
-${relevantReflections.map((r) => r.content).join("\n")}
-`);
 ```
 
 ## Configuration
 
-可选配置，保存到 ~/.stigmergy/config.json：
-
-```json
-{
-  "reflection": {
-    "maxSessionsToAnalyze": 10,
-    "autoReflectInterval": "7d",
-    "reflectionDepth": "deep",
-    "enableTrendAnalysis": true
-  }
-}
-```
-
-## Technical Details
-
-### 反思深度级别
-
-- **shallow**: 快速总结（500字）
-- **medium**: 标准分析（2000字）
-- **deep**: 深度反思（5000字，包含详细推理）
-
-### 自动反思触发
-
-可以通过设置定时任务自动进行反思：
+环境变量（可选）：
 
 ```bash
-# 每周自动反思
-crontab -e
-0 0 * * 0 stigmergy reflect --auto
+# 是否自动保存反思记录
+export SOUL_AUTO_SAVE_REFLECTION=true
+
+# 反思详细程度
+export SOUL_REFLECTION_DEPTH=detailed  # basic|standard|detailed
+
+# 是否包含评分
+export SOUL_INCLUDE_SCORE=true
 ```
 
-### 跨CLI反思聚合
+## Important Notes
 
-所有CLI的反思记录统一存储在：
+1. **使用本CLI的LLM能力** - 不需要访问外部系统
+2. **基于当前对话** - 从我们正在进行的对话中学习
+3. **诚实自我评估** - 真实地分析自己的表现
+4. **建设性反思** - 关注改进而不是自我批评
+5. **行动导向** - 产生可操作的改进计划
+
+## Continuous Improvement
+
+- **定期反思** - 每次重要任务后进行反思
+- **记录成长** - 跟踪自己的进步轨迹
+- **调整策略** - 根据反思结果优化工作方式
+- **知识积累** - 将学习成果转化为可重用技能
+
+## Example Usage
+
+在 Claude CLI 中：
+```
+claude "反思你最近的工作，分析你的代码质量决策"
+```
+
+在 Qwen CLI 中：
+```
+qwen "进行自我反思：总结你在这个项目中的表现"
+```
+
+在 Gemini CLI 中：
+```
+gemini "soul reflection: analyze your decision making process"
+```
+
+## Feedback Loop
+
+自我反思是一个持续循环：
 
 ```
-~/.stigmergy/reflection/
-├── claude/
-│   ├── index.json
-│   ├── reflection-1704067200000.json
-│   └── reflection-1704475200000.json
-├── qwen/
-│   └── ...
-└── gemini/
-    └── ...
+任务执行 → 自我反思 → 改进计划 → 应用改进 → 新任务执行
+    ↑                                           ↓
+    └────────────── 长期能力提升 ←──────────────┘
 ```
 
-## Notes
-
-1. 此技能使用**本CLI自身的LLM**进行反思，确保反思质量与本CLI的智能水平一致
-2. 反思结果会累积形成成长历史，可以追踪长期发展轨迹
-3. 建议定期进行深度反思，有助于持续改进
-4. 如果反思过程中发现重大问题，可以生成改进计划并跟踪执行
+每次反思都会让下一次工作做得更好。

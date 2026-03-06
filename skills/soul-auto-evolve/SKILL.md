@@ -3,7 +3,7 @@ name: soul-auto-evolve
 description: 自主进化技能 - 让本CLI用自己的LLM进行搜索、分析和技能创建
 author: stigmergy
 version: 1.0.0
-trigger: evolve|自主进化|auto evolve
+trigger: evolve|自主进化|auto evolve|进化
 ---
 
 # Soul Auto Evolve Skill
@@ -16,229 +16,184 @@ trigger: evolve|自主进化|auto evolve
 
 - "执行自主进化"
 - "学习新技能"
-- "自我反思"
 - "auto evolve"
+- "开始进化学习"
 
 ## How It Works
 
-### 1. 搜索知识
+**重要**: 此技能让你使用**本CLI自己的LLM能力**进行自主学习和进化，不需要调用外部API或额外工具。
 
-用本CLI的LLM思考需要搜索什么，然后执行搜索：
+### 进化流程
 
-```javascript
-// 思考要搜索什么
-const searchTopics = await llm.complete(`
-你是一个专业的AI助手。请根据当前任务生成3个搜索查询。
+1. **确定学习方向** - 分析当前技能盲点，确定需要学习的新领域
+2. **搜索相关知识** - 用你自己的知识储备和推理能力进行分析
+3. **提取关键要点** - 总结核心概念、最佳实践、常见模式
+4. **创建实用技能** - 将学习成果转化为可重用的技能文件
+5. **记录进化过程** - 保存学习日志供后续参考
 
-任务：学习 ${direction}
-请生成中英文搜索关键词，每个一行。
-`);
+### 具体执行步骤
 
-// 使用webfetch或curl获取搜索结果
-const { execSync } = require("child_process");
+**步骤1: 确定学习目标**
+```
+思考你当前的技能状态，确定一个值得深入学习的方向：
+- 技术类: programming languages, frameworks, tools, methodologies
+- 领域类: security, performance, architecture, testing
+- 软技能: communication, documentation, collaboration
 
-// 示例：使用DuckDuckGo搜索
-const results = execSync(
-  `curl -s "https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchTopic)}"`,
-  { encoding: "utf8" },
-);
+选择一个具体的学习目标，如 "React性能优化" 或 "Docker最佳实践"
 ```
 
-### 2. 分析内容
+**步骤2: 深度分析主题**
+```
+用你自己的LLM能力深度分析这个主题：
 
-用本CLI的LLM分析获取的内容：
+1. 核心概念和原理
+2. 常见使用场景和问题
+3. 最佳实践和设计模式
+4. 常见陷阱和注意事项
+5. 实际应用案例
 
-```javascript
-const analysis = await llm.complete(`
-你是一个专业的技术分析专家。请分析以下内容，提取关键知识点。
-
-内容：
-${content}
-
-请用JSON格式返回：
-{
-  "title": "主题",
-  "keyPoints": ["要点1", "要点2"],
-  "actionable": "可操作的建议",
-  "tags": ["标签1", "标签2"]
-}
-`);
+你不需要外部搜索，依靠你已有的训练知识进行推理分析
 ```
 
-### 3. 创建技能
+**步骤3: 提取实用知识**
+```
+从你的分析中提取最实用的知识点：
 
-分析完成后，创建新的skill文件：
+- 技能名称: 简洁描述技能的用途
+- 关键要点: 3-5个核心概念
+- 使用场景: 何时应用这些知识
+- 实践建议: 具体的操作步骤
+- 注意事项: 重要的提醒和警告
+```
 
-```javascript
-const fs = require("fs");
-const path = require("path");
+**步骤4: 创建技能文件**
+```
+将学习成果保存为技能文件，文件位置：
+~/.stigmergy/skills/{cli-name}/{skill-name}/SKILL.md
 
-const skillDir = path.join(os.homedir(), ".stigmergy/skills", skillName);
-fs.mkdirSync(skillDir, { recursive: true });
-
-const skillContent = `---
-name: ${skillName}
-description: ${analysis.description}
+技能文件格式：
+---
+name: {skill-name}
+description: {简短描述}
+author: {cli-name} soul-evolve
+version: 1.0.0
 ---
 
-# ${analysis.title}
+# {技能标题}
 
-## Key Points
-${analysis.keyPoints.map((p, i) => `${i + 1}. ${p}`).join("\n")}
+## 概述
+{技能的简要介绍}
 
-## How to Use
-${analysis.actionable}
+## 关键要点
+1. {要点1}
+2. {要点2}
+3. {要点3}
 
-## Examples
-${analysis.examples || "暂无示例"}
-`;
+## 使用场景
+{何时使用此技能}
 
-fs.writeFileSync(path.join(skillDir, "SKILL.md"), skillContent);
+## 实践建议
+{具体的操作步骤}
+
+## 注意事项
+{重要的提醒}
 ```
 
-### 4. 自我反思
+**步骤5: 记录进化过程**
+```
+在 ~/.stigmergy/soul-state/evolution-log/ 创建日志文件：
 
-分析最近的工作，提取经验教训：
+文件名: {timestamp}-{direction}.json
 
-```javascript
-const reflection = await llm.complete(`
-你是一个具有深度自我反思能力的AI助手。
-
-请分析你最近的工作表现，从以下角度进行反思：
-1. 成功的决策有哪些？
-2. 失败的尝试有哪些？
-3. 有什么可以改进的地方？
-4. 学到了什么新知识？
-
-请用JSON格式返回：
+内容:
 {
-  "successPatterns": [],
-  "failurePatterns": [],
-  "improvements": [],
-  "learnings": [],
-  "overallScore": 85
+  "timestamp": "ISO时间戳",
+  "cli": "claude/qwen/gemini等",
+  "direction": "学习方向",
+  "keyLearnings": ["学到的要点1", "要点2"],
+  "skillsCreated": ["创建的技能1"],
+  "nextSteps": ["下一步学习建议"]
 }
-`);
 ```
 
-## 执行流程
+## 输出格式
 
-### 步骤1：确定学习方向
+执行自主进化时，请按以下格式输出：
 
-分析当前状态，确定需要学习的方向：
-
-```javascript
-const direction = await llm.complete(`
-当前任务是自主进化。请确定一个值得学习的新方向。
-
-考虑因素：
-- 当前技能的盲点
-- 有用的新技能
-- 项目需求
-
-请只返回一个方向名称，如 "web-security" 或 "typescript-advanced"。
-`);
 ```
+⚡ [Soul Auto Evolve] 开始自主进化
 
-### 步骤2：执行搜索
+🎯 [1/5] 确定学习方向...
+   方向: {学习主题}
+   原因: {为什么选择这个方向}
 
-用搜索API或web抓取获取资料：
+🧠 [2/5] 深度分析主题...
+   核心概念: {主要概念}
+   关键技术: {重要技术}
+   实践场景: {应用场景}
 
-```javascript
-// 使用 Tavily API（如果有）
-const Tavily = process.env.TAVILY_API_KEY;
-// 或使用 DuckDuckGo 免费搜索
+📝 [3/5] 提取实用知识...
+   关键要点: {3-5个核心要点}
+   最佳实践: {重要实践经验}
 
-// 抓取关键URL的内容
-const content = await fetch(url).then((r) => r.text());
-```
+🔧 [4/5] 创建技能文件...
+   ✅ 技能名称: {name}
+   📍 保存位置: {path}
+   📄 文件内容: {简要描述}
 
-### 步骤3：LLM分析
+📊 [5/5] 记录进化日志...
+   📝 日志文件: {log-file}
+   💡 关键学习: {main-insights}
 
-用本CLI的LLM分析内容：
-
-```javascript
-const analysis = await llm.complete(`
-${promptWithContent}
-`);
-```
-
-### 步骤4：创建技能
-
-将分析结果保存为skill：
-
-```javascript
-// 创建 skill/SKILL.md
-```
-
-### 步骤5：记录反思
-
-保存进化日志：
-
-```javascript
-const evolutionLog = {
-  timestamp: new Date().toISOString(),
-  direction,
-  skillsCreated,
-  insights,
-};
-// 保存到 ~/.stigmergy/skills/{cli}/evolution/log.json
+✅ 自主进化完成！
+   新技能: {count}个
+   知识点: {count}个
+   进化日志: {path}
 ```
 
 ## Storage Locations
 
-- 技能存储：`~/.stigmergy/skills/{cli}/`
-- 知识库：`~/.stigmergy/skills/{cli}/knowledge/`
-- 进化日志：`~/.stigmergy/skills/{cli}/evolution/log.json`
-- 反思记录：`~/.stigmergy/reflection/{cli}/`
-
-## Example Output
-
-执行后的输出示例：
-
-```
-⚡ [Soul Auto Evolve] Starting autonomous evolution for: web-security
-
-🔍 [1/4] Determining learning direction...
-   Direction: web-security
-
-🌐 [2/4] Searching for knowledge...
-   - Found: 5 sources
-   - Analyzed: 3 articles
-
-📝 [3/4] Creating new skill...
-   ✅ Created: web-security-basics
-   ✅ Created: csrf-prevention
-
-📊 [4/4] Self-reflection...
-   - Success: Used LLM to analyze patterns
-   - Improvement: Should search more authoritative sources
-   - Score: 82/100
-
-✅ Evolution complete!
-   Skills created: 2
-   Knowledge entries: 15
-   Reflection score: 82
-```
+- 新技能: `~/.stigmergy/skills/{cli-name}/`
+- 进化日志: `~/.stigmergy/soul-state/evolution-log/`
+- 知识库: `~/.stigmergy/soul-state/knowledge-base/`
 
 ## Configuration
 
-环境变量：
+环境变量（可选）：
 
 ```bash
-# Tavily API (可选，免费1000次/月)
-export TAVILY_API_KEY=your_api_key
+# 进化间隔（秒）
+export SOUL_EVOLVE_INTERVAL=3600  # 每小时
 
-# 进化间隔（毫秒）
-export SOUL_EVOLVE_INTERVAL=3600000  # 1小时
-
-# 最大每次创建技能数
+# 每次最大技能数
 export SOUL_MAX_SKILLS=3
+
+# 是否自动保存日志
+export SOUL_AUTO_SAVE_LOG=true
 ```
 
-## Notes
+## Important Notes
 
-1. 此skill利用**本CLI自己的LLM**进行处理，不是调用外部API
-2. 进化是自主的，不需要人工干预
-3. 每次进化会记录日志，供后续反思使用
-4. 建议设置定时任务自动执行（如每小时）
+1. **使用本CLI的LLM能力** - 不需要外部API调用
+2. **自主学习和创造** - 用你自己的推理能力进行分析
+3. **积累实用知识** - 创建真正有用的技能文件
+4. **持续进化** - 每次进化都会增强能力
+5. **跨CLI共享** - 创建的技能可以被其他CLI使用
+
+## Example Usage
+
+在 Claude CLI 中：
+```
+claude "执行自主进化，学习 Docker 容器化最佳实践"
+```
+
+在 Qwen CLI 中：
+```
+qwen "auto evolve: learn about TypeScript performance optimization"
+```
+
+在 Gemini CLI 中：
+```
+gemini "开始进化学习: 前端安全编程实践"
+```
