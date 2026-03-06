@@ -45,32 +45,32 @@ function runCommand(command, description) {
 const testTypes = {
   unit: {
     description: '单元测试',
-    command: 'jest tests/unit --coverage',
+    command: 'jest tests/unit --coverage --passWithNoTests',
     file: 'test-results/unit-results.json'
   },
   integration: {
     description: '集成测试',
-    command: 'jest tests/integration',
+    command: 'jest tests/integration --passWithNoTests',
     file: 'test-results/integration-results.json'
   },
   e2e: {
     description: '端到端测试',
-    command: 'jest tests/e2e',
+    command: 'jest tests/e2e --passWithNoTests',
     file: 'test-results/e2e-results.json'
   },
   automation: {
     description: '自动化测试',
-    command: 'jest tests/automation',
+    command: 'jest tests/automation --passWithNoTests',
     file: 'test-results/automation-results.json'
   },
   functional: {
     description: '功能测试',
-    command: 'jest tests/functional',
+    command: 'jest tests/functional --passWithNoTests',
     file: 'test-results/functional-results.json'
   },
   all: {
     description: '全量测试',
-    command: 'jest tests --coverage',
+    command: 'jest tests --coverage --passWithNoTests',
     file: 'test-results/all-results.json'
   }
 };

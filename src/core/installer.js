@@ -3,7 +3,6 @@ const path = require("path");
 const fs = require("fs/promises");
 const os = require("os");
 const { spawn, spawnSync } = require("child_process");
-const inquirer = require("inquirer");
 const SmartRouter = require("./smart_router");
 const { errorHandler } = require("./error_handler");
 const MemoryManager = require("./memory_manager");
@@ -334,8 +333,9 @@ class StigmergyInstaller extends EnhancedCLIInstaller {
       return options.map((option) => option.value);
     }
 
-    // Interactive mode
+    // Interactive mode - dynamic import for ESM compatibility
     try {
+      const inquirer = (await import("inquirer")).default;
       const { selectedTools } = await inquirer.prompt([
         {
           type: "checkbox",
