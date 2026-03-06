@@ -62,6 +62,7 @@ const {
 } = require("./commands/project");
 const { handleInteractiveCommand } = require("./commands/interactive");
 const { handleConcurrentCommand } = require("./commands/concurrent");
+const { handleSoulCommand } = require("./commands/soul");
 const { GatewayServer } = require("../gateway/server");
 const SmartRouter = require("../core/smart_router");
 const { errorHandler } = require("../core/error_handler");
@@ -442,6 +443,18 @@ async function main() {
       if (cli) args.push(cli);
       if (limit) args.push(limit);
       await handleResumeCommand(args, options);
+    });
+
+  // Soul 自我进化系统命令
+  program
+    .command("soul")
+    .description("Soul 自我进化系统 - AI 自主学习和反思")
+    .argument("[subcommand]", "Soul subcommand (init|status|evolve|reflect|create)")
+    .argument("[args...]", "Additional arguments")
+    .option("-v, --verbose", "Verbose output")
+    .option("--cli <name>", "Target specific CLI tool")
+    .action(async (subcommand, args, options) => {
+      await handleSoulCommand(subcommand, args, options);
     });
 
   // Concurrent execution command

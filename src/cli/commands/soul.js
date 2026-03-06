@@ -272,7 +272,65 @@ class SoulCommand {
   }
 }
 
-module.exports = SoulCommand;
+/**
+ * Handle Soul command from router
+ * @param {string} subcommand - Soul subcommand
+ * @param {Array} args - Additional arguments
+ * @param {Object} options - Command options
+ */
+async function handleSoulCommand(subcommand, args = [], options = {}) {
+  const command = new SoulCommand();
+
+  if (!subcommand) {
+    // Show help if no subcommand provided
+    console.log(`
+🧠 Soul 自我进化系统 - AI 自主学习和反思
+
+用法: stigmergy soul <command> [options]
+
+命令:
+  init [cli|skill]    初始化 Soul 系统
+  status              查看 Soul 状态
+  evolve [target]     执行自主进化
+  reflect [target]    执行自我反思
+  create <type> <name> 创建新的 Soul
+
+示例:
+  stigmergy soul status           # 查看状态
+  stigmergy soul init claude      # 为 Claude 初始化
+  stigmergy soul evolve           # 执行自主进化
+  stigmergy soul reflect          # 执行自我反思
+
+注意: Soul 功能需要各个 CLI 工具的技能文件已部署
+      使用 'stigmergy deploy' 部署集成
+`);
+    return;
+  }
+
+  // Map common aliases
+  const commandMap = {
+    'reflect': 'check',  // reflect -> check (self-reflection)
+    'check': 'check',
+    'init': 'init',
+    'status': 'status',
+    'evolve': 'evolve',
+    'create': 'create'
+  };
+
+  const mappedCommand = commandMap[subcommand] || subcommand;
+  const fullArgs = [mappedCommand, ...args];
+
+  try {
+    await command.execute(fullArgs);
+  } catch (error) {
+    console.error(`❌ Soul command failed: ${error.message}`);
+    if (options.verbose) {
+      console.error(error.stack);
+    }
+  }
+}
+
+module.exports = { SoulCommand, handleSoulCommand };
 
 if (require.main === module) {
   const cmd = new SoulCommand();

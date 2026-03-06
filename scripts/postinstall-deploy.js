@@ -152,11 +152,21 @@ async function postInstallDeploy() {
   await deployToAllCLIs(availableCLIs, homeDir);
 
   // 步骤4: 部署内置技能 (resumesession, planning-with-files, skill-from-masters)
-  console.log("\n📦 步骤 4/5: 部署内置技能...\n");
+  console.log("\n📦 步骤 4/6: 部署内置技能...\n");
   await deployBuiltinSkills(homeDir);
 
-  // 步骤5: 摘要
-  console.log("\n📦 步骤 5/5: 完成...\n");
+  // 步骤5: 部署 Soul 自我进化系统
+  console.log("\n📦 步骤 5/6: 部署 Soul 自我进化系统...\n");
+  try {
+    const { deploySoulFeatures } = require("./deploy-soul-features");
+    await deploySoulFeatures();
+    console.log("  ✅ Soul 自我进化系统部署完成");
+  } catch (error) {
+    console.log(`  ⚠️  Soul 系统部署失败: ${error.message}`);
+  }
+
+  // 步骤6: 摘要
+  console.log("\n📦 步骤 6/6: 完成...\n");
   console.log("=".repeat(60));
   console.log("✅ Stigmergy Complete Superpowers Deployment 完成！");
   console.log(`📊 已部署到: ${availableCLIs.length} 个 CLI`);
