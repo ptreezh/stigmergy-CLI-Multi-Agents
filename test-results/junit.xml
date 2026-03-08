@@ -1,3 +1,499 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.004">
+<testsuites name="jest tests" tests="247" failures="0" errors="0" time="1.899">
+  <testsuite name="SoulEngine" errors="0" failures="0" skipped="0" timestamp="2026-03-08T01:53:51" time="1.798" tests="247">
+    <testcase classname="SoulEngine › Constructor" name="should initialize with default options" time="0.005">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should initialize with custom options" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should create MemoryStore instance" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should create SkillLoader instance" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should create EventStream instance" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should set autoEvolve to false when explicitly passed false" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should set autoEvolve to true by default" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › Constructor" name="should set verbose to true when passed" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › start()" name="should start the engine successfully" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine › start()" name="should call initialize" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › start()" name="should start heartbeat when autoEvolve is true" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine › start()" name="should not start heartbeat when autoEvolve is false" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › initialize()" name="should create required directories" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › initialize()" name="should call memory.initialize()" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › initialize()" name="should call skillLoader.loadAllSkills()" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › initialize()" name="should push engine_start event to eventStream" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should create a session with correct properties" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should return result when task is done" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should continue looping until done" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should push events to eventStream during execution" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should throw error and push error event" time="0.073">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should store session even when error occurs" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should update context between iterations" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › runAgentLoop()" name="should respect maxOuterTurns limit" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should find relevant skills" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should execute each relevant skill" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should push skill execution events" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should handle skill execution errors" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should return aggregated results" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › executeSkills()" name="should log verbose output when enabled" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should return done false when no skills mark done" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should return done true when any skill marks done" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should combine outputs from successful skills" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should merge contexts from successful skills" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should handle mixed success and failure results" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should handle empty results" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › aggregateResults()" name="should filter out undefined outputs" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › startHeartbeat()" name="should set up heartbeat timer" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine › startHeartbeat()" name="should execute beat immediately" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › startHeartbeat()" name="should execute beat on interval" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › startHeartbeat()" name="should push heartbeat events" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › startHeartbeat()" name="should handle heartbeat errors" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › runEvolutionTasks()" name="should call reflection skill if available" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › runEvolutionTasks()" name="should call evolve skill if available" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › runEvolutionTasks()" name="should call memory cleanup" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › runEvolutionTasks()" name="should not fail when skills are not available" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › stop()" name="should set isRunning to false" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine › stop()" name="should clear heartbeat timer" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › stop()" name="should save event stream" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › stop()" name="should handle stop when heartbeatTimer is null" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › generateSessionId()" name="should generate unique session IDs" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine › generateSessionId()" name="should start with session_ prefix" time="0">
+    </testcase>
+    <testcase classname="SoulEngine › generateSessionId()" name="should contain timestamp" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › Constructor" name="should set memoryDir correctly" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › Constructor" name="should set sessionsFile correctly" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › initialize()" name="should create memory directory" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › storeSession()" name="should append session to JSONL file" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › storeSession()" name="should store timestamp with session" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › storeSession()" name="should store each session on new line" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › retrieveMemories()" name="should return empty array when file does not exist" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › retrieveMemories()" name="should return matching sessions" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › retrieveMemories()" name="should respect limit parameter" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › retrieveMemories()" name="should handle parse errors gracefully" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › retrieveMemories()" name="should handle non-ENOENT errors" time="0">
+    </testcase>
+    <testcase classname="MemoryStore › isRelevant()" name="should return true for matching tasks" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › isRelevant()" name="should return false for non-matching tasks" time="0">
+    </testcase>
+    <testcase classname="MemoryStore › isRelevant()" name="should be case-insensitive" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › isRelevant()" name="should handle missing task" time="0">
+    </testcase>
+    <testcase classname="MemoryStore › cleanup()" name="should not throw when called" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore › verbose logging" name="should log session storage when verbose is true" time="0.003">
+    </testcase>
+    <testcase classname="SkillLoader › Constructor" name="should set stigmergyDir correctly" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › Constructor" name="should set skillsDir correctly" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › Constructor" name="should initialize empty skills Map" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › Constructor" name="should set verbose from options" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › loadAllSkills()" name="should call loadBuiltinSkills and loadUserSkills" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › loadBuiltinSkills()" name="should try to load builtin skills" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › loadUserSkills()" name="should handle missing user skills directory" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › loadUserSkills()" name="should load JS files from user skills directory" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › loadUserSkills()" name="should handle errors from readdir" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › loadSkill()" name="should skip if skill file does not exist" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › loadSkill()" name="should handle skill loading errors" time="0.002">
+    </testcase>
+    <testcase classname="SkillLoader › loadSkill()" name="should log error message when skill loading fails" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › verbose/debug logging" name="should log debug info when verbose is true" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › verbose/debug logging" name="should log debug info when DEBUG env is set" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › findRelevantSkills()" name="should return skills that can handle the task" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › findRelevantSkills()" name="should exclude skills that cannot handle the task" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › findRelevantSkills()" name="should return empty array when no skills loaded" time="0">
+    </testcase>
+    <testcase classname="SkillLoader › getSkill()" name="should return skill by name" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader › getSkill()" name="should return undefined for unknown skill" time="0">
+    </testcase>
+    <testcase classname="EventStream › Constructor" name="should initialize with empty events array" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › Constructor" name="should initialize with empty listeners Map" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › push()" name="should add event to events array" time="0">
+    </testcase>
+    <testcase classname="EventStream › push()" name="should add id to event" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › push()" name="should add timestamp if not provided" time="0">
+    </testcase>
+    <testcase classname="EventStream › push()" name="should preserve provided timestamp" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › push()" name="should notify listeners" time="0">
+    </testcase>
+    <testcase classname="EventStream › generateEventId()" name="should generate unique IDs" time="0">
+    </testcase>
+    <testcase classname="EventStream › generateEventId()" name="should start with evt_ prefix" time="0">
+    </testcase>
+    <testcase classname="EventStream › on()" name="should add listener for event type" time="0">
+    </testcase>
+    <testcase classname="EventStream › on()" name="should support multiple listeners for same event type" time="0">
+    </testcase>
+    <testcase classname="EventStream › notifyListeners()" name="should call all listeners for event type" time="0">
+    </testcase>
+    <testcase classname="EventStream › notifyListeners()" name="should not fail when no listeners for event type" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › notifyListeners()" name="should handle listener errors" time="0">
+    </testcase>
+    <testcase classname="EventStream › save()" name="should create output directory" time="0">
+    </testcase>
+    <testcase classname="EventStream › save()" name="should write events to file" time="0.001">
+    </testcase>
+    <testcase classname="EventStream › save()" name="should handle empty events array" time="0">
+    </testcase>
+    <testcase classname="Integration Tests › SoulEngine full workflow" name="should execute complete agent loop workflow" time="0.001">
+    </testcase>
+    <testcase classname="Integration Tests › SoulEngine full workflow" name="should handle multiple skills in sequence" time="0.001">
+    </testcase>
+    <testcase classname="Integration Tests › EventStream event flow" name="should properly chain events through the system" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Loop limit edge cases" name="should complete with undefined result when maxOuterTurns reached without done" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Loop limit edge cases" name="should complete with undefined result when maxInnerTurns reached per outer loop" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Loop limit edge cases" name="should handle zero maxOuterTurns by not executing inner loop" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Loop limit edge cases" name="should handle zero maxInnerTurns by not executing skills" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Start/Stop lifecycle edge cases" name="should handle double start" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Start/Stop lifecycle edge cases" name="should handle double stop gracefully" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Start/Stop lifecycle edge cases" name="should handle stop without start" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Context propagation edge cases" name="should handle null context" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Context propagation edge cases" name="should handle undefined context" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Context propagation edge cases" name="should merge nested context updates" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Error recovery scenarios" name="should handle file system errors during initialization" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Advanced Tests › Error recovery scenarios" name="should handle event stream save errors during stop" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › JSONL format edge cases" name="should handle sessions with special characters" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › JSONL format edge cases" name="should handle sessions with circular reference safely" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › JSONL format edge cases" name="should handle sessions with undefined values" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › JSONL format edge cases" name="should handle very large sessions" time="0.002">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › RetrieveMemories edge cases" name="should handle empty file" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › RetrieveMemories edge cases" name="should handle file with only whitespace" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › RetrieveMemories edge cases" name="should handle file with mixed valid and invalid JSON lines" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › RetrieveMemories edge cases" name="should search case-insensitively" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › isRelevance edge cases" name="should handle query with special regex characters" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › isRelevance edge cases" name="should handle empty query" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Advanced Tests › isRelevance edge cases" name="should handle null task gracefully" time="0">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › Skill loading edge cases" name="should handle skills directory with non-JS files" time="0.003">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › Skill loading edge cases" name="should handle empty skills directory" time="0">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › Skill loading edge cases" name="should handle skills that export non-class values" time="0">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › findRelevantSkills advanced cases" name="should return all skills when all can handle" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › findRelevantSkills advanced cases" name="should pass task and context to canHandle" time="0">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › findRelevantSkills advanced cases" name="should handle canHandle throwing error" time="0.018">
+    </testcase>
+    <testcase classname="SkillLoader Advanced Tests › Built-in skill paths" name="should attempt to load all expected builtin skills" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Event accumulation edge cases" name="should handle rapid event pushes" time="0.004">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Event accumulation edge cases" name="should maintain event order" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Event accumulation edge cases" name="should handle events with complex data" time="0">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Listener management" name="should handle multiple event types with different listeners" time="0">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Listener management" name="should not stop other listeners when one throws" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Listener management" name="should handle listeners added dynamically" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Save edge cases" name="should generate unique filenames" time="0">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Save edge cases" name="should handle events without id or timestamp" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Advanced Tests › Save edge cases" name="should create valid JSONL format" time="0">
+    </testcase>
+    <testcase classname="Error Scenarios and Resilience › SoulEngine resilience" name="should handle memory store failure during session save" time="0">
+    </testcase>
+    <testcase classname="Error Scenarios and Resilience › SoulEngine resilience" name="should handle skill execution returning invalid result gracefully" time="0">
+    </testcase>
+    <testcase classname="Error Scenarios and Resilience › Concurrent access scenarios" name="should handle concurrent session storage" time="0.001">
+    </testcase>
+    <testcase classname="Error Scenarios and Resilience › Concurrent access scenarios" name="should handle concurrent event pushes" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader Coverage Completion Tests › loadBuiltinSkills with debug mode and existing skills directory" name="should log files in skills directory when verbose and skills exist" time="0.008">
+    </testcase>
+    <testcase classname="SkillLoader Coverage Completion Tests › loadBuiltinSkills with debug mode and existing skills directory" name="should handle skills directory not existing in debug mode" time="0.006">
+    </testcase>
+    <testcase classname="SkillLoader Coverage Completion Tests › loadSkill success path" name="should add skill to map when loadSkill succeeds" time="0.006">
+    </testcase>
+    <testcase classname="SkillLoader Coverage Completion Tests › loadSkill success path" name="should successfully load a real skill file" time="0.027">
+    </testcase>
+    <testcase classname="SkillLoader Coverage Completion Tests › Project root detection edge cases" name="should handle package.json found at first directory" time="0.008">
+    </testcase>
+    <testcase classname="MemoryStore verbose logging tests" name="should log when verbose is true during storeSession" time="0.006">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Session ID generation edge cases" name="should generate IDs with consistent format" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Session ID generation edge cases" name="should generate IDs with monotonically increasing timestamps" time="0.021">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Event ID generation edge cases" name="should generate event IDs with consistent format" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › runAgentLoop with various task types" name="should handle empty task string" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › runAgentLoop with various task types" name="should handle task with only whitespace" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › runAgentLoop with various task types" name="should handle task with unicode characters" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › runAgentLoop with various task types" name="should handle very long task description" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Context manipulation edge cases" name="should preserve context through multiple outer loops" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Context manipulation edge cases" name="should handle context with prototype properties" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › EventStream comprehensive scenarios" name="should handle events with Date objects" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › EventStream comprehensive scenarios" name="should handle events with Error objects" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › EventStream comprehensive scenarios" name="should handle events with numeric data" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › EventStream comprehensive scenarios" name="should handle events with boolean data" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › EventStream comprehensive scenarios" name="should handle events with null and undefined data" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › MemoryStore serialization edge cases" name="should handle session with Date objects" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › MemoryStore serialization edge cases" name="should handle session with arrays" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › MemoryStore serialization edge cases" name="should handle session with numeric keys" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › SkillLoader with various skill behaviors" name="should handle skill that modifies context extensively" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › SkillLoader with various skill behaviors" name="should handle skill that returns empty output" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › SkillLoader with various skill behaviors" name="should handle skill that returns no output property" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Heartbeat timing scenarios" name="should execute heartbeat multiple times at correct intervals" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Heartbeat timing scenarios" name="should continue heartbeat after error" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Initialize directory creation scenarios" name="should handle nested directory creation" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Initialize directory creation scenarios" name="should handle directory already existing" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Stop engine edge cases" name="should handle stop with pending heartbeat operations" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Memory cleanup placeholder" name="cleanup method exists and is callable" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Event type variations" name="should handle all documented event types" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Aggregation edge cases" name="should handle all skills failing" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Comprehensive Coverage Tests › Aggregation edge cases" name="should handle mixed done states from skills" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Performance Tests › Large scale operations" name="should handle large number of events efficiently" time="0.027">
+    </testcase>
+    <testcase classname="SoulEngine Performance Tests › Large scale operations" name="should handle session with many events" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine Snapshot Tests" name="should match event structure snapshot" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Snapshot Tests" name="should match session structure snapshot" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Type Safety Tests › Invalid input handling" name="should handle non-string task gracefully" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Type Safety Tests › Invalid input handling" name="should handle non-object context gracefully" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Memory Management Tests" name="should not leak memory with many sessions" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Memory Management Tests" name="should not accumulate events indefinitely in memory" time="0.006">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache initialization" name="should initialize cache as a Map" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache initialization" name="should use default cacheMaxSize" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache initialization" name="should accept custom cacheMaxSize from options" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache population on storeSession" name="should add session to cache when stored" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache population on storeSession" name="should store timestamp with cache entry" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › LRU cache eviction" name="should evict oldest entry when cache exceeds maxSize" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › LRU cache eviction" name="should maintain cache size at cacheMaxSize after multiple evictions" time="0.002">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › LRU cache eviction" name="should evict in FIFO order for entries added at same time" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache-first retrieval in retrieveMemories" name="should check cache before reading file" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache-first retrieval in retrieveMemories" name="should respect limit when retrieving from cache" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache-first retrieval in retrieveMemories" name="should fall back to file when cache miss" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache-first retrieval in retrieveMemories" name="should return early from cache when limit reached" time="0">
+    </testcase>
+    <testcase classname="MemoryStore Cache Tests › Cache cleanup" name="should remove old entries from cache during cleanup" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID format validation via SoulEngine" name="should generate session ID with correct format" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID format validation via SoulEngine" name="should generate event ID with correct format" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID uniqueness via indirect testing" name="should generate unique session IDs" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID uniqueness via indirect testing" name="should generate unique event IDs" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID uniqueness via indirect testing" name="should generate unique IDs when called rapidly" time="0.002">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID components via indirect testing" name="should include timestamp in session ID" time="0">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID components via indirect testing" name="should include timestamp in event ID" time="0.001">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID components via indirect testing" name="should have random component in session ID" time="0">
+    </testcase>
+    <testcase classname="generateSecureId Function Tests › ID security properties" name="should not be predictable for session IDs" time="0.003">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › MemoryStore isRelevance comprehensive tests" name="should match all terms when query has multiple terms" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › MemoryStore isRelevance comprehensive tests" name="should handle session with numeric task - documents edge case behavior" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › MemoryStore isRelevance comprehensive tests" name="should handle query with extra whitespace" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › MemoryStore isRelevance comprehensive tests" name="should handle empty task property" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › EventStream event propagation" name="should preserve all event properties when pushing" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › EventStream event propagation" name="should call listeners with event after id and timestamp are added" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › MemoryStore retrieveMemories reverse iteration" name="should return memories in reverse chronological order from file" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › SkillLoader loadSkill error handling" name="should handle skill that throws during construction" time="0.019">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › SkillLoader loadSkill error handling" name="should handle skill that exports non-class" time="0.017">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › AggregateResults with various result types" name="should handle result with only context, no output" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › AggregateResults with various result types" name="should handle result with null values" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › AggregateResults with various result types" name="should handle result with empty string output" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Complete Code Coverage Tests › AggregateResults with various result types" name="should handle skill result without result property" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should rewrite file with only valid recent entries" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should log cleaned count when verbose is true and entries removed" time="0">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should preserve unparseable lines during cleanup" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should cleanup cache entries older than maxAge" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should handle cleanup with custom maxAge" time="0">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should handle empty file during cleanup" time="0.001">
+    </testcase>
+    <testcase classname="MemoryStore cleanup() comprehensive tests › Cleanup with actual file content filtering" name="should handle non-ENOENT error during cleanup read" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Heartbeat and Evolution Edge Cases › Evolution task execution with real skill behavior" name="should throw when evolution skill fails (no error handling in runEvolutionTasks)" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Heartbeat and Evolution Edge Cases › Evolution task execution with real skill behavior" name="should handle evolution errors when called via heartbeat" time="0.002">
+    </testcase>
+    <testcase classname="SoulEngine Heartbeat and Evolution Edge Cases › Evolution task execution with real skill behavior" name="should execute skills in correct order during evolution" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Save Comprehensive Tests" name="should create properly formatted JSONL file" time="0.001">
+    </testcase>
+    <testcase classname="EventStream Save Comprehensive Tests" name="should generate filenames with timestamp pattern" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Session Management Edge Cases" name="should handle session with complex nested events" time="0">
+    </testcase>
+    <testcase classname="SoulEngine Session Management Edge Cases" name="should handle session with context from skill execution" time="0.001">
+    </testcase>
+    <testcase classname="SoulEngine Session Management Edge Cases" name="should handle multiple rapid session stores" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader Integration Scenarios" name="should handle skill with async canHandle method" time="0.001">
+    </testcase>
+    <testcase classname="SkillLoader Integration Scenarios" name="should handle skill returning Promise that resolves to result" time="0.023">
+    </testcase>
+  </testsuite>
 </testsuites>

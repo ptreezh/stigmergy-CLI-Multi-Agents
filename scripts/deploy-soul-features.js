@@ -29,7 +29,9 @@ const cliTools = [
 // Soul 技能文件
 const soulSkills = [
   { source: "skills/soul-auto-evolve/SKILL.md", target: "soul-auto-evolve.md" },
-  { source: "skills/soul-reflection/SKILL.md", target: "soul-reflection.md" }
+  { source: "skills/soul-reflection/SKILL.md", target: "soul-reflection.md" },
+  { source: "skills/soul-auto-search-config/SKILL.md", target: "soul-auto-search-config.md" },
+  { source: "skills/soul-auto-compute-hunter/SKILL.md", target: "soul-auto-compute-hunter.md" }
 ];
 
 console.log("🧠 Deploying Soul 自我进化系统...\n");

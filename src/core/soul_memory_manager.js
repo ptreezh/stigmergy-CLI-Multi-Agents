@@ -430,8 +430,6 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
 
   getMemoryPath() {
     return this.memoryPath;
-  getMemoryPath() {
-    return this.memoryPath;
   }
 
   // ========== 30分钟心跳调度器 ==========
@@ -441,18 +439,18 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
    */
   startHeartbeat(intervalMs) {
     if (intervalMs === undefined) intervalMs = 30 * 60 * 1000;
-    
+
     if (this.heartbeatInterval) {
       console.log(`[Heartbeat] 心跳调度器已在运行`);
       return;
     }
-    
+
     console.log(`[Heartbeat] 启动30分钟心跳调度器 (间隔: ${intervalMs}ms)`);
-    
+
     this.heartbeat().then(() => {
       console.log(`[Heartbeat] 初始心跳完成`);
     });
-    
+
     this.heartbeatInterval = setInterval(async () => {
       try {
         await this.heartbeat();
@@ -461,7 +459,7 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
         console.error(`[Heartbeat] 心跳错误:`, e.message);
       }
     }, intervalMs);
-    
+
     this.state.heartbeatStartedAt = new Date().toISOString();
     this.state.heartbeatIntervalMs = intervalMs;
     this._saveState();
@@ -482,8 +480,8 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
       running: !!this.heartbeatInterval,
       startedAt: this.state.heartbeatStartedAt,
       stoppedAt: this.state.heartbeatStoppedAt,
-      intervalMs: this.state.heartbeatIntervalMs || (30 * 60 * 1000),
-      lastHeartbeat: this.state.lastHeartbeat
+      intervalMs: this.state.heartbeatIntervalMs || 30 * 60 * 1000,
+      lastHeartbeat: this.state.lastHeartbeat,
     };
   }
 }

@@ -1,0 +1,4 @@
+{"timestamp":"2026-03-07T03:06:52.682Z","agent":"qwen","strategy":"architecture-improvement","success":false,"result":{"error":"CLI failed: [PATH] Detecting path for qwen...\n[DETECTOR] Detecting path for qwen...\n[DETECTOR] Found qwen in PATH: C:\\Users\\WIN10\\AppData\\Roaming\\npm\\qwen\r\n[EXEC] qwen: Analyze the Stigmergy architecture and suggest improvements.\n[WARN] qwen exited with code 3221225794\n"}}
+{"timestamp":"2026-03-07T03:07:43.840Z","agent":"qwen","strategy":"skill-generation","success":false,"result":{"error":"CLI failed: "}}
+{"timestamp":"2026-03-07T03:08:13.997Z","agent":"qwen","strategy":"bug-detection","success":false,"result":{"error":"CLI failed: "}}
+{"timestamp":"2026-03-07T03:08:45.814Z","agent":"codebuddy","strategy":"code-optimization","success":false,"result":{"error":"Timeout"}}

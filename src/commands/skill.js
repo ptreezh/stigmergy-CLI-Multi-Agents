@@ -4,189 +4,209 @@
  * 技能管理命令（集成OpenSkills核心）
  */
 
-import { StigmergySkillManager } from '../core/skills/StigmergySkillManager.js';
-import { EnhancedSkillManager, handleEnhancedSkillCommand } from './enhanced-skill-manager.js';
-const SkillSyncManager = require('../core/skills/SkillSyncManager.js');
+import { StigmergySkillManager } from "../core/skills/StigmergySkillManager.js";
+import {
+  EnhancedSkillManager,
+  handleEnhancedSkillCommand,
+} from "./enhanced-skill-manager.js";
+const SkillSyncManager = require("../core/skills/SkillSyncManager.js");
 
 export async function handleSkillCommand(action, args, options = {}) {
-    const manager = new StigmergySkillManager();
-    const syncManager = new SkillSyncManager();
+  const manager = new StigmergySkillManager();
+  const syncManager = new SkillSyncManager();
 
-    try {
-        switch (action) {
-            // Enhanced skill management commands
-            case 'list-collections':
-            case 'collections':
-            case 'presets':
-            case 'search':
-            case 'info':
-            case 'describe':
-                await handleEnhancedSkillCommand(action, args, options);
-                break;
+  let isPredefinedSkill, getPredefinedSkillInfo;
+  try {
+    ({ isPredefinedSkill, getPredefinedSkillInfo } =
+      await import("./enhanced-skill-manager.js"));
+  } catch (e) {
+    // Enhanced manager not available
+  }
 
-            // Standard skill management commands
-            case 'install':
-                if (!args[0]) {
-                    console.error('❌ Error: source or skill collection name required');
-                    console.log('\nUsage: stigmergy skill install <skill-collection|github-source>');
-                    console.log('Example: stigmergy skill install anthropics');
-                    console.log('Example: stigmergy skill install anthropics/skills');
-                    console.log('\nUse "stigmergy skill list-collections" to see available collections.');
-                    process.exit(1);
-                }
-                
-                // Check if it's a predefined skill collection
-                const { isPredefinedSkill, getPredefinedSkillInfo } = await import('./enhanced-skill-manager.js');
-                
-                if (await isPredefinedSkill(args[0])) {
-                    console.log(`\n🚀 Installing predefined skill collection: ${args[0]}`);
-                    const skillInfo = await getPredefinedSkillInfo(args[0]);
-                    console.log(`🔗 Source: ${skillInfo.source}`);
-                    if (skillInfo.tags) {
-                        console.log(`🏷️  Tags: ${skillInfo.tags.join(', ')}`);
-                    }
-                    
-                    await manager.install(skillInfo.source, options);
-                } else {
-                    // Regular GitHub source
-                    await manager.install(args[0], options);
-                }
+  try {
+    switch (action) {
+      // Enhanced skill management commands
+      case "list-collections":
+      case "collections":
+      case "presets":
+      case "search":
+      case "info":
+      case "describe":
+        await handleEnhancedSkillCommand(action, args, options);
+        break;
 
-                // Auto-sync to all CLI tools after installation
-                if (options.sync !== false) {
-                    console.log('\n🔄 Syncing skills to all CLI tools...');
-                    await syncManager.syncAll({ force: options.force || false });
-                }
-                break;
-
-            case 'read':
-                if (!args[0]) {
-                    console.error('❌ Error: skill name required');
-                    console.log('\nUsage: stigmergy skill read <skill-name>');
-                    process.exit(1);
-                }
-                await manager.read(args[0]);
-                break;
-
-            case 'list':
-                await manager.list();
-                break;
-
-            case 'sync':
-                await manager.sync();
-                break;
-
-            case 'sync-all':
-                await syncManager.syncAll(options);
-                break;
-
-            case 'sync-to-cli':
-                if (!args[0]) {
-                    console.error('❌ Error: skill name required');
-                    console.log('\nUsage: stigmergy skill sync-to-cli <skill-name>');
-                    console.log('Example: stigmergy skill sync-to-cli pdf');
-                    process.exit(1);
-                }
-                await syncManager.syncSkill(args[0], options);
-                break;
-
-            case 'sync-status':
-                const report = await syncManager.getFullStatusReport();
-
-                console.log('\n📊 Skill Deployment Status\n');
-                console.log('='.repeat(60));
-
-                if (report.totalSkills === 0) {
-                    console.log('No skills installed.');
-                    console.log('\nInstall skills first:');
-                    console.log('  stigmergy skill install <collection-name>');
-                    console.log('  stigmergy skill install <github-source>');
-                    console.log('\nUse "stigmergy skill list-collections" to see available collections.');
-                    break;
-                }
-
-                for (const [skillName, status] of Object.entries(report.skills)) {
-                    console.log(`\n📦 ${skillName}:`);
-
-                    for (const [cliName, cliStatus] of Object.entries(status)) {
-                        if (!cliStatus.cliInstalled) {
-                            console.log(`  ⊘ ${cliName}: CLI not installed`);
-                        } else if (cliStatus.deployed) {
-                            console.log(`  ✓ ${cliName}: deployed`);
-                        } else {
-                            console.log(`  ✗ ${cliName}: not deployed`);
-                        }
-                    }
-                }
-
-                console.log('\n' + '='.repeat(60));
-                console.log(`\nTotal Skills: ${report.totalSkills}`);
-                console.log(`Total CLIs: ${report.totalCLIs}\n`);
-                break;
-
-            case 'remove':
-            case 'rm':
-                if (!args[0]) {
-                    console.error('[X] Error: skill name required');
-                    console.log('\nUsage: stigmergy skill remove <skill-name>');
-                    process.exit(1);
-                }
-                await manager.remove(args[0]);
-
-                // Also remove from all CLI tools
-                if (options.removeEverywhere || options.all) {
-                    syncManager.removeAll(args[0]);
-                }
-                break;
-
-            case 'validate':
-                if (!args[0]) {
-                    console.error('[X] Error: skill path or name required');
-                    console.log('\nUsage: stigmergy skill validate <path-or-name>');
-                    process.exit(1);
-                }
-                await manager.validate(args[0]);
-                break;
-
-            case 'help':
-                printSkillHelp();
-                break;
-
-            default:
-                // Check if it's a predefined skill collection shortcut using the enhanced manager
-                const { isPredefinedSkill, getPredefinedSkillInfo } = await import('./enhanced-skill-manager.js');
-                
-                if (await isPredefinedSkill(action)) {
-                    // Treat as install command with the predefined collection
-                    console.log(`\n🚀 Installing predefined skill collection: ${action}`);
-                    const skillInfo = await getPredefinedSkillInfo(action);
-                    console.log(`🔗 Source: ${skillInfo.source}`);
-                    if (skillInfo.tags) {
-                        console.log(`🏷️  Tags: ${skillInfo.tags.join(', ')}`);
-                    }
-                    
-                    await manager.install(skillInfo.source, args[0] ? { source: args[0] } : options);
-                    
-                    // Auto-sync to all CLI tools after installation
-                    if (options.sync !== false) {
-                        console.log('\n🔄 Syncing skills to all CLI tools...');
-                        await syncManager.syncAll({ force: options.force || false });
-                    }
-                } else {
-                    console.error(`[X] Unknown skill action: ${action}`);
-                    console.log('\nRun: stigmergy skill help');
-                    console.log('Or see available collections: stigmergy skill list-collections');
-                    process.exit(1);
-                }
+      // Standard skill management commands
+      case "install":
+        if (!args[0]) {
+          console.error("❌ Error: source or skill collection name required");
+          console.log(
+            "\nUsage: stigmergy skill install <skill-collection|github-source>",
+          );
+          console.log("Example: stigmergy skill install anthropics");
+          console.log("Example: stigmergy skill install anthropics/skills");
+          console.log(
+            '\nUse "stigmergy skill list-collections" to see available collections.',
+          );
+          process.exit(1);
         }
-    } catch (err) {
-        console.error(`\n[X] Command failed: ${err.message}`);
-        process.exit(1);
+
+        // Check if it's a predefined skill collection
+        if (isPredefinedSkill && (await isPredefinedSkill(args[0]))) {
+          console.log(
+            `\n🚀 Installing predefined skill collection: ${args[0]}`,
+          );
+          const skillInfo = await getPredefinedSkillInfo(args[0]);
+          console.log(`🔗 Source: ${skillInfo.source}`);
+          if (skillInfo.tags) {
+            console.log(`🏷️  Tags: ${skillInfo.tags.join(", ")}`);
+          }
+
+          await manager.install(skillInfo.source, options);
+        } else {
+          // Regular GitHub source
+          await manager.install(args[0], options);
+        }
+
+        // Auto-sync to all CLI tools after installation
+        if (options.sync !== false) {
+          console.log("\n🔄 Syncing skills to all CLI tools...");
+          await syncManager.syncAll({ force: options.force || false });
+        }
+        break;
+
+      case "read":
+        if (!args[0]) {
+          console.error("❌ Error: skill name required");
+          console.log("\nUsage: stigmergy skill read <skill-name>");
+          process.exit(1);
+        }
+        await manager.read(args[0]);
+        break;
+
+      case "list":
+        await manager.list();
+        break;
+
+      case "sync":
+        await manager.sync();
+        break;
+
+      case "sync-all":
+        await syncManager.syncAll(options);
+        break;
+
+      case "sync-to-cli":
+        if (!args[0]) {
+          console.error("❌ Error: skill name required");
+          console.log("\nUsage: stigmergy skill sync-to-cli <skill-name>");
+          console.log("Example: stigmergy skill sync-to-cli pdf");
+          process.exit(1);
+        }
+        await syncManager.syncSkill(args[0], options);
+        break;
+
+      case "sync-status":
+        const report = await syncManager.getFullStatusReport();
+
+        console.log("\n📊 Skill Deployment Status\n");
+        console.log("=".repeat(60));
+
+        if (report.totalSkills === 0) {
+          console.log("No skills installed.");
+          console.log("\nInstall skills first:");
+          console.log("  stigmergy skill install <collection-name>");
+          console.log("  stigmergy skill install <github-source>");
+          console.log(
+            '\nUse "stigmergy skill list-collections" to see available collections.',
+          );
+          break;
+        }
+
+        for (const [skillName, status] of Object.entries(report.skills)) {
+          console.log(`\n📦 ${skillName}:`);
+
+          for (const [cliName, cliStatus] of Object.entries(status)) {
+            if (!cliStatus.cliInstalled) {
+              console.log(`  ⊘ ${cliName}: CLI not installed`);
+            } else if (cliStatus.deployed) {
+              console.log(`  ✓ ${cliName}: deployed`);
+            } else {
+              console.log(`  ✗ ${cliName}: not deployed`);
+            }
+          }
+        }
+
+        console.log("\n" + "=".repeat(60));
+        console.log(`\nTotal Skills: ${report.totalSkills}`);
+        console.log(`Total CLIs: ${report.totalCLIs}\n`);
+        break;
+
+      case "remove":
+      case "rm":
+        if (!args[0]) {
+          console.error("[X] Error: skill name required");
+          console.log("\nUsage: stigmergy skill remove <skill-name>");
+          process.exit(1);
+        }
+        await manager.remove(args[0]);
+
+        // Also remove from all CLI tools
+        if (options.removeEverywhere || options.all) {
+          syncManager.removeAll(args[0]);
+        }
+        break;
+
+      case "validate":
+        if (!args[0]) {
+          console.error("[X] Error: skill path or name required");
+          console.log("\nUsage: stigmergy skill validate <path-or-name>");
+          process.exit(1);
+        }
+        await manager.validate(args[0]);
+        break;
+
+      case "help":
+        printSkillHelp();
+        break;
+
+      default:
+        // Check if it's a predefined skill collection shortcut using the enhanced manager
+        if (isPredefinedSkill && (await isPredefinedSkill(action))) {
+          // Treat as install command with the predefined collection
+          console.log(`\n🚀 Installing predefined skill collection: ${action}`);
+          const skillInfo = await getPredefinedSkillInfo(action);
+          console.log(`🔗 Source: ${skillInfo.source}`);
+          if (skillInfo.tags) {
+            console.log(`🏷️  Tags: ${skillInfo.tags.join(", ")}`);
+          }
+
+          await manager.install(
+            skillInfo.source,
+            args[0] ? { source: args[0] } : options,
+          );
+
+          // Auto-sync to all CLI tools after installation
+          if (options.sync !== false) {
+            console.log("\n🔄 Syncing skills to all CLI tools...");
+            await syncManager.syncAll({ force: options.force || false });
+          }
+        } else {
+          console.error(`[X] Unknown skill action: ${action}`);
+          console.log("\nRun: stigmergy skill help");
+          console.log(
+            "Or see available collections: stigmergy skill list-collections",
+          );
+          process.exit(1);
+        }
     }
+  } catch (err) {
+    console.error(`\n[X] Command failed: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 function printSkillHelp() {
-    console.log(`
+  console.log(`
 Stigmergy Skill Manager (Based on OpenSkills)
 
 USAGE:

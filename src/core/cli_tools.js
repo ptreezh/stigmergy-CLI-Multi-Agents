@@ -6,6 +6,14 @@ const CLIPathDetector = require("./cli_path_detector");
 
 // AI CLI Tools Configuration
 const CLI_TOOLS = {
+  bun: {
+    name: "Bun Runtime",
+    version: "bun --version",
+    install: "npm install -g bun",
+    hooksDir: path.join(os.homedir(), ".bun"),
+    config: path.join(os.homedir(), ".bun", "config.json"),
+    autoInstall: true, // 必须先安装 bun
+  },
   claude: {
     name: "Claude CLI",
     version: "claude --version",
@@ -93,12 +101,13 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".opencode", "hooks"),
     config: path.join(os.homedir(), ".opencode", "config.json"),
     autoInstall: true,
-    dependsOn: ["oh_my_opencode"], // 依赖 oh_my_opencode 插件
+    dependsOn: ["bun", "oh-my-opencode"], // 依赖 bun 和 oh-my-opencode
   },
-  oh_my_opencode: {
+  "oh-my-opencode": {
     name: "Oh-My-OpenCode Plugin",
     version: "oh-my-opencode --version",
-    install: "npm install -g oh-my-opencode",
+    install:
+      "bunx oh-my-opencode install --no-tui --claude=no --openai=no --gemini=no --copilot=no --opencode-zen=no --zai-coding-plan=no --kimi-for-coding=no --skip-auth",
     hooksDir: path.join(os.homedir(), ".opencode", "plugins"),
     config: path.join(
       os.homedir(),
@@ -106,7 +115,8 @@ const CLI_TOOLS = {
       "opencode",
       "oh-my-opencode.json",
     ),
-    autoInstall: false, // 通过 opencode 安装，不需要单独安装
+    autoInstall: true, // 需要 bun 安装
+    dependsOn: ["bun"], // 依赖 bun
   },
   kilocode: {
     name: "KiloCode CLI",

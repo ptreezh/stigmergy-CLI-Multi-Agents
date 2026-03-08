@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-03-07T06:20:45.999Z",
+  "task": "Generate deepClone function",
+  "participants": 2,
+  "results": [
+    {
+      "cli": "qwen",
+      "score": {
+        "completeness": 10,
+        "quality": 7,
+        "documentation": 0,
+        "testing": 5,
+        "total": 22
+      }
+    },
+    {
+      "cli": "codebuddy",
+      "score": {
+        "completeness": 10,
+        "quality": 7,
+        "documentation": 0,
+        "testing": 5,
+        "total": 22
+      }
+    }
+  ],
+  "winner": "qwen",
+  "winnerScore": 22
+}

@@ -33,7 +33,22 @@ const SUPERPOWERS_REPO = "obra/superpowers";
 const SUPERPOWERS_URL = `https://github.com/${SUPERPOWERS_REPO}.git`;
 const CACHE_DIR = path.join(os.homedir(), ".cache", "stigmergy", "superpowers");
 
+// 内置 Superpowers 配置路径
+const BUILTIN_SUPERPOWERS_PATH = path.join(
+  projectRoot,
+  "config",
+  "superpowers",
+);
+
 const CLI_CONFIGS = {
+  bun: {
+    name: "Bun Runtime",
+    home: ".bun",
+    pluginDir: "",
+    skillsDir: "",
+    hooksDir: "",
+    hookFile: "",
+  },
   claude: {
     name: "Claude Code",
     home: ".claude",
@@ -98,6 +113,14 @@ const CLI_CONFIGS = {
     hooksDir: "extensions",
     hookFile: "session-start.js",
   },
+  "oh-my-opencode": {
+    name: "Oh-My-OpenCode",
+    home: ".opencode",
+    pluginDir: "plugins/oh-my-opencode",
+    skillsDir: "",
+    hooksDir: "",
+    hookFile: "",
+  },
 };
 
 async function postInstallDeploy() {
@@ -106,33 +129,51 @@ async function postInstallDeploy() {
   console.log(`Source: ${SUPERPOWERS_URL}`);
 
   const homeDir = os.homedir();
-
-  // 步骤0: 自动安装配置为 autoInstall: true 的 CLI
-  console.log("\n📦 步骤 0/5: 检查并自动安装缺失的 CLI...\n");
   const installer = new EnhancedCLIInstaller();
 
+  // 步骤0: 按顺序安装 CLI（先 bun，再 opencode，再 oh-my-opencode，最后其他）
+  console.log("\n📦 步骤 0/6: 按顺序安装 CLI 工具...\n");
+
+  // 定义安装顺序：bun -> opencode -> oh-my-opencode -> 其他
+  const installOrder = ["bun", "opencode", "oh-my-opencode"];
   for (const [cliName, cliConfig] of Object.entries(CLI_TOOLS.CLI_TOOLS)) {
-    if (cliConfig.autoInstall && !cliConfig.install) {
-      continue;
-    }
-    if (cliConfig.autoInstall) {
-      const isInstalled = detectSingleCLI(cliName, homeDir);
-      if (!isInstalled) {
-        console.log(`  📥 自动安装 ${cliConfig.name}...`);
-        try {
-          await installer.installTool(cliName, cliConfig);
-          console.log(`  ✅ ${cliConfig.name} 安装完成`);
-        } catch (error) {
-          console.log(`  ⚠️  ${cliConfig.name} 安装失败: ${error.message}`);
-        }
-      } else {
-        console.log(`  ✅ ${cliConfig.name} 已安装`);
-      }
+    if (!installOrder.includes(cliName) && cliConfig.autoInstall) {
+      installOrder.push(cliName);
     }
   }
 
-  // 步骤1: 检测本地可用的 CLI
-  console.log("\n📦 步骤 1/5: 检测本地可用的 CLI...\n");
+  for (const cliName of installOrder) {
+    const cliConfig = CLI_TOOLS.CLI_TOOLS[cliName];
+    if (!cliConfig || !cliConfig.autoInstall) {
+      continue;
+    }
+
+    const isExecutable = await checkCLIExecutable(cliName);
+    const needsInstall = !isExecutable;
+
+    if (needsInstall) {
+      console.log(`  📥 安装 ${cliConfig.name}...`);
+      try {
+        await installer.installTool(cliName, cliConfig);
+        console.log(`  ✅ ${cliConfig.name} 安装完成`);
+      } catch (error) {
+        console.log(`  ⚠️  ${cliConfig.name} 安装失败: ${error.message}`);
+      }
+    } else {
+      console.log(`  ✅ ${cliConfig.name} 已安装 (可执行)`);
+    }
+  }
+
+  // 步骤1: 强制升级所有配置为 autoInstall: true 的 CLI 到最新版本
+  console.log("\n📦 步骤 1/6: 强制升级所有 CLI 到最新版本...\n");
+  for (const [cliName, cliConfig] of Object.entries(CLI_TOOLS.CLI_TOOLS)) {
+    if (cliConfig.autoInstall && cliConfig.install) {
+      await forceUpgradeCLI(installer, cliName, cliConfig);
+    }
+  }
+
+  // 步骤2: 检测本地可用的 CLI
+  console.log("\n📦 步骤 2/6: 检测本地可用的 CLI...\n");
   const availableCLIs = detectAvailableCLIs(homeDir);
   console.log(
     `✅ 检测到 ${availableCLIs.length} 个可用 CLI: ${availableCLIs.map((c) => CLI_CONFIGS[c]?.name || c).join(", ")}\n`,
@@ -144,11 +185,15 @@ async function postInstallDeploy() {
   }
 
   // 步骤2: 克隆 obra/superpowers 插件仓库
-  console.log("📦 步骤 2/5: 克隆 obra/superpowers 插件仓库...\n");
+  console.log("📦 步骤 2/6: 克隆 obra/superpowers 插件仓库...\n");
   await cloneSuperpowersRepo();
 
+  // 步骤2.5: 分级部署内置 Superpowers
+  console.log("\n📦 步骤 2.5/6: 部署内置 Superpowers (离线可用)...\n");
+  await deployBuiltinSuperpowers(availableCLIs, homeDir);
+
   // 步骤3: 部署 Superpowers 插件系统
-  console.log("\n📦 步骤 3/5: 部署 Superpowers 插件系统...\n");
+  console.log("\n📦 步骤 3/6: 部署 Superpowers 插件系统...\n");
   await deployToAllCLIs(availableCLIs, homeDir);
 
   // 步骤4: 部署内置技能 (resumesession, planning-with-files, skill-from-masters)
@@ -192,6 +237,84 @@ function detectSingleCLI(cliName, homeDir) {
   return fs.existsSync(path.join(homeDir, config.home));
 }
 
+async function checkCLIExecutable(cliName) {
+  const { spawnSync } = require("child_process");
+  const toolConfig = CLI_TOOLS.CLI_TOOLS[cliName];
+  if (!toolConfig) return false;
+
+  const cmdName = cliName.replace(/_/g, "-");
+  const checkCommands = [
+    { args: ["--version"], timeout: 5000 },
+    { args: ["--help"], timeout: 5000 },
+  ];
+
+  for (const check of checkCommands) {
+    try {
+      const result = spawnSync(cmdName, check.args, {
+        encoding: "utf8",
+        timeout: check.timeout,
+        stdio: ["pipe", "pipe", "pipe"],
+        shell: true,
+        windowsHide: true,
+      });
+      if (result.status === 0 || result.status === 1) {
+        return true;
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+  return false;
+}
+
+async function forceUpgradeCLI(installer, cliName, cliConfig) {
+  if (!cliConfig || !cliConfig.install) return;
+
+  const isExecutable = await checkCLIExecutable(cliName);
+  if (!isExecutable) {
+    console.log(`  📥 ${cliConfig.name} 未安装，正在安装...`);
+    try {
+      await installer.installTool(cliName, cliConfig);
+      console.log(`  ✅ ${cliConfig.name} 安装完成`);
+
+      if (cliName === "oh-my-opencode") {
+        await configureOhMyOpenCode();
+      }
+    } catch (error) {
+      console.log(`  ⚠️  ${cliConfig.name} 安装失败: ${error.message}`);
+    }
+    return;
+  }
+
+  console.log(`  ⬆️  ${cliConfig.name} 已安装，升级到最新版本...`);
+  try {
+    await installer.installTool(cliName, cliConfig);
+    console.log(`  ✅ ${cliConfig.name} 升级完成`);
+
+    if (cliName === "oh-my-opencode") {
+      await configureOhMyOpenCode();
+    }
+  } catch (error) {
+    console.log(`  ⚠️  ${cliConfig.name} 升级失败: ${error.message}`);
+  }
+}
+
+async function configureOhMyOpenCode() {
+  console.log(`  ⚙️  配置 oh-my-opencode (claude=no)...`);
+  try {
+    execSync(
+      "bunx oh-my-opencode install --no-tui --claude=no --openai=no --gemini=no --copilot=no --opencode-zen=no --zai-coding-plan=no --kimi-for-coding=no --skip-auth",
+      {
+        stdio: "inherit",
+        timeout: 120000,
+      },
+    );
+    console.log(`  ✅ oh-my-opencode 配置完成`);
+  } catch (error) {
+    console.log(`  ⚠️  oh-my-opencode 配置失败: ${error.message}`);
+  }
+}
+
 async function cloneSuperpowersRepo() {
   const pluginDir = path.join(CACHE_DIR, "plugin");
 
@@ -221,6 +344,180 @@ async function cloneSuperpowersRepo() {
 
   const skillsCount = countSkills(path.join(pluginDir, "skills"));
   console.log(`  📊 仓库包含 ${skillsCount} 个 skills`);
+}
+
+/**
+ * 分级部署内置 Superpowers（离线可用）
+ * P0: 核心 Hook + 目录结构 (必须成功)
+ * P1: Superpowers + 进化技能 (警告继续)
+ * P2: 验证 + 额外配置 (静默跳过)
+ */
+async function deployBuiltinSuperpowers(availableCLIs, homeDir) {
+  // 检查内置文件是否存在
+  if (!fs.existsSync(BUILTIN_SUPERPOWERS_PATH)) {
+    console.log("  ⚠️  内置 Superpowers 目录不存在，跳过");
+    return { p0: false, p1: false, p2: false };
+  }
+
+  console.log(`  📂 内置路径: ${BUILTIN_SUPERPOWERS_PATH}`);
+
+  let p0Success = false;
+  let p1Success = false;
+  let p2Success = false;
+
+  // P0: 核心 Hook + 目录结构 (必须成功)
+  console.log("\n  [P0] 部署核心 Hook + 目录结构...");
+  try {
+    for (const cliName of availableCLIs) {
+      const cliConfig = CLI_CONFIGS[cliName];
+      if (!cliConfig || !cliConfig.hooksDir) continue;
+
+      const cliHome = path.join(homeDir, cliConfig.home);
+      const hooksTarget = path.join(cliHome, cliConfig.hooksDir);
+      const skillsTarget = path.join(cliHome, cliConfig.skillsDir);
+
+      // 创建目录
+      fs.mkdirSync(hooksTarget, { recursive: true });
+      fs.mkdirSync(skillsTarget, { recursive: true });
+
+      // 复制内置 Hook 配置
+      const builtinHooksJson = path.join(
+        BUILTIN_SUPERPOWERS_PATH,
+        "hooks.json",
+      );
+      if (fs.existsSync(builtinHooksJson)) {
+        try {
+          const hooksConfig = JSON.parse(
+            fs.readFileSync(builtinHooksJson, "utf8"),
+          );
+          fs.writeFileSync(
+            path.join(hooksTarget, "hooks.json"),
+            JSON.stringify(hooksConfig, null, 2),
+          );
+        } catch (e) {
+          // 使用默认配置
+          const defaultHooks = {
+            hooks: {
+              sessionStart: {
+                name: "SessionStart",
+                enabled: true,
+                priority: 1,
+                matchers: ["startup", "resume", "clear"],
+              },
+            },
+          };
+          fs.writeFileSync(
+            path.join(hooksTarget, "hooks.json"),
+            JSON.stringify(defaultHooks, null, 2),
+          );
+        }
+      } else {
+        // 使用默认配置
+        const defaultHooks = {
+          hooks: {
+            sessionStart: {
+              name: "SessionStart",
+              enabled: true,
+              priority: 1,
+              matchers: ["startup", "resume", "clear"],
+            },
+          },
+        };
+        fs.writeFileSync(
+          path.join(hooksTarget, "hooks.json"),
+          JSON.stringify(defaultHooks, null, 2),
+        );
+      }
+
+      // 复制内置 session-start hook
+      const builtinHookScript = path.join(
+        BUILTIN_SUPERPOWERS_PATH,
+        "session-start.js",
+      );
+      if (fs.existsSync(builtinHookScript)) {
+        const hookContent = fs.readFileSync(builtinHookScript, "utf8");
+        fs.writeFileSync(
+          path.join(hooksTarget, cliConfig.hookFile),
+          hookContent,
+        );
+      }
+
+      console.log(`     ✅ ${cliName}: P0 核心部署完成`);
+    }
+    p0Success = true;
+    console.log("  [P0] ✅ 核心部署成功");
+  } catch (error) {
+    console.log(`  [P0] ❌ 核心部署失败: ${error.message}`);
+    console.log("  [P0] 终止部署 (P0 必须成功)");
+    return { p0: false, p1: false, p2: false };
+  }
+
+  // P1: Superpowers + 进化技能 (失败警告但继续)
+  console.log("\n  [P1] 部署 Superpowers + 进化技能...");
+  try {
+    const p1Skills = [
+      "using-superpowers",
+      "two-agent-loop",
+      "soul-evolution",
+      "soul-reflection",
+      "soul-co-evolve",
+      "soul-compete",
+    ];
+
+    for (const cliName of availableCLIs) {
+      const cliConfig = CLI_CONFIGS[cliName];
+      if (!cliConfig || !cliConfig.skillsDir) continue;
+
+      const cliHome = path.join(homeDir, cliConfig.home);
+      const skillsTarget = path.join(cliHome, cliConfig.skillsDir);
+
+      for (const skillName of p1Skills) {
+        const builtinSkillPath = path.join(BUILTIN_SUPERPOWERS_PATH, skillName);
+        if (fs.existsSync(builtinSkillPath)) {
+          const targetPath = path.join(skillsTarget, skillName);
+          fs.mkdirSync(targetPath, { recursive: true });
+          copyDirectory(builtinSkillPath, targetPath);
+        }
+      }
+      console.log(`     ✅ ${cliName}: P1 技能部署完成`);
+    }
+    p1Success = true;
+    console.log("  [P1] ✅ 技能部署成功");
+  } catch (error) {
+    console.log(`  [P1] ⚠️  技能部署失败: ${error.message}`);
+    console.log("  [P1] 警告: 继续部署...");
+  }
+
+  // P2: 验证 (静默)
+  console.log("\n  [P2] 验证部署...");
+  try {
+    let verified = 0;
+    for (const cliName of availableCLIs) {
+      const cliConfig = CLI_CONFIGS[cliName];
+      if (!cliConfig || !cliConfig.hooksDir) continue;
+
+      const cliHome = path.join(homeDir, cliConfig.home);
+      const hooksDir = path.join(cliHome, cliConfig.hooksDir);
+      const skillsDir = path.join(cliHome, cliConfig.skillsDir);
+
+      const hasHooks = fs.existsSync(path.join(hooksDir, "hooks.json"));
+      const hasHookScript = fs.existsSync(
+        path.join(hooksDir, cliConfig.hookFile),
+      );
+      const hasSkills =
+        fs.existsSync(skillsDir) && fs.readdirSync(skillsDir).length > 0;
+
+      if (hasHooks && hasHookScript && hasSkills) {
+        verified++;
+      }
+    }
+    p2Success = verified === availableCLIs.length;
+    console.log(`  [P2] 验证: ${verified}/${availableCLIs.length} 个 CLI 通过`);
+  } catch (error) {
+    console.log(`  [P2] ⚠️  验证失败 (静默跳过)`);
+  }
+
+  return { p0: p0Success, p1: p1Success, p2: p2Success };
 }
 
 function countSkills(skillsDir) {
@@ -306,19 +603,34 @@ function generateSessionStartHook(cliName, cliConfig) {
   return `/**
  * Superpowers Session Start Hook for ${cliName}
  * Auto-generated by Stigmergy
+ * 
+ * This hook works across different CLI runtimes by using dynamic require
+ * with fallback to a no-op if fs is not available
  */
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+let fs, path, os;
+
+try {
+  fs = require('fs');
+  path = require('path');
+  os = require('os');
+} catch (e) {
+  // For CLIs that don't provide fs module in their hook context
+  fs = { existsSync: () => false, readFileSync: () => '' };
+  path = { join: (...args) => args.join('/') };
+  os = { homedir: () => '' };
+}
 
 const SKILLS_ROOT = '${skillsRoot.replace(/\\/g, "\\\\")}';
 
 function escapeForJson(str) {
-  return str.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
+  if (!str) return '';
+  return str.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n').replace(/\\r/g, '\\\\r').replace(/\\t/g, '\\\\t');
 }
 
 async function sessionStart(context) {
   try {
+    // Handle different context structures across CLIs
+    const ctx = context || {};
     let additionalContext = '<EXTREMELY_IMPORTANT>\\nYou have superpowers.\\n';
 
     const usingSkillPath = path.join(SKILLS_ROOT, 'using-superpowers', 'skill.md');
@@ -329,15 +641,21 @@ async function sessionStart(context) {
 
     additionalContext += '\\n</EXTREMELY_IMPORTANT>';
 
-    if (context.additionalContext) {
-      context.additionalContext += '\\n\\n' + additionalContext;
+    // Handle different context property names across CLIs
+    if (ctx.additionalContext) {
+      ctx.additionalContext += '\\n\\n' + additionalContext;
+    } else if (ctx.context) {
+      ctx.context += '\\n\\n' + additionalContext;
+    } else if (ctx.systemPrompt) {
+      ctx.systemPrompt += '\\n\\n' + additionalContext;
     } else {
-      context.additionalContext = additionalContext;
+      ctx.additionalContext = additionalContext;
     }
 
-    console.log('🦸 Superpowers context injected for ${cliName}');
+    console.log('🦸 Superpowers context injected for ${cliName}'.replace('\${cliName}', '${cliName}'));
   } catch (error) {
-    console.error('Failed to inject superpowers context:', error.message);
+    // Silently fail to not break the session
+    try { console.error('Superpowers hook error:', error.message); } catch (e) {}
   }
   return context;
 }

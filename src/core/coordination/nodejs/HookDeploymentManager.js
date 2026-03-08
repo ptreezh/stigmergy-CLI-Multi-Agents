@@ -62,6 +62,13 @@ class HookDeploymentManager {
       return true;
     }
 
+    if (cliName.toLowerCase() === "bun") {
+      console.log(
+        `[HOOK_DEPLOYMENT] Skipping hooks deployment for ${cliName} (runtime, no hooks needed)`,
+      );
+      return true;
+    }
+
     if (!this.supportedCLIs.includes(cliName.toLowerCase())) {
       throw new Error(`Unsupported CLI: ${cliName}`);
     }

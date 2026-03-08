@@ -12,10 +12,54 @@
  */
 
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const { EventEmitter } = require('events');
 
 class CollaborationCoordinator extends EventEmitter {
+  // Static constants for configuration
+  static DEFAULTS = {
+    MAX_HISTORY_SIZE: 100,
+    MAX_ACTIVE_COLLABORATIONS: 50,
+    COLLABORATION_TTL: 24 * 60 * 60 * 1000, // 24 hours
+    STATE_SAVE_DEBOUNCE: 1000, // 1 second
+    HISTORY_SAVE_DEBOUNCE: 500, // 500ms
+    CLEANUP_INTERVAL: 60 * 60 * 1000 // 1 hour
+  };
+
+  // Static keyword patterns for task classification (cached for performance)
+  static TASK_KEYWORDS = {
+    'code-generation': ['write', 'create', 'generate', 'implement', 'develop'],
+    'code-analysis': ['analyze', 'review', 'audit', 'inspect', 'examine'],
+    'code-optimization': ['optimize', 'improve', 'refactor', 'enhance'],
+    'testing': ['test', 'verify', 'validate', 'check'],
+    'documentation': ['document', 'write docs', 'create documentation'],
+    'debugging': ['debug', 'fix', 'resolve', 'troubleshoot'],
+    'deployment': ['deploy', 'release', 'publish']
+  };
+
+  static COMPLEXITY_INDICATORS = {
+    high: ['architecture', 'system', 'framework', 'integration', 'multiple', 'complex'],
+    medium: ['feature', 'module', 'component', 'function', 'class'],
+    low: ['fix', 'update', 'change', 'small', 'simple']
+  };
+
+  static SKILL_KEYWORDS = {
+    'programming': ['code', 'function', 'class', 'algorithm', 'programming'],
+    'analysis': ['analyze', 'review', 'audit', 'inspect'],
+    'testing': ['test', 'verify', 'validate'],
+    'documentation': ['document', 'write', 'explain'],
+    'debugging': ['debug', 'fix', 'resolve'],
+    'optimization': ['optimize', 'improve', 'refactor'],
+    'architecture': ['design', 'architecture', 'system', 'framework']
+  };
+
+  static EFFORT_MAP = {
+    low: { minHours: 1, maxHours: 2, complexity: 1 },
+    medium: { minHours: 2, maxHours: 4, complexity: 2 },
+    high: { minHours: 4, maxHours: 8, complexity: 3 }
+  };
+
   constructor(options = {}) {
     super();
     
@@ -26,6 +70,11 @@ class CollaborationCoordinator extends EventEmitter {
       enableLogging: options.enableLogging !== false,
       enableStateManagement: options.enableStateManagement !== false,
       statePath: options.statePath || './logs/collaboration-state.json',
+      maxHistorySize: options.maxHistorySize || CollaborationCoordinator.DEFAULTS.MAX_HISTORY_SIZE,
+      maxActiveCollaborations: options.maxActiveCollaborations || CollaborationCoordinator.DEFAULTS.MAX_ACTIVE_COLLABORATIONS,
+      collaborationTTL: options.collaborationTTL || CollaborationCoordinator.DEFAULTS.COLLABORATION_TTL,
+      stateSaveDebounce: options.stateSaveDebounce || CollaborationCoordinator.DEFAULTS.STATE_SAVE_DEBOUNCE,
+      historySaveDebounce: options.historySaveDebounce || CollaborationCoordinator.DEFAULTS.HISTORY_SAVE_DEBOUNCE,
       ...options
     };
     
@@ -40,6 +89,18 @@ class CollaborationCoordinator extends EventEmitter {
     // Agent selection strategy
     this.agentSelectionStrategy = options.agentSelectionStrategy || 'best-match';
     
+    // Debounce timer for state saving
+    this._stateSaveTimer = null;
+    this._historySaveTimer = null;
+    
+    // ProjectSpec cache
+    this._projectSpecCache = null;
+    this._projectSpecCacheTime = 0;
+    this._projectSpecCacheTTL = 60000; // 1 minute cache TTL
+    
+    // Cleanup interval
+    this._cleanupInterval = null;
+    
     // Load initial state
     if (this.options.enableStateManagement) {
       this._loadState();
@@ -52,6 +113,9 @@ class CollaborationCoordinator extends EventEmitter {
     
     // Initialize agent capabilities
     this._initializeAgentCapabilities();
+    
+    // Start cleanup interval
+    this._startCleanupInterval();
   }
 
   /**
@@ -112,9 +176,9 @@ class CollaborationCoordinator extends EventEmitter {
         this._recordCollaboration(collaborationSession);
       }
       
-      // Save state
+      // Save state (debounced)
       if (this.options.enableStateManagement) {
-        this._saveState();
+        this._debouncedSaveState();
       }
       
       // Emit coordination event
@@ -156,24 +220,40 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
-   * Read PROJECT_SPEC.json for context
+   * Read PROJECT_SPEC.json for context with caching
    * 
    * @returns {Promise<Object>} PROJECT_SPEC data
    * @private
    */
   async _readProjectSpec() {
+    const now = Date.now();
+    
+    // Return cached version if still valid
+    if (this._projectSpecCache && (now - this._projectSpecCacheTime) < this._projectSpecCacheTTL) {
+      return this._projectSpecCache;
+    }
+    
     try {
       const specPath = path.resolve(this.options.projectSpecPath);
       
-      if (!fs.existsSync(specPath)) {
+      try {
+        await fsPromises.access(specPath);
+      } catch {
         if (this.options.enableLogging) {
           console.log(`[CollaborationCoordinator] PROJECT_SPEC not found at ${specPath}, using default configuration`);
         }
-        return this._getDefaultProjectSpec();
+        const defaultSpec = this._getDefaultProjectSpec();
+        this._projectSpecCache = defaultSpec;
+        this._projectSpecCacheTime = now;
+        return defaultSpec;
       }
       
-      const specContent = fs.readFileSync(specPath, 'utf8');
+      const specContent = await fsPromises.readFile(specPath, 'utf8');
       const projectSpec = JSON.parse(specContent);
+      
+      // Update cache
+      this._projectSpecCache = projectSpec;
+      this._projectSpecCacheTime = now;
       
       if (this.options.enableLogging) {
         console.log(`[CollaborationCoordinator] Successfully loaded PROJECT_SPEC from ${specPath}`);
@@ -183,7 +263,10 @@ class CollaborationCoordinator extends EventEmitter {
       
     } catch (error) {
       console.error(`[CollaborationCoordinator] Error reading PROJECT_SPEC: ${error.message}`);
-      return this._getDefaultProjectSpec();
+      const defaultSpec = this._getDefaultProjectSpec();
+      this._projectSpecCache = defaultSpec;
+      this._projectSpecCacheTime = now;
+      return defaultSpec;
     }
   }
 
@@ -212,6 +295,7 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Analyze collaboration context and requirements
+   * Optimized to cache lowercase task string
    * 
    * @param {Object} collaborationRequest - Collaboration request
    * @param {Object} projectSpec - PROJECT_SPEC data
@@ -220,120 +304,102 @@ class CollaborationCoordinator extends EventEmitter {
    * @private
    */
   async _analyzeCollaborationContext(collaborationRequest, projectSpec, context) {
+    const task = collaborationRequest.task;
+    // Cache lowercase version to avoid repeated calls
+    const taskLower = task && typeof task === 'string' ? task.toLowerCase() : '';
+
+    // Compute complexity once and reuse
+    const complexity = this._assessComplexityOptimized(taskLower);
+
     const analysis = {
-      taskType: this._classifyTaskType(collaborationRequest.task),
-      complexity: this._assessComplexity(collaborationRequest.task),
-      requiredSkills: this._identifyRequiredSkills(collaborationRequest.task),
-      estimatedEffort: this._estimateEffort(collaborationRequest.task),
+      taskType: this._classifyTaskTypeOptimized(taskLower),
+      complexity: complexity,
+      requiredSkills: this._identifyRequiredSkillsOptimized(taskLower),
+      estimatedEffort: this._estimateEffortFromComplexity(complexity),
       dependencies: this._identifyDependencies(collaborationRequest, projectSpec),
       constraints: this._identifyConstraints(projectSpec),
-      priority: this._assessPriority(collaborationRequest, context)
+      priority: this._assessPriority(collaborationRequest, taskLower)
     };
-    
+
     return analysis;
   }
 
   /**
-   * Classify task type
-   * 
-   * @param {string} task - Task description
+   * Classify task type (optimized version with cached keywords)
+   *
+   * @param {string} taskLower - Lowercase task description
    * @returns {string} Task type
    * @private
    */
-  _classifyTaskType(task) {
-    const taskKeywords = {
-      'code-generation': ['write', 'create', 'generate', 'implement', 'develop'],
-      'code-analysis': ['analyze', 'review', 'audit', 'inspect', 'examine'],
-      'code-optimization': ['optimize', 'improve', 'refactor', 'enhance'],
-      'testing': ['test', 'verify', 'validate', 'check'],
-      'documentation': ['document', 'write docs', 'create documentation'],
-      'debugging': ['debug', 'fix', 'resolve', 'troubleshoot'],
-      'deployment': ['deploy', 'release', 'publish'],
-      'general': []
-    };
-    
-    const taskLower = task.toLowerCase();
-    
+  _classifyTaskTypeOptimized(taskLower) {
+    if (!taskLower) {
+      return 'general';
+    }
+
+    const taskKeywords = CollaborationCoordinator.TASK_KEYWORDS;
     for (const [type, keywords] of Object.entries(taskKeywords)) {
       if (keywords.some(keyword => taskLower.includes(keyword))) {
         return type;
       }
     }
-    
+
     return 'general';
   }
 
   /**
-   * Assess task complexity
-   * 
-   * @param {string} task - Task description
+   * Assess task complexity (optimized version with cached indicators)
+   *
+   * @param {string} taskLower - Lowercase task description
    * @returns {string} Complexity level (low, medium, high)
    * @private
    */
-  _assessComplexity(task) {
-    const complexityIndicators = {
-      high: ['architecture', 'system', 'framework', 'integration', 'multiple', 'complex'],
-      medium: ['feature', 'module', 'component', 'function', 'class'],
-      low: ['fix', 'update', 'change', 'small', 'simple']
-    };
-    
-    const taskLower = task.toLowerCase();
-    
-    if (complexityIndicators.high.some(indicator => taskLower.includes(indicator))) {
-      return 'high';
-    } else if (complexityIndicators.medium.some(indicator => taskLower.includes(indicator))) {
+  _assessComplexityOptimized(taskLower) {
+    if (!taskLower) {
       return 'medium';
-    } else {
-      return 'low';
     }
+
+    const indicators = CollaborationCoordinator.COMPLEXITY_INDICATORS;
+    if (indicators.high.some(indicator => taskLower.includes(indicator))) {
+      return 'high';
+    } else if (indicators.medium.some(indicator => taskLower.includes(indicator))) {
+      return 'medium';
+    }
+    return 'low';
   }
 
   /**
-   * Identify required skills
+   * Identify required skills (optimized version with pre-lowercased input)
    * 
-   * @param {string} task - Task description
+   * @param {string} taskLower - Lowercase task description
    * @returns {Array<string>} List of required skills
    * @private
    */
-  _identifyRequiredSkills(task) {
-    const skillKeywords = {
-      'programming': ['code', 'function', 'class', 'algorithm', 'programming'],
-      'analysis': ['analyze', 'review', 'audit', 'inspect'],
-      'testing': ['test', 'verify', 'validate'],
-      'documentation': ['document', 'write', 'explain'],
-      'debugging': ['debug', 'fix', 'resolve'],
-      'optimization': ['optimize', 'improve', 'refactor'],
-      'architecture': ['design', 'architecture', 'system', 'framework']
-    };
-    
-    const taskLower = task.toLowerCase();
+  _identifyRequiredSkillsOptimized(taskLower) {
+    if (!taskLower) {
+      return [];
+    }
+
+    const skillKeywords = CollaborationCoordinator.SKILL_KEYWORDS;
     const requiredSkills = new Set();
-    
+
     for (const [skill, keywords] of Object.entries(skillKeywords)) {
       if (keywords.some(keyword => taskLower.includes(keyword))) {
         requiredSkills.add(skill);
       }
     }
-    
+
     return Array.from(requiredSkills);
   }
 
   /**
-   * Estimate effort
-   * 
-   * @param {string} task - Task description
+   * Estimate effort from pre-computed complexity (optimized)
+   *
+   * @param {string} complexity - Pre-computed complexity level
    * @returns {Object} Effort estimation
    * @private
    */
-  _estimateEffort(task) {
-    const complexity = this._assessComplexity(task);
-    
-    const effortMap = {
-      low: { hours: 1-2, complexity: 1 },
-      medium: { hours: 2-4, complexity: 2 },
-      high: { hours: 4-8, complexity: 3 }
-    };
-    
+  _estimateEffortFromComplexity(complexity) {
+    const effortMap = CollaborationCoordinator.EFFORT_MAP;
     return effortMap[complexity] || effortMap.medium;
   }
 
@@ -385,29 +451,23 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
-   * Assess priority
+   * Assess priority (uses optimized complexity check)
    * 
    * @param {Object} collaborationRequest - Collaboration request
-   * @param {Object} context - Execution context
+   * @param {string} taskLower - Lowercase task description
    * @returns {string} Priority level (high, medium, low)
    * @private
    */
-  _assessPriority(collaborationRequest, context) {
-    // Check for explicit priority in context
-    if (context.priority) {
-      return context.priority;
+  _assessPriority(collaborationRequest, taskLower) {
+    // Check for explicit priority in request
+    if (collaborationRequest.priority) {
+      return collaborationRequest.priority;
     }
     
-    // Assess priority based on task complexity and urgency
-    const complexity = this._assessComplexity(collaborationRequest.task);
+    // Assess priority based on task complexity
+    const complexity = this._assessComplexityOptimized(taskLower);
     
-    if (complexity === 'high') {
-      return 'high';
-    } else if (complexity === 'medium') {
-      return 'medium';
-    } else {
-      return 'low';
-    }
+    return complexity; // complexity maps directly to priority
   }
 
   /**
@@ -494,7 +554,7 @@ class CollaborationCoordinator extends EventEmitter {
    * @private
    */
   _generateCollaborationId() {
-    return `collab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `collab-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   }
 
   /**
@@ -505,8 +565,9 @@ class CollaborationCoordinator extends EventEmitter {
    * @private
    */
   _estimateDuration(collaborationContext) {
-    const effort = collaborationContext.estimatedEffort || { hours: 2 };
-    return effort.hours * 60 * 60 * 1000; // Convert hours to milliseconds
+    const effort = collaborationContext.estimatedEffort || { minHours: 2, maxHours: 4 };
+    const avgHours = (effort.minHours + effort.maxHours) / 2;
+    return avgHours * 60 * 60 * 1000; // Convert hours to milliseconds
   }
 
   /**
@@ -572,17 +633,47 @@ class CollaborationCoordinator extends EventEmitter {
     
     this.state.collaborationHistory.push(historyEntry);
     
-    // Keep only last 100 entries
-    if (this.state.collaborationHistory.length > 100) {
-      this.state.collaborationHistory = this.state.collaborationHistory.slice(-100);
+    // Keep only configured max entries
+    const maxSize = this.options.maxHistorySize;
+    if (this.state.collaborationHistory.length > maxSize) {
+      this.state.collaborationHistory = this.state.collaborationHistory.slice(-maxSize);
     }
     
-    // Save history
-    this._saveHistory();
+    // Debounced save history
+    this._debouncedSaveHistory();
   }
 
   /**
-   * Load collaboration history
+   * Debounced save history
+   * 
+   * @private
+   */
+  _debouncedSaveHistory() {
+    if (this._historySaveTimer) {
+      clearTimeout(this._historySaveTimer);
+    }
+    const debounceTime = this.options.historySaveDebounce;
+    this._historySaveTimer = setTimeout(() => {
+      this._saveHistoryAsync();
+    }, debounceTime);
+  }
+
+  /**
+   * Debounced save state
+   *
+   * @private
+   */
+  _debouncedSaveState() {
+    if (this._stateSaveTimer) {
+      clearTimeout(this._stateSaveTimer);
+    }
+    this._stateSaveTimer = setTimeout(() => {
+      this._saveStateAsync();
+    }, this.options.stateSaveDebounce);
+  }
+
+  /**
+   * Load collaboration history (sync version for initialization)
    * 
    * @private
    */
@@ -598,7 +689,26 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
-   * Save collaboration history
+   * Save collaboration history (async version)
+   * 
+   * @private
+   */
+  async _saveHistoryAsync() {
+    try {
+      const historyDir = path.dirname(this.options.historyPath);
+      await fsPromises.mkdir(historyDir, { recursive: true });
+      
+      await fsPromises.writeFile(
+        this.options.historyPath,
+        JSON.stringify(this.state.collaborationHistory, null, 2)
+      );
+    } catch (error) {
+      console.error(`[CollaborationCoordinator] Error saving history: ${error.message}`);
+    }
+  }
+
+  /**
+   * Save collaboration history (sync version for shutdown)
    * 
    * @private
    */
@@ -619,7 +729,7 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
-   * Load state
+   * Load state (sync version for initialization)
    * 
    * @private
    */
@@ -640,7 +750,31 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
-   * Save state
+   * Save state (async version)
+   * 
+   * @private
+   */
+  async _saveStateAsync() {
+    try {
+      const stateDir = path.dirname(this.options.statePath);
+      await fsPromises.mkdir(stateDir, { recursive: true });
+      
+      const stateToSave = {
+        ...this.state,
+        agentCapabilities: Object.fromEntries(this.state.agentCapabilities)
+      };
+      
+      await fsPromises.writeFile(
+        this.options.statePath,
+        JSON.stringify(stateToSave, null, 2)
+      );
+    } catch (error) {
+      console.error(`[CollaborationCoordinator] Error saving state: ${error.message}`);
+    }
+  }
+
+  /**
+   * Save state (sync version for shutdown)
    * 
    * @private
    */
@@ -666,8 +800,85 @@ class CollaborationCoordinator extends EventEmitter {
   }
 
   /**
+   * Start cleanup interval for expired collaborations
+   *
+   * @private
+   */
+  _startCleanupInterval() {
+    this._cleanupInterval = setInterval(() => {
+      this._cleanupExpiredCollaborations();
+    }, CollaborationCoordinator.DEFAULTS.CLEANUP_INTERVAL);
+
+    // Don't prevent the process from exiting
+    if (this._cleanupInterval.unref) {
+      this._cleanupInterval.unref();
+    }
+  }
+
+  /**
+   * Cleanup expired collaborations
+   *
+   * @private
+   */
+  _cleanupExpiredCollaborations() {
+    const now = Date.now();
+    const ttl = this.options.collaborationTTL;
+    let cleaned = 0;
+
+    for (const [id, collaboration] of this.state.activeCollaborations) {
+      const startTime = new Date(collaboration.startTime).getTime();
+      if (now - startTime > ttl) {
+        this.state.activeCollaborations.delete(id);
+        cleaned++;
+      }
+    }
+
+    if (cleaned > 0 && this.options.enableLogging) {
+      console.log(`[CollaborationCoordinator] Cleaned up ${cleaned} expired collaborations`);
+    }
+
+    // Emit cleanup event
+    if (cleaned > 0) {
+      this.emit('cleanup', { cleaned, timestamp: new Date().toISOString() });
+    }
+  }
+
+  /**
+   * Destroy the coordinator and cleanup resources
+   */
+  destroy() {
+    // Clear all timers
+    if (this._cleanupInterval) {
+      clearInterval(this._cleanupInterval);
+      this._cleanupInterval = null;
+    }
+
+    if (this._stateSaveTimer) {
+      clearTimeout(this._stateSaveTimer);
+      this._stateSaveTimer = null;
+    }
+
+    if (this._historySaveTimer) {
+      clearTimeout(this._historySaveTimer);
+      this._historySaveTimer = null;
+    }
+
+    // Save state synchronously before destroying
+    this._saveState();
+    this._saveHistory();
+
+    // Clear state
+    this.state.activeCollaborations.clear();
+    this.removeAllListeners();
+
+    if (this.options.enableLogging) {
+      console.log('[CollaborationCoordinator] Coordinator destroyed and resources cleaned up');
+    }
+  }
+
+  /**
    * Log coordination request
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request
    * @param {Object} context - Execution context
    * @private

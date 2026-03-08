@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "description": "Stigmergy 内置 Superpowers 配置",
+  "hooks": {
+    "sessionStart": {
+      "name": "SessionStart",
+      "enabled": true,
+      "priority": 1,
+      "matchers": ["startup", "resume", "clear"],
+      "file": "session-start.js"
+    }
+  },
+  "skills": [
+    "using-superpowers",
+    "brainstorming",
+    "test-driven-development",
+    "systematic-debugging",
+    "subagent-driven-development",
+    "writing-plans",
+    "executing-plans",
+    "using-git-worktrees",
+    "finishing-a-development-branch",
+    "requesting-code-review",
+    "receiving-code-review",
+    "writing-skills",
+    "two-agent-loop",
+    "soul-evolution",
+    "soul-reflection",
+    "soul-co-evolve",
+    "soul-compete"
+  ],
+  "分级部署": {
+    "P0": {
+      "description": "核心 Hook + 目录结构",
+      "required": true,
+      "failAction": "abort"
+    },
+    "P1": {
+      "description": "Superpowers + 进化技能",
+      "required": false,
+      "failAction": "warn"
+    },
+    "P2": {
+      "description": "验证 + 额外配置",
+      "required": false,
+      "failAction": "silent"
+    }
+  }
+}

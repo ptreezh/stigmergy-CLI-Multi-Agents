@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-03-08T01:51:47.334Z",
+  "targetFile": "src/cli/commands/project.js",
+  "participants": [
+    "qwen",
+    "codebuddy"
+  ],
+  "avgComplexity": 0,
+  "uniqueIssues": [],
+  "uniqueSuggestions": [],
+  "consensus": {
+    "score": 1,
+    "level": "HIGH",
+    "avgComplexity": 0,
+    "variance": 0
+  }
+}

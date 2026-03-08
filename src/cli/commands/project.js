@@ -181,9 +181,17 @@ async function handleDeployCommand(options = {}) {
  */
 async function deployCompleteSuperpowers() {
   const { execSync } = require("child_process");
-  const fs = require("fs");
-  const path = require("path");
-  const os = require("os");
+  let fs, path, os;
+
+  try {
+    fs = require("fs");
+    path = require("path");
+    os = require("os");
+    console.log("[DEBUG] Modules loaded successfully");
+  } catch (e) {
+    console.error("[DEBUG] Module load error:", e.message);
+    throw e;
+  }
 
   const SUPERPOWERS_REPO = "obra/superpowers";
   const SUPERPOWERS_URL = `https://github.com/${SUPERPOWERS_REPO}.git`;
@@ -293,53 +301,68 @@ async function deployCompleteSuperpowers() {
   console.log(chalk.blue(`  📦 Deploying to ${availableCLIs.length} CLIs...`));
 
   for (const cliName of availableCLIs) {
-    const cliConfig = CLI_CONFIGS[cliName];
-    if (!cliConfig) continue;
-
-    const cliHome = path.join(homeDir, cliConfig.home);
-    const pluginTarget = path.join(cliHome, cliConfig.pluginDir);
-    const skillsTarget = path.join(cliHome, cliConfig.skillsDir);
-    const hooksTarget = path.join(cliHome, cliConfig.hooksDir);
-
-    fs.mkdirSync(pluginTarget, { recursive: true });
-    fs.mkdirSync(skillsTarget, { recursive: true });
-    fs.mkdirSync(hooksTarget, { recursive: true });
-
-    // 复制插件文件
-    const dirsToCopy = [".claude-plugin", "skills"];
-    for (const dir of dirsToCopy) {
-      const src = path.join(pluginDir, dir);
-      const dst = path.join(pluginTarget, dir);
-      if (fs.existsSync(src)) {
-        copyDirectoryRecursive(src, dst);
+    try {
+      console.log(`[DEBUG] Processing ${cliName}...`);
+      const cliConfig = CLI_CONFIGS[cliName];
+      if (!cliConfig) {
+        console.log(`[DEBUG] No config for ${cliName}, skipping`);
+        continue;
       }
-    }
 
-    // 创建 hooks.json
-    const hooksConfig = {
-      hooks: {
-        sessionStart: {
-          name: "SessionStart",
-          enabled: true,
-          priority: 1,
-          matchers: ["startup", "resume", "clear"],
-          command: `$${cliConfig.home.toUpperCase().replace(/\./g, "_")}_ROOT/${cliConfig.hooksDir}/${cliConfig.hookFile}`,
+      console.log(
+        `[DEBUG] cliConfig for ${cliName}:`,
+        JSON.stringify(cliConfig),
+      );
+
+      const cliHome = path.join(homeDir, cliConfig.home);
+      console.log(`[DEBUG] cliHome for ${cliName}:`, cliHome);
+      const pluginTarget = path.join(cliHome, cliConfig.pluginDir);
+      const skillsTarget = path.join(cliHome, cliConfig.skillsDir);
+      const hooksTarget = path.join(cliHome, cliConfig.hooksDir);
+
+      fs.mkdirSync(pluginTarget, { recursive: true });
+      fs.mkdirSync(skillsTarget, { recursive: true });
+      fs.mkdirSync(hooksTarget, { recursive: true });
+
+      // 复制插件文件
+      const dirsToCopy = [".claude-plugin", "skills"];
+      for (const dir of dirsToCopy) {
+        const src = path.join(pluginDir, dir);
+        const dst = path.join(pluginTarget, dir);
+        if (fs.existsSync(src)) {
+          copyDirectoryRecursive(src, dst);
+        }
+      }
+
+      // 创建 hooks.json
+      const hooksConfig = {
+        hooks: {
+          sessionStart: {
+            name: "SessionStart",
+            enabled: true,
+            priority: 1,
+            matchers: ["startup", "resume", "clear"],
+            command: `$${cliConfig.home.toUpperCase().replace(/\./g, "_")}_ROOT/${cliConfig.hooksDir}/${cliConfig.hookFile}`,
+          },
         },
-      },
-    };
-    fs.writeFileSync(
-      path.join(hooksTarget, "hooks.json"),
-      JSON.stringify(hooksConfig, null, 2),
-    );
+      };
+      fs.writeFileSync(
+        path.join(hooksTarget, "hooks.json"),
+        JSON.stringify(hooksConfig, null, 2),
+      );
 
-    // 创建 session-start hook
-    const hookContent = generateSessionStartHook(cliName, cliConfig);
-    fs.writeFileSync(path.join(hooksTarget, cliConfig.hookFile), hookContent);
+      // 创建 session-start hook
+      const hookContent = generateSessionStartHook(cliName, cliConfig);
+      fs.writeFileSync(path.join(hooksTarget, cliConfig.hookFile), hookContent);
 
-    // 复制所有 skills
-    copyDirectoryRecursive(path.join(pluginDir, "skills"), skillsTarget);
+      // 复制所有 skills
+      copyDirectoryRecursive(path.join(pluginDir, "skills"), skillsTarget);
 
-    console.log(chalk.green(`     ✅ ${cliName}`));
+      console.log(chalk.green(`     ✅ ${cliName}`));
+    } catch (e) {
+      console.error(`[DEBUG] Error processing ${cliName}:`, e.message);
+      console.error(e.stack);
+    }
   }
 
   // 统计部署
@@ -585,6 +608,85 @@ async function handleSetupCommand(options = {}) {
         chalk.blue("\n[STEP 2] Deploying hooks to available tools..."),
       );
       await installer.deployHooks(setupAvailable);
+
+      // Deploy built-in Superpowers (offline capable)
+      console.log(chalk.blue("\n[STEP 2.5] Deploying built-in Superpowers..."));
+      try {
+        const {
+          deployBuiltinSuperpowers,
+        } = require("../../../scripts/postinstall-deploy");
+        const projectRoot = path.resolve(__dirname, "../../..");
+        const fs = require("fs");
+
+        // Detect available CLIs
+        const os = require("os");
+        const CLI_CONFIGS = {
+          claude: {
+            home: ".claude",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          qwen: {
+            home: ".qwen",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.ts",
+          },
+          iflow: {
+            home: ".iflow",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          codebuddy: {
+            home: ".codebuddy",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          opencode: {
+            home: ".opencode",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          kilocode: {
+            home: ".kilocode",
+            hooksDir: "hooks",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          gemini: {
+            home: ".config/gemini",
+            hooksDir: "extensions",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+          codex: {
+            home: ".config/codex",
+            hooksDir: "extensions",
+            skillsDir: "skills",
+            hookFile: "session-start.js",
+          },
+        };
+
+        const homeDir = os.homedir();
+        const availableCLIs = Object.keys(CLI_CONFIGS).filter((cli) =>
+          fs.existsSync(path.join(homeDir, CLI_CONFIGS[cli].home)),
+        );
+
+        if (availableCLIs.length > 0) {
+          await deployBuiltinSuperpowers(availableCLIs, homeDir);
+          console.log(chalk.green("  ✅ Built-in Superpowers deployed"));
+        }
+      } catch (error) {
+        console.log(
+          chalk.yellow(
+            `  ⚠️  Built-in Superpowers deploy skipped: ${error.message}`,
+          ),
+        );
+      }
     } else {
       console.log(
         chalk.yellow("\n[STEP 2] No tools available for hook deployment"),
@@ -592,7 +694,7 @@ async function handleSetupCommand(options = {}) {
     }
 
     // Verify setup
-    console.log(chalk.blue("\n[STEP 3] Verifying installation..."));
+    console.log(chalk.blue("\n[STEP 4] Verifying installation..."));
     await handleStatusCommand({ verbose: false });
 
     console.log(chalk.green("\n🎉 Setup completed successfully!"));
