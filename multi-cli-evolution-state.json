@@ -1,5 +1,5 @@
 {
-  "iterations": 564,
-  "lastStrategy": "competition",
-  "lastSuccess": true
+  "iterations": 565,
+  "lastStrategy": "crossValidation",
+  "lastSuccess": false
 }

@@ -1,22 +1,5 @@
 {
-  "iterations": 872,
-  "lastStrategy": "crossValidation",
-  "lastSuccess": false,
-  "strategyStats": {
-    "crossValidation": {
-      "success": 0,
-      "total": 260,
-      "lastFail": 260
-    },
-    "collaboration": {
-      "success": 3,
-      "total": 3,
-      "lastFail": 0
-    },
-    "competition": {
-      "success": 3,
-      "total": 3,
-      "lastFail": 0
-    }
-  }
+  "iterations": 906,
+  "lastStrategy": "competition",
+  "lastSuccess": false
 }
