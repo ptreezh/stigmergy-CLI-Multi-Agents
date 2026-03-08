@@ -12,19 +12,19 @@
  * @version 1.0.0
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const crypto = require("crypto");
 
 /**
  * 生成安全的唯一标识符
  * @param {string} prefix - ID前缀
  * @returns {string} 安全的唯一ID
  */
-function generateSecureId(prefix = 'id') {
+function generateSecureId(prefix = "id") {
   const timestamp = Date.now().toString(36);
-  const randomBytes = crypto.randomBytes(8).toString('hex');
+  const randomBytes = crypto.randomBytes(8).toString("hex");
   return `${prefix}_${timestamp}_${randomBytes}`;
 }
 
@@ -37,8 +37,9 @@ function generateSecureId(prefix = 'id') {
  */
 class SoulEngine {
   constructor(options = {}) {
-    this.stigmergyDir = options.stigmergyDir || path.join(os.homedir(), '.stigmergy');
-    this.soulStateDir = path.join(this.stigmergyDir, 'soul-state');
+    this.stigmergyDir =
+      options.stigmergyDir || path.join(os.homedir(), ".stigmergy");
+    this.soulStateDir = path.join(this.stigmergyDir, "soul-state");
 
     // 核心组件
     this.memory = new MemoryStore(this.soulStateDir);
@@ -51,7 +52,7 @@ class SoulEngine {
       maxInnerTurns: options.maxInnerTurns || 50,
       heartbeatInterval: options.heartbeatInterval || 60000, // 1分钟
       autoEvolve: options.autoEvolve !== false,
-      verbose: options.verbose || false
+      verbose: options.verbose || false,
     };
 
     // 状态
@@ -63,7 +64,7 @@ class SoulEngine {
    * 启动 Soul 引擎
    */
   async start() {
-    console.log('🧠 Starting Soul Engine...');
+    console.log("🧠 Starting Soul Engine...");
     await this.initialize();
     this.isRunning = true;
 
@@ -72,7 +73,7 @@ class SoulEngine {
       this.startHeartbeat();
     }
 
-    console.log('✅ Soul Engine started');
+    console.log("✅ Soul Engine started");
     return this;
   }
 
@@ -82,9 +83,15 @@ class SoulEngine {
   async initialize() {
     // 创建目录
     await fs.promises.mkdir(this.soulStateDir, { recursive: true });
-    await fs.promises.mkdir(path.join(this.soulStateDir, 'memory'), { recursive: true });
-    await fs.promises.mkdir(path.join(this.soulStateDir, 'skills'), { recursive: true });
-    await fs.promises.mkdir(path.join(this.soulStateDir, 'evolution'), { recursive: true });
+    await fs.promises.mkdir(path.join(this.soulStateDir, "memory"), {
+      recursive: true,
+    });
+    await fs.promises.mkdir(path.join(this.soulStateDir, "skills"), {
+      recursive: true,
+    });
+    await fs.promises.mkdir(path.join(this.soulStateDir, "evolution"), {
+      recursive: true,
+    });
 
     // 初始化记忆
     await this.memory.initialize();
@@ -93,9 +100,9 @@ class SoulEngine {
     await this.skillLoader.loadAllSkills();
 
     this.eventStream.push({
-      type: 'engine_start',
+      type: "engine_start",
       timestamp: Date.now(),
-      data: { config: this.config }
+      data: { config: this.config },
     });
   }
 
@@ -114,25 +121,33 @@ class SoulEngine {
       task,
       context,
       startTime: Date.now(),
-      events: []
+      events: [],
     };
 
     try {
       // 外层循环
-      for (let outerTurn = 0; outerTurn < this.config.maxOuterTurns; outerTurn++) {
+      for (
+        let outerTurn = 0;
+        outerTurn < this.config.maxOuterTurns;
+        outerTurn++
+      ) {
         this.eventStream.push({
-          type: 'outer_loop_start',
+          type: "outer_loop_start",
           turn: outerTurn,
-          sessionId: session.id
+          sessionId: session.id,
         });
 
         // 内层循环
-        for (let innerTurn = 0; innerTurn < this.config.maxInnerTurns; innerTurn++) {
+        for (
+          let innerTurn = 0;
+          innerTurn < this.config.maxInnerTurns;
+          innerTurn++
+        ) {
           const innerEvent = {
-            type: 'inner_loop_start',
+            type: "inner_loop_start",
             outerTurn,
             innerTurn,
-            sessionId: session.id
+            sessionId: session.id,
           };
           this.eventStream.push(innerEvent);
 
@@ -142,9 +157,9 @@ class SoulEngine {
           // 检查是否完成
           if (result.done) {
             this.eventStream.push({
-              type: 'task_complete',
+              type: "task_complete",
               sessionId: session.id,
-              result: result.output
+              result: result.output,
             });
             return result;
           }
@@ -153,12 +168,11 @@ class SoulEngine {
           context = { ...context, ...result.context };
         }
       }
-
     } catch (error) {
       this.eventStream.push({
-        type: 'error',
+        type: "error",
         sessionId: session.id,
-        error: error.message
+        error: error.message,
       });
       throw error;
     } finally {
@@ -183,41 +197,40 @@ class SoulEngine {
     for (const skill of relevantSkills) {
       try {
         this.eventStream.push({
-          type: 'skill_execution_start',
+          type: "skill_execution_start",
           skillName: skill.name,
-          sessionId: session.id
+          sessionId: session.id,
         });
 
         const result = await skill.execute(task, context, {
           memory: this.memory,
-          eventStream: this.eventStream
+          eventStream: this.eventStream,
         });
 
         results.push({
           skill: skill.name,
           success: true,
-          result
+          result,
         });
 
         this.eventStream.push({
-          type: 'skill_execution_complete',
+          type: "skill_execution_complete",
           skillName: skill.name,
           sessionId: session.id,
-          result
+          result,
         });
-
       } catch (error) {
         results.push({
           skill: skill.name,
           success: false,
-          error: error.message
+          error: error.message,
         });
 
         this.eventStream.push({
-          type: 'skill_execution_error',
+          type: "skill_execution_error",
           skillName: skill.name,
           sessionId: session.id,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -230,21 +243,23 @@ class SoulEngine {
    * 整合技能执行结果
    */
   aggregateResults(results) {
-    const successful = results.filter(r => r.success);
-    const failed = results.filter(r => !r.success);
+    const successful = results.filter((r) => r.success);
+    const failed = results.filter((r) => !r.success);
 
     // 检查是否有技能标记任务完成
-    const done = successful.some(r => r.result?.done);
+    const done = successful.some((r) => r.result?.done);
 
     // 收集输出
     const output = successful
-      .map(r => r.result?.output)
-      .filter(o => o)
-      .join('\n\n');
+      .map((r) => r.result?.output)
+      .filter((o) => o)
+      .join("\n\n");
 
     // 收集上下文更新
-    const context = successful
-      .reduce((acc, r) => ({ ...acc, ...r.result?.context }), {});
+    const context = successful.reduce(
+      (acc, r) => ({ ...acc, ...r.result?.context }),
+      {},
+    );
 
     return {
       done,
@@ -253,8 +268,8 @@ class SoulEngine {
       summary: {
         total: results.length,
         successful: successful.length,
-        failed: failed.length
-      }
+        failed: failed.length,
+      },
     };
   }
 
@@ -264,23 +279,22 @@ class SoulEngine {
    * 定期主动执行进化任务
    */
   startHeartbeat() {
-    console.log('💓 Starting Heartbeat...');
+    console.log("💓 Starting Heartbeat...");
 
     const beat = async () => {
       try {
-        this.eventStream.push({ type: 'heartbeat_start' });
+        this.eventStream.push({ type: "heartbeat_start" });
 
         // 执行进化任务
         await this.runEvolutionTasks();
 
-        this.eventStream.push({ type: 'heartbeat_complete' });
-
+        this.eventStream.push({ type: "heartbeat_complete" });
       } catch (error) {
         this.eventStream.push({
-          type: 'heartbeat_error',
-          error: error.message
+          type: "heartbeat_error",
+          error: error.message,
         });
-        console.error('Heartbeat error:', error);
+        console.error("Heartbeat error:", error);
       }
     };
 
@@ -295,24 +309,32 @@ class SoulEngine {
    * 运行进化任务
    */
   async runEvolutionTasks() {
-    console.log('\n🧬 Running evolution tasks...');
+    console.log("\n🧬 Running evolution tasks...");
 
     // 1. 反思最近的学习
-    const reflectionSkill = this.skillLoader.getSkill('soul-reflection');
+    const reflectionSkill = this.skillLoader.getSkill("soul-reflection");
     if (reflectionSkill) {
-      await reflectionSkill.execute('reflect', {}, {
-        memory: this.memory,
-        eventStream: this.eventStream
-      });
+      await reflectionSkill.execute(
+        "reflect",
+        {},
+        {
+          memory: this.memory,
+          eventStream: this.eventStream,
+        },
+      );
     }
 
     // 2. 学习新技能
-    const evolveSkill = this.skillLoader.getSkill('soul-auto-evolve');
+    const evolveSkill = this.skillLoader.getSkill("soul-auto-evolve");
     if (evolveSkill) {
-      await evolveSkill.execute('learn', {}, {
-        memory: this.memory,
-        eventStream: this.eventStream
-      });
+      await evolveSkill.execute(
+        "learn",
+        {},
+        {
+          memory: this.memory,
+          eventStream: this.eventStream,
+        },
+      );
     }
 
     // 3. 清理和优化
@@ -323,7 +345,7 @@ class SoulEngine {
    * 停止引擎
    */
   async stop() {
-    console.log('\n🛑 Stopping Soul Engine...');
+    console.log("\n🛑 Stopping Soul Engine...");
 
     this.isRunning = false;
 
@@ -333,9 +355,9 @@ class SoulEngine {
     }
 
     // 保存事件流
-    await this.eventStream.save(path.join(this.soulStateDir, 'evolution'));
+    await this.eventStream.save(path.join(this.soulStateDir, "evolution"));
 
-    console.log('✅ Soul Engine stopped');
+    console.log("✅ Soul Engine stopped");
   }
 
   /**
@@ -353,8 +375,8 @@ class SoulEngine {
  */
 class MemoryStore {
   constructor(baseDir, options = {}) {
-    this.memoryDir = path.join(baseDir, 'memory');
-    this.sessionsFile = path.join(this.memoryDir, 'sessions.jsonl');
+    this.memoryDir = path.join(baseDir, "memory");
+    this.sessionsFile = path.join(this.memoryDir, "sessions.jsonl");
     this.verbose = options.verbose || false;
 
     // 内存缓存 - 优化频繁读取
@@ -376,10 +398,10 @@ class MemoryStore {
   async storeSession(session) {
     const entry = {
       timestamp: Date.now(),
-      session
+      session,
     };
 
-    const line = JSON.stringify(entry) + '\n';
+    const line = JSON.stringify(entry) + "\n";
     await fs.promises.appendFile(this.sessionsFile, line);
 
     // 更新缓存
@@ -420,8 +442,8 @@ class MemoryStore {
 
     try {
       // 使用 readline 逐行读取，避免全量加载
-      const content = await fs.promises.readFile(this.sessionsFile, 'utf-8');
-      const lines = content.trim().split('\n');
+      const content = await fs.promises.readFile(this.sessionsFile, "utf-8");
+      const lines = content.trim().split("\n");
 
       // 从最新的记录开始读取（倒序）
       for (let i = lines.length - 1; i >= 0 && sessions.length < limit; i--) {
@@ -434,11 +456,10 @@ class MemoryStore {
           // 忽略解析错误，继续处理
         }
       }
-
     } catch (error) {
       // 文件不存在是正常情况
-      if (error.code !== 'ENOENT') {
-        console.error('Error retrieving memories:', error);
+      if (error.code !== "ENOENT") {
+        console.error("Error retrieving memories:", error);
       }
     }
 
@@ -453,11 +474,14 @@ class MemoryStore {
   isRelevant(session, query) {
     if (!query) return true; // 空查询返回所有
 
-    const queryTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-    const taskLower = session.task?.toLowerCase() || '';
+    const queryTerms = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length > 0);
+    const taskLower = session.task?.toLowerCase() || "";
 
     // 所有关键词都需要匹配
-    return queryTerms.every(term => taskLower.includes(term));
+    return queryTerms.every((term) => taskLower.includes(term));
   }
 
   /**
@@ -465,12 +489,13 @@ class MemoryStore {
    *
    * 实现时间衰减清理策略
    */
-  async cleanup(maxAgeMs = 30 * 24 * 60 * 60 * 1000) { // 默认30天
+  async cleanup(maxAgeMs = 30 * 24 * 60 * 60 * 1000) {
+    // 默认30天
     const cutoffTime = Date.now() - maxAgeMs;
 
     try {
-      const content = await fs.promises.readFile(this.sessionsFile, 'utf-8');
-      const lines = content.trim().split('\n');
+      const content = await fs.promises.readFile(this.sessionsFile, "utf-8");
+      const lines = content.trim().split("\n");
       const validLines = [];
 
       let cleanedCount = 0;
@@ -489,7 +514,10 @@ class MemoryStore {
       }
 
       // 重写文件
-      await fs.promises.writeFile(this.sessionsFile, validLines.join('\n') + '\n');
+      await fs.promises.writeFile(
+        this.sessionsFile,
+        validLines.join("\n") + "\n",
+      );
 
       // 清理缓存
       for (const [id, entry] of this.cache) {
@@ -501,10 +529,9 @@ class MemoryStore {
       if (this.verbose && cleanedCount > 0) {
         console.log(`🧹 Cleaned ${cleanedCount} old memory entries`);
       }
-
     } catch (error) {
-      if (error.code !== 'ENOENT') {
-        console.error('Error cleaning up memories:', error);
+      if (error.code !== "ENOENT") {
+        console.error("Error cleaning up memories:", error);
       }
     }
   }
@@ -518,7 +545,7 @@ class MemoryStore {
 class SkillLoader {
   constructor(stigmergyDir, options = {}) {
     this.stigmergyDir = stigmergyDir;
-    this.skillsDir = path.join(stigmergyDir, 'skills');
+    this.skillsDir = path.join(stigmergyDir, "skills");
     this.skills = new Map();
     this.verbose = options.verbose || false;
   }
@@ -527,7 +554,7 @@ class SkillLoader {
    * 加载所有技能
    */
   async loadAllSkills() {
-    console.log('\n📚 Loading Soul skills...');
+    console.log("\n📚 Loading Soul skills...");
 
     // 加载内置技能
     await this.loadBuiltinSkills();
@@ -545,13 +572,13 @@ class SkillLoader {
     // 找到项目根目录（向上查找 package.json）
     let rootDir = __dirname;
     while (rootDir !== path.dirname(rootDir)) {
-      if (fs.existsSync(path.join(rootDir, 'package.json'))) {
+      if (fs.existsSync(path.join(rootDir, "package.json"))) {
         break;
       }
       rootDir = path.dirname(rootDir);
     }
 
-    const builtinSkillsPath = path.join(rootDir, 'skills');
+    const builtinSkillsPath = path.join(rootDir, "skills");
 
     // 调试信息
     if (this.verbose || process.env.DEBUG) {
@@ -562,41 +589,42 @@ class SkillLoader {
 
       if (fs.existsSync(builtinSkillsPath)) {
         const files = fs.readdirSync(builtinSkillsPath);
-        console.log(`[DEBUG] Files in skills dir: ${files.filter(f => f.endsWith('.js')).join(', ')}`);
+        console.log(
+          `[DEBUG] Files in skills dir: ${files.filter((f) => f.endsWith(".js")).join(", ")}`,
+        );
       }
     }
 
     // 加载 soul-reflection
-    await this.loadSkill('soul-reflection', builtinSkillsPath);
+    await this.loadSkill("soul-reflection", builtinSkillsPath);
 
     // 加载 soul-auto-evolve
-    await this.loadSkill('soul-auto-evolve', builtinSkillsPath);
+    await this.loadSkill("soul-auto-evolve", builtinSkillsPath);
 
     // 加载新的可执行技能
-    await this.loadSkill('soul-auto-search', builtinSkillsPath);
-    await this.loadSkill('soul-auto-compute', builtinSkillsPath);
+    await this.loadSkill("soul-auto-search", builtinSkillsPath);
+    await this.loadSkill("soul-auto-compute", builtinSkillsPath);
   }
 
   /**
    * 加载用户技能
    */
   async loadUserSkills() {
-    const userSkillsDir = path.join(this.skillsDir, 'user');
+    const userSkillsDir = path.join(this.skillsDir, "user");
 
     try {
       const files = await fs.promises.readdir(userSkillsDir);
 
       for (const file of files) {
-        if (file.endsWith('.js')) {
-          const skillName = path.basename(file, '.js');
+        if (file.endsWith(".js")) {
+          const skillName = path.basename(file, ".js");
           await this.loadSkill(skillName, userSkillsDir);
         }
       }
-
     } catch (error) {
       // 目录不存在是正常情况
-      if (error.code !== 'ENOENT') {
-        console.error('Error loading user skills:', error);
+      if (error.code !== "ENOENT") {
+        console.error("Error loading user skills:", error);
       }
     }
   }
@@ -606,7 +634,7 @@ class SkillLoader {
    */
   async loadSkill(skillName, skillsDir) {
     try {
-      const skillPath = path.join(skillsDir, skillName + '.js');
+      const skillPath = path.join(skillsDir, skillName + ".js");
 
       if (!fs.existsSync(skillPath)) {
         console.log(`⚠️  Skill not found: ${skillName}`);
@@ -620,7 +648,6 @@ class SkillLoader {
       this.skills.set(skillName, skill);
 
       console.log(`✅ Loaded skill: ${skillName}`);
-
     } catch (error) {
       console.error(`❌ Error loading skill ${skillName}:`, error.message);
     }
@@ -667,7 +694,7 @@ class EventStream {
     this.events.push({
       ...event,
       id: this.generateEventId(),
-      timestamp: event.timestamp || Date.now()
+      timestamp: event.timestamp || Date.now(),
     });
 
     // 通知监听器
@@ -713,10 +740,10 @@ class EventStream {
   async save(outputDir) {
     await fs.promises.mkdir(outputDir, { recursive: true });
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const outputFile = path.join(outputDir, `events_${timestamp}.jsonl`);
 
-    const lines = this.events.map(e => JSON.stringify(e)).join('\n');
+    const lines = this.events.map((e) => JSON.stringify(e)).join("\n");
     await fs.promises.writeFile(outputFile, lines);
 
     console.log(`💾 Event stream saved: ${outputFile}`);
@@ -727,5 +754,5 @@ module.exports = {
   SoulEngine,
   MemoryStore,
   SkillLoader,
-  EventStream
+  EventStream,
 };

@@ -1,7 +1,7 @@
 // src/core/coordination/nodejs/AdapterManager.js
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
 class AdapterManager {
   constructor() {
@@ -10,7 +10,7 @@ class AdapterManager {
     const primaryAdapterPath = this.findAdaptersPath();
     this.discoveryPaths = [
       primaryAdapterPath,
-      path.join(os.homedir(), '.stigmergy', 'adapters'),
+      path.join(os.homedir(), ".stigmergy", "adapters"),
     ];
   }
 
@@ -20,33 +20,37 @@ class AdapterManager {
   findAdaptersPath() {
     const possiblePaths = [
       // Standard path: src/core/coordination/nodejs/../../../adapters => src/adapters
-      path.join(__dirname, '..', '..', '..', 'adapters'),
+      path.join(__dirname, "..", "..", "..", "adapters"),
       // Fallback path in case of different module resolution
-      path.resolve(__dirname, '..', '..', '..', 'adapters'),
+      path.resolve(__dirname, "..", "..", "..", "adapters"),
       // Alternative approach: go to project root and then to adapters
-      path.join(__dirname, '..', '..', '..', '..', 'adapters')
+      path.join(__dirname, "..", "..", "..", "..", "adapters"),
     ];
 
     for (const possiblePath of possiblePaths) {
       if (fs.existsSync(possiblePath)) {
-        console.log(`[DEBUG] AdapterManager found adapters at: ${possiblePath}`);
+        console.log(
+          `[DEBUG] AdapterManager found adapters at: ${possiblePath}`,
+        );
         return possiblePath;
       }
     }
 
     // If none of the paths work, use the standard path as fallback (might not exist)
-    const fallbackPath = path.join(__dirname, '..', '..', '..', 'adapters');
-    console.log(`[DEBUG] AdapterManager using fallback adapters path (may not exist): ${fallbackPath}`);
+    const fallbackPath = path.join(__dirname, "..", "..", "..", "adapters");
+    console.log(
+      `[DEBUG] AdapterManager using fallback adapters path (may not exist): ${fallbackPath}`,
+    );
     return fallbackPath;
   }
 
   async initialize() {
-    console.log('[ADAPTER_MANAGER] Initializing adapter manager...');
+    console.log("[ADAPTER_MANAGER] Initializing adapter manager...");
     await this.discoverAdapters();
   }
 
   async discoverAdapters() {
-    console.log('[ADAPTER_MANAGER] Discovering adapters...');
+    console.log("[ADAPTER_MANAGER] Discovering adapters...");
 
     for (const basePath of this.discoveryPaths) {
       if (fs.existsSync(basePath)) {
@@ -78,7 +82,7 @@ class AdapterManager {
   }
 
   async loadAdapter(adapterName, basePath) {
-    const adapterPath = path.join(basePath, adapterName, 'index.js');
+    const adapterPath = path.join(basePath, adapterName, "index.js");
 
     if (fs.existsSync(adapterPath)) {
       try {
@@ -87,7 +91,7 @@ class AdapterManager {
           name: adapterName,
           path: adapterPath,
           available: true,
-          version: '1.0.0-nodejs',
+          version: "1.0.0-nodejs",
           isAvailable: async () => true,
           executeTask: async (task, context) => {
             // Simple task execution simulation
@@ -120,7 +124,7 @@ class AdapterManager {
       adapterList.push({
         name,
         available: await adapter.isAvailable(),
-        version: adapter.version || 'unknown',
+        version: adapter.version || "unknown",
       });
     }
     return adapterList;

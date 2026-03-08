@@ -6,14 +6,14 @@
  * License: Apache 2.0
  */
 
-import { SkillReader } from "./embedded-openskills/SkillReader.js";
-import { SkillInstaller } from "./embedded-openskills/SkillInstaller.js";
-import { SkillParser } from "./embedded-openskills/SkillParser.js";
-import fs from "fs/promises";
-import path from "path";
-import os from "os";
+const { SkillReader } = require("./embedded-openskills/SkillReader");
+const { SkillInstaller } = require("./embedded-openskills/SkillInstaller");
+const { SkillParser } = require("./embedded-openskills/SkillParser");
+const fs = require("fs/promises");
+const path = require("path");
+const os = require("os");
 
-export class StigmergySkillManager {
+class StigmergySkillManager {
   constructor(options = {}) {
     this.skillsDir =
       options.skillsDir || path.join(os.homedir(), ".stigmergy/skills");
@@ -132,9 +132,7 @@ export class StigmergySkillManager {
       // Refresh the LocalSkillScanner cache
       try {
         // Import LocalSkillScanner (it's a CommonJS module)
-        const { createRequire } = await import("module");
-        const require = createRequire(import.meta.url);
-        const LocalSkillScanner = require("./local_skill_scanner.js");
+        const LocalSkillScanner = require("./local_skill_scanner");
 
         const scanner = new LocalSkillScanner();
         await scanner.initialize(true); // Force refresh
@@ -222,8 +220,6 @@ export class StigmergySkillManager {
    * @returns {Promise<Object>} Copy results
    */
   async syncSkillFiles(skills) {
-    const fsPromises = await import("fs/promises");
-
     // Define CLI skill directories
     const cliSkillDirs = [
       { name: "Claude", path: path.join(os.homedir(), ".claude", "skills") },
@@ -265,7 +261,7 @@ export class StigmergySkillManager {
     for (const cliDir of cliSkillDirs) {
       try {
         // Ensure CLI directory exists
-        await fsPromises.mkdir(cliDir.path, { recursive: true });
+        await fs.mkdir(cliDir.path, { recursive: true });
 
         // Copy each skill
         for (const skill of skills) {
@@ -275,10 +271,10 @@ export class StigmergySkillManager {
 
           try {
             // Check if source exists
-            await fsPromises.access(sourceDir);
+            await fs.access(sourceDir);
 
             // Remove existing if present
-            await fsPromises.rm(targetDir, { recursive: true, force: true });
+            await fs.rm(targetDir, { recursive: true, force: true });
 
             // Copy directory
             await this.copyDirectoryRecursive(sourceDir, targetDir);
@@ -310,10 +306,8 @@ export class StigmergySkillManager {
    * @param {string} dest - Destination directory
    */
   async copyDirectoryRecursive(src, dest) {
-    const fsPromises = await import("fs/promises");
-
-    await fsPromises.mkdir(dest, { recursive: true });
-    const entries = await fsPromises.readdir(src, { withFileTypes: true });
+    await fs.mkdir(dest, { recursive: true });
+    const entries = await fs.readdir(src, { withFileTypes: true });
 
     for (const entry of entries) {
       const srcPath = path.join(src, entry.name);
@@ -327,12 +321,12 @@ export class StigmergySkillManager {
 
         if (isTextFile) {
           // Read the file content and replace path variables
-          let content = await fsPromises.readFile(srcPath, "utf-8");
+          let content = await fs.readFile(srcPath, "utf-8");
           content = this.replacePathVariables(content);
-          await fsPromises.writeFile(destPath, content, "utf-8");
+          await fs.writeFile(destPath, content, "utf-8");
         } else {
           // Copy binary files as-is
-          await fsPromises.copyFile(srcPath, destPath);
+          await fs.copyFile(srcPath, destPath);
         }
       }
     }
@@ -558,3 +552,5 @@ export class StigmergySkillManager {
       .replace(/'/g, "&apos;");
   }
 }
+
+module.exports = { StigmergySkillManager };

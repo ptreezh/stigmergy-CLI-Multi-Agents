@@ -3,13 +3,13 @@
  * Automatically deploys stigmergy built-in skills during installation
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
 class BuiltinSkillsDeployer {
   constructor() {
-    this.configPath = path.join(process.cwd(), 'config', 'builtin-skills.json');
+    this.configPath = path.join(process.cwd(), "config", "builtin-skills.json");
     this.skillsBaseDir = process.cwd();
   }
 
@@ -19,14 +19,17 @@ class BuiltinSkillsDeployer {
   loadConfig() {
     try {
       if (!fs.existsSync(this.configPath)) {
-        console.warn('[BUILTIN_SKILLS] No built-in skills configuration found');
+        console.warn("[BUILTIN_SKILLS] No built-in skills configuration found");
         return null;
       }
 
-      const content = fs.readFileSync(this.configPath, 'utf8');
+      const content = fs.readFileSync(this.configPath, "utf8");
       return JSON.parse(content);
     } catch (error) {
-      console.error('[BUILTIN_SKILLS] Failed to load configuration:', error.message);
+      console.error(
+        "[BUILTIN_SKILLS] Failed to load configuration:",
+        error.message,
+      );
       return null;
     }
   }
@@ -37,10 +40,15 @@ class BuiltinSkillsDeployer {
   async deployAll() {
     const config = this.loadConfig();
     if (!config) {
-      return { success: false, message: 'No built-in skills configuration found' };
+      return {
+        success: false,
+        message: "No built-in skills configuration found",
+      };
     }
 
-    console.log(`[BUILTIN_SKILLS] Found ${config.skills.length} built-in skill(s)`);
+    console.log(
+      `[BUILTIN_SKILLS] Found ${config.skills.length} built-in skill(s)`,
+    );
 
     const results = [];
     for (const skill of config.skills) {
@@ -50,8 +58,10 @@ class BuiltinSkillsDeployer {
       }
     }
 
-    const successCount = results.filter(r => r.success).length;
-    console.log(`[BUILTIN_SKILLS] Deployed ${successCount}/${results.length} skill(s)`);
+    const successCount = results.filter((r) => r.success).length;
+    console.log(
+      `[BUILTIN_SKILLS] Deployed ${successCount}/${results.length} skill(s)`,
+    );
 
     return { success: true, results };
   }
@@ -68,13 +78,13 @@ class BuiltinSkillsDeployer {
       results.push(result);
     }
 
-    const successCount = results.filter(r => r.success).length;
+    const successCount = results.filter((r) => r.success).length;
     return {
       success: successCount === results.length,
       skillName: skill.name,
       targetCLIs: targetCLIs,
       deployedCount: successCount,
-      results
+      results,
     };
   }
 
@@ -87,18 +97,33 @@ class BuiltinSkillsDeployer {
 
       // Check if CLI exists
       if (!fs.existsSync(cliHomeDir)) {
-        console.warn(`[BUILTIN_SKILLS] CLI not found: ${cliName} (${cliHomeDir})`);
-        return { success: false, cliName, skillName: skill.name, error: 'CLI not installed' };
+        console.warn(
+          `[BUILTIN_SKILLS] CLI not found: ${cliName} (${cliHomeDir})`,
+        );
+        return {
+          success: false,
+          cliName,
+          skillName: skill.name,
+          error: "CLI not installed",
+        };
       }
 
       // Ensure skills directory exists
-      const cliSkillsRootDir = path.join(cliHomeDir, 'skills');
+      const cliSkillsRootDir = path.join(cliHomeDir, "skills");
       if (!fs.existsSync(cliSkillsRootDir)) {
         try {
           fs.mkdirSync(cliSkillsRootDir, { recursive: true });
         } catch (error) {
-          console.error(`[BUILTIN_SKILLS] Failed to create skills root directory for ${cliName}:`, error.message);
-          return { success: false, cliName, skillName: skill.name, error: error.message };
+          console.error(
+            `[BUILTIN_SKILLS] Failed to create skills root directory for ${cliName}:`,
+            error.message,
+          );
+          return {
+            success: false,
+            cliName,
+            skillName: skill.name,
+            error: error.message,
+          };
         }
       }
 
@@ -109,8 +134,16 @@ class BuiltinSkillsDeployer {
         try {
           fs.mkdirSync(cliSkillsDir, { recursive: true });
         } catch (error) {
-          console.error(`[BUILTIN_SKILLS] Failed to create skills directory for ${cliName}:`, error.message);
-          return { success: false, cliName, skillName: skill.name, error: error.message };
+          console.error(
+            `[BUILTIN_SKILLS] Failed to create skills directory for ${cliName}:`,
+            error.message,
+          );
+          return {
+            success: false,
+            cliName,
+            skillName: skill.name,
+            error: error.message,
+          };
         }
       }
 
@@ -121,7 +154,10 @@ class BuiltinSkillsDeployer {
       const files = skill.deployment.files || [];
       for (const file of files) {
         const sourcePath = path.join(this.skillsBaseDir, file.source);
-        const destPath = path.join(cliSkillsDir, path.basename(file.destination));
+        const destPath = path.join(
+          cliSkillsDir,
+          path.basename(file.destination),
+        );
 
         if (!fs.existsSync(sourcePath)) {
           console.warn(`[BUILTIN_SKILLS] Source file not found: ${sourcePath}`);
@@ -129,21 +165,37 @@ class BuiltinSkillsDeployer {
         }
 
         try {
-          let content = fs.readFileSync(sourcePath, 'utf8');
+          let content = fs.readFileSync(sourcePath, "utf8");
           // Replace placeholders with actual paths
           content = content.replace(/\{stigmergy_path\}/g, stigmergyPath);
           fs.writeFileSync(destPath, content);
           console.log(`[BUILTIN_SKILLS] Deployed ${file.source} to ${cliName}`);
         } catch (error) {
-          console.error(`[BUILTIN_SKILLS] Failed to copy ${file.source} to ${cliName}:`, error.message);
-          return { success: false, cliName, skillName: skill.name, error: error.message };
+          console.error(
+            `[BUILTIN_SKILLS] Failed to copy ${file.source} to ${cliName}:`,
+            error.message,
+          );
+          return {
+            success: false,
+            cliName,
+            skillName: skill.name,
+            error: error.message,
+          };
         }
       }
 
       return { success: true, cliName, skillName: skill.name };
     } catch (error) {
-      console.error(`[BUILTIN_SKILLS] Failed to deploy ${skill.name} to ${cliName}:`, error.message);
-      return { success: false, cliName, skillName: skill.name, error: error.message };
+      console.error(
+        `[BUILTIN_SKILLS] Failed to deploy ${skill.name} to ${cliName}:`,
+        error.message,
+      );
+      return {
+        success: false,
+        cliName,
+        skillName: skill.name,
+        error: error.message,
+      };
     }
   }
 
@@ -151,7 +203,12 @@ class BuiltinSkillsDeployer {
    * Check if a skill is deployed to a CLI
    */
   isDeployed(skillName, cliName) {
-    const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, 'skills', skillName);
+    const cliSkillsDir = path.join(
+      os.homedir(),
+      `.${cliName}`,
+      "skills",
+      skillName,
+    );
     return fs.existsSync(cliSkillsDir);
   }
 
@@ -170,7 +227,7 @@ class BuiltinSkillsDeployer {
         name: skill.name,
         displayName: skill.displayName,
         version: skill.version,
-        deployment: {}
+        deployment: {},
       };
 
       const targetCLIs = skill.deployment.targetCLIs || [];

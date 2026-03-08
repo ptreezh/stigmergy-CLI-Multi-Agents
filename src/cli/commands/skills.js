@@ -3,8 +3,8 @@
  * Modular implementation for all skill-related commands
  */
 
-const chalk = require('chalk');
-const { handleSkillCommand } = require('../../commands/skill-handler');
+const chalk = require("chalk");
+const { handleSkillCommand } = require("../../commands/skill-handler");
 
 /**
  * Handle main skill command with all subcommands
@@ -19,32 +19,36 @@ async function handleSkillMainCommand(subcommand, args = [], options = {}) {
     let skillArgs;
 
     switch (subcommand) {
-      case 'skill-i':
-        action = 'install';
+      case "skill-i":
+        action = "install";
         skillArgs = args;
         break;
-      case 'skill-l':
-        action = 'list';
+      case "skill-l":
+        action = "list";
         skillArgs = args;
         break;
-      case 'skill-v':
+      case "skill-v":
         // skill-v can be validate or read, based on parameters
-        action = args[0] && (args[0].endsWith('.md') || args[0].includes('/') || args[0].includes('\\'))
-          ? 'validate'
-          : 'read';
+        action =
+          args[0] &&
+          (args[0].endsWith(".md") ||
+            args[0].includes("/") ||
+            args[0].includes("\\"))
+            ? "validate"
+            : "read";
         skillArgs = args;
         break;
-      case 'skill-r':
-        action = 'read';
+      case "skill-r":
+        action = "read";
         skillArgs = args;
         break;
-      case 'skill-d':
-      case 'skill-m':
-        action = 'remove';
+      case "skill-d":
+      case "skill-m":
+        action = "remove";
         skillArgs = args;
         break;
       default:
-        action = subcommand || 'help';
+        action = subcommand || "help";
         skillArgs = args;
         break;
     }
@@ -52,7 +56,7 @@ async function handleSkillMainCommand(subcommand, args = [], options = {}) {
     const exitCode = await handleSkillCommand(action, skillArgs, {
       verbose: options.verbose || false,
       force: options.force || false,
-      autoSync: !options.noAutoSync
+      autoSync: !options.noAutoSync,
     });
 
     return { success: exitCode === 0, exitCode };
@@ -68,7 +72,7 @@ async function handleSkillMainCommand(subcommand, args = [], options = {}) {
  * @param {Object} options - Options
  */
 async function handleSkillInstallCommand(args = [], options = {}) {
-  return await handleSkillMainCommand('install', args, options);
+  return await handleSkillMainCommand("install", args, options);
 }
 
 /**
@@ -77,7 +81,7 @@ async function handleSkillInstallCommand(args = [], options = {}) {
  * @param {Object} options - Options
  */
 async function handleSkillListCommand(args = [], options = {}) {
-  return await handleSkillMainCommand('list', args, options);
+  return await handleSkillMainCommand("list", args, options);
 }
 
 /**
@@ -86,7 +90,7 @@ async function handleSkillListCommand(args = [], options = {}) {
  * @param {Object} options - Options
  */
 async function handleSkillReadCommand(args = [], options = {}) {
-  return await handleSkillMainCommand('read', args, options);
+  return await handleSkillMainCommand("read", args, options);
 }
 
 /**
@@ -95,7 +99,7 @@ async function handleSkillReadCommand(args = [], options = {}) {
  * @param {Object} options - Options
  */
 async function handleSkillValidateCommand(args = [], options = {}) {
-  return await handleSkillMainCommand('validate', args, options);
+  return await handleSkillMainCommand("validate", args, options);
 }
 
 /**
@@ -104,14 +108,15 @@ async function handleSkillValidateCommand(args = [], options = {}) {
  * @param {Object} options - Options
  */
 async function handleSkillRemoveCommand(args = [], options = {}) {
-  return await handleSkillMainCommand('remove', args, options);
+  return await handleSkillMainCommand("remove", args, options);
 }
 
 /**
  * Print skills help information
  */
 function printSkillsHelp() {
-  console.log(chalk.cyan(`
+  console.log(
+    chalk.cyan(`
 🎯 Stigmergy Skills Management System
 
 📋 Available Commands:
@@ -144,7 +149,8 @@ function printSkillsHelp() {
 📚 More Information:
   Skills extend CLI tool capabilities with specialized workflows and tools.
   Each skill contains instructions for specific tasks and integrations.
-  `));
+  `),
+  );
 }
 
 module.exports = {
@@ -154,5 +160,5 @@ module.exports = {
   handleSkillReadCommand,
   handleSkillValidateCommand,
   handleSkillRemoveCommand,
-  printSkillsHelp
+  printSkillsHelp,
 };

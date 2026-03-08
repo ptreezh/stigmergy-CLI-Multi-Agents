@@ -297,7 +297,7 @@ class SoulSkillEvolver {
     }
 
     // 降级到DuckDuckGo
-    console.log(`[SoulSkillEvolver] Falling back to DuckDuckGo...`);
+    console.log("[SoulSkillEvolver] Falling back to DuckDuckGo...");
     return this._duckDuckGoSearch(query, numResults);
   }
 
@@ -310,7 +310,7 @@ class SoulSkillEvolver {
 
     if (!apiKey) {
       console.log(
-        `[SoulSkillEvolver] Tavily API key not found, set TAVILY_API_KEY env var`,
+        "[SoulSkillEvolver] Tavily API key not found, set TAVILY_API_KEY env var",
       );
       return null;
     }

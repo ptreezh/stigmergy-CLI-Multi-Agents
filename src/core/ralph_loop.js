@@ -20,7 +20,8 @@ const os = require("os");
 class RalphLoop {
   constructor(options = {}) {
     this.cli = options.cli || "claude";
-    this.ralphRoot = options.ralphRoot || path.join(os.homedir(), ".stigmergy", "ralph");
+    this.ralphRoot =
+      options.ralphRoot || path.join(os.homedir(), ".stigmergy", "ralph");
     this.cliPath = options.cliPath || this.cli;
     this.maxIterations = options.maxIterations || 10;
     this.completionPromise = options.completionPromise || null;
@@ -246,7 +247,9 @@ class RalphLoop {
    */
   async runIteration() {
     this.currentIteration++;
-    this.log(`=== Iteration ${this.currentIteration}/${this.maxIterations} ===`);
+    this.log(
+      `=== Iteration ${this.currentIteration}/${this.maxIterations} ===`,
+    );
 
     const task = this.getNextTask();
     if (!task) {
@@ -254,7 +257,9 @@ class RalphLoop {
       return { done: true, reason: "all_complete" };
     }
 
-    this.appendProgress(`Iteration ${this.currentIteration}: Working on "${task.title}"`);
+    this.appendProgress(
+      `Iteration ${this.currentIteration}: Working on "${task.title}"`,
+    );
 
     try {
       const result = await this.executeTask(task);
@@ -266,7 +271,9 @@ class RalphLoop {
         this.appendProgress(`✓ Completed: ${task.title}`);
         this.log(`✓ Task completed: ${task.title}`);
       } else {
-        this.appendProgress(`✗ Failed: ${task.title} (exit code: ${result.code})`);
+        this.appendProgress(
+          `✗ Failed: ${task.title} (exit code: ${result.code})`,
+        );
         this.log(`✗ Task failed: ${task.title}`);
       }
 

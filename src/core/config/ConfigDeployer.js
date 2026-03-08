@@ -8,14 +8,15 @@
  * 3. 部署 agents 和 skills 到目标 CLI 工具的全局配置目录
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const chalk = require('chalk');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
+const chalk = require("chalk");
 
 class ConfigDeployer {
   constructor(options = {}) {
-    this.packageDir = options.packageDir || path.join(__dirname, '../../../config/bundle');
+    this.packageDir =
+      options.packageDir || path.join(__dirname, "../../../config/bundle");
     this.force = options.force || false;
     this.verbose = options.verbose || false;
     this.dryRun = options.dryRun || false;
@@ -25,13 +26,15 @@ class ConfigDeployer {
    * 读取打包的配置
    */
   async loadConfigBundle() {
-    const bundlePath = path.join(this.packageDir, 'config-bundle.json');
+    const bundlePath = path.join(this.packageDir, "config-bundle.json");
 
     try {
-      const content = await fs.readFile(bundlePath, 'utf8');
+      const content = await fs.readFile(bundlePath, "utf8");
       return JSON.parse(content);
     } catch (error) {
-      console.error(chalk.red(`[ERROR] Failed to load config bundle: ${error.message}`));
+      console.error(
+        chalk.red(`[ERROR] Failed to load config bundle: ${error.message}`),
+      );
       return null;
     }
   }
@@ -40,13 +43,17 @@ class ConfigDeployer {
    * 读取部署清单
    */
   async loadManifest() {
-    const manifestPath = path.join(this.packageDir, 'deployment-manifest.json');
+    const manifestPath = path.join(this.packageDir, "deployment-manifest.json");
 
     try {
-      const content = await fs.readFile(manifestPath, 'utf8');
+      const content = await fs.readFile(manifestPath, "utf8");
       return JSON.parse(content);
     } catch (error) {
-      console.error(chalk.red(`[ERROR] Failed to load deployment manifest: ${error.message}`));
+      console.error(
+        chalk.red(
+          `[ERROR] Failed to load deployment manifest: ${error.message}`,
+        ),
+      );
       return null;
     }
   }
@@ -67,7 +74,11 @@ class ConfigDeployer {
       }
       return true;
     } catch (error) {
-      console.error(chalk.red(`  [ERROR] Failed to create directory ${dirPath}: ${error.message}`));
+      console.error(
+        chalk.red(
+          `  [ERROR] Failed to create directory ${dirPath}: ${error.message}`,
+        ),
+      );
       return false;
     }
   }
@@ -77,7 +88,11 @@ class ConfigDeployer {
    */
   async writeFile(targetPath, content) {
     if (this.dryRun) {
-      console.log(chalk.gray(`  [DRY RUN] Would write file: ${targetPath} (${content.length} bytes)`));
+      console.log(
+        chalk.gray(
+          `  [DRY RUN] Would write file: ${targetPath} (${content.length} bytes)`,
+        ),
+      );
       return true;
     }
 
@@ -100,13 +115,15 @@ class ConfigDeployer {
       await this.ensureDirectory(dirPath);
 
       // 写入文件
-      await fs.writeFile(targetPath, content, 'utf8');
+      await fs.writeFile(targetPath, content, "utf8");
       if (this.verbose) {
         console.log(chalk.green(`  Wrote: ${targetPath}`));
       }
       return true;
     } catch (error) {
-      console.error(chalk.red(`  [ERROR] Failed to write ${targetPath}: ${error.message}`));
+      console.error(
+        chalk.red(`  [ERROR] Failed to write ${targetPath}: ${error.message}`),
+      );
       return false;
     }
   }
@@ -148,7 +165,11 @@ class ConfigDeployer {
       }
     }
 
-    console.log(chalk.gray(`    Results: ${successCount} written, ${skipCount} skipped, ${failCount} failed`));
+    console.log(
+      chalk.gray(
+        `    Results: ${successCount} written, ${skipCount} skipped, ${failCount} failed`,
+      ),
+    );
 
     return { successCount, skipCount, failCount };
   }
@@ -164,14 +185,16 @@ class ConfigDeployer {
     const targetBasePath = path.join(os.homedir(), `.${cliName}`);
     const targetPath = path.join(targetBasePath, markdownConfig.filename);
 
-    console.log(chalk.blue(`\n  Deploying ${cliName}/${markdownConfig.filename}...`));
+    console.log(
+      chalk.blue(`\n  Deploying ${cliName}/${markdownConfig.filename}...`),
+    );
 
     const success = await this.writeFile(targetPath, markdownConfig.content);
 
     return {
       successCount: success ? 1 : 0,
       skipCount: 0,
-      failCount: success ? 0 : 1
+      failCount: success ? 0 : 1,
     };
   }
 
@@ -185,35 +208,49 @@ class ConfigDeployer {
       agents: { successCount: 0, skipCount: 0, failCount: 0 },
       skills: { successCount: 0, skipCount: 0, failCount: 0 },
       markdown: { successCount: 0, skipCount: 0, failCount: 0 },
-      skillRegistration: { successCount: 0, skipCount: 0, failCount: 0 }
+      skillRegistration: { successCount: 0, skipCount: 0, failCount: 0 },
     };
 
     // 部署 agents
     if (cliConfig.agents.items.length > 0) {
-      results.agents = await this.deployConfigItem(cliName, 'agents', cliConfig.agents.items);
+      results.agents = await this.deployConfigItem(
+        cliName,
+        "agents",
+        cliConfig.agents.items,
+      );
     }
 
     // 部署 skills
     if (cliConfig.skills.items.length > 0) {
-      results.skills = await this.deployConfigItem(cliName, 'skills', cliConfig.skills.items);
+      results.skills = await this.deployConfigItem(
+        cliName,
+        "skills",
+        cliConfig.skills.items,
+      );
     }
 
     // 部署 markdown 配置文件
     if (cliConfig.markdown.exists) {
-      results.markdown = await this.deployMarkdownConfig(cliName, cliConfig.markdown);
+      results.markdown = await this.deployMarkdownConfig(
+        cliName,
+        cliConfig.markdown,
+      );
     }
 
     // 为支持的CLI自动注册skills到.md文档
     if (this.shouldRegisterSkillsInMD(cliName)) {
-      const skillNames = cliConfig.skills.items.map(item => {
+      const skillNames = cliConfig.skills.items.map((item) => {
         // 从路径中提取skill名称: skills/skill-name/skill.md -> skill-name
         // 同时支持 / 和 \\ 分隔符
         const parts = item.path.split(/[/\\]/);
-        return parts[parts.length - 2] || path.basename(item.path, '.md');
+        return parts[parts.length - 2] || path.basename(item.path, ".md");
       });
 
       if (skillNames.length > 0) {
-        results.skillRegistration = await this.registerSkillsInCLIDoc(cliName, skillNames);
+        results.skillRegistration = await this.registerSkillsInCLIDoc(
+          cliName,
+          skillNames,
+        );
       }
     }
 
@@ -225,7 +262,7 @@ class ConfigDeployer {
    * 根据测试结果，只有iflow, codebuddy, qwen支持此机制
    */
   shouldRegisterSkillsInMD(cliName) {
-    const supportedCLIs = ['iflow', 'codebuddy', 'qwen'];
+    const supportedCLIs = ["iflow", "codebuddy", "qwen"];
     return supportedCLIs.includes(cliName);
   }
 
@@ -245,10 +282,12 @@ class ConfigDeployer {
     const docPath = this.getCLIDocPath(cliName);
 
     try {
-      const content = await fs.readFile(docPath, 'utf8');
+      const content = await fs.readFile(docPath, "utf8");
       return { success: true, content, path: docPath };
     } catch (error) {
-      console.error(chalk.red(`  [ERROR] Failed to read ${cliName}.md: ${error.message}`));
+      console.error(
+        chalk.red(`  [ERROR] Failed to read ${cliName}.md: ${error.message}`),
+      );
       return { success: false, content: null, path: docPath };
     }
   }
@@ -258,12 +297,16 @@ class ConfigDeployer {
    * 如果 skills section 不存在，会自动创建
    */
   async registerSkillsInCLIDoc(cliName, skillNames) {
-    console.log(chalk.blue(`\n  Registering ${skillNames.length} skill(s) in ${cliName}.md...`));
+    console.log(
+      chalk.blue(
+        `\n  Registering ${skillNames.length} skill(s) in ${cliName}.md...`,
+      ),
+    );
 
     const results = {
       successCount: 0,
       skipCount: 0,
-      failCount: 0
+      failCount: 0,
     };
 
     // 读取.md文档
@@ -276,7 +319,7 @@ class ConfigDeployer {
     let updatedContent = content;
 
     // 检查是否存在 skills section
-    const hasSkillsSection = updatedContent.includes('</available_skills>');
+    const hasSkillsSection = updatedContent.includes("</available_skills>");
 
     // 如果不存在，创建完整的 skills section
     if (!hasSkillsSection) {
@@ -321,7 +364,9 @@ Base directory will be provided for resolving bundled resources.
       // 检查是否已经注册
       if (updatedContent.includes(`<name>${skillName}</name>`)) {
         if (this.verbose) {
-          console.log(chalk.yellow(`    Skipped: ${skillName} (already registered)`));
+          console.log(
+            chalk.yellow(`    Skipped: ${skillName} (already registered)`),
+          );
         }
         results.skipCount++;
         continue;
@@ -331,14 +376,21 @@ Base directory will be provided for resolving bundled resources.
       const skillEntry = this.createSkillEntry(skillName);
 
       // 在</available_skills>前添加
-      const endIndex = updatedContent.indexOf('</available_skills>');
+      const endIndex = updatedContent.indexOf("</available_skills>");
       if (endIndex === -1) {
-        console.error(chalk.red(`    [ERROR] </available_skills> tag not found in ${cliName}.md`));
+        console.error(
+          chalk.red(
+            `    [ERROR] </available_skills> tag not found in ${cliName}.md`,
+          ),
+        );
         results.failCount++;
         continue;
       }
 
-      updatedContent = updatedContent.slice(0, endIndex) + skillEntry + updatedContent.slice(endIndex);
+      updatedContent =
+        updatedContent.slice(0, endIndex) +
+        skillEntry +
+        updatedContent.slice(endIndex);
 
       if (this.verbose) {
         console.log(chalk.green(`    ✓ Registered: ${skillName}`));
@@ -352,24 +404,36 @@ Base directory will be provided for resolving bundled resources.
         console.log(chalk.gray(`  [DRY RUN] Would update ${docPath}`));
       } else {
         try {
-          await fs.writeFile(docPath, updatedContent, 'utf8');
+          await fs.writeFile(docPath, updatedContent, "utf8");
 
           if (!hasSkillsSection) {
-            console.log(chalk.green(`  ✓ Created skills section in ${cliName}.md`));
+            console.log(
+              chalk.green(`  ✓ Created skills section in ${cliName}.md`),
+            );
           }
 
           if (results.successCount > 0) {
-            console.log(chalk.green(`  ✓ Updated ${cliName}.md (${results.successCount} skill(s) registered)`));
+            console.log(
+              chalk.green(
+                `  ✓ Updated ${cliName}.md (${results.successCount} skill(s) registered)`,
+              ),
+            );
           }
         } catch (error) {
-          console.error(chalk.red(`  [ERROR] Failed to write ${docPath}: ${error.message}`));
+          console.error(
+            chalk.red(`  [ERROR] Failed to write ${docPath}: ${error.message}`),
+          );
           results.successCount = 0;
           results.failCount = results.successCount;
         }
       }
     }
 
-    console.log(chalk.gray(`    Results: ${results.successCount} registered, ${results.skipCount} skipped, ${results.failCount} failed`));
+    console.log(
+      chalk.gray(
+        `    Results: ${results.successCount} registered, ${results.skipCount} skipped, ${results.failCount} failed`,
+      ),
+    );
 
     return results;
   }
@@ -390,12 +454,16 @@ Base directory will be provided for resolving bundled resources.
    * 从.md文档中移除skill
    */
   async unregisterSkillsFromCLIDoc(cliName, skillNames) {
-    console.log(chalk.blue(`\n  Unregistering ${skillNames.length} skill(s) from ${cliName}.md...`));
+    console.log(
+      chalk.blue(
+        `\n  Unregistering ${skillNames.length} skill(s) from ${cliName}.md...`,
+      ),
+    );
 
     const results = {
       successCount: 0,
       skipCount: 0,
-      failCount: 0
+      failCount: 0,
     };
 
     // 读取.md文档
@@ -411,18 +479,27 @@ Base directory will be provided for resolving bundled resources.
       // 检查是否已注册
       if (!updatedContent.includes(`<name>${skillName}</name>`)) {
         if (this.verbose) {
-          console.log(chalk.yellow(`    Skipped: ${skillName} (not registered)`));
+          console.log(
+            chalk.yellow(`    Skipped: ${skillName} (not registered)`),
+          );
         }
         results.skipCount++;
         continue;
       }
 
       // 移除skill条目
-      const regex = new RegExp(`<skill>[\\s\\S]*?<name>${skillName}<\\/name>[\\s\\S]*?<\\/skill>`, 'g');
-      const newContent = updatedContent.replace(regex, '');
+      const regex = new RegExp(
+        `<skill>[\\s\\S]*?<name>${skillName}<\\/name>[\\s\\S]*?<\\/skill>`,
+        "g",
+      );
+      const newContent = updatedContent.replace(regex, "");
 
       if (newContent === updatedContent) {
-        console.error(chalk.red(`    [ERROR] Failed to remove ${skillName} from ${cliName}.md`));
+        console.error(
+          chalk.red(
+            `    [ERROR] Failed to remove ${skillName} from ${cliName}.md`,
+          ),
+        );
         results.failCount++;
         continue;
       }
@@ -441,17 +518,27 @@ Base directory will be provided for resolving bundled resources.
         console.log(chalk.gray(`  [DRY RUN] Would update ${docPath}`));
       } else {
         try {
-          await fs.writeFile(docPath, updatedContent, 'utf8');
-          console.log(chalk.green(`  ✓ Updated ${cliName}.md (${results.successCount} skill(s) unregistered)`));
+          await fs.writeFile(docPath, updatedContent, "utf8");
+          console.log(
+            chalk.green(
+              `  ✓ Updated ${cliName}.md (${results.successCount} skill(s) unregistered)`,
+            ),
+          );
         } catch (error) {
-          console.error(chalk.red(`  [ERROR] Failed to write ${docPath}: ${error.message}`));
+          console.error(
+            chalk.red(`  [ERROR] Failed to write ${docPath}: ${error.message}`),
+          );
           results.successCount = 0;
           results.failCount = results.successCount;
         }
       }
     }
 
-    console.log(chalk.gray(`    Results: ${results.successCount} unregistered, ${results.skipCount} skipped, ${results.failCount} failed`));
+    console.log(
+      chalk.gray(
+        `    Results: ${results.successCount} unregistered, ${results.skipCount} skipped, ${results.failCount} failed`,
+      ),
+    );
 
     return results;
   }
@@ -460,7 +547,7 @@ Base directory will be provided for resolving bundled resources.
    * 验证部署结果
    */
   async verifyDeployment(manifest) {
-    console.log(chalk.blue('\n🔍 Verifying deployment...'));
+    console.log(chalk.blue("\n🔍 Verifying deployment..."));
 
     const verificationResults = [];
 
@@ -474,7 +561,7 @@ Base directory will be provided for resolving bundled resources.
           type: deployment.type,
           path: targetPath,
           exists: true,
-          isDirectory: stats.isDirectory()
+          isDirectory: stats.isDirectory(),
         });
 
         console.log(chalk.green(`  ✓ ${deployment.cli}/${deployment.type}`));
@@ -483,10 +570,12 @@ Base directory will be provided for resolving bundled resources.
           cli: deployment.cli,
           type: deployment.type,
           path: targetPath,
-          exists: false
+          exists: false,
         });
 
-        console.log(chalk.yellow(`  ⚠ ${deployment.cli}/${deployment.type} (not found)`));
+        console.log(
+          chalk.yellow(`  ⚠ ${deployment.cli}/${deployment.type} (not found)`),
+        );
       }
     }
 
@@ -498,30 +587,32 @@ Base directory will be provided for resolving bundled resources.
    * 从源 CLI（iflow）读取配置，部署到所有目标 CLI 工具
    */
   async run() {
-    console.log(chalk.cyan('🚀 Configuration Deployer'));
-    console.log('='.repeat(60));
+    console.log(chalk.cyan("🚀 Configuration Deployer"));
+    console.log("=".repeat(60));
 
     if (this.dryRun) {
-      console.log(chalk.yellow('\n⚠️  DRY RUN MODE - No actual changes will be made\n'));
+      console.log(
+        chalk.yellow("\n⚠️  DRY RUN MODE - No actual changes will be made\n"),
+      );
     }
 
     // 加载配置包
     const configBundle = await this.loadConfigBundle();
     if (!configBundle) {
-      return { success: false, error: 'Failed to load config bundle' };
+      return { success: false, error: "Failed to load config bundle" };
     }
 
     // 加载部署清单
     const manifest = await this.loadManifest();
     if (!manifest) {
-      return { success: false, error: 'Failed to load manifest' };
+      return { success: false, error: "Failed to load manifest" };
     }
 
-    const sourceCLI = configBundle.sourceCLI || 'iflow';
+    const sourceCLI = configBundle.sourceCLI || "iflow";
     const targetCLIs = configBundle.targetCLIs || [sourceCLI];
 
     console.log(chalk.gray(`\nSource CLI: ${sourceCLI}`));
-    console.log(chalk.gray(`Target CLIs: ${targetCLIs.join(', ')}`));
+    console.log(chalk.gray(`Target CLIs: ${targetCLIs.join(", ")}`));
     console.log(chalk.gray(`Bundle version: ${configBundle.generatedAt}`));
     console.log(chalk.gray(`Platform: ${configBundle.platform}`));
     console.log(chalk.gray(`Total items: ${configBundle.summary.totalItems}`));
@@ -529,7 +620,10 @@ Base directory will be provided for resolving bundled resources.
     // 获取源 CLI 的配置
     const sourceConfig = configBundle.configs[sourceCLI];
     if (!sourceConfig) {
-      return { success: false, error: `Source CLI config not found: ${sourceCLI}` };
+      return {
+        success: false,
+        error: `Source CLI config not found: ${sourceCLI}`,
+      };
     }
 
     // 部署到每个目标 CLI 工具
@@ -537,18 +631,32 @@ Base directory will be provided for resolving bundled resources.
     const summary = {
       totalSuccess: 0,
       totalSkip: 0,
-      totalFail: 0
+      totalFail: 0,
     };
 
     for (const targetCLI of targetCLIs) {
-      console.log(chalk.cyan(`\n📦 Deploying ${sourceCLI} config to ${targetCLI}...`));
+      console.log(
+        chalk.cyan(`\n📦 Deploying ${sourceCLI} config to ${targetCLI}...`),
+      );
 
       const results = await this.deployCLIConfig(targetCLI, sourceConfig);
       deploymentResults[targetCLI] = results;
 
-      summary.totalSuccess += results.agents.successCount + results.skills.successCount + results.markdown.successCount + results.skillRegistration.successCount;
-      summary.totalSkip += results.agents.skipCount + results.skills.skipCount + results.markdown.skipCount + results.skillRegistration.skipCount;
-      summary.totalFail += results.agents.failCount + results.skills.failCount + results.markdown.failCount + results.skillRegistration.failCount;
+      summary.totalSuccess +=
+        results.agents.successCount +
+        results.skills.successCount +
+        results.markdown.successCount +
+        results.skillRegistration.successCount;
+      summary.totalSkip +=
+        results.agents.skipCount +
+        results.skills.skipCount +
+        results.markdown.skipCount +
+        results.skillRegistration.skipCount;
+      summary.totalFail +=
+        results.agents.failCount +
+        results.skills.failCount +
+        results.markdown.failCount +
+        results.skillRegistration.failCount;
     }
 
     // 验证部署（如果不是 dry run）
@@ -556,20 +664,24 @@ Base directory will be provided for resolving bundled resources.
       await this.verifyDeployment(manifest);
     }
 
-    console.log(chalk.green('\n✅ Configuration deployment completed!'));
-    console.log(chalk.cyan('\nSummary:'));
+    console.log(chalk.green("\n✅ Configuration deployment completed!"));
+    console.log(chalk.cyan("\nSummary:"));
     console.log(`  Deployed: ${summary.totalSuccess} files`);
     console.log(`  Skipped: ${summary.totalSkip} files`);
     console.log(`  Failed: ${summary.totalFail} files`);
 
     if (summary.totalFail > 0) {
-      console.log(chalk.yellow('\n⚠️  Some deployments failed. Run with --verbose for details.'));
+      console.log(
+        chalk.yellow(
+          "\n⚠️  Some deployments failed. Run with --verbose for details.",
+        ),
+      );
     }
 
     return {
       success: summary.totalFail === 0,
       summary,
-      deploymentResults
+      deploymentResults,
     };
   }
 }

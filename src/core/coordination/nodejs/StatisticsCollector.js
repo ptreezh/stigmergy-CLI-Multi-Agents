@@ -7,7 +7,7 @@ class StatisticsCollector {
   }
 
   initialize() {
-    console.log('[STATISTICS_COLLECTOR] Initializing statistics collector...');
+    console.log("[STATISTICS_COLLECTOR] Initializing statistics collector...");
     this.reset();
   }
 

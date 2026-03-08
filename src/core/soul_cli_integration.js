@@ -60,8 +60,8 @@ function findClaudeSkillsPath() {
   const possiblePaths = [
     `${homedir}/.claude/skills`,
     `${homedir}/.agent/skills`,
-    `./.agent/skills`,
-    `./skills`,
+    "./.agent/skills",
+    "./skills",
   ];
 
   for (const p of possiblePaths) {

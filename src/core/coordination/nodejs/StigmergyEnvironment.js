@@ -3,34 +3,34 @@
  * 类似蚂蚁的信息素系统，CLI通过环境留下"痕迹"并感知其他CLI的痕迹
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
 class StigmergyEnvironment {
   constructor(options = {}) {
     this.workDir = options.workDir || process.cwd();
-    this.stateDir = path.join(this.workDir, '.stigmergy', 'environment');
-    this.stateFile = path.join(this.stateDir, 'state.json');
-    this.tracesFile = path.join(this.stateDir, 'traces.jsonl');
+    this.stateDir = path.join(this.workDir, ".stigmergy", "environment");
+    this.stateFile = path.join(this.stateDir, "state.json");
+    this.tracesFile = path.join(this.stateDir, "traces.jsonl");
 
     this.state = {
       sessionId: this._generateSessionId(),
       startTime: Date.now(),
-      cliAgents: new Map(),      // 注册的CLI代理
-      fileModifications: [],      // 文件修改历史
-      taskAssignments: [],        // 任务分配记录
-      resultsCache: new Map(),    // 结果缓存
-      conflicts: [],              // 冲突记录
+      cliAgents: new Map(), // 注册的CLI代理
+      fileModifications: [], // 文件修改历史
+      taskAssignments: [], // 任务分配记录
+      resultsCache: new Map(), // 结果缓存
+      conflicts: [], // 冲突记录
       metrics: {
         totalTasks: 0,
         completedTasks: 0,
         conflictsDetected: 0,
-        collaborations: 0
-      }
+        collaborations: 0,
+      },
     };
 
-    this.traces = [];  // 所有CLI留下的痕迹
+    this.traces = []; // 所有CLI留下的痕迹
 
     this._ensureStateDir();
     this._loadState();
@@ -40,7 +40,7 @@ class StigmergyEnvironment {
    * 生成会话ID
    */
   _generateSessionId() {
-    return crypto.randomBytes(16).toString('hex');
+    return crypto.randomBytes(16).toString("hex");
   }
 
   /**
@@ -58,7 +58,7 @@ class StigmergyEnvironment {
   _loadState() {
     if (fs.existsSync(this.stateFile)) {
       try {
-        const data = fs.readFileSync(this.stateFile, 'utf8');
+        const data = fs.readFileSync(this.stateFile, "utf8");
         const saved = JSON.parse(data);
 
         // 先复制基本属性（不包括Map）
@@ -73,19 +73,23 @@ class StigmergyEnvironment {
         this.state.cliAgents = new Map(saved.cliAgents || []);
         this.state.resultsCache = new Map(saved.resultsCache || []);
       } catch (error) {
-        console.warn('[STIGMERGY] Failed to load state, starting fresh:', error.message);
+        console.warn(
+          "[STIGMERGY] Failed to load state, starting fresh:",
+          error.message,
+        );
       }
     }
 
     // 加载痕迹
     if (fs.existsSync(this.tracesFile)) {
       try {
-        const traces = fs.readFileSync(this.tracesFile, 'utf8');
-        this.traces = traces.split('\n')
-          .filter(line => line.trim())
-          .map(line => JSON.parse(line));
+        const traces = fs.readFileSync(this.tracesFile, "utf8");
+        this.traces = traces
+          .split("\n")
+          .filter((line) => line.trim())
+          .map((line) => JSON.parse(line));
       } catch (error) {
-        console.warn('[STIGMERGY] Failed to load traces:', error.message);
+        console.warn("[STIGMERGY] Failed to load traces:", error.message);
       }
     }
   }
@@ -95,18 +99,26 @@ class StigmergyEnvironment {
    */
   _saveState() {
     try {
-      fs.writeFileSync(this.stateFile, JSON.stringify({
-        sessionId: this.state.sessionId,
-        startTime: this.state.startTime,
-        cliAgents: Array.from(this.state.cliAgents.entries()),
-        fileModifications: this.state.fileModifications,
-        taskAssignments: this.state.taskAssignments,
-        resultsCache: Array.from(this.state.resultsCache.entries()),
-        conflicts: this.state.conflicts,
-        metrics: this.state.metrics
-      }, null, 2), 'utf8');
+      fs.writeFileSync(
+        this.stateFile,
+        JSON.stringify(
+          {
+            sessionId: this.state.sessionId,
+            startTime: this.state.startTime,
+            cliAgents: Array.from(this.state.cliAgents.entries()),
+            fileModifications: this.state.fileModifications,
+            taskAssignments: this.state.taskAssignments,
+            resultsCache: Array.from(this.state.resultsCache.entries()),
+            conflicts: this.state.conflicts,
+            metrics: this.state.metrics,
+          },
+          null,
+          2,
+        ),
+        "utf8",
+      );
     } catch (error) {
-      console.error('[STIGMERGY] Failed to save state:', error);
+      console.error("[STIGMERGY] Failed to save state:", error);
     }
   }
 
@@ -118,16 +130,20 @@ class StigmergyEnvironment {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
       sessionId: this.state.sessionId,
-      ...trace
+      ...trace,
     };
 
     this.traces.push(enrichedTrace);
 
     // 追加到痕迹文件
     try {
-      fs.appendFileSync(this.tracesFile, JSON.stringify(enrichedTrace) + '\n', 'utf8');
+      fs.appendFileSync(
+        this.tracesFile,
+        JSON.stringify(enrichedTrace) + "\n",
+        "utf8",
+      );
     } catch (error) {
-      console.error('[STIGMERGY] Failed to write trace:', error);
+      console.error("[STIGMERGY] Failed to write trace:", error);
     }
 
     this.state.metrics.collaborations++;
@@ -143,19 +159,19 @@ class StigmergyEnvironment {
     let filtered = this.traces;
 
     if (filter.cliName) {
-      filtered = filtered.filter(t => t.cliName === filter.cliName);
+      filtered = filtered.filter((t) => t.cliName === filter.cliName);
     }
 
     if (filter.type) {
-      filtered = filtered.filter(t => t.type === filter.type);
+      filtered = filtered.filter((t) => t.type === filter.type);
     }
 
     if (filter.filePath) {
-      filtered = filtered.filter(t => t.filePath === filter.filePath);
+      filtered = filtered.filter((t) => t.filePath === filter.filePath);
     }
 
     if (filter.since) {
-      filtered = filtered.filter(t => t.timestamp >= filter.since);
+      filtered = filtered.filter((t) => t.timestamp >= filter.since);
     }
 
     return filtered;
@@ -169,8 +185,8 @@ class StigmergyEnvironment {
       name: cliName,
       registeredAt: Date.now(),
       capabilities: capabilities || [],
-      status: 'active',
-      tasksCompleted: 0
+      status: "active",
+      tasksCompleted: 0,
     };
 
     this.state.cliAgents.set(cliName, agent);
@@ -187,21 +203,21 @@ class StigmergyEnvironment {
     const modification = {
       cliName,
       filePath,
-      operation,  // 'created', 'modified', 'deleted'
+      operation, // 'created', 'modified', 'deleted'
       timestamp: Date.now(),
       sessionId: this.state.sessionId,
-      ...metadata
+      ...metadata,
     };
 
     this.state.fileModifications.push(modification);
 
     // 添加痕迹
     this.addTrace({
-      type: 'file_modification',
+      type: "file_modification",
       cliName,
       filePath,
       operation,
-      metadata
+      metadata,
     });
 
     return modification;
@@ -215,7 +231,7 @@ class StigmergyEnvironment {
     const fileMap = new Map();
 
     // 按文件分组修改记录
-    this.state.fileModifications.forEach(mod => {
+    this.state.fileModifications.forEach((mod) => {
       if (!fileMap.has(mod.filePath)) {
         fileMap.set(mod.filePath, []);
       }
@@ -225,14 +241,14 @@ class StigmergyEnvironment {
     // 检测同一文件被多个CLI修改的情况
     fileMap.forEach((mods, filePath) => {
       if (mods.length > 1) {
-        const uniqueCLIs = new Set(mods.map(m => m.cliName));
+        const uniqueCLIs = new Set(mods.map((m) => m.cliName));
         if (uniqueCLIs.size > 1) {
           conflicts.push({
-            type: 'concurrent_modification',
+            type: "concurrent_modification",
             filePath,
             modifiers: Array.from(uniqueCLIs),
             modifications: mods,
-            severity: 'warning'
+            severity: "warning",
           });
         }
       }
@@ -254,7 +270,7 @@ class StigmergyEnvironment {
       cliName,
       result,
       timestamp: Date.now(),
-      sessionId: this.state.sessionId
+      sessionId: this.state.sessionId,
     };
 
     this.state.resultsCache.set(`${taskId}:${cliName}`, cacheEntry);
@@ -284,8 +300,8 @@ class StigmergyEnvironment {
       taskId,
       cliName,
       assignedAt: Date.now(),
-      status: 'assigned',
-      taskDetails
+      status: "assigned",
+      taskDetails,
     };
 
     this.state.taskAssignments.push(assignment);
@@ -300,11 +316,11 @@ class StigmergyEnvironment {
    */
   completeTask(taskId, cliName, result) {
     const assignment = this.state.taskAssignments.find(
-      a => a.taskId === taskId && a.cliName === cliName
+      (a) => a.taskId === taskId && a.cliName === cliName,
     );
 
     if (assignment) {
-      assignment.status = 'completed';
+      assignment.status = "completed";
       assignment.completedAt = Date.now();
       assignment.result = result;
 
@@ -330,33 +346,38 @@ class StigmergyEnvironment {
     return {
       sessionId: this.state.sessionId,
       uptime: Date.now() - this.state.startTime,
-      agents: Array.from(this.state.cliAgents.values()).map(agent => ({
+      agents: Array.from(this.state.cliAgents.values()).map((agent) => ({
         name: agent.name,
         capabilities: agent.capabilities,
         tasksCompleted: agent.tasksCompleted,
-        status: agent.status
+        status: agent.status,
       })),
       recentTraces: this.traces.slice(-10),
       conflicts: this.state.conflicts,
-      metrics: this.state.metrics
+      metrics: this.state.metrics,
     };
   }
 
   /**
    * 清理过期状态
    */
-  cleanup(maxAge = 86400000) {  // 默认24小时
+  cleanup(maxAge = 86400000) {
+    // 默认24小时
     const now = Date.now();
     const cutoff = now - maxAge;
 
     // 清理旧痕迹
-    this.traces = this.traces.filter(t => t.timestamp > cutoff);
+    this.traces = this.traces.filter((t) => t.timestamp > cutoff);
 
     // 清理旧修改记录
-    this.state.fileModifications = this.state.fileModifications.filter(m => m.timestamp > cutoff);
+    this.state.fileModifications = this.state.fileModifications.filter(
+      (m) => m.timestamp > cutoff,
+    );
 
     // 清理旧任务分配
-    this.state.taskAssignments = this.state.taskAssignments.filter(t => t.assignedAt > cutoff);
+    this.state.taskAssignments = this.state.taskAssignments.filter(
+      (t) => t.assignedAt > cutoff,
+    );
 
     this._saveState();
     console.log(`[STIGMERGY] Cleaned up traces older than ${maxAge}ms`);
@@ -378,14 +399,14 @@ class StigmergyEnvironment {
         totalTasks: 0,
         completedTasks: 0,
         conflictsDetected: 0,
-        collaborations: 0
-      }
+        collaborations: 0,
+      },
     };
 
     this.traces = [];
     this._saveState();
 
-    console.log('[STIGMERGY] Environment reset');
+    console.log("[STIGMERGY] Environment reset");
   }
 }
 

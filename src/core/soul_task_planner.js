@@ -130,9 +130,9 @@ class SoulTaskPlanner {
         createdAt: new Date().toISOString(),
         subtasks: [
           { title: `搜集 ${exp} 权威资料`, status: "pending" },
-          { title: `学习核心概念和理论`, status: "pending" },
-          { title: `实践应用分析`, status: "pending" },
-          { title: `总结和分享`, status: "pending" },
+          { title: "学习核心概念和理论", status: "pending" },
+          { title: "实践应用分析", status: "pending" },
+          { title: "总结和分享", status: "pending" },
         ],
       };
       tasks.push(task);

@@ -9,22 +9,22 @@
  * 4. 验证文件格式
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
 class StigmergyHelpInjector {
   constructor() {
     this.homeDir = os.homedir();
     this.supportedCLIs = [
-      'claude',
-      'gemini',
-      'qwen',
-      'iflow',
-      'qodercli',
-      'codebuddy',
-      'codex',
-      'copilot'
+      "claude",
+      "gemini",
+      "qwen",
+      "iflow",
+      "qodercli",
+      "codebuddy",
+      "codex",
+      "copilot",
     ];
   }
 
@@ -147,14 +147,14 @@ In interactive mode:
    */
   async injectHelpForCLI(cliName) {
     const configDirs = {
-      iflow: '.iflow',
-      qwen: '.qwen',
-      codebuddy: '.codebuddy',
-      qodercli: '.qoder',
-      claude: '.claude',
-      gemini: '.gemini',
-      codex: '.codex',
-      copilot: '.copilot'
+      iflow: ".iflow",
+      qwen: ".qwen",
+      codebuddy: ".codebuddy",
+      qodercli: ".qoder",
+      claude: ".claude",
+      gemini: ".gemini",
+      codex: ".codex",
+      copilot: ".copilot",
     };
 
     const configDir = configDirs[cliName];
@@ -173,19 +173,21 @@ In interactive mode:
       }
 
       // 方案 1: 创建独立的帮助文件（最安全）
-      const helpFilePath = path.join(fullPath, 'STIGMERGY_COMMANDS.md');
+      const helpFilePath = path.join(fullPath, "STIGMERGY_COMMANDS.md");
       const helpContent = this.generateHelpFile();
 
-      fs.writeFileSync(helpFilePath, helpContent, 'utf8');
+      fs.writeFileSync(helpFilePath, helpContent, "utf8");
       console.log(`[HELP_INJECTOR] Created help file: ${helpFilePath}`);
 
       // 方案 2: 在原文件末尾添加注释（可选，更安全的方式）
       await this.appendSafeComment(cliName, fullPath);
 
       return true;
-
     } catch (error) {
-      console.error(`[HELP_INJECTOR] Failed to inject help for ${cliName}:`, error.message);
+      console.error(
+        `[HELP_INJECTOR] Failed to inject help for ${cliName}:`,
+        error.message,
+      );
       return false;
     }
   }
@@ -195,12 +197,12 @@ In interactive mode:
    */
   async appendSafeComment(cliName, configDir) {
     const mdFilenames = {
-      iflow: 'iflow.md',
-      qwen: 'qwen.md',
-      codebuddy: 'codebuddy.md',
-      qodercli: 'qoder.md',
-      claude: 'claude.md',
-      gemini: 'gemini.md'
+      iflow: "iflow.md",
+      qwen: "qwen.md",
+      codebuddy: "codebuddy.md",
+      qodercli: "qoder.md",
+      claude: "claude.md",
+      gemini: "gemini.md",
     };
 
     const filename = mdFilenames[cliName];
@@ -216,10 +218,10 @@ In interactive mode:
         return;
       }
 
-      let content = fs.readFileSync(filePath, 'utf8');
+      let content = fs.readFileSync(filePath, "utf8");
 
       // 检查是否已经添加过
-      if (content.includes('<!-- STIGMERGY_COMMANDS -->')) {
+      if (content.includes("<!-- STIGMERGY_COMMANDS -->")) {
         return;
       }
 
@@ -234,9 +236,8 @@ In interactive mode:
       content = content + safeComment;
 
       // 写回文件
-      fs.writeFileSync(filePath, content, 'utf8');
+      fs.writeFileSync(filePath, content, "utf8");
       console.log(`[HELP_INJECTOR] Added safe comment to ${filePath}`);
-
     } catch (error) {
       console.warn(`[HELP_INJECTOR] Failed to add comment: ${error.message}`);
     }
@@ -247,12 +248,12 @@ In interactive mode:
    */
   async rollbackForCLI(cliName) {
     const configDirs = {
-      iflow: '.iflow',
-      qwen: '.qwen',
-      codebuddy: '.codebuddy',
-      qodercli: '.qoder',
-      claude: '.claude',
-      gemini: '.gemini'
+      iflow: ".iflow",
+      qwen: ".qwen",
+      codebuddy: ".codebuddy",
+      qodercli: ".qoder",
+      claude: ".claude",
+      gemini: ".gemini",
     };
 
     const configDir = configDirs[cliName];
@@ -261,7 +262,7 @@ In interactive mode:
     }
 
     const fullPath = path.join(this.homeDir, configDir);
-    const helpFilePath = path.join(fullPath, 'STIGMERGY_COMMANDS.md');
+    const helpFilePath = path.join(fullPath, "STIGMERGY_COMMANDS.md");
 
     try {
       // 删除帮助文件
@@ -272,30 +273,35 @@ In interactive mode:
 
       // 移除 markdown 文件中的注释（可选）
       const mdFilenames = {
-        iflow: 'iflow.md',
-        qwen: 'qwen.md',
-        codebuddy: 'codebuddy.md',
-        qodercli: 'qoder.md',
-        claude: 'claude.md',
-        gemini: 'gemini.md'
+        iflow: "iflow.md",
+        qwen: "qwen.md",
+        codebuddy: "codebuddy.md",
+        qodercli: "qoder.md",
+        claude: "claude.md",
+        gemini: "gemini.md",
       };
 
       const filename = mdFilenames[cliName];
       if (filename) {
         const mdPath = path.join(fullPath, filename);
         if (fs.existsSync(mdPath)) {
-          let content = fs.readFileSync(mdPath, 'utf8');
+          let content = fs.readFileSync(mdPath, "utf8");
           // 移除我们的注释标记
-          content = content.replace(/\n<!-- STIGMERGY_COMMANDS -->[\s\S]*?<!-- Run: stigmergy help for more information -->\n?/g, '');
-          fs.writeFileSync(mdPath, content, 'utf8');
+          content = content.replace(
+            /\n<!-- STIGMERGY_COMMANDS -->[\s\S]*?<!-- Run: stigmergy help for more information -->\n?/g,
+            "",
+          );
+          fs.writeFileSync(mdPath, content, "utf8");
           console.log(`[HELP_INJECTOR] Removed comment from ${mdPath}`);
         }
       }
 
       return true;
-
     } catch (error) {
-      console.error(`[HELP_INJECTOR] Rollback failed for ${cliName}:`, error.message);
+      console.error(
+        `[HELP_INJECTOR] Rollback failed for ${cliName}:`,
+        error.message,
+      );
       return false;
     }
   }
@@ -305,34 +311,34 @@ In interactive mode:
    */
   async verifyHelpInjection(cliName) {
     const configDirs = {
-      iflow: '.iflow',
-      qwen: '.qwen',
-      codebuddy: '.codebuddy',
-      qodercli: '.qoder',
-      claude: '.claude',
-      gemini: '.gemini'
+      iflow: ".iflow",
+      qwen: ".qwen",
+      codebuddy: ".codebuddy",
+      qodercli: ".qoder",
+      claude: ".claude",
+      gemini: ".gemini",
     };
 
     const configDir = configDirs[cliName];
     if (!configDir) {
-      return { injected: false, reason: 'No config directory' };
+      return { injected: false, reason: "No config directory" };
     }
 
     const fullPath = path.join(this.homeDir, configDir);
-    const helpFilePath = path.join(fullPath, 'STIGMERGY_COMMANDS.md');
+    const helpFilePath = path.join(fullPath, "STIGMERGY_COMMANDS.md");
 
     try {
       const helpFileExists = fs.existsSync(helpFilePath);
       return {
         injected: helpFileExists,
         helpFilePath: helpFilePath,
-        configDir: fullPath
+        configDir: fullPath,
       };
     } catch (error) {
       return {
         injected: false,
         reason: error.message,
-        configDir: fullPath
+        configDir: fullPath,
       };
     }
   }
@@ -341,7 +347,7 @@ In interactive mode:
    * 为所有支持的 CLI 注入帮助信息
    */
   async injectHelpForAllCLIs() {
-    console.log('[HELP_INJECTOR] Injecting Stigmergy help for all CLIs...');
+    console.log("[HELP_INJECTOR] Injecting Stigmergy help for all CLIs...");
 
     const results = [];
     for (const cliName of this.supportedCLIs) {
@@ -349,8 +355,10 @@ In interactive mode:
       results.push({ cli: cliName, success });
     }
 
-    const successful = results.filter(r => r.success).length;
-    console.log(`[HELP_INJECTOR] Injection complete: ${successful}/${this.supportedCLIs.length} CLIs updated`);
+    const successful = results.filter((r) => r.success).length;
+    console.log(
+      `[HELP_INJECTOR] Injection complete: ${successful}/${this.supportedCLIs.length} CLIs updated`,
+    );
 
     return results;
   }

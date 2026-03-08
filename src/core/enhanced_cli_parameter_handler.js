@@ -7,18 +7,18 @@
  * 3. Fallback strategies for different CLI tools
  *
  * OPTIMIZATION: Stage 1 (quickDetectMention) avoids cache I/O if no keywords found
- * 
+ *
  * 📚 参考文档：
  * - CLI Help Analyzer 重构：REFACTORING_CLI_HELP_ANALYZER.md
- * 
+ *
  * 🔗 依赖关系：
  * - 依赖 CLIHelpAnalyzer 的 getCLIPattern() 方法
  * - 重构后调用方式保持不变，完全向后兼容
  */
 
-const CLIHelpAnalyzer = require('./cli_help_analyzer');
-const { CLI_TOOLS } = require('./cli_tools');
-const LocalSkillScanner = require('./local_skill_scanner');
+const CLIHelpAnalyzer = require("./cli_help_analyzer");
+const { CLI_TOOLS } = require("./cli_tools");
+const LocalSkillScanner = require("./local_skill_scanner");
 
 class EnhancedCLIParameterHandler {
   constructor() {
@@ -59,7 +59,7 @@ class EnhancedCLIParameterHandler {
     const {
       maxRetries = 3,
       enableAgentSkillOptimization = true,
-      preferredFormats = null
+      preferredFormats = null,
     } = options;
 
     await this.initialize();
@@ -77,20 +77,27 @@ class EnhancedCLIParameterHandler {
 
       if (!quickDetection.shouldLoadCache) {
         // No agent/skill keywords detected - skip all skill/agent processing
-        if (process.env.DEBUG === 'true') {
-          console.log(`[AGENT/SKILL] No keywords detected, skipping skill/agent processing`);
+        if (process.env.DEBUG === "true") {
+          console.log(
+            "[AGENT/SKILL] No keywords detected, skipping skill/agent processing",
+          );
         }
       } else {
         // Keywords detected - proceed to Stage 2
-        if (process.env.DEBUG === 'true') {
-          console.log(`[AGENT/SKILL] Stage 1: Keywords detected (agent=${quickDetection.hasAgentKeyword}, skill=${quickDetection.hasSkillKeyword})`);
+        if (process.env.DEBUG === "true") {
+          console.log(
+            `[AGENT/SKILL] Stage 1: Keywords detected (agent=${quickDetection.hasAgentKeyword}, skill=${quickDetection.hasSkillKeyword})`,
+          );
         }
 
         // === STAGE 2: Load Cache and Detailed Matching ===
         await this.skillScanner.initialize(); // Load cache
 
         // Get detailed matches using CLIHelpAnalyzer
-        detectedMentions = this.analyzer.detectAgentSkillMentions(prompt, toolName);
+        detectedMentions = this.analyzer.detectAgentSkillMentions(
+          prompt,
+          toolName,
+        );
 
         // Get local skill/agent matches
         skillMatches = this.skillScanner.matchSkills(prompt, toolName);
@@ -98,19 +105,30 @@ class EnhancedCLIParameterHandler {
 
         // Combine detection results
         if (skillMatches.length > 0 || agentMatches.length > 0) {
-          detectedMentions.hasSkill = detectedMentions.hasSkill || skillMatches.length > 0;
-          detectedMentions.hasAgent = detectedMentions.hasAgent || agentMatches.length > 0;
-          detectedMentions.confidence = Math.min(1.0, detectedMentions.confidence + 0.2);
+          detectedMentions.hasSkill =
+            detectedMentions.hasSkill || skillMatches.length > 0;
+          detectedMentions.hasAgent =
+            detectedMentions.hasAgent || agentMatches.length > 0;
+          detectedMentions.confidence = Math.min(
+            1.0,
+            detectedMentions.confidence + 0.2,
+          );
         }
 
         // Optimize prompt if matches found
         if (detectedMentions.hasAgent || detectedMentions.hasSkill) {
-          optimizedPrompt = this.analyzer.optimizePromptForCLI(prompt, toolName, detectedMentions);
-          optimizationApplied = (optimizedPrompt !== prompt);
+          optimizedPrompt = this.analyzer.optimizePromptForCLI(
+            prompt,
+            toolName,
+            detectedMentions,
+          );
+          optimizationApplied = optimizedPrompt !== prompt;
 
-          if (process.env.DEBUG === 'true') {
-            console.log(`[AGENT/SKILL] Stage 2: Detailed matching complete`);
-            console.log(`[AGENT/SKILL] Skill matches: ${skillMatches.length}, Agent matches: ${agentMatches.length}`);
+          if (process.env.DEBUG === "true") {
+            console.log("[AGENT/SKILL] Stage 2: Detailed matching complete");
+            console.log(
+              `[AGENT/SKILL] Skill matches: ${skillMatches.length}, Agent matches: ${agentMatches.length}`,
+            );
             if (optimizationApplied) {
               console.log(`[AGENT/SKILL] Original: ${prompt}`);
               console.log(`[AGENT/SKILL] Optimized: ${optimizedPrompt}`);
@@ -121,7 +139,11 @@ class EnhancedCLIParameterHandler {
     }
 
     // Step 3: Get parameter formats to try (in priority order)
-    const formatsToTry = await this.getParameterFormats(toolName, preferredFormats, detectedMentions);
+    const formatsToTry = await this.getParameterFormats(
+      toolName,
+      preferredFormats,
+      detectedMentions,
+    );
 
     // Step 4: Try each format until one succeeds (or return first for non-execution context)
     const results = {
@@ -130,18 +152,22 @@ class EnhancedCLIParameterHandler {
       optimizedPrompt,
       optimizationApplied,
       detectedMentions,
-      formats: []
+      formats: [],
     };
 
     for (let i = 0; i < Math.min(formatsToTry.length, maxRetries); i++) {
       const format = formatsToTry[i];
-      const args = this.generateArgumentsForFormat(toolName, optimizedPrompt, format);
+      const args = this.generateArgumentsForFormat(
+        toolName,
+        optimizedPrompt,
+        format,
+      );
 
       results.formats.push({
         format: format.name,
         args,
         priority: format.priority,
-        attempted: true
+        attempted: true,
       });
 
       // For non-execution context, return all formats
@@ -149,7 +175,10 @@ class EnhancedCLIParameterHandler {
     }
 
     // Select the best format based on priority and detection
-    const selectedFormat = this.selectBestFormat(results.formats, detectedMentions);
+    const selectedFormat = this.selectBestFormat(
+      results.formats,
+      detectedMentions,
+    );
     results.selectedFormat = selectedFormat;
     results.arguments = selectedFormat.args;
 
@@ -171,12 +200,16 @@ class EnhancedCLIParameterHandler {
     const cliPattern = await this.analyzer.getCLIPattern(toolName);
     const enhancedPattern = this.analyzer.enhancedPatterns[toolName];
 
-    if (process.env.DEBUG === 'true') {
+    if (process.env.DEBUG === "true") {
       console.log(`[PARAM_FORMAT] Getting formats for ${toolName}`);
       console.log(`[PARAM_FORMAT] cliPattern exists: ${!!cliPattern}`);
       if (cliPattern && cliPattern.commandStructure) {
-        console.log(`[PARAM_FORMAT] executionPattern: ${cliPattern.commandStructure.executionPattern}`);
-        console.log(`[PARAM_FORMAT] nonInteractiveFlag: ${cliPattern.commandStructure.nonInteractiveFlag}`);
+        console.log(
+          `[PARAM_FORMAT] executionPattern: ${cliPattern.commandStructure.executionPattern}`,
+        );
+        console.log(
+          `[PARAM_FORMAT] nonInteractiveFlag: ${cliPattern.commandStructure.nonInteractiveFlag}`,
+        );
       }
     }
 
@@ -186,16 +219,17 @@ class EnhancedCLIParameterHandler {
       if (enhancedPattern.positionalArgs) {
         // Check if CLI has flag-based non-interactive execution
         // For tools like Kode that have flag-based execution, don't use positional args
-        const hasFlagBasedExecution = cliPattern?.commandStructure?.executionPattern === 'flag-based' &&
-                                      cliPattern?.commandStructure?.nonInteractiveFlag;
+        const hasFlagBasedExecution =
+          cliPattern?.commandStructure?.executionPattern === "flag-based" &&
+          cliPattern?.commandStructure?.nonInteractiveFlag;
 
         if (!hasFlagBasedExecution) {
           // Qwen, Copilot, etc. support positional arguments
           formats.push({
-            name: 'positional',
+            name: "positional",
             priority: enhancedPattern.positionalArgs ? 10 : 5,
-            description: 'Positional arguments (natural language)',
-            template: (prompt) => [prompt]
+            description: "Positional arguments (natural language)",
+            template: (prompt) => [prompt],
           });
         }
       }
@@ -203,20 +237,20 @@ class EnhancedCLIParameterHandler {
       if (enhancedPattern.naturalLanguageSupport) {
         // CLIs with good natural language support
         formats.push({
-          name: 'prompt-flag',
+          name: "prompt-flag",
           priority: 8,
-          description: 'Standard -p flag',
-          template: (prompt) => ['-p', `"${prompt}"`]
+          description: "Standard -p flag",
+          template: (prompt) => ["-p", `"${prompt}"`],
         });
       }
 
       if (enhancedPattern.skillPrefixRequired) {
         // CodeBuddy requires skill: prefix
         formats.push({
-          name: 'skill-prefix',
+          name: "skill-prefix",
           priority: 9,
-          description: 'Skill prefix with -y flag',
-          template: (prompt) => ['-y', '-p', `"${prompt}"`]
+          description: "Skill prefix with -y flag",
+          template: (prompt) => ["-y", "-p", `"${prompt}"`],
         });
       }
     }
@@ -227,40 +261,40 @@ class EnhancedCLIParameterHandler {
 
       if (structure.promptFlag) {
         formats.push({
-          name: 'detected-prompt-flag',
+          name: "detected-prompt-flag",
           priority: 7,
           description: `Detected prompt flag: ${structure.promptFlag}`,
-          template: (prompt) => [structure.promptFlag, `"${prompt}"`]
+          template: (prompt) => [structure.promptFlag, `"${prompt}"`],
         });
       }
 
-      if (structure.executionPattern === 'argument-based') {
+      if (structure.executionPattern === "argument-based") {
         formats.push({
-          name: 'argument-based',
+          name: "argument-based",
           priority: 6,
-          description: 'Argument-based execution',
-          template: (prompt) => [`"${prompt}"`]
+          description: "Argument-based execution",
+          template: (prompt) => [`"${prompt}"`],
         });
       }
 
-      if (structure.executionPattern === 'subcommand-based') {
+      if (structure.executionPattern === "subcommand-based") {
         // For tools like Codex that need subcommand
         formats.push({
-          name: 'subcommand-exec',
+          name: "subcommand-exec",
           priority: 7,
-          description: 'Subcommand-based with exec',
-          template: (prompt) => ['exec', '-p', `"${prompt}"`]
+          description: "Subcommand-based with exec",
+          template: (prompt) => ["exec", "-p", `"${prompt}"`],
         });
       }
 
-      if (structure.executionPattern === 'flag-based') {
+      if (structure.executionPattern === "flag-based") {
         // For tools like Kode that use flag-based execution (e.g., --print)
         if (structure.nonInteractiveFlag) {
           formats.push({
-            name: 'flag-based-non-interactive',
+            name: "flag-based-non-interactive",
             priority: 9,
             description: `Flag-based non-interactive: ${structure.nonInteractiveFlag}`,
-            template: (prompt) => [structure.nonInteractiveFlag, `"${prompt}"`]
+            template: (prompt) => [structure.nonInteractiveFlag, `"${prompt}"`],
           });
         }
       }
@@ -268,28 +302,32 @@ class EnhancedCLIParameterHandler {
 
     // Add fallback formats
     formats.push({
-      name: 'standard-p-flag',
+      name: "standard-p-flag",
       priority: 4,
-      description: 'Standard -p flag (fallback)',
-      template: (prompt) => ['-p', `"${prompt}"`]
+      description: "Standard -p flag (fallback)",
+      template: (prompt) => ["-p", `"${prompt}"`],
     });
 
     // Filter out failed formats from retry history
     const failedFormats = this.retryHistory.get(toolName) || new Set();
-    const validFormats = formats.filter(f => !failedFormats.has(f.name));
+    const validFormats = formats.filter((f) => !failedFormats.has(f.name));
 
-    if (process.env.DEBUG === 'true') {
+    if (process.env.DEBUG === "true") {
       console.log(`[PARAM_FORMAT] Total formats: ${formats.length}`);
-      formats.forEach(f => {
-        console.log(`[PARAM_FORMAT]   - ${f.name} (priority: ${f.priority}): ${f.description}`);
+      formats.forEach((f) => {
+        console.log(
+          `[PARAM_FORMAT]   - ${f.name} (priority: ${f.priority}): ${f.description}`,
+        );
       });
       console.log(`[PARAM_FORMAT] Valid formats: ${validFormats.length}`);
     }
 
     // If all formats failed, clear history and try again
     if (validFormats.length === 0) {
-      if (process.env.DEBUG === 'true') {
-        console.log(`[RETRY] All formats failed for ${toolName}, clearing retry history`);
+      if (process.env.DEBUG === "true") {
+        console.log(
+          `[RETRY] All formats failed for ${toolName}, clearing retry history`,
+        );
       }
       this.retryHistory.delete(toolName);
       return formats;
@@ -311,11 +349,14 @@ class EnhancedCLIParameterHandler {
     try {
       return format.template(prompt);
     } catch (error) {
-      if (process.env.DEBUG === 'true') {
-        console.log(`[ERROR] Failed to generate args for format ${format.name}:`, error.message);
+      if (process.env.DEBUG === "true") {
+        console.log(
+          `[ERROR] Failed to generate args for format ${format.name}:`,
+          error.message,
+        );
       }
       // Fallback to standard format
-      return ['-p', `"${prompt}"`];
+      return ["-p", `"${prompt}"`];
     }
   }
 
@@ -330,19 +371,21 @@ class EnhancedCLIParameterHandler {
     // Prioritize formats based on detection
     if (detectedMentions.hasSkill || detectedMentions.hasAgent) {
       // For agent/skill requests, prefer formats with higher priority
-      const skillOptimizedFormats = formats.filter(f => f.priority >= 8);
+      const skillOptimizedFormats = formats.filter((f) => f.priority >= 8);
       if (skillOptimizedFormats.length > 0) {
         return skillOptimizedFormats[0];
       }
     }
 
     // Return highest priority format
-    return formats[0] || {
-      name: 'fallback',
-      priority: 1,
-      args: ['-p', '"{prompt}"'],
-      description: 'Fallback format'
-    };
+    return (
+      formats[0] || {
+        name: "fallback",
+        priority: 1,
+        args: ["-p", '"{prompt}"'],
+        description: "Fallback format",
+      }
+    );
   }
 
   /**
@@ -357,9 +400,14 @@ class EnhancedCLIParameterHandler {
     }
     this.retryHistory.get(toolName).add(formatName);
 
-    if (process.env.DEBUG === 'true') {
-      console.log(`[RETRY] Recorded failed format ${formatName} for ${toolName}`);
-      console.log(`[RETRY] Failed formats:`, Array.from(this.retryHistory.get(toolName)));
+    if (process.env.DEBUG === "true") {
+      console.log(
+        `[RETRY] Recorded failed format ${formatName} for ${toolName}`,
+      );
+      console.log(
+        "[RETRY] Failed formats:",
+        Array.from(this.retryHistory.get(toolName)),
+      );
     }
   }
 
@@ -371,7 +419,7 @@ class EnhancedCLIParameterHandler {
   clearRetryHistory(toolName) {
     this.retryHistory.delete(toolName);
 
-    if (process.env.DEBUG === 'true') {
+    if (process.env.DEBUG === "true") {
       console.log(`[RETRY] Cleared retry history for ${toolName}`);
     }
   }

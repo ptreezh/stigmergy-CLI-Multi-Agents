@@ -5,7 +5,7 @@
  * Centralized meta-skill management
  */
 
-const StigmergySkillsHub = require('../core/skills/StigmergySkillsHub');
+const StigmergySkillsHub = require("../core/skills/StigmergySkillsHub");
 
 /**
  * Initialize Skills Hub
@@ -13,7 +13,7 @@ const StigmergySkillsHub = require('../core/skills/StigmergySkillsHub');
 async function init(options = {}) {
   const hub = new StigmergySkillsHub(options);
   await hub.init();
-  console.log('\n✅ Skills Hub initialized successfully!');
+  console.log("\n✅ Skills Hub initialized successfully!");
   console.log(`   Central Repo: ${hub.centralRepo}`);
   console.log(`   Adapters: ${hub.adapters.length} tools configured`);
 }
@@ -27,10 +27,12 @@ async function sync(options = {}) {
 
   if (options.tool) {
     // Sync to specific tool
-    const adapter = hub.adapters.find(a => a.id === options.tool);
+    const adapter = hub.adapters.find((a) => a.id === options.tool);
     if (!adapter) {
       console.error(`❌ Tool not found: ${options.tool}`);
-      console.log(`   Available tools: ${hub.adapters.map(a => a.id).join(', ')}`);
+      console.log(
+        `   Available tools: ${hub.adapters.map((a) => a.id).join(", ")}`,
+      );
       process.exit(1);
     }
 
@@ -47,25 +49,25 @@ async function sync(options = {}) {
     }
   } else {
     // Sync to all tools
-    console.log('\n🔄 Syncing meta-skills to all tools...\n');
+    console.log("\n🔄 Syncing meta-skills to all tools...\n");
     const result = await hub.syncAll(options);
 
-    console.log('\n📊 Sync Summary:');
+    console.log("\n📊 Sync Summary:");
     console.log(`   Total: ${result.total}`);
     console.log(`   ✅ Success: ${result.success}`);
     console.log(`   ⏭️  Skipped: ${result.skipped}`);
     console.log(`   ❌ Errors: ${result.errors}`);
 
     if (result.errors > 0) {
-      console.log('\n❌ Some tools failed to sync:');
+      console.log("\n❌ Some tools failed to sync:");
       result.results
-        .filter(r => !r.success)
-        .forEach(r => {
+        .filter((r) => !r.success)
+        .forEach((r) => {
           console.log(`   - ${r.tool}: ${r.error}`);
         });
       process.exit(1);
     } else {
-      console.log('\n✅ All tools synced successfully!');
+      console.log("\n✅ All tools synced successfully!");
     }
   }
 }
@@ -77,23 +79,25 @@ async function status(options = {}) {
   const hub = new StigmergySkillsHub(options);
   await hub.init();
 
-  console.log('\n📊 Skills Hub Status\n');
+  console.log("\n📊 Skills Hub Status\n");
   console.log(`Central Repo: ${hub.centralRepo}`);
-  console.log(`Last Sync: ${hub.registry.lastSync || 'Never'}\n`);
+  console.log(`Last Sync: ${hub.registry.lastSync || "Never"}\n`);
 
   const toolStatus = await hub.getStatus();
 
-  console.log('Tools:');
-  toolStatus.forEach(tool => {
-    const statusIcon = tool.installed ? '✅' : '❌';
-    const syncIcon = tool.synced ? '✅' : '⏭️ ';
-    const enabledIcon = tool.enabled ? '🟢' : '🔴';
+  console.log("Tools:");
+  toolStatus.forEach((tool) => {
+    const statusIcon = tool.installed ? "✅" : "❌";
+    const syncIcon = tool.synced ? "✅" : "⏭️ ";
+    const enabledIcon = tool.enabled ? "🟢" : "🔴";
 
     console.log(`  ${statusIcon} ${tool.displayName}`);
     console.log(`     ${enabledIcon} Enabled: ${tool.enabled}`);
-    console.log(`     ${syncIcon} Synced: ${tool.synced ? tool.lastSync : 'Never'}`);
+    console.log(
+      `     ${syncIcon} Synced: ${tool.synced ? tool.lastSync : "Never"}`,
+    );
     console.log(`     Meta-skill: ${tool.metaSkill}`);
-    console.log('');
+    console.log("");
   });
 }
 
@@ -104,16 +108,16 @@ async function update(options = {}) {
   const hub = new StigmergySkillsHub(options);
   await hub.init();
 
-  console.log('\n🔄 Updating central repo with latest templates...\n');
+  console.log("\n🔄 Updating central repo with latest templates...\n");
 
   // Re-verify meta-skills (will copy if newer)
   await hub.verifyMetaSkills();
 
-  console.log('\n✅ Central repo updated!');
+  console.log("\n✅ Central repo updated!");
   console.log(`   Location: ${hub.metaSkillsDir}`);
 
   if (options.autoSync) {
-    console.log('\n🔄 Auto-syncing to all tools...');
+    console.log("\n🔄 Auto-syncing to all tools...");
     await sync(options);
   }
 }
@@ -175,40 +179,40 @@ async function main() {
   const command = args[0];
 
   const options = {
-    verbose: !args.includes('--quiet'),
-    dryRun: args.includes('--dry-run'),
-    force: args.includes('--force'),
-    autoSync: args.includes('--auto-sync'),
-    tool: args.includes('--tool') ? args[args.indexOf('--tool') + 1] : null
+    verbose: !args.includes("--quiet"),
+    dryRun: args.includes("--dry-run"),
+    force: args.includes("--force"),
+    autoSync: args.includes("--auto-sync"),
+    tool: args.includes("--tool") ? args[args.indexOf("--tool") + 1] : null,
   };
 
   try {
     switch (command) {
-      case 'init':
-        await init(options);
-        break;
-      case 'sync':
-        await sync(options);
-        break;
-      case 'status':
-        await status(options);
-        break;
-      case 'update':
-        await update(options);
-        break;
-      case 'help':
-      case '--help':
-      case '-h':
-        help();
-        break;
-      default:
-        if (!command) {
-          console.error('❌ Error: No command specified\n');
-        } else {
-          console.error(`❌ Error: Unknown command "${command}"\n`);
-        }
-        help();
-        process.exit(1);
+    case "init":
+      await init(options);
+      break;
+    case "sync":
+      await sync(options);
+      break;
+    case "status":
+      await status(options);
+      break;
+    case "update":
+      await update(options);
+      break;
+    case "help":
+    case "--help":
+    case "-h":
+      help();
+      break;
+    default:
+      if (!command) {
+        console.error("❌ Error: No command specified\n");
+      } else {
+        console.error(`❌ Error: Unknown command "${command}"\n`);
+      }
+      help();
+      process.exit(1);
     }
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);
@@ -224,29 +228,29 @@ async function main() {
  */
 async function handleSkillsHubCommand(action, options = {}) {
   if (!action) {
-    console.error('❌ Error: No action specified\n');
+    console.error("❌ Error: No action specified\n");
     help();
     process.exit(1);
   }
 
   try {
     switch (action) {
-      case 'init':
-        await init(options);
-        break;
-      case 'sync':
-        await sync(options);
-        break;
-      case 'status':
-        await status(options);
-        break;
-      case 'update':
-        await update(options);
-        break;
-      default:
-        console.error(`❌ Error: Unknown action "${action}"\n`);
-        help();
-        process.exit(1);
+    case "init":
+      await init(options);
+      break;
+    case "sync":
+      await sync(options);
+      break;
+    case "status":
+      await status(options);
+      break;
+    case "update":
+      await update(options);
+      break;
+    default:
+      console.error(`❌ Error: Unknown action "${action}"\n`);
+      help();
+      process.exit(1);
     }
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);

@@ -71,7 +71,7 @@ class SoulWikiEvolution {
 
     this.isRunning = true;
     console.log("[SoulWiki] Starting wiki-style evolution");
-    console.log(`  Mode: Sequential (one CLI at a time)`);
+    console.log("  Mode: Sequential (one CLI at a time)");
     console.log(`  CLI order: ${this.cliList.join(" → ")}`);
 
     // 加载现有知识库
@@ -236,7 +236,7 @@ class SoulWikiEvolution {
       return;
     }
 
-    console.log(`[SoulWiki] Verifying with other CLIs...`);
+    console.log("[SoulWiki] Verifying with other CLIs...");
 
     const otherCLIs = this.cliList.filter((c) => c !== evolvedCLI);
     const verifications = [];
@@ -269,15 +269,15 @@ class SoulWikiEvolution {
 
     // 共识决策
     if (consensus >= this.config.consensusThreshold) {
-      console.log(`[SoulWiki] ✅ Consensus reached - knowledge accepted`);
+      console.log("[SoulWiki] ✅ Consensus reached - knowledge accepted");
       result.consensus = "accepted";
     } else if (consensus >= 0.3) {
-      console.log(`[SoulWiki] ⚠️ Partial consensus - knowledge needs review`);
+      console.log("[SoulWiki] ⚠️ Partial consensus - knowledge needs review");
       result.consensus = "review";
       // 标记待审查
       await this._flagForReview(result);
     } else {
-      console.log(`[SoulWiki] ❌ No consensus - knowledge rejected`);
+      console.log("[SoulWiki] ❌ No consensus - knowledge rejected");
       result.consensus = "rejected";
       // 移除刚添加的知识
       await this._rejectKnowledge(result);

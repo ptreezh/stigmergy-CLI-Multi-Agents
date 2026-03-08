@@ -1,6 +1,6 @@
-const fs = require('fs/promises');
-const fsSync = require('fs');
-const path = require('path');
+const fs = require("fs/promises");
+const fsSync = require("fs");
+const path = require("path");
 
 function maxOfTwo(a, b) {
   return a > b ? a : b;

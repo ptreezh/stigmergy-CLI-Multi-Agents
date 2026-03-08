@@ -31,9 +31,20 @@ const VALID_CLI_TOOLS = [
 
 // Pre-defined constants (avoid recreation on each call)
 const ROUTE_PATTERNS = new Set([
-  "use", "using", "with", "help", "please", "assist",
-  "write", "generate", "explain", "analyze", "translate",
-  "article", "create", "code",
+  "use",
+  "using",
+  "with",
+  "help",
+  "please",
+  "assist",
+  "write",
+  "generate",
+  "explain",
+  "analyze",
+  "translate",
+  "article",
+  "create",
+  "code",
 ]);
 
 const COMMON_TOOLS = ["claude", "gemini", "qwen"];
@@ -102,9 +113,10 @@ function extractCleanInput(input, matchPattern = null) {
  * @returns {boolean} True if file not found error
  */
 function isFileNotFoundError(error) {
-  return error.message && (
-    error.message.includes("no such file or directory") ||
-    error.message.includes("ENOENT")
+  return (
+    error.message &&
+    (error.message.includes("no such file or directory") ||
+      error.message.includes("ENOENT"))
   );
 }
 
@@ -144,7 +156,10 @@ class SmartRouter {
    */
   async getInstalledTools(ttlMs = 5 * 60 * 1000) {
     const now = Date.now();
-    if (this._installedToolsCache && (now - this._installedToolsCacheTime) < ttlMs) {
+    if (
+      this._installedToolsCache &&
+      now - this._installedToolsCacheTime < ttlMs
+    ) {
       return this._installedToolsCache;
     }
 
@@ -174,7 +189,7 @@ class SmartRouter {
 
     // Use Set for O(1) lookup instead of Array.some()
     const words = input.split(/\s+/);
-    return words.some(word => ROUTE_PATTERNS.has(word));
+    return words.some((word) => ROUTE_PATTERNS.has(word));
   }
 
   /**
@@ -190,17 +205,25 @@ class SmartRouter {
     const installedTools = await this.getInstalledTools();
 
     // Phase 1: Check for exact tool name matches (highest priority)
-    const exactMatch = await this._findExactMatch(input, inputLower, installedTools);
+    const exactMatch = await this._findExactMatch(
+      input,
+      inputLower,
+      installedTools,
+    );
     if (exactMatch) return exactMatch;
 
     // Phase 2: Check for keyword matches (lower priority)
-    const keywordMatch = await this._findKeywordMatch(input, inputLower, installedTools);
+    const keywordMatch = await this._findKeywordMatch(
+      input,
+      inputLower,
+      installedTools,
+    );
     if (keywordMatch) return keywordMatch;
 
     // Default routing
     return {
       tool: this.defaultTool,
-      prompt: extractCleanInput(input)
+      prompt: extractCleanInput(input),
     };
   }
 
@@ -218,7 +241,7 @@ class SmartRouter {
         if (inputLower.includes(toolName)) {
           return {
             tool: toolName,
-            prompt: extractCleanInput(input, toolName)
+            prompt: extractCleanInput(input, toolName),
           };
         }
       } catch (error) {
@@ -234,9 +257,8 @@ class SmartRouter {
    */
   async _findKeywordMatch(input, inputLower, installedTools) {
     // For short inputs, only analyze commonly used tools
-    const toolsToAnalyze = input.length < SHORT_INPUT_THRESHOLD
-      ? COMMON_TOOLS
-      : this.validTools;
+    const toolsToAnalyze =
+      input.length < SHORT_INPUT_THRESHOLD ? COMMON_TOOLS : this.validTools;
 
     for (const toolName of toolsToAnalyze) {
       if (!installedTools[toolName]) continue;
@@ -250,10 +272,13 @@ class SmartRouter {
         for (const keyword of keywords) {
           const keywordLower = keyword.toLowerCase();
           // Skip the tool name itself since we already checked for exact matches
-          if (keywordLower !== toolName.toLowerCase() && inputLower.includes(keywordLower)) {
+          if (
+            keywordLower !== toolName.toLowerCase() &&
+            inputLower.includes(keywordLower)
+          ) {
             return {
               tool: toolName,
-              prompt: extractCleanInput(input, keyword)
+              prompt: extractCleanInput(input, keyword),
             };
           }
         }
@@ -273,7 +298,7 @@ class SmartRouter {
       await errorHandler.logError(
         error,
         "WARN",
-        `SmartRouter.${context}.${toolName}`
+        `SmartRouter.${context}.${toolName}`,
       );
     }
   }
@@ -290,7 +315,9 @@ class SmartRouter {
       // If there was a recent failure, skip analysis
       if (failedAttempt && isRecentFailure(failedAttempt.timestamp)) {
         if (process.env.DEBUG === "true") {
-          console.log(`[INFO] Skipping analysis for ${toolName} due to recent failure`);
+          console.log(
+            `[INFO] Skipping analysis for ${toolName} due to recent failure`,
+          );
         }
         const cached = await this.analyzer.getCachedAnalysis(toolName);
         return cached || null;
@@ -320,19 +347,19 @@ class SmartRouter {
 
     // Add tool-specific keywords
     if (TOOL_SPECIFIC_KEYWORDS[toolName]) {
-      TOOL_SPECIFIC_KEYWORDS[toolName].forEach(k => keywords.add(k));
+      TOOL_SPECIFIC_KEYWORDS[toolName].forEach((k) => keywords.add(k));
     }
 
     // Add subcommands from CLI pattern if available
     if (cliPattern?.patterns?.subcommands) {
-      cliPattern.patterns.subcommands.forEach(subcommand => {
+      cliPattern.patterns.subcommands.forEach((subcommand) => {
         if (subcommand.name) keywords.add(subcommand.name);
       });
     }
 
     // Add commands from CLI pattern if available
     if (cliPattern?.patterns?.commands) {
-      cliPattern.patterns.commands.forEach(command => {
+      cliPattern.patterns.commands.forEach((command) => {
         if (command.name && command.name !== toolName) {
           keywords.add(command.name);
         }
@@ -360,7 +387,10 @@ class SmartRouter {
       try {
         validateCLITool(toolName);
 
-        const compatibility = await this.getAgentSkillCompatibilityScore(toolName, input);
+        const compatibility = await this.getAgentSkillCompatibilityScore(
+          toolName,
+          input,
+        );
 
         // Check for exact tool name matches (highest priority)
         let matchScore = 0;
@@ -372,7 +402,10 @@ class SmartRouter {
 
         if (matchScore > 0) {
           const enhancedPattern = await this.getEnhancedCLIPattern(toolName);
-          const optimizedCall = this.analyzer.generateOptimizedCall(toolName, input);
+          const optimizedCall = this.analyzer.generateOptimizedCall(
+            toolName,
+            input,
+          );
 
           routingResults.push({
             tool: toolName,
@@ -411,7 +444,10 @@ class SmartRouter {
       tool: this.defaultTool,
       prompt: extractCleanInput(input),
       confidence: DEFAULT_CONFIDENCE,
-      compatibility: await this.getAgentSkillCompatibilityScore(this.defaultTool, input),
+      compatibility: await this.getAgentSkillCompatibilityScore(
+        this.defaultTool,
+        input,
+      ),
       routingReasons: ["默认路由"],
       alternativeOptions: [],
     };
@@ -427,7 +463,10 @@ class SmartRouter {
       }
     } catch (error) {
       if (process.env.DEBUG === "true") {
-        console.log(`Error getting compatibility score for ${toolName}:`, error.message);
+        console.log(
+          `Error getting compatibility score for ${toolName}:`,
+          error.message,
+        );
       }
     }
 
@@ -445,7 +484,10 @@ class SmartRouter {
       }
     } catch (error) {
       if (process.env.DEBUG === "true") {
-        console.log(`Error getting enhanced pattern for ${toolName}:`, error.message);
+        console.log(
+          `Error getting enhanced pattern for ${toolName}:`,
+          error.message,
+        );
       }
     }
 
@@ -488,7 +530,10 @@ class SmartRouter {
       }
 
       try {
-        const compatibility = await this.getAgentSkillCompatibilityScore(toolName, primaryRoute.prompt);
+        const compatibility = await this.getAgentSkillCompatibilityScore(
+          toolName,
+          primaryRoute.prompt,
+        );
         const enhancedPattern = await this.getEnhancedCLIPattern(toolName);
 
         if (compatibility.score > FALLBACK_MIN_SCORE) {
@@ -522,7 +567,7 @@ class SmartRouter {
       try {
         if (process.env.DEBUG === "true") {
           console.log(
-            `[DEBUG] Executing route: ${currentRoute.tool} with confidence ${currentRoute.confidence}`
+            `[DEBUG] Executing route: ${currentRoute.tool} with confidence ${currentRoute.confidence}`,
           );
         }
         return currentRoute;
@@ -530,17 +575,22 @@ class SmartRouter {
         retryCount++;
 
         if (retryCount > maxRetries) {
-          throw new Error(`Route execution failed after ${maxRetries} retries: ${error.message}`);
+          throw new Error(
+            `Route execution failed after ${maxRetries} retries: ${error.message}`,
+          );
         }
 
         if (process.env.DEBUG === "true") {
           console.log(
             `[DEBUG] Route failed, generating fallback (attempt ${retryCount}):`,
-            error.message
+            error.message,
           );
         }
 
-        const fallbackRoutes = await this.generateFallbackRoutes(currentRoute, error);
+        const fallbackRoutes = await this.generateFallbackRoutes(
+          currentRoute,
+          error,
+        );
 
         if (fallbackRoutes.length === 0) {
           throw new Error("No fallback routes available");
@@ -563,7 +613,7 @@ class SmartRouter {
 
     if (!parallel || inputs.length <= 1) {
       // Process sequentially
-      return Promise.all(inputs.map(input => this.smartRouteEnhanced(input)));
+      return Promise.all(inputs.map((input) => this.smartRouteEnhanced(input)));
     }
 
     // Process in batches
@@ -571,7 +621,7 @@ class SmartRouter {
     for (let i = 0; i < inputs.length; i += maxConcurrent) {
       const batch = inputs.slice(i, i + maxConcurrent);
       const batchResults = await Promise.all(
-        batch.map(input => this.smartRouteEnhanced(input))
+        batch.map((input) => this.smartRouteEnhanced(input)),
       );
       results.push(...batchResults);
     }

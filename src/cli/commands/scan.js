@@ -3,9 +3,9 @@
  * Handles CLI tool scanning and discovery commands
  */
 
-const { CLI_TOOLS } = require('../../core/cli_tools');
-const chalk = require('chalk');
-const { ensureSkillsCache } = require('../utils/skills_cache');
+const { CLI_TOOLS } = require("../../core/cli_tools");
+const chalk = require("chalk");
+const { ensureSkillsCache } = require("../utils/skills_cache");
 
 /**
  * Handle scan command
@@ -19,11 +19,11 @@ async function handleScanCommand(options = {}) {
     // Initialize or update skills/agents cache
     await ensureSkillsCache({ verbose: options.verbose });
 
-    console.log(chalk.blue('🔍 Scanning for CLI tools...'));
+    console.log(chalk.blue("🔍 Scanning for CLI tools..."));
 
     const scanOptions = {
       deep: options.deep || false,
-      verbose: options.verbose || false
+      verbose: options.verbose || false,
     };
 
     // Scan for available CLI tools
@@ -34,7 +34,7 @@ async function handleScanCommand(options = {}) {
 
       for (const tool of results.found) {
         console.log(chalk.cyan(`  📦 ${tool.name}`));
-        console.log(chalk.gray(`     Version: ${tool.version || 'unknown'}`));
+        console.log(chalk.gray(`     Version: ${tool.version || "unknown"}`));
         console.log(chalk.gray(`     Path: ${tool.path}`));
 
         if (options.verbose) {
@@ -46,46 +46,49 @@ async function handleScanCommand(options = {}) {
         }
       }
     } else {
-      console.log(chalk.yellow('\n⚠️  No CLI tools found'));
+      console.log(chalk.yellow("\n⚠️  No CLI tools found"));
     }
 
     // Show missing tools
     if (results.missing && results.missing.length > 0) {
-      console.log(chalk.yellow(`\n❌ Missing ${results.missing.length} tools:`));
-      results.missing.forEach(tool => {
+      console.log(
+        chalk.yellow(`\n❌ Missing ${results.missing.length} tools:`),
+      );
+      results.missing.forEach((tool) => {
         console.log(chalk.red(`  ❌ ${tool}`));
       });
 
-      console.log(chalk.cyan('\n💡 To install missing tools:'));
-      console.log(chalk.cyan('   stigmergy install'));
+      console.log(chalk.cyan("\n💡 To install missing tools:"));
+      console.log(chalk.cyan("   stigmergy install"));
     }
 
     // Summary
-    console.log('');
-    console.log(chalk.blue('📊 Scan Summary:'));
+    console.log("");
+    console.log(chalk.blue("📊 Scan Summary:"));
     console.log(`  Total tools checked: ${results.total || 0}`);
     console.log(`  Found: ${results.found?.length || 0}`);
     console.log(`  Missing: ${results.missing?.length || 0}`);
 
     if (options.json) {
-      console.log('');
-      console.log(chalk.blue('📄 JSON Output:'));
+      console.log("");
+      console.log(chalk.blue("📄 JSON Output:"));
       console.log(JSON.stringify(results, null, 2));
     }
 
     // Recommendations
     if (results.found && results.found.length > 0) {
-      console.log(chalk.cyan('\n💡 You can now use these tools:'));
+      console.log(chalk.cyan("\n💡 You can now use these tools:"));
       const toolExamples = results.found.slice(0, 3);
-      toolExamples.forEach(tool => {
+      toolExamples.forEach((tool) => {
         console.log(chalk.cyan(`   stigmergy ${tool.name} "your prompt here"`));
       });
 
       if (results.found.length > 3) {
-        console.log(chalk.cyan(`   ... and ${results.found.length - 3} more tools`));
+        console.log(
+          chalk.cyan(`   ... and ${results.found.length - 3} more tools`),
+        );
       }
     }
-
   } catch (error) {
     console.log(chalk.red(`❌ Scan failed: ${error.message}`));
     process.exit(1);
@@ -93,5 +96,5 @@ async function handleScanCommand(options = {}) {
 }
 
 module.exports = {
-  handleScanCommand
+  handleScanCommand,
 };

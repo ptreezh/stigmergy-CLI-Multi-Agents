@@ -5,18 +5,18 @@
  * Sets up basic integration for Claude CLI with cross-CLI collaboration capabilities
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
 
 // Claude CLI config paths
-const CLAUDE_CONFIG_DIR = path.join(os.homedir(), '.claude');
-const CLAUDE_CONFIG_FILE = path.join(CLAUDE_CONFIG_DIR, 'config.json');
-const CLAUDE_HOOKS_FILE = path.join(CLAUDE_CONFIG_DIR, 'hooks.json');
+const CLAUDE_CONFIG_DIR = path.join(os.homedir(), ".claude");
+const CLAUDE_CONFIG_FILE = path.join(CLAUDE_CONFIG_DIR, "config.json");
+const CLAUDE_HOOKS_FILE = path.join(CLAUDE_CONFIG_DIR, "hooks.json");
 
 class ClaudeInstaller {
   constructor() {
-    this.toolName = 'claude';
+    this.toolName = "claude";
     this.configDir = CLAUDE_CONFIG_DIR;
     this.configFile = CLAUDE_CONFIG_FILE;
     this.hooksFile = CLAUDE_HOOKS_FILE;
@@ -31,7 +31,7 @@ class ClaudeInstaller {
     // Read existing config
     let existingConfig = {};
     try {
-      const content = await fs.readFile(this.configFile, 'utf-8');
+      const content = await fs.readFile(this.configFile, "utf-8");
       existingConfig = JSON.parse(content);
     } catch (e) {
       console.log(`Warning: Failed to read existing config: ${e.message}`);
@@ -41,14 +41,23 @@ class ClaudeInstaller {
     // Define cross-CLI integration config
     const crossCliConfig = {
       cross_cli_enabled: true,
-      supported_clis: ['claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'copilot', 'codex'],
+      supported_clis: [
+        "claude",
+        "gemini",
+        "qwen",
+        "iflow",
+        "qodercli",
+        "codebuddy",
+        "copilot",
+        "codex",
+      ],
       auto_detect: true,
       timeout: 30,
-      collaboration_mode: 'active',
+      collaboration_mode: "active",
       claude_skills_integration: true,
       claude_hooks_enabled: true,
       resumesession_enabled: true,
-      resumesession_integration: true
+      resumesession_integration: true,
     };
 
     // Merge configs
@@ -64,10 +73,12 @@ class ClaudeInstaller {
     // Read existing hooks config
     let existingHooks = {};
     try {
-      const content = await fs.readFile(this.hooksFile, 'utf-8');
+      const content = await fs.readFile(this.hooksFile, "utf-8");
       existingHooks = JSON.parse(content);
     } catch (e) {
-      console.log(`Warning: Failed to read existing hooks config: ${e.message}`);
+      console.log(
+        `Warning: Failed to read existing hooks config: ${e.message}`,
+      );
       existingHooks = {};
     }
 
@@ -75,25 +86,34 @@ class ClaudeInstaller {
     const crossCliHooks = {
       cross_cli_adapter: {
         enabled: true,
-        supported_tools: ['claude', 'gemini', 'qwen', 'iflow', 'qodercli', 'codebuddy', 'copilot', 'codex'],
+        supported_tools: [
+          "claude",
+          "gemini",
+          "qwen",
+          "iflow",
+          "qodercli",
+          "codebuddy",
+          "copilot",
+          "codex",
+        ],
         trigger_patterns: [
-          'use\\s+(\\w+)\\s+to\\s+(.+)$',
-          'call\\s+(\\w+)\\s+(.+)$',
-          'ask\\s+(\\w+)\\s+(.+)$',
-          'stigmergy\\s+(\\w+)\\s+(.+)$'
-        ]
+          "use\\s+(\\w+)\\s+to\\s+(.+)$",
+          "call\\s+(\\w+)\\s+(.+)$",
+          "ask\\s+(\\w+)\\s+(.+)$",
+          "stigmergy\\s+(\\w+)\\s+(.+)$",
+        ],
       },
       claude_skills: {
         enabled: true,
         auto_register: true,
-        cross_cli_aware: true
+        cross_cli_aware: true,
       },
       resumesession: {
         enabled: true,
-        command: '/stigmergy-resume',
-        description: 'Resume or query session history across CLIs',
-        version: '1.0.4'
-      }
+        command: "/stigmergy-resume",
+        description: "Resume or query session history across CLIs",
+        version: "1.0.4",
+      },
     };
 
     // Merge hooks configs
@@ -107,13 +127,17 @@ class ClaudeInstaller {
 
   async copyAdapterFiles() {
     const currentDir = __dirname;
-    const targetDir = path.join(this.configDir, 'hooks');
-    
+    const targetDir = path.join(this.configDir, "hooks");
+
     try {
       // Look for adapter files to copy
       const adapterFiles = await fs.readdir(currentDir);
-      const filesToCopy = adapterFiles.filter(file => 
-        file.endsWith('.js') || file.endsWith('.json') || file.endsWith('.py') || file === '__init__.py'
+      const filesToCopy = adapterFiles.filter(
+        (file) =>
+          file.endsWith(".js") ||
+          file.endsWith(".json") ||
+          file.endsWith(".py") ||
+          file === "__init__.py",
       );
 
       for (const file of filesToCopy) {
@@ -125,7 +149,7 @@ class ClaudeInstaller {
 
       // Create global Cross-CLI documentation
       await this.createGlobalCrossCliDocumentation(this.configDir);
-      
+
       return true;
     } catch (e) {
       console.log(`Warning: Failed to copy adapter files: ${e.message}`);
@@ -150,13 +174,13 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 ---
 *This document is automatically generated and maintained by Stigmergy CLI*
 `;
-      
-      const docPath = path.join(configDir, 'CROSS_CLI_GUIDE.md');
+
+      const docPath = path.join(configDir, "CROSS_CLI_GUIDE.md");
       await fs.writeFile(docPath, docContent);
       console.log(`[OK] Created Cross-CLI Communication Guide: ${docPath}`);
-      
+
       // Append to claude.md if it exists
-      const claudeMdPath = path.join(os.homedir(), '.claude', 'claude.md');
+      const claudeMdPath = path.join(os.homedir(), ".claude", "claude.md");
       try {
         await fs.access(claudeMdPath);
         const crossCliContent = `
@@ -172,39 +196,48 @@ Examples:
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(claudeMdPath, crossCliContent);
-        console.log('[OK] Append Cross-CLI communication prompt to CLAUDE.md');
+        console.log("[OK] Append Cross-CLI communication prompt to CLAUDE.md");
       } catch (e) {
         // File doesn't exist, that's ok
       }
-      
+
       return true;
     } catch (e) {
-      console.log(`Warning: Failed to create Cross-CLI Communication Guide: ${e.message}`);
+      console.log(
+        `Warning: Failed to create Cross-CLI Communication Guide: ${e.message}`,
+      );
       return false;
     }
   }
 
   async verifyInstallation() {
-    console.log('\nVerifying Claude CLI integration installation...');
+    console.log("\nVerifying Claude CLI integration installation...");
 
     // Check config directory
-    if (!await fs.access(this.configDir).then(() => true).catch(() => false)) {
-      console.log(`Warning: Config directory does not exist: ${this.configDir}`);
+    if (
+      !(await fs
+        .access(this.configDir)
+        .then(() => true)
+        .catch(() => false))
+    ) {
+      console.log(
+        `Warning: Config directory does not exist: ${this.configDir}`,
+      );
       return true;
     }
 
     // Check config file content
     try {
-      const content = await fs.readFile(this.configFile, 'utf-8');
+      const content = await fs.readFile(this.configFile, "utf-8");
       const config = JSON.parse(content);
-      
+
       if (config.cross_cli_enabled) {
-        console.log('[OK] Cross-CLI integration enabled');
+        console.log("[OK] Cross-CLI integration enabled");
       } else {
-        console.log('Note: Cross-CLI integration not enabled');
+        console.log("Note: Cross-CLI integration not enabled");
       }
-      
-      console.log('[OK] Claude config file verified');
+
+      console.log("[OK] Claude config file verified");
       return true;
     } catch (e) {
       console.log(`Warning: Failed to verify config file: ${e.message}`);
@@ -215,8 +248,13 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
   async uninstallIntegration() {
     try {
       // Remove cross-CLI config from config file
-      if (await fs.access(this.configFile).then(() => true).catch(() => false)) {
-        const content = await fs.readFile(this.configFile, 'utf-8');
+      if (
+        await fs
+          .access(this.configFile)
+          .then(() => true)
+          .catch(() => false)
+      ) {
+        const content = await fs.readFile(this.configFile, "utf-8");
         const config = JSON.parse(content);
 
         // Remove cross-CLI settings
@@ -229,16 +267,21 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 
         // Save updated config
         await fs.writeFile(this.configFile, JSON.stringify(config, null, 2));
-        console.log('[OK] Removed cross-CLI settings from Claude config');
+        console.log("[OK] Removed cross-CLI settings from Claude config");
       }
 
       // Remove hooks config file
-      if (await fs.access(this.hooksFile).then(() => true).catch(() => false)) {
+      if (
+        await fs
+          .access(this.hooksFile)
+          .then(() => true)
+          .catch(() => false)
+      ) {
         await fs.unlink(this.hooksFile);
-        console.log('[OK] Removed Claude hooks config file');
+        console.log("[OK] Removed Claude hooks config file");
       }
 
-      console.log('[OK] Claude CLI cross-CLI integration uninstalled');
+      console.log("[OK] Claude CLI cross-CLI integration uninstalled");
       return true;
     } catch (e) {
       console.log(`Error: Uninstall failed: ${e.message}`);
@@ -247,30 +290,31 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
   }
 
   async install() {
-    console.log('Claude CLI Integration Installer');
-    console.log('==========================================');
+    console.log("Claude CLI Integration Installer");
+    console.log("==========================================");
 
     // Execute installation
-    console.log('Step 1. Creating config directory...');
+    console.log("Step 1. Creating config directory...");
     await this.createConfigDirectory();
 
-    console.log('\nStep 2. Installing configuration...');
+    console.log("\nStep 2. Installing configuration...");
     const configSuccess = await this.installConfig();
 
-    console.log('\nStep 3. Installing hooks...');
+    console.log("\nStep 3. Installing hooks...");
     const hooksSuccess = await this.installHooks();
 
-    console.log('\nStep 4. Copying adapter files...');
+    console.log("\nStep 4. Copying adapter files...");
     const adapterSuccess = await this.copyAdapterFiles();
 
-    console.log('\nStep 5. Verifying installation...');
+    console.log("\nStep 5. Verifying installation...");
     const verificationSuccess = await this.verifyInstallation();
 
-    const overallSuccess = configSuccess && hooksSuccess && adapterSuccess && verificationSuccess;
+    const overallSuccess =
+      configSuccess && hooksSuccess && adapterSuccess && verificationSuccess;
     if (overallSuccess) {
-      console.log('\n[SUCCESS] Claude CLI integration installed successfully!');
+      console.log("\n[SUCCESS] Claude CLI integration installed successfully!");
     } else {
-      console.log('\n[WARNING] Installation completed with warnings');
+      console.log("\n[WARNING] Installation completed with warnings");
     }
 
     return overallSuccess;
@@ -280,20 +324,24 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 // Main execution
 if (require.main === module) {
   const installer = new ClaudeInstaller();
-  
+
   const args = process.argv.slice(2);
   const command = args[0];
 
   switch (command) {
-  case '--verify':
-    installer.verifyInstallation().then(success => process.exit(success ? 0 : 1));
-    break;
-  case '--uninstall':
-    installer.uninstallIntegration().then(success => process.exit(success ? 0 : 1));
-    break;
-  default:
-    installer.install().then(success => process.exit(success ? 0 : 1));
-    break;
+    case "--verify":
+      installer
+        .verifyInstallation()
+        .then((success) => process.exit(success ? 0 : 1));
+      break;
+    case "--uninstall":
+      installer
+        .uninstallIntegration()
+        .then((success) => process.exit(success ? 0 : 1));
+      break;
+    default:
+      installer.install().then((success) => process.exit(success ? 0 : 1));
+      break;
   }
 }
 

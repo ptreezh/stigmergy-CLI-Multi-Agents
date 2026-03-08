@@ -33,7 +33,7 @@ class SoulAutoMerger {
 
     this.lastMergeTime = this._loadLastMergeTime();
     this.mergeHistory = [];
-    
+
     // 确保wiki目录存在
     const wikiDir = path.join(BASE_PATH, ".soul_wiki");
     if (!fs.existsSync(wikiDir)) {
@@ -50,7 +50,7 @@ class SoulAutoMerger {
     // 1. 检查是否满足强制合并条件
     const shouldForceMerge = this._shouldForceMerge();
     if (shouldForceMerge) {
-      console.log(`[AutoMerger] ⏰ Force merge triggered (time interval)`);
+      console.log("[AutoMerger] ⏰ Force merge triggered (time interval)");
       return await this._executeMerge();
     }
 
@@ -82,7 +82,7 @@ class SoulAutoMerger {
       }
     }
 
-    console.log(`[AutoMerger] ✅ No merge needed`);
+    console.log("[AutoMerger] ✅ No merge needed");
     return { merged: false, reason: "not-needed" };
   }
 
@@ -220,7 +220,7 @@ class SoulAutoMerger {
    * 执行合并
    */
   async _executeMerge() {
-    console.log(`\n🔄 [AutoMerger] Executing merge...`);
+    console.log("\n🔄 [AutoMerger] Executing merge...");
 
     // 使用已有的SoulMerger
     const SoulMerger = require("./soul_merger");

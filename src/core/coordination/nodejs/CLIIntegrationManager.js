@@ -1,93 +1,93 @@
 // src/core/coordination/nodejs/CLIIntegrationManager.js
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const { spawn, spawnSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const { spawn, spawnSync } = require("child_process");
 
 class CLIIntegrationManager {
   constructor() {
     this.supportedCLIs = {
       claude: {
-        name: 'Claude CLI',
-        executable: 'claude',
+        name: "Claude CLI",
+        executable: "claude",
         hooks: [
-          'user_prompt_submit',
-          'tool_use_pre',
-          'tool_use_post',
-          'response_generated',
+          "user_prompt_submit",
+          "tool_use_pre",
+          "tool_use_post",
+          "response_generated",
         ],
       },
       gemini: {
-        name: 'Gemini CLI',
-        executable: 'gemini',
+        name: "Gemini CLI",
+        executable: "gemini",
         extensions: [
-          'on_user_input',
-          'on_response_generated',
-          'on_tool_execution',
+          "on_user_input",
+          "on_response_generated",
+          "on_tool_execution",
         ],
       },
       qwencode: {
-        name: 'QwenCode CLI',
-        executable: 'qwencode',
+        name: "QwenCode CLI",
+        executable: "qwencode",
         inheritance: [
-          'on_code_generation',
-          'on_analysis_request',
-          'on_refactor_request',
+          "on_code_generation",
+          "on_analysis_request",
+          "on_refactor_request",
         ],
       },
       iflow: {
-        name: 'iFlow CLI',
-        executable: 'iflow',
+        name: "iFlow CLI",
+        executable: "iflow",
         workflows: [
-          'on_workflow_start',
-          'on_stage_complete',
-          'on_workflow_success',
+          "on_workflow_start",
+          "on_stage_complete",
+          "on_workflow_success",
         ],
       },
       qoder: {
-        name: 'Qoder CLI',
-        executable: 'qoder',
+        name: "Qoder CLI",
+        executable: "qoder",
         notifications: [
-          'on_user_notification',
-          'on_system_alert',
-          'on_task_completion',
+          "on_user_notification",
+          "on_system_alert",
+          "on_task_completion",
         ],
       },
       codebuddy: {
-        name: 'CodeBuddy CLI',
-        executable: 'codebuddy',
+        name: "CodeBuddy CLI",
+        executable: "codebuddy",
         skills: [
-          'on_skill_invocation',
-          'on_buddy_request',
-          'on_cross_cli_task',
+          "on_skill_invocation",
+          "on_buddy_request",
+          "on_cross_cli_task",
         ],
       },
       codex: {
-        name: 'Codex CLI',
-        executable: 'codex',
-        slashCommands: ['/x', '/cross-cli', '/delegate'],
+        name: "Codex CLI",
+        executable: "codex",
+        slashCommands: ["/x", "/cross-cli", "/delegate"],
       },
       copilot: {
-        name: 'Copilot CLI',
-        executable: 'copilot',
-        mcp: ['cross_cli_execute'],
+        name: "Copilot CLI",
+        executable: "copilot",
+        mcp: ["cross_cli_execute"],
       },
       opencode: {
-        name: 'OpenCode AI CLI',
-        executable: 'opencode',
+        name: "OpenCode AI CLI",
+        executable: "opencode",
         skills: [
-          'on_skill_invocation',
-          'on_code_generation',
-          'on_cross_cli_task',
+          "on_skill_invocation",
+          "on_code_generation",
+          "on_cross_cli_task",
         ],
       },
-      'oh-my-opencode': {
-        name: 'Oh-My-OpenCode Plugin Manager',
-        executable: 'oh-my-opencode',
+      "oh-my-opencode": {
+        name: "Oh-My-OpenCode Plugin Manager",
+        executable: "oh-my-opencode",
         plugins: [
-          'on_plugin_install',
-          'on_plugin_load',
-          'on_cross_cli_integration',
+          "on_plugin_install",
+          "on_plugin_load",
+          "on_cross_cli_integration",
         ],
       },
     };
@@ -103,15 +103,15 @@ class CLIIntegrationManager {
 
     try {
       // Check if CLI executable is available
-      const result = spawnSync(cliInfo.executable, ['--version'], {
+      const result = spawnSync(cliInfo.executable, ["--version"], {
         timeout: 5000,
-        stdio: ['pipe', 'pipe', 'pipe'],
+        stdio: ["pipe", "pipe", "pipe"],
       });
 
       if (result.status === 0) {
         const version = result.stdout
           ? result.stdout.toString().trim()
-          : 'Unknown';
+          : "Unknown";
         return {
           available: true,
           version: version,
@@ -121,7 +121,7 @@ class CLIIntegrationManager {
         return {
           available: false,
           error: `CLI returned non-zero exit code: ${result.status}`,
-          stderr: result.stderr ? result.stderr.toString() : '',
+          stderr: result.stderr ? result.stderr.toString() : "",
         };
       }
     } catch (error) {
@@ -133,7 +133,7 @@ class CLIIntegrationManager {
   }
 
   async listAvailableCLIs() {
-    console.log('[CLI_INTEGRATION] Listing available CLIs...');
+    console.log("[CLI_INTEGRATION] Listing available CLIs...");
 
     const results = {};
     for (const [cliName, cliInfo] of Object.entries(this.supportedCLIs)) {
@@ -263,7 +263,7 @@ if (require.main === module) {
       fs.chmodSync(scriptPath, 0o755);
     } catch (error) {
       console.warn(
-        '[CLI_INTEGRATION] Failed to make script executable:',
+        "[CLI_INTEGRATION] Failed to make script executable:",
         error.message,
       );
     }
@@ -281,7 +281,7 @@ if (require.main === module) {
       name: cliInfo.name,
       executable: cliInfo.executable,
       features: Object.keys(cliInfo).filter(
-        (key) => key !== 'name' && key !== 'executable',
+        (key) => key !== "name" && key !== "executable",
       ),
     };
   }

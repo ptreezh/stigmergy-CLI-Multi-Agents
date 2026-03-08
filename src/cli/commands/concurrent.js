@@ -21,19 +21,19 @@ const STIGMERGY_FILE = "STIGMERGY.md";
  * 使用LLM驱动的智能提取（基于CLI模型算力）
  */
 async function absorbIndependentSessionExperiences(memoryManager) {
-  const os = require('os');
-  const path = require('path');
-  const fs = require('fs');
+  const os = require("os");
+  const path = require("path");
+  const fs = require("fs");
 
-  console.log('\n🧠 深度汲取独立运行经验（LLM驱动）...');
+  console.log("\n🧠 深度汲取独立运行经验（LLM驱动）...");
 
   // 各个 CLI 的会话历史路径
   const cliHistoryPaths = {
-    qwen: path.join(os.homedir(), '.qwen', 'projects'),
-    codebuddy: path.join(os.homedir(), '.codebuddy'),
-    iflow: path.join(os.homedir(), '.iflow', 'projects'),
-    claude: path.join(os.homedir(), '.claude', 'projects'),
-    gemini: path.join(os.homedir(), '.config', 'gemini', 'tmp')
+    qwen: path.join(os.homedir(), ".qwen", "projects"),
+    codebuddy: path.join(os.homedir(), ".codebuddy"),
+    iflow: path.join(os.homedir(), ".iflow", "projects"),
+    claude: path.join(os.homedir(), ".claude", "projects"),
+    gemini: path.join(os.homedir(), ".config", "gemini", "tmp"),
   };
 
   let totalSessions = 0;
@@ -59,33 +59,36 @@ async function absorbIndependentSessionExperiences(memoryManager) {
 
   if (valuableLessons.length > 0) {
     console.log(`   💡 提取到 ${valuableLessons.length} 条经验教训`);
-    console.log('   ✅ 经验已集成到共享记忆');
+    console.log("   ✅ 经验已集成到共享记忆");
   } else {
-    console.log('   ℹ️  未发现新的独立运行经验');
+    console.log("   ℹ️  未发现新的独立运行经验");
   }
 
   // 🆕 使用LLM驱动的深度经验提取
   try {
-    console.log('\n   🤖 启动LLM驱动的深度经验提取...');
-    const EnhancedExperienceManager = require('../../core/memory/EnhancedExperienceManager');
+    console.log("\n   🤖 启动LLM驱动的深度经验提取...");
+    const EnhancedExperienceManager = require("../../core/memory/EnhancedExperienceManager");
     const enhancedManager = new EnhancedExperienceManager();
 
     // 分析最近的会话并提取结构化经验
     const enhancedResult = await enhancedManager.scanAndAnalyzeSessions();
 
     if (enhancedResult.extractedInsights > 0) {
-      console.log(`   ✨ 深度提取完成: ${enhancedResult.extractedInsights} 条高质量洞察`);
+      console.log(
+        `   ✨ 深度提取完成: ${enhancedResult.extractedInsights} 条高质量洞察`,
+      );
 
       // 检查是否需要生成新技能
       const currentExperiences = enhancedManager.extractExperiencesFromMemory();
-      if (currentExperiences.length >= 5) {  // 至少5个经验才考虑生成技能
-        console.log('\n   🎨 经验积累充足，尝试生成新技能...');
+      if (currentExperiences.length >= 5) {
+        // 至少5个经验才考虑生成技能
+        console.log("\n   🎨 经验积累充足，尝试生成新技能...");
         await enhancedManager.analyzeAndGenerateSkills();
       }
     }
   } catch (error) {
     console.log(`   ⚠️  LLM深度提取失败: ${error.message}`);
-    console.log('   💡 继续使用基础提取结果');
+    console.log("   💡 继续使用基础提取结果");
   }
 
   return { totalSessions, valuableLessons: valuableLessons.length };
@@ -95,8 +98,8 @@ async function absorbIndependentSessionExperiences(memoryManager) {
  * 扫描特定 CLI 的最近会话
  */
 function scanRecentCliSessions(cli, historyPath) {
-  const fs = require('fs');
-  const path = require('path');
+  const fs = require("fs");
+  const path = require("path");
   const sessions = [];
 
   if (!fs.existsSync(historyPath)) {
@@ -104,12 +107,12 @@ function scanRecentCliSessions(cli, historyPath) {
   }
 
   // 递归扫描最近 1 天的会话文件
-  const cutoffTime = Date.now() - (24 * 60 * 60 * 1000); // 1 天
+  const cutoffTime = Date.now() - 24 * 60 * 60 * 1000; // 1 天
   const recentFiles = getRecentFiles(historyPath, cutoffTime);
 
   for (const file of recentFiles) {
     try {
-      const content = fs.readFileSync(file, 'utf-8');
+      const content = fs.readFileSync(file, "utf-8");
       const stats = fs.statSync(file);
 
       // 只处理 .jsonl 或 .json 文件
@@ -118,16 +121,18 @@ function scanRecentCliSessions(cli, historyPath) {
       }
 
       let sessionData;
-      if (file.endsWith('.jsonl')) {
+      if (file.endsWith(".jsonl")) {
         // JSONL 格式
-        const lines = content.split('\n').filter(l => l.trim());
-        const messages = lines.map(l => {
-          try {
-            return JSON.parse(l);
-          } catch (e) {
-            return null;
-          }
-        }).filter(m => m !== null);
+        const lines = content.split("\n").filter((l) => l.trim());
+        const messages = lines
+          .map((l) => {
+            try {
+              return JSON.parse(l);
+            } catch (e) {
+              return null;
+            }
+          })
+          .filter((m) => m !== null);
 
         if (messages.length > 0) {
           sessionData = {
@@ -135,7 +140,7 @@ function scanRecentCliSessions(cli, historyPath) {
             file,
             timestamp: new Date(stats.mtime).toISOString(),
             messages,
-            messageCount: messages.length
+            messageCount: messages.length,
           };
         }
       } else {
@@ -164,8 +169,8 @@ function scanRecentCliSessions(cli, historyPath) {
  * 递归获取最近的文件
  */
 function getRecentFiles(dir, cutoffTime) {
-  const fs = require('fs');
-  const path = require('path');
+  const fs = require("fs");
+  const path = require("path");
   const files = [];
 
   const scanDir = (currentPath) => {
@@ -211,17 +216,19 @@ function extractLessonsFromSessions(sessions) {
         cli: session.cli,
         timestamp: session.timestamp,
         file: session.file,
-        insights
+        insights,
       });
     }
   }
 
   // 按价值排序
-  return lessons.sort((a, b) => {
-    const scoreA = calculateInsightScore(a.insights);
-    const scoreB = calculateInsightScore(b.insights);
-    return scoreB - scoreA;
-  }).slice(0, 10); // 最多保留 10 条
+  return lessons
+    .sort((a, b) => {
+      const scoreA = calculateInsightScore(a.insights);
+      const scoreB = calculateInsightScore(b.insights);
+      return scoreB - scoreA;
+    })
+    .slice(0, 10); // 最多保留 10 条
 }
 
 /**
@@ -234,38 +241,54 @@ function analyzeSessionForInsights(session) {
   const insights = [];
 
   // 查找成功模式
-  if (content.includes('成功') || content.includes('完成') || content.includes('✅')) {
+  if (
+    content.includes("成功") ||
+    content.includes("完成") ||
+    content.includes("✅")
+  ) {
     insights.push({
-      type: 'success',
-      description: '成功完成任务',
-      confidence: 0.8
+      type: "success",
+      description: "成功完成任务",
+      confidence: 0.8,
     });
   }
 
   // 查找问题模式
-  if (content.includes('错误') || content.includes('失败') || content.includes('问题')) {
+  if (
+    content.includes("错误") ||
+    content.includes("失败") ||
+    content.includes("问题")
+  ) {
     insights.push({
-      type: 'issue',
-      description: '遇到问题',
-      confidence: 0.7
+      type: "issue",
+      description: "遇到问题",
+      confidence: 0.7,
     });
   }
 
   // 查找解决方案
-  if (content.includes('解决') || content.includes('修复') || content.includes('改进')) {
+  if (
+    content.includes("解决") ||
+    content.includes("修复") ||
+    content.includes("改进")
+  ) {
     insights.push({
-      type: 'solution',
-      description: '找到解决方案',
-      confidence: 0.8
+      type: "solution",
+      description: "找到解决方案",
+      confidence: 0.8,
     });
   }
 
   // 查找学习内容
-  if (content.includes('学习') || content.includes('发现') || content.includes('理解')) {
+  if (
+    content.includes("学习") ||
+    content.includes("发现") ||
+    content.includes("理解")
+  ) {
     insights.push({
-      type: 'learning',
-      description: '学习新知识',
-      confidence: 0.7
+      type: "learning",
+      description: "学习新知识",
+      confidence: 0.7,
     });
   }
 
@@ -285,8 +308,8 @@ function calculateInsightScore(insights) {
     score += insight.confidence || 0.5;
 
     // 优先级加权
-    if (insight.type === 'success') score += 0.3;
-    if (insight.type === 'solution') score += 0.2;
+    if (insight.type === "success") score += 0.3;
+    if (insight.type === "solution") score += 0.2;
   }
 
   return score;

@@ -250,7 +250,7 @@ class GatewayServer {
       res.writeHead(200);
       res.end(JSON.stringify({ status: "ok", intent, platform, result }));
     } catch (error) {
-      console.error(`[Gateway] Webhook error:`, error.message);
+      console.error("[Gateway] Webhook error:", error.message);
       res.writeHead(500);
       res.end(JSON.stringify({ error: error.message }));
     }
@@ -266,32 +266,32 @@ class GatewayServer {
     };
 
     switch (intent) {
-      case "concurrent":
-        result.mode = "concurrent";
-        result.message = `[并发模式] 已接收任务: ${text.replace(/^(concurrent|parallel)\s+/i, "")}`;
-        result.clis = ["claude", "qwen", "iflow"];
-        break;
-      case "ask":
-        const cli = text.match(/^ask\s+(\w+)\s+/i)?.[1] || "unknown";
-        result.mode = "ask";
-        result.message = `[${cli}] 已接收任务`;
-        result.cli = cli;
-        break;
-      case "status":
-        result.mode = "status";
-        result.message = "Stigmergy Gateway 运行中";
-        break;
-      case "help":
-        result.mode = "help";
-        result.message = `可用命令:
+    case "concurrent":
+      result.mode = "concurrent";
+      result.message = `[并发模式] 已接收任务: ${text.replace(/^(concurrent|parallel)\s+/i, "")}`;
+      result.clis = ["claude", "qwen", "iflow"];
+      break;
+    case "ask":
+      const cli = text.match(/^ask\s+(\w+)\s+/i)?.[1] || "unknown";
+      result.mode = "ask";
+      result.message = `[${cli}] 已接收任务`;
+      result.cli = cli;
+      break;
+    case "status":
+      result.mode = "status";
+      result.message = "Stigmergy Gateway 运行中";
+      break;
+    case "help":
+      result.mode = "help";
+      result.message = `可用命令:
 - route <任务>: 智能路由
 - concurrent <任务>: 多 CLI 并行
 - ask <cli> <任务>: 指定 CLI
 - status: 查询状态`;
-        break;
-      default:
-        result.mode = "route";
-        result.message = `[路由模式] 已接收任务`;
+      break;
+    default:
+      result.mode = "route";
+      result.message = "[路由模式] 已接收任务";
     }
 
     return result;

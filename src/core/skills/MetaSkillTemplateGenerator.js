@@ -5,13 +5,18 @@
  * Generates meta-skill templates for CLI tools that don't have custom templates
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require("fs").promises;
+const path = require("path");
 
 class MetaSkillTemplateGenerator {
   constructor() {
-    this.templateDir = path.join(process.cwd(), 'templates');
-    this.centralRepoDir = path.join(require('os').homedir(), '.stigmergy', 'skills-hub', 'meta-skills');
+    this.templateDir = path.join(process.cwd(), "templates");
+    this.centralRepoDir = path.join(
+      require("os").homedir(),
+      ".stigmergy",
+      "skills-hub",
+      "meta-skills",
+    );
   }
 
   /**
@@ -31,7 +36,7 @@ class MetaSkillTemplateGenerator {
 
     const content = this.generateTemplateContent(toolId, toolConfig);
 
-    await fs.writeFile(templatePath, content, 'utf8');
+    await fs.writeFile(templatePath, content, "utf8");
 
     return { exists: false, path: templatePath, created: true };
   }
@@ -248,7 +253,7 @@ User: "Implement a function"
 ---
 
 **Version**: 1.0.0
-**Last Updated**: ${new Date().toISOString().split('T')[0]}
+**Last Updated**: ${new Date().toISOString().split("T")[0]}
 **Maintained By**: Stigmergy Project
 <!-- META_SKILL_END -->`;
   }
@@ -261,23 +266,31 @@ User: "Implement a function"
     const capabilities = [];
 
     if (toolConfig.hooksDir) {
-      capabilities.push('- Hooks Integration: Advanced hooks at ' + toolConfig.hooksDir);
+      capabilities.push(
+        "- Hooks Integration: Advanced hooks at " + toolConfig.hooksDir,
+      );
     }
 
     if (toolConfig.config) {
-      capabilities.push('- Configuration: Managed config at ' + toolConfig.config);
+      capabilities.push(
+        "- Configuration: Managed config at " + toolConfig.config,
+      );
     }
 
     if (toolConfig.autoInstall) {
-      capabilities.push('- Auto-Install: Enabled for automatic setup');
+      capabilities.push("- Auto-Install: Enabled for automatic setup");
     }
 
     if (capabilities.length === 0) {
-      capabilities.push('- AI Assistance: Intelligent code generation and analysis');
-      capabilities.push('- Cross-CLI Coordination: Stigmergy integration for multi-tool workflows');
+      capabilities.push(
+        "- AI Assistance: Intelligent code generation and analysis",
+      );
+      capabilities.push(
+        "- Cross-CLI Coordination: Stigmergy integration for multi-tool workflows",
+      );
     }
 
-    return capabilities.join('\n');
+    return capabilities.join("\n");
   }
 
   /**
@@ -285,17 +298,20 @@ User: "Implement a function"
    */
   async generateMissingTemplates(adapters) {
     const results = [];
-    const { CLI_TOOLS } = require('../cli_tools');
+    const { CLI_TOOLS } = require("../cli_tools");
 
     for (const adapter of adapters) {
       const toolConfig = CLI_TOOLS[adapter.id];
       if (!toolConfig) continue;
 
       // Check if custom template exists
-      const customTemplatePath = path.join(this.templateDir, adapter.metaSkillFile);
+      const customTemplatePath = path.join(
+        this.templateDir,
+        adapter.metaSkillFile,
+      );
       try {
         await fs.access(customTemplatePath);
-        results.push({ tool: adapter.id, template: 'custom', exists: true });
+        results.push({ tool: adapter.id, template: "custom", exists: true });
         continue;
       } catch (e) {
         // Custom template doesn't exist, generate generic one
@@ -305,9 +321,9 @@ User: "Implement a function"
       const result = await this.generateTemplate(adapter.id, toolConfig);
       results.push({
         tool: adapter.id,
-        template: 'generic',
+        template: "generic",
         created: result.created,
-        path: result.path
+        path: result.path,
       });
     }
 

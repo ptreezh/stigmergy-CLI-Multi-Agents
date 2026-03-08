@@ -1,13 +1,20 @@
 // CLI Adapter Generator
 // 专门负责生成各CLI的基础适配器文件
 
-const path = require('path');
+const path = require("path");
 
 class CLIAdapterGenerator {
   constructor() {
     this.supportedCLIs = [
-      'claude', 'gemini', 'qwen', 'codebuddy', 'codex',
-      'iflow', 'qodercli', 'copilot', 'kode'
+      "claude",
+      "gemini",
+      "qwen",
+      "codebuddy",
+      "codex",
+      "iflow",
+      "qodercli",
+      "copilot",
+      "kode",
     ];
   }
 
@@ -19,21 +26,21 @@ class CLIAdapterGenerator {
     const currentProjectPath = process.cwd();
 
     switch (cliName.toLowerCase()) {
-      case 'claude':
+      case "claude":
         return this.generateClaudeAdapter(currentProjectPath);
-      case 'gemini':
+      case "gemini":
         return this.generateGeminiAdapter(currentProjectPath);
-      case 'qwen':
+      case "qwen":
         return this.generateQwenAdapter(currentProjectPath);
-      case 'codebuddy':
+      case "codebuddy":
         return this.generateCodeBuddyAdapter(currentProjectPath);
-      case 'codex':
+      case "codex":
         return this.generateCodexAdapter(currentProjectPath);
-      case 'qodercli':
+      case "qodercli":
         return this.generateQoderCliAdapter(currentProjectPath);
-      case 'iflow':
+      case "iflow":
         return this.generateIFlowAdapter(currentProjectPath);
-      case 'copilot':
+      case "copilot":
         return this.generateCopilotAdapter(currentProjectPath);
       default:
         return this.generateGenericAdapter(cliName, currentProjectPath);

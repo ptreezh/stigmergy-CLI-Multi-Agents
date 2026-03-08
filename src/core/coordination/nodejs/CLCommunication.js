@@ -1,6 +1,6 @@
 // src/core/coordination/nodejs/CLCommunication.js
-const { spawn } = require('child_process');
-const path = require('path');
+const { spawn } = require("child_process");
+const path = require("path");
 
 class CLCommunication {
   constructor() {
@@ -8,7 +8,7 @@ class CLCommunication {
   }
 
   async initialize() {
-    console.log('[CL_COMMUNICATION] Initializing cross-CLI communication...');
+    console.log("[CL_COMMUNICATION] Initializing cross-CLI communication...");
   }
 
   async executeTask(sourceCLI, targetCLI, task, context) {
@@ -36,23 +36,23 @@ class CLCommunication {
 
       // Spawn the CLI command
       const child = spawn(cliName, args, {
-        encoding: 'utf8',
+        encoding: "utf8",
         timeout: this.executionTimeout,
         shell: true,
       });
 
-      let stdout = '';
-      let stderr = '';
+      let stdout = "";
+      let stderr = "";
 
-      child.stdout.on('data', (data) => {
+      child.stdout.on("data", (data) => {
         stdout += data.toString();
       });
 
-      child.stderr.on('data', (data) => {
+      child.stderr.on("data", (data) => {
         stderr += data.toString();
       });
 
-      child.on('close', (code) => {
+      child.on("close", (code) => {
         if (code === 0) {
           resolve({
             success: true,
@@ -71,7 +71,7 @@ class CLCommunication {
         }
       });
 
-      child.on('error', (error) => {
+      child.on("error", (error) => {
         reject({
           success: false,
           error: `Failed to spawn process: ${error.message}`,
@@ -79,7 +79,7 @@ class CLCommunication {
         });
       });
 
-      child.on('timeout', () => {
+      child.on("timeout", () => {
         child.kill();
         reject({
           success: false,
@@ -94,10 +94,10 @@ class CLCommunication {
     // Prepare arguments based on the CLI type for non-interactive execution
     const cliTypes = {
       // CLIs that support -p flag for prompt
-      claude: ['-p', task],
-      qwen: ['-p', task],
-      gemini: ['-p', task],
-      iflow: ['-p', task],
+      claude: ["-p", task],
+      qwen: ["-p", task],
+      gemini: ["-p", task],
+      iflow: ["-p", task],
       // CLIs that support direct prompt as argument
       qodercli: [task],
       codebuddy: [task],
@@ -106,7 +106,7 @@ class CLCommunication {
     };
 
     const args = cliTypes[cliName];
-    return args || ['-p', task]; // Default to -p flag if not specified
+    return args || ["-p", task]; // Default to -p flag if not specified
   }
 
   getAdapter(cliName) {

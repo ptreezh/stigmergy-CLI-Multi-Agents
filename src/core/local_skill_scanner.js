@@ -12,16 +12,16 @@
  * - Automatic cache generation during setup/install/scan commands
  */
 
-const fs = require('fs/promises');
-const fsSync = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
+const fs = require("fs/promises");
+const fsSync = require("fs");
+const path = require("path");
+const os = require("os");
+const crypto = require("crypto");
 
 class LocalSkillScanner {
   constructor() {
-    this.cacheDir = path.join(os.homedir(), '.stigmergy', 'cache');
-    this.cacheFile = path.join(this.cacheDir, 'skills-agents-cache.json');
+    this.cacheDir = path.join(os.homedir(), ".stigmergy", "cache");
+    this.cacheFile = path.join(this.cacheDir, "skills-agents-cache.json");
     this.scanResults = null;
     this.initialized = false;
   }
@@ -50,8 +50,8 @@ class LocalSkillScanner {
       if (cached) {
         this.scanResults = cached;
         this.initialized = true;
-        if (process.env.DEBUG === 'true') {
-          console.log('[SKILL-SCANNER] Loaded skills/agents from cache');
+        if (process.env.DEBUG === "true") {
+          console.log("[SKILL-SCANNER] Loaded skills/agents from cache");
         }
         return this.scanResults;
       }
@@ -63,8 +63,8 @@ class LocalSkillScanner {
     this.scanResults = results;
     this.initialized = true;
 
-    if (process.env.DEBUG === 'true') {
-      console.log('[SKILL-SCANNER] Performed fresh scan and cached results');
+    if (process.env.DEBUG === "true") {
+      console.log("[SKILL-SCANNER] Performed fresh scan and cached results");
     }
 
     return this.scanResults;
@@ -99,7 +99,7 @@ class LocalSkillScanner {
    */
   async loadFromCache() {
     try {
-      const data = await fs.readFile(this.cacheFile, 'utf8');
+      const data = await fs.readFile(this.cacheFile, "utf8");
       return JSON.parse(data);
     } catch (error) {
       return null;
@@ -111,11 +111,15 @@ class LocalSkillScanner {
    */
   async saveToCache(results) {
     try {
-      await fs.writeFile(this.cacheFile, JSON.stringify(results, null, 2), 'utf8');
+      await fs.writeFile(
+        this.cacheFile,
+        JSON.stringify(results, null, 2),
+        "utf8",
+      );
     } catch (error) {
       // Cache save is not critical, ignore errors
-      if (process.env.DEBUG === 'true') {
-        console.log('[SKILL-SCANNER] Failed to save cache:', error.message);
+      if (process.env.DEBUG === "true") {
+        console.log("[SKILL-SCANNER] Failed to save cache:", error.message);
       }
     }
   }
@@ -132,34 +136,43 @@ class LocalSkillScanner {
       return await this.initialize();
     }
 
-    const cliTools = ['claude', 'gemini', 'qwen', 'iflow', 'codebuddy', 'qodercli', 'copilot', 'codex'];
+    const cliTools = [
+      "claude",
+      "gemini",
+      "qwen",
+      "iflow",
+      "codebuddy",
+      "qodercli",
+      "copilot",
+      "codex",
+    ];
     const results = {
       skills: { ...cached.skills },
       agents: { ...cached.agents },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     let hasChanges = false;
 
     for (const cli of cliTools) {
       const cliConfigPath = path.join(os.homedir(), `.${cli}`);
-      const skillsPath = path.join(cliConfigPath, 'skills');
-      const agentsPath = path.join(cliConfigPath, 'agents');
+      const skillsPath = path.join(cliConfigPath, "skills");
+      const agentsPath = path.join(cliConfigPath, "agents");
 
       // Check if skills directory needs re-scanning (based on file modification time)
       if (await this.directoryChanged(skillsPath, cached.timestamp)) {
-        results.skills[cli] = await this.scanDirectory(skillsPath, 'skill');
+        results.skills[cli] = await this.scanDirectory(skillsPath, "skill");
         hasChanges = true;
-        if (process.env.DEBUG === 'true') {
+        if (process.env.DEBUG === "true") {
           console.log(`[SKILL-SCANNER] Updated skills cache for ${cli}`);
         }
       }
 
       // Check if agents directory needs re-scanning
       if (await this.directoryChanged(agentsPath, cached.timestamp)) {
-        results.agents[cli] = await this.scanDirectory(agentsPath, 'agent');
+        results.agents[cli] = await this.scanDirectory(agentsPath, "agent");
         hasChanges = true;
-        if (process.env.DEBUG === 'true') {
+        if (process.env.DEBUG === "true") {
           console.log(`[SKILL-SCANNER] Updated agents cache for ${cli}`);
         }
       }
@@ -167,12 +180,12 @@ class LocalSkillScanner {
 
     if (hasChanges) {
       await this.saveToCache(results);
-      if (process.env.DEBUG === 'true') {
-        console.log('[SKILL-SCANNER] Saved updated cache');
+      if (process.env.DEBUG === "true") {
+        console.log("[SKILL-SCANNER] Saved updated cache");
       }
     } else {
-      if (process.env.DEBUG === 'true') {
-        console.log('[SKILL-SCANNER] No changes detected, cache is up-to-date');
+      if (process.env.DEBUG === "true") {
+        console.log("[SKILL-SCANNER] No changes detected, cache is up-to-date");
       }
     }
 
@@ -221,20 +234,29 @@ class LocalSkillScanner {
    * This is expensive and should only be called when necessary
    */
   async scanAll() {
-    const cliTools = ['claude', 'gemini', 'qwen', 'iflow', 'codebuddy', 'qodercli', 'copilot', 'codex'];
+    const cliTools = [
+      "claude",
+      "gemini",
+      "qwen",
+      "iflow",
+      "codebuddy",
+      "qodercli",
+      "copilot",
+      "codex",
+    ];
     const results = {
       skills: {},
       agents: {},
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     for (const cli of cliTools) {
       const cliConfigPath = path.join(os.homedir(), `.${cli}`);
-      const skillsPath = path.join(cliConfigPath, 'skills');
-      const agentsPath = path.join(cliConfigPath, 'agents');
+      const skillsPath = path.join(cliConfigPath, "skills");
+      const agentsPath = path.join(cliConfigPath, "agents");
 
-      results.skills[cli] = await this.scanDirectory(skillsPath, 'skill');
-      results.agents[cli] = await this.scanDirectory(agentsPath, 'agent');
+      results.skills[cli] = await this.scanDirectory(skillsPath, "skill");
+      results.agents[cli] = await this.scanDirectory(agentsPath, "agent");
     }
 
     return results;
@@ -264,17 +286,25 @@ class LocalSkillScanner {
           const itemPath = path.join(dirPath, entry.name);
 
           // Try to find SKILL.md or AGENT.md
-          const skillMdPath = path.join(itemPath, 'SKILL.md');
-          const agentMdPath = path.join(itemPath, 'AGENT.md');
-          const readmePath = path.join(itemPath, 'README.md');
+          const skillMdPath = path.join(itemPath, "SKILL.md");
+          const agentMdPath = path.join(itemPath, "AGENT.md");
+          const readmePath = path.join(itemPath, "README.md");
 
           let metadata = null;
 
           // Try to read metadata from markdown files
-          if (type === 'skill') {
-            metadata = await this.readSkillMetadata(itemPath, skillMdPath, readmePath);
+          if (type === "skill") {
+            metadata = await this.readSkillMetadata(
+              itemPath,
+              skillMdPath,
+              readmePath,
+            );
           } else {
-            metadata = await this.readAgentMetadata(itemPath, agentMdPath, readmePath);
+            metadata = await this.readAgentMetadata(
+              itemPath,
+              agentMdPath,
+              readmePath,
+            );
           }
 
           if (metadata) {
@@ -283,7 +313,7 @@ class LocalSkillScanner {
               path: itemPath,
               type,
               metadata,
-              keywords: this.extractKeywords(metadata)
+              keywords: this.extractKeywords(metadata),
             });
           }
         }
@@ -300,18 +330,18 @@ class LocalSkillScanner {
    */
   async readSkillMetadata(itemPath, skillMdPath, readmePath) {
     try {
-      let content = '';
-      let sourceFile = '';
+      let content = "";
+      let sourceFile = "";
 
       // Try SKILL.md first
       try {
-        content = await fs.readFile(skillMdPath, 'utf8');
-        sourceFile = 'SKILL.md';
+        content = await fs.readFile(skillMdPath, "utf8");
+        sourceFile = "SKILL.md";
       } catch {
         // Try README.md
         try {
-          content = await fs.readFile(readmePath, 'utf8');
-          sourceFile = 'README.md';
+          content = await fs.readFile(readmePath, "utf8");
+          sourceFile = "README.md";
         } catch {
           return null;
         }
@@ -323,7 +353,7 @@ class LocalSkillScanner {
         description: this.extractDescription(content),
         capabilities: this.extractCapabilities(content),
         usage: this.extractUsage(content),
-        sourceFile
+        sourceFile,
       };
 
       return metadata;
@@ -337,18 +367,18 @@ class LocalSkillScanner {
    */
   async readAgentMetadata(itemPath, agentMdPath, readmePath) {
     try {
-      let content = '';
-      let sourceFile = '';
+      let content = "";
+      let sourceFile = "";
 
       // Try AGENT.md first
       try {
-        content = await fs.readFile(agentMdPath, 'utf8');
-        sourceFile = 'AGENT.md';
+        content = await fs.readFile(agentMdPath, "utf8");
+        sourceFile = "AGENT.md";
       } catch {
         // Try README.md
         try {
-          content = await fs.readFile(readmePath, 'utf8');
-          sourceFile = 'README.md';
+          content = await fs.readFile(readmePath, "utf8");
+          sourceFile = "README.md";
         } catch {
           return null;
         }
@@ -360,7 +390,7 @@ class LocalSkillScanner {
         description: this.extractDescription(content),
         capabilities: this.extractCapabilities(content),
         usage: this.extractUsage(content),
-        sourceFile
+        sourceFile,
       };
 
       return metadata;
@@ -374,9 +404,10 @@ class LocalSkillScanner {
    */
   extractName(content, fallbackName) {
     // Try to find name in frontmatter or heading
-    const nameMatch = content.match(/name:\s*"([^"]+)"/i) ||
-                     content.match(/^#\s+(.+)$/m) ||
-                     content.match(/name:\s*([^#\n]+)/i);
+    const nameMatch =
+      content.match(/name:\s*"([^"]+)"/i) ||
+      content.match(/^#\s+(.+)$/m) ||
+      content.match(/name:\s*([^#\n]+)/i);
 
     if (nameMatch) {
       return nameMatch[1].trim();
@@ -401,7 +432,7 @@ class LocalSkillScanner {
       return firstParagraph[1].trim().substring(0, 200);
     }
 
-    return '';
+    return "";
   }
 
   /**
@@ -448,13 +479,13 @@ class LocalSkillScanner {
 
     // Add name and description words
     if (metadata.name) {
-      metadata.name.split(/\s+/).forEach(word => {
+      metadata.name.split(/\s+/).forEach((word) => {
         if (word.length > 2) keywords.add(word.toLowerCase());
       });
     }
 
     if (metadata.description) {
-      metadata.description.split(/\s+/).forEach(word => {
+      metadata.description.split(/\s+/).forEach((word) => {
         if (word.length > 3) keywords.add(word.toLowerCase());
       });
     }
@@ -495,22 +526,34 @@ class LocalSkillScanner {
 
     // Quick keyword check (no cache needed, just string matching)
     const quickAgentKeywords = [
-      'agent', '智能体', '专家', 'expert', 'specialist',
-      '使用.*agent', '调用.*agent', '用.*agent'
+      "agent",
+      "智能体",
+      "专家",
+      "expert",
+      "specialist",
+      "使用.*agent",
+      "调用.*agent",
+      "用.*agent",
     ];
 
     const quickSkillKeywords = [
-      'skill', '技能', '能力', 'method', 'tool',
-      '使用.*skill', '调用.*skill', '用.*skill'
+      "skill",
+      "技能",
+      "能力",
+      "method",
+      "tool",
+      "使用.*skill",
+      "调用.*skill",
+      "用.*skill",
     ];
 
     // Stage 1: Fast regex check (no I/O, <1ms)
-    const hasAgentKeyword = quickAgentKeywords.some(keyword =>
-      new RegExp(keyword, 'i').test(userInput)
+    const hasAgentKeyword = quickAgentKeywords.some((keyword) =>
+      new RegExp(keyword, "i").test(userInput),
     );
 
-    const hasSkillKeyword = quickSkillKeywords.some(keyword =>
-      new RegExp(keyword, 'i').test(userInput)
+    const hasSkillKeyword = quickSkillKeywords.some((keyword) =>
+      new RegExp(keyword, "i").test(userInput),
     );
 
     // Early exit if no keywords detected
@@ -519,7 +562,7 @@ class LocalSkillScanner {
         hasMention: false,
         hasAgentMention: false,
         hasSkillMention: false,
-        shouldLoadCache: false
+        shouldLoadCache: false,
       };
     }
 
@@ -528,7 +571,7 @@ class LocalSkillScanner {
       hasMention: true,
       hasAgentKeyword,
       hasSkillKeyword,
-      shouldLoadCache: true // Proceed to Stage 2: load cache and match
+      shouldLoadCache: true, // Proceed to Stage 2: load cache and match
     };
   }
 
@@ -550,7 +593,7 @@ class LocalSkillScanner {
       // Check name match
       if (inputLower.includes(skill.name.toLowerCase())) {
         score += 0.5;
-        reasons.push('Skill name mentioned');
+        reasons.push("Skill name mentioned");
       }
 
       // Check keyword matches
@@ -575,7 +618,7 @@ class LocalSkillScanner {
         matches.push({
           skill,
           score: Math.min(score, 1.0),
-          reasons
+          reasons,
         });
       }
     }
@@ -602,7 +645,7 @@ class LocalSkillScanner {
       // Check name match
       if (inputLower.includes(agent.name.toLowerCase())) {
         score += 0.5;
-        reasons.push('Agent name mentioned');
+        reasons.push("Agent name mentioned");
       }
 
       // Check keyword matches
@@ -627,7 +670,7 @@ class LocalSkillScanner {
         matches.push({
           agent,
           score: Math.min(score, 1.0),
-          reasons
+          reasons,
         });
       }
     }
@@ -651,28 +694,42 @@ class LocalSkillScanner {
 
     // Check for explicit keywords
     const explicitAgentKeywords = [
-      'agent', '智能体', '专家', 'expert', 'specialist',
-      '使用.*agent', '调用.*agent', '用.*agent'
+      "agent",
+      "智能体",
+      "专家",
+      "expert",
+      "specialist",
+      "使用.*agent",
+      "调用.*agent",
+      "用.*agent",
     ];
 
     const explicitSkillKeywords = [
-      'skill', '技能', '能力', 'method', 'tool',
-      '使用.*skill', '调用.*skill', '用.*skill'
+      "skill",
+      "技能",
+      "能力",
+      "method",
+      "tool",
+      "使用.*skill",
+      "调用.*skill",
+      "用.*skill",
     ];
 
-    const hasExplicitAgentMention = explicitAgentKeywords.some(keyword =>
-      new RegExp(keyword, 'i').test(userInput)
-    ) || agentMatches.some(m => m.score > 0.5);
+    const hasExplicitAgentMention =
+      explicitAgentKeywords.some((keyword) =>
+        new RegExp(keyword, "i").test(userInput),
+      ) || agentMatches.some((m) => m.score > 0.5);
 
-    const hasExplicitSkillMention = explicitSkillKeywords.some(keyword =>
-      new RegExp(keyword, 'i').test(userInput)
-    ) || skillMatches.some(m => m.score > 0.5);
+    const hasExplicitSkillMention =
+      explicitSkillKeywords.some((keyword) =>
+        new RegExp(keyword, "i").test(userInput),
+      ) || skillMatches.some((m) => m.score > 0.5);
 
     return {
       hasExplicitAgentMention,
       hasExplicitSkillMention,
       agentMatches: hasExplicitAgentMention ? agentMatches : [],
-      skillMatches: hasExplicitSkillMention ? skillMatches : []
+      skillMatches: hasExplicitSkillMention ? skillMatches : [],
     };
   }
 
@@ -681,14 +738,14 @@ class LocalSkillScanner {
    */
   generateSkillParameterPattern(skillName, cliName) {
     const patterns = {
-      'claude': `Bash("stigmergy skill read ${skillName}")`,
-      'gemini': `--skill ${skillName}`,
-      'qwen': `使用${skillName}技能`,
-      'codebuddy': `-p "skill:${skillName}"`,
-      'iflow': `-p "请使用${skillName}技能"`,
-      'copilot': `--skill ${skillName}`,
-      'codex': `--skill ${skillName}`,
-      'qodercli': `-p "请使用${skillName}技能"`
+      claude: `Bash("stigmergy skill read ${skillName}")`,
+      gemini: `--skill ${skillName}`,
+      qwen: `使用${skillName}技能`,
+      codebuddy: `-p "skill:${skillName}"`,
+      iflow: `-p "请使用${skillName}技能"`,
+      copilot: `--skill ${skillName}`,
+      codex: `--skill ${skillName}`,
+      qodercli: `-p "请使用${skillName}技能"`,
     };
 
     return patterns[cliName] || `-p "${skillName}"`;
@@ -699,14 +756,14 @@ class LocalSkillScanner {
    */
   generateAgentParameterPattern(agentName, cliName) {
     const patterns = {
-      'claude': `Bash("stigmergy use ${agentName} agent")`,
-      'gemini': `--agent ${agentName}`,
-      'qwen': `使用${agentName}智能体`,
-      'codebuddy': `-p "agent:${agentName}"`,
-      'iflow': `-p "请使用${agentName}智能体"`,
-      'copilot': `--agent ${agentName}`,
-      'codex': `--agent ${agentName}`,
-      'qodercli': `-p "请使用${agentName}智能体"`
+      claude: `Bash("stigmergy use ${agentName} agent")`,
+      gemini: `--agent ${agentName}`,
+      qwen: `使用${agentName}智能体`,
+      codebuddy: `-p "agent:${agentName}"`,
+      iflow: `-p "请使用${agentName}智能体"`,
+      copilot: `--agent ${agentName}`,
+      codex: `--agent ${agentName}`,
+      qodercli: `-p "请使用${agentName}智能体"`,
     };
 
     return patterns[cliName] || `-p "${agentName}"`;

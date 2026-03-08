@@ -4,9 +4,9 @@
 // Existing content would be here...
 
 // Add Node.js coordination layer exports
-const NodeJsCoordinationLayer = require('./nodejs');
-const HookDeploymentManager = require('./nodejs/HookDeploymentManager');
-const CLIIntegrationManager = require('./nodejs/CLIIntegrationManager');
+const NodeJsCoordinationLayer = require("./nodejs");
+const HookDeploymentManager = require("./nodejs/HookDeploymentManager");
+const CLIIntegrationManager = require("./nodejs/CLIIntegrationManager");
 
 module.exports = {
   // Existing exports...

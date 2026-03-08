@@ -9,10 +9,10 @@
  * @returns {string} Formatted string
  */
 function formatBytes(bytes) {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  if (bytes === 0) return '0 Bytes';
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  if (bytes === 0) return "0 Bytes";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
 }
 
 /**
@@ -34,7 +34,7 @@ function formatDuration(ms) {
  */
 function formatToolStatus(status) {
   if (status.installed) {
-    return `${status.tool}: ✅ Installed (v${status.version || 'unknown'})`;
+    return `${status.tool}: ✅ Installed (v${status.version || "unknown"})`;
   } else {
     return `${status.tool}: ❌ Not installed`;
   }
@@ -43,5 +43,5 @@ function formatToolStatus(status) {
 module.exports = {
   formatBytes,
   formatDuration,
-  formatToolStatus
+  formatToolStatus,
 };

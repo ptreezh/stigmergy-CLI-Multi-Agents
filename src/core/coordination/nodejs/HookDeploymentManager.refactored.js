@@ -1,25 +1,29 @@
 // src/core/coordination/nodejs/HookDeploymentManager.js
 // 重构后的简洁版本 - 核心协调功能
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const { spawn, spawnSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const { spawn, spawnSync } = require("child_process");
 
 // Import specialized generators
-const { ResumeSessionGenerator, SkillsIntegrationGenerator, CLIAdapterGenerator } = require('./generators');
+const {
+  ResumeSessionGenerator,
+  SkillsIntegrationGenerator,
+  CLIAdapterGenerator,
+} = require("./generators");
 
 class HookDeploymentManager {
   constructor() {
-    this.deploymentDir = path.join(os.homedir(), '.stigmergy', 'hooks');
+    this.deploymentDir = path.join(os.homedir(), ".stigmergy", "hooks");
     this.supportedCLIs = [
-      'claude',
-      'gemini',
-      'qwen',
-      'iflow',
-      'qodercli',
-      'codebuddy',
-      'codex',
-      'copilot',
+      "claude",
+      "gemini",
+      "qwen",
+      "iflow",
+      "qodercli",
+      "codebuddy",
+      "codex",
+      "copilot",
     ];
 
     // Initialize generators
@@ -29,7 +33,7 @@ class HookDeploymentManager {
   }
 
   async initialize() {
-    console.log('[HOOK_DEPLOYMENT] Initializing hook deployment manager...');
+    console.log("[HOOK_DEPLOYMENT] Initializing hook deployment manager...");
     await this.ensureDeploymentDirectory();
   }
 
@@ -89,20 +93,27 @@ class HookDeploymentManager {
   }
 
   async deployResumeSessionExtension(cliName, hookDir) {
-    console.log(`[HOOK_DEPLOYMENT] Deploying ResumeSession extension for ${cliName}...`);
+    console.log(
+      `[HOOK_DEPLOYMENT] Deploying ResumeSession extension for ${cliName}...`,
+    );
 
     try {
-      const extensionContent = this.resumeSessionGenerator.generateForCLI(cliName);
+      const extensionContent =
+        this.resumeSessionGenerator.generateForCLI(cliName);
       const fileName = this.resumeSessionGenerator.getFileName(cliName);
       const extensionPath = path.join(hookDir, fileName);
 
       fs.writeFileSync(extensionPath, extensionContent);
-      console.log(`[HOOK_DEPLOYMENT] Created ResumeSession extension: ${extensionPath}`);
+      console.log(
+        `[HOOK_DEPLOYMENT] Created ResumeSession extension: ${extensionPath}`,
+      );
 
       // Make the extension executable
       try {
         fs.chmodSync(extensionPath, 0o755);
-        console.log(`[HOOK_DEPLOYMENT] Made extension executable: ${extensionPath}`);
+        console.log(
+          `[HOOK_DEPLOYMENT] Made extension executable: ${extensionPath}`,
+        );
       } catch (error) {
         console.warn(
           `[HOOK_DEPLOYMENT] Failed to make extension executable: ${error.message}`,
@@ -111,45 +122,62 @@ class HookDeploymentManager {
 
       return true;
     } catch (error) {
-      console.error(`[HOOK_DEPLOYMENT] Failed to deploy ResumeSession extension for ${cliName}:`, error);
+      console.error(
+        `[HOOK_DEPLOYMENT] Failed to deploy ResumeSession extension for ${cliName}:`,
+        error,
+      );
       return false;
     }
   }
 
   async deploySkillsIntegration(cliName, hookDir) {
-    console.log(`[HOOK_DEPLOYMENT] Deploying skills integration for ${cliName}...`);
+    console.log(
+      `[HOOK_DEPLOYMENT] Deploying skills integration for ${cliName}...`,
+    );
 
     try {
-      const skillsResult = this.skillsIntegrationGenerator.generateForCLI(cliName);
+      const skillsResult =
+        this.skillsIntegrationGenerator.generateForCLI(cliName);
       const skillsPath = path.join(hookDir, skillsResult.fileName);
 
       fs.writeFileSync(skillsPath, skillsResult.content);
-      console.log(`[HOOK_DEPLOYMENT] Created skills integration: ${skillsPath}`);
+      console.log(
+        `[HOOK_DEPLOYMENT] Created skills integration: ${skillsPath}`,
+      );
 
       // Make the skills file executable
       try {
         fs.chmodSync(skillsPath, 0o755);
-        console.log(`[HOOK_DEPLOYMENT] Made skills integration executable: ${skillsPath}`);
+        console.log(
+          `[HOOK_DEPLOYMENT] Made skills integration executable: ${skillsPath}`,
+        );
       } catch (error) {
-        console.warn(`[HOOK_DEPLOYMENT] Failed to make skills integration executable: ${error.message}`);
+        console.warn(
+          `[HOOK_DEPLOYMENT] Failed to make skills integration executable: ${error.message}`,
+        );
       }
 
       // Create skills configuration
       const skillsConfig = {
         cli: cliName,
         skillsPath: skillsPath,
-        skillsDirectory: path.join(os.homedir(), '.stigmergy', 'skills'),
+        skillsDirectory: path.join(os.homedir(), ".stigmergy", "skills"),
         deploymentTime: new Date().toISOString(),
-        version: '1.0.0-skills'
+        version: "1.0.0-skills",
       };
 
-      const configPath = path.join(hookDir, 'skills-config.json');
+      const configPath = path.join(hookDir, "skills-config.json");
       fs.writeFileSync(configPath, JSON.stringify(skillsConfig, null, 2));
-      console.log(`[HOOK_DEPLOYMENT] Created skills configuration: ${configPath}`);
+      console.log(
+        `[HOOK_DEPLOYMENT] Created skills configuration: ${configPath}`,
+      );
 
       return true;
     } catch (error) {
-      console.error(`[HOOK_DEPLOYMENT] Failed to deploy skills integration for ${cliName}:`, error);
+      console.error(
+        `[HOOK_DEPLOYMENT] Failed to deploy skills integration for ${cliName}:`,
+        error,
+      );
       return false;
     }
   }
@@ -168,20 +196,29 @@ class HookDeploymentManager {
       // Make the adapter executable
       try {
         fs.chmodSync(adapterPath, 0o755);
-        console.log(`[HOOK_DEPLOYMENT] Made adapter executable: ${adapterPath}`);
+        console.log(
+          `[HOOK_DEPLOYMENT] Made adapter executable: ${adapterPath}`,
+        );
       } catch (error) {
-        console.warn(`[HOOK_DEPLOYMENT] Failed to make adapter executable: ${error.message}`);
+        console.warn(
+          `[HOOK_DEPLOYMENT] Failed to make adapter executable: ${error.message}`,
+        );
       }
 
       return true;
     } catch (error) {
-      console.error(`[HOOK_DEPLOYMENT] Failed to deploy CLI adapter for ${cliName}:`, error);
+      console.error(
+        `[HOOK_DEPLOYMENT] Failed to deploy CLI adapter for ${cliName}:`,
+        error,
+      );
       return false;
     }
   }
 
   async createBasicConfiguration(cliName, hookDir) {
-    console.log(`[HOOK_DEPLOYMENT] Creating basic configuration for ${cliName}...`);
+    console.log(
+      `[HOOK_DEPLOYMENT] Creating basic configuration for ${cliName}...`,
+    );
 
     try {
       // Create main configuration file
@@ -189,27 +226,30 @@ class HookDeploymentManager {
         cli: cliName,
         hookPath: hookDir,
         deploymentTime: new Date().toISOString(),
-        version: '1.0.0-nodejs',
+        version: "1.0.0-nodejs",
         modules: {
           resumeSession: true,
           skillsIntegration: true,
-          cliAdapter: true
-        }
+          cliAdapter: true,
+        },
       };
 
-      const configPath = path.join(hookDir, 'config.json');
+      const configPath = path.join(hookDir, "config.json");
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       console.log(`[HOOK_DEPLOYMENT] Created configuration: ${configPath}`);
 
       return true;
     } catch (error) {
-      console.error(`[HOOK_DEPLOYMENT] Failed to create configuration for ${cliName}:`, error);
+      console.error(
+        `[HOOK_DEPLOYMENT] Failed to create configuration for ${cliName}:`,
+        error,
+      );
       return false;
     }
   }
 
   async deployHooksForAllCLIs(options = {}) {
-    console.log('[HOOK_DEPLOYMENT] Deploying hooks for all supported CLIs...');
+    console.log("[HOOK_DEPLOYMENT] Deploying hooks for all supported CLIs...");
 
     const results = [];
     for (const cliName of this.supportedCLIs) {
@@ -217,7 +257,7 @@ class HookDeploymentManager {
       results.push({ cli: cliName, success });
     }
 
-    const successful = results.filter(r => r.success).length;
+    const successful = results.filter((r) => r.success).length;
     console.log(
       `[HOOK_DEPLOYMENT] Deployment complete: ${successful}/${this.supportedCLIs.length} CLIs configured`,
     );
@@ -227,16 +267,21 @@ class HookDeploymentManager {
 
   async getDeployedHooks() {
     try {
-      const cliDirs = fs.readdirSync(this.deploymentDir, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name);
+      const cliDirs = fs
+        .readdirSync(this.deploymentDir, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
 
       const hooks = [];
       for (const cliName of cliDirs) {
-        const configPath = path.join(this.deploymentDir, cliName, 'config.json');
+        const configPath = path.join(
+          this.deploymentDir,
+          cliName,
+          "config.json",
+        );
         if (fs.existsSync(configPath)) {
           try {
-            const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
             hooks.push(config);
           } catch (error) {
             console.warn(
@@ -249,7 +294,7 @@ class HookDeploymentManager {
 
       return hooks;
     } catch (error) {
-      console.error('[HOOK_DEPLOYMENT] Failed to get deployed hooks:', error);
+      console.error("[HOOK_DEPLOYMENT] Failed to get deployed hooks:", error);
       return [];
     }
   }
@@ -261,21 +306,25 @@ class HookDeploymentManager {
 
     const cliHookDir = path.join(this.deploymentDir, cliName);
     if (!fs.existsSync(cliHookDir)) {
-      return { valid: false, error: 'Hook directory not found' };
+      return { valid: false, error: "Hook directory not found" };
     }
 
-    const configPath = path.join(cliHookDir, 'config.json');
+    const configPath = path.join(cliHookDir, "config.json");
     if (!fs.existsSync(configPath)) {
-      return { valid: false, error: 'Configuration file not found' };
+      return { valid: false, error: "Configuration file not found" };
     }
 
     try {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
       // Validate that all expected modules are present
-      const expectedModules = ['resumeSession', 'skillsIntegration', 'cliAdapter'];
+      const expectedModules = [
+        "resumeSession",
+        "skillsIntegration",
+        "cliAdapter",
+      ];
       if (!config.modules) {
-        return { valid: false, error: 'Module configuration not found' };
+        return { valid: false, error: "Module configuration not found" };
       }
 
       for (const module of expectedModules) {
@@ -286,16 +335,19 @@ class HookDeploymentManager {
 
       return {
         valid: true,
-        message: 'Hook deployment is valid',
-        modules: config.modules
+        message: "Hook deployment is valid",
+        modules: config.modules,
       };
     } catch (error) {
-      return { valid: false, error: `Failed to validate deployment: ${error.message}` };
+      return {
+        valid: false,
+        error: `Failed to validate deployment: ${error.message}`,
+      };
     }
   }
 
   async validateAllDeployments() {
-    console.log('[HOOK_DEPLOYMENT] Validating all hook deployments...');
+    console.log("[HOOK_DEPLOYMENT] Validating all hook deployments...");
 
     const results = [];
     for (const cliName of this.supportedCLIs) {
@@ -303,7 +355,7 @@ class HookDeploymentManager {
       results.push({ cli: cliName, ...validation });
     }
 
-    const valid = results.filter(r => r.valid).length;
+    const valid = results.filter((r) => r.valid).length;
     console.log(
       `[HOOK_DEPLOYMENT] Validation complete: ${valid}/${this.supportedCLIs.length} deployments valid`,
     );
@@ -315,7 +367,7 @@ class HookDeploymentManager {
     return {
       deploymentDir: this.deploymentDir,
       supportedCLIs: this.supportedCLIs,
-      initialized: fs.existsSync(this.deploymentDir)
+      initialized: fs.existsSync(this.deploymentDir),
     };
   }
 }

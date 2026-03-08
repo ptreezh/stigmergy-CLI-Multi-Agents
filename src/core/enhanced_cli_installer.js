@@ -51,26 +51,26 @@ class EnhancedCLIInstaller {
     let color = chalk.white;
 
     switch (level) {
-      case "info":
-        prefix = `[INFO] ${timestamp}`;
-        color = chalk.blue;
-        break;
-      case "success":
-        prefix = `[SUCCESS] ${timestamp}`;
-        color = chalk.green;
-        break;
-      case "warn":
-        prefix = `[WARN] ${timestamp}`;
-        color = chalk.yellow;
-        break;
-      case "error":
-        prefix = `[ERROR] ${timestamp}`;
-        color = chalk.red;
-        break;
-      case "debug":
-        prefix = `[DEBUG] ${timestamp}`;
-        color = chalk.gray;
-        break;
+    case "info":
+      prefix = `[INFO] ${timestamp}`;
+      color = chalk.blue;
+      break;
+    case "success":
+      prefix = `[SUCCESS] ${timestamp}`;
+      color = chalk.green;
+      break;
+    case "warn":
+      prefix = `[WARN] ${timestamp}`;
+      color = chalk.yellow;
+      break;
+    case "error":
+      prefix = `[ERROR] ${timestamp}`;
+      color = chalk.red;
+      break;
+    case "debug":
+      prefix = `[DEBUG] ${timestamp}`;
+      color = chalk.gray;
+      break;
     }
 
     const logMessage = color(`${prefix} ${message}`);
@@ -456,31 +456,31 @@ class EnhancedCLIInstaller {
    */
   async executeInstallation(toolInfo) {
     switch (this.permissionMode) {
-      case "standard":
-        return await this.executeStandardInstallation(toolInfo);
-      case "elevated":
-        return await this.executeElevatedInstallation(toolInfo);
-      case "user-space":
-        return await this.executeUserSpaceInstallation(toolInfo);
-      case "failed":
-        return await this.executeFallbackInstallation(toolInfo);
-      default:
-        // Try standard first, then escalate if needed
-        const standardResult = await this.executeStandardInstallation(toolInfo);
-        if (standardResult.success) {
-          return standardResult;
-        }
-
-        if (this.isPermissionError(standardResult.error)) {
-          this.log(
-            "warn",
-            `Permission error, escalating to elevated installation...`,
-          );
-          this.permissionMode = "elevated";
-          return await this.executeElevatedInstallation(toolInfo);
-        }
-
+    case "standard":
+      return await this.executeStandardInstallation(toolInfo);
+    case "elevated":
+      return await this.executeElevatedInstallation(toolInfo);
+    case "user-space":
+      return await this.executeUserSpaceInstallation(toolInfo);
+    case "failed":
+      return await this.executeFallbackInstallation(toolInfo);
+    default:
+      // Try standard first, then escalate if needed
+      const standardResult = await this.executeStandardInstallation(toolInfo);
+      if (standardResult.success) {
         return standardResult;
+      }
+
+      if (this.isPermissionError(standardResult.error)) {
+        this.log(
+          "warn",
+          "Permission error, escalating to elevated installation...",
+        );
+        this.permissionMode = "elevated";
+        return await this.executeElevatedInstallation(toolInfo);
+      }
+
+      return standardResult;
     }
   }
 
@@ -505,7 +505,7 @@ class EnhancedCLIInstaller {
             "warn",
             `${toolInfo.name} requires bun, but bun is not installed`,
           );
-          this.log("info", `Installing bun first...`);
+          this.log("info", "Installing bun first...");
 
           const bunResult =
             await this.executeInstallationCommand("npm install bun -g");
@@ -554,7 +554,7 @@ class EnhancedCLIInstaller {
         if (this.isPermissionError(errorMessage)) {
           this.log(
             "warn",
-            `Standard installation failed due to permission error, switching to user-space installation...`,
+            "Standard installation failed due to permission error, switching to user-space installation...",
           );
           this.permissionMode = "user-space";
           return await this.executeUserSpaceInstallation(toolInfo);
@@ -567,7 +567,7 @@ class EnhancedCLIInstaller {
       if (this.isPermissionError(error.message)) {
         this.log(
           "warn",
-          `Standard installation failed due to permission error, switching to user-space installation...`,
+          "Standard installation failed due to permission error, switching to user-space installation...",
         );
         this.permissionMode = "user-space";
         return await this.executeUserSpaceInstallation(toolInfo);
@@ -657,7 +657,7 @@ class EnhancedCLIInstaller {
         // If elevated installation failed, try user-space installation
         this.log(
           "warn",
-          `Elevated installation failed, trying user-space installation...`,
+          "Elevated installation failed, trying user-space installation...",
         );
         this.permissionMode = "user-space";
         return await this.executeUserSpaceInstallation(toolInfo);
@@ -717,7 +717,7 @@ class EnhancedCLIInstaller {
         // If privilege escalation failed, try user-space installation as fallback
         this.log(
           "warn",
-          `Privilege escalation failed, trying user-space installation...`,
+          "Privilege escalation failed, trying user-space installation...",
         );
         return await this.executeUserSpaceInstallation(toolInfo);
       }
@@ -896,7 +896,7 @@ class EnhancedCLIInstaller {
         if (this.isPermissionError(errorMessage)) {
           this.log(
             "warn",
-            `Fallback installation failed due to permission error, switching to user-space installation...`,
+            "Fallback installation failed due to permission error, switching to user-space installation...",
           );
           this.permissionMode = "user-space";
           return await this.executeUserSpaceInstallation(toolInfo);
@@ -908,7 +908,7 @@ class EnhancedCLIInstaller {
       if (this.isPermissionError(error.message)) {
         this.log(
           "warn",
-          `Fallback installation failed due to permission error, switching to user-space installation...`,
+          "Fallback installation failed due to permission error, switching to user-space installation...",
         );
         this.permissionMode = "user-space";
         return await this.executeUserSpaceInstallation(toolInfo);

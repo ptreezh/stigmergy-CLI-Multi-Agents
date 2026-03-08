@@ -11,34 +11,39 @@
  * - JSON-based registry (simple, no SQLite)
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
-const MetaSkillTemplateGenerator = require('./MetaSkillTemplateGenerator');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
+const crypto = require("crypto");
+const MetaSkillTemplateGenerator = require("./MetaSkillTemplateGenerator");
 
 class StigmergySkillsHub {
   constructor(options = {}) {
-    this.centralRepo = path.join(os.homedir(), '.stigmergy', 'skills-hub');
-    this.metaSkillsDir = path.join(this.centralRepo, 'meta-skills');
-    this.registryPath = path.join(this.centralRepo, 'registry.json');
-    this.adaptersPath = path.join(os.homedir(), '.stigmergy', 'config', 'tool-adapters.json');
+    this.centralRepo = path.join(os.homedir(), ".stigmergy", "skills-hub");
+    this.metaSkillsDir = path.join(this.centralRepo, "meta-skills");
+    this.registryPath = path.join(this.centralRepo, "registry.json");
+    this.adaptersPath = path.join(
+      os.homedir(),
+      ".stigmergy",
+      "config",
+      "tool-adapters.json",
+    );
 
     this.adapters = [];
     this.registry = {
-      version: '1.0.0',
+      version: "1.0.0",
       skills: {},
       tools: {},
-      lastSync: null
+      lastSync: null,
     };
 
     this.verbose = options.verbose !== false;
     this.templateGenerator = new MetaSkillTemplateGenerator();
   }
 
-  log(message, level = 'INFO') {
+  log(message, level = "INFO") {
     if (this.verbose) {
-      const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+      const timestamp = new Date().toISOString().split("T")[1].split(".")[0];
       console.log(`[${timestamp}] [${level}] ${message}`);
     }
   }
@@ -47,7 +52,7 @@ class StigmergySkillsHub {
    * Initialize the Skills Hub
    */
   async init() {
-    this.log('Initializing Stigmergy Skills Hub...', 'INFO');
+    this.log("Initializing Stigmergy Skills Hub...", "INFO");
 
     try {
       // Create directory structure
@@ -62,10 +67,10 @@ class StigmergySkillsHub {
       // Verify meta-skills
       await this.verifyMetaSkills();
 
-      this.log('Skills Hub initialized successfully', 'OK');
+      this.log("Skills Hub initialized successfully", "OK");
       return true;
     } catch (error) {
-      this.log(`Initialization failed: ${error.message}`, 'ERROR');
+      this.log(`Initialization failed: ${error.message}`, "ERROR");
       throw error;
     }
   }
@@ -74,64 +79,76 @@ class StigmergySkillsHub {
    * Create directory structure
    */
   async createDirectoryStructure() {
-    this.log('Creating directory structure...', 'INFO');
+    this.log("Creating directory structure...", "INFO");
 
     const dirs = [
       this.centralRepo,
       this.metaSkillsDir,
-      path.join(os.homedir(), '.stigmergy', 'config')
+      path.join(os.homedir(), ".stigmergy", "config"),
     ];
 
     for (const dir of dirs) {
       await fs.mkdir(dir, { recursive: true });
-      this.log(`Created: ${dir}`, 'DEBUG');
+      this.log(`Created: ${dir}`, "DEBUG");
     }
 
-    this.log('Directory structure created', 'OK');
+    this.log("Directory structure created", "OK");
   }
 
   /**
    * Load tool adapters
    */
   async loadAdapters() {
-    this.log('Loading tool adapters...', 'INFO');
+    this.log("Loading tool adapters...", "INFO");
 
     try {
-      const content = await fs.readFile(this.adaptersPath, 'utf8');
+      const content = await fs.readFile(this.adaptersPath, "utf8");
       const config = JSON.parse(content);
       this.adapters = config.tools || [];
 
       // Get default adapters to check for missing tools
       const defaultAdapters = this.getDefaultAdapters();
-      const defaultAdapterIds = new Set(defaultAdapters.map(adapter => adapter.id));
-      const currentAdapterIds = new Set(this.adapters.map(adapter => adapter.id));
+      const defaultAdapterIds = new Set(
+        defaultAdapters.map((adapter) => adapter.id),
+      );
+      const currentAdapterIds = new Set(
+        this.adapters.map((adapter) => adapter.id),
+      );
 
       // Find missing adapters and add them
-      const missingAdapters = defaultAdapters.filter(adapter => !currentAdapterIds.has(adapter.id));
+      const missingAdapters = defaultAdapters.filter(
+        (adapter) => !currentAdapterIds.has(adapter.id),
+      );
 
       if (missingAdapters.length > 0) {
         this.adapters = [...this.adapters, ...missingAdapters];
-        this.log(`Added ${missingAdapters.length} missing tool adapters`, 'OK');
+        this.log(`Added ${missingAdapters.length} missing tool adapters`, "OK");
 
         // Update the config file with the new adapters
         await fs.writeFile(
           this.adaptersPath,
           JSON.stringify({ tools: this.adapters }, null, 2),
-          'utf8'
+          "utf8",
         );
-        this.log(`Updated config with ${this.adapters.length} tool adapters`, 'OK');
+        this.log(
+          `Updated config with ${this.adapters.length} tool adapters`,
+          "OK",
+        );
       }
 
-      this.log(`Loaded ${this.adapters.length} tool adapters`, 'OK');
+      this.log(`Loaded ${this.adapters.length} tool adapters`, "OK");
     } catch (error) {
       // Use default adapters if file doesn't exist
       this.adapters = this.getDefaultAdapters();
       await fs.writeFile(
         this.adaptersPath,
         JSON.stringify({ tools: this.adapters }, null, 2),
-        'utf8'
+        "utf8",
       );
-      this.log(`Created default adapters (${this.adapters.length} tools)`, 'OK');
+      this.log(
+        `Created default adapters (${this.adapters.length} tools)`,
+        "OK",
+      );
     }
   }
 
@@ -139,12 +156,12 @@ class StigmergySkillsHub {
    * Get default tool adapters from CLI_TOOLS configuration
    */
   getDefaultAdapters() {
-    const { CLI_TOOLS } = require('../cli_tools');
+    const { CLI_TOOLS } = require("../cli_tools");
     const adapters = [];
 
     for (const [toolId, toolConfig] of Object.entries(CLI_TOOLS)) {
       // Skip resumesession and oh-my-opencode (internal tools)
-      if (toolId === 'resumesession' || toolId === 'oh-my-opencode') {
+      if (toolId === "resumesession" || toolId === "oh-my-opencode") {
         continue;
       }
 
@@ -152,15 +169,15 @@ class StigmergySkillsHub {
       let configPath = toolConfig.config;
       if (!configPath) {
         // Fallback to ~/.toolid/config.json
-        configPath = path.join(os.homedir(), `.${toolId}`, 'config.json');
+        configPath = path.join(os.homedir(), `.${toolId}`, "config.json");
       }
 
       // Extract directory from config path for target file
       const configDir = path.dirname(configPath);
-      const configFileName = path.basename(configPath, '.json');
+      const configFileName = path.basename(configPath, ".json");
 
       // Convert to uppercase .MD file (e.g., config.json → CONFIG.md)
-      const targetFileName = configFileName.toUpperCase() + '.md';
+      const targetFileName = configFileName.toUpperCase() + ".md";
       const targetPath = path.join(configDir, targetFileName);
 
       // Detect path is the hooks directory or config directory
@@ -173,11 +190,11 @@ class StigmergySkillsHub {
         id: toolId,
         displayName: toolConfig.name || toolId,
         metaSkillFile,
-        targetPath: targetPath.replace(/^~/, '~'), // Ensure ~ is preserved
-        detectPath: detectPath.replace(/^~/, '~'),
-        injectMode: 'prepend',
+        targetPath: targetPath.replace(/^~/, "~"), // Ensure ~ is preserved
+        detectPath: detectPath.replace(/^~/, "~"),
+        injectMode: "prepend",
         enabled: true,
-        configPath: configPath.replace(/^~/, '~')
+        configPath: configPath.replace(/^~/, "~"),
       });
     }
 
@@ -188,22 +205,22 @@ class StigmergySkillsHub {
    * Load or create registry
    */
   async loadOrCreateRegistry() {
-    this.log('Loading registry...', 'INFO');
+    this.log("Loading registry...", "INFO");
 
     try {
-      const content = await fs.readFile(this.registryPath, 'utf8');
+      const content = await fs.readFile(this.registryPath, "utf8");
       this.registry = JSON.parse(content);
-      this.log('Registry loaded', 'OK');
+      this.log("Registry loaded", "OK");
     } catch (error) {
       // Create new registry
       this.registry = {
-        version: '1.0.0',
+        version: "1.0.0",
         skills: {},
         tools: {},
-        lastSync: null
+        lastSync: null,
       };
       await this.saveRegistry();
-      this.log('Registry created', 'OK');
+      this.log("Registry created", "OK");
     }
   }
 
@@ -214,7 +231,7 @@ class StigmergySkillsHub {
     await fs.writeFile(
       this.registryPath,
       JSON.stringify(this.registry, null, 2),
-      'utf8'
+      "utf8",
     );
   }
 
@@ -222,24 +239,26 @@ class StigmergySkillsHub {
    * Verify meta-skills exist or generate them
    */
   async verifyMetaSkills() {
-    this.log('Verifying meta-skills...', 'INFO');
+    this.log("Verifying meta-skills...", "INFO");
 
-    const templateDir = path.join(process.cwd(), 'templates');
+    const templateDir = path.join(process.cwd(), "templates");
     const missing = [];
     const generated = [];
 
     // First, ensure all templates exist (generate if missing)
-    const genResults = await this.templateGenerator.generateMissingTemplates(this.adapters);
+    const genResults = await this.templateGenerator.generateMissingTemplates(
+      this.adapters,
+    );
 
     for (const result of genResults) {
-      if (result.template === 'generic' && result.created) {
+      if (result.template === "generic" && result.created) {
         generated.push(result.tool);
-        this.log(`Generated generic template for: ${result.tool}`, 'DEBUG');
+        this.log(`Generated generic template for: ${result.tool}`, "DEBUG");
       }
     }
 
     if (generated.length > 0) {
-      this.log(`Generated ${generated.length} generic templates`, 'INFO');
+      this.log(`Generated ${generated.length} generic templates`, "INFO");
     }
 
     // Then copy/update all templates to central repo
@@ -255,16 +274,16 @@ class StigmergySkillsHub {
         const needCopy = await this.shouldCopyToCentral(sourcePath, targetPath);
         if (needCopy) {
           await fs.copyFile(sourcePath, targetPath);
-          this.log(`Copied: ${adapter.metaSkillFile}`, 'DEBUG');
+          this.log(`Copied: ${adapter.metaSkillFile}`, "DEBUG");
 
           // Update registry
-          const content = await fs.readFile(sourcePath, 'utf8');
+          const content = await fs.readFile(sourcePath, "utf8");
           const hash = this.hashContent(content);
 
           this.registry.skills[adapter.metaSkillFile] = {
             hash,
             size: content.length,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
         }
       } catch (error) {
@@ -275,9 +294,12 @@ class StigmergySkillsHub {
     await this.saveRegistry();
 
     if (missing.length > 0) {
-      this.log(`Missing meta-skills: ${missing.join(', ')}`, 'WARN');
+      this.log(`Missing meta-skills: ${missing.join(", ")}`, "WARN");
     } else {
-      this.log(`All meta-skills verified (${this.adapters.length} tools)`, 'OK');
+      this.log(
+        `All meta-skills verified (${this.adapters.length} tools)`,
+        "OK",
+      );
     }
   }
 
@@ -301,7 +323,7 @@ class StigmergySkillsHub {
    * Sync meta-skills to all installed tools
    */
   async syncAll(options = {}) {
-    this.log('Starting sync to all tools...', 'INFO');
+    this.log("Starting sync to all tools...", "INFO");
 
     const results = [];
     let successCount = 0;
@@ -310,13 +332,13 @@ class StigmergySkillsHub {
 
     for (const adapter of this.adapters) {
       if (!adapter.enabled) {
-        this.log(`Skipping disabled tool: ${adapter.id}`, 'DEBUG');
+        this.log(`Skipping disabled tool: ${adapter.id}`, "DEBUG");
         skipCount++;
         continue;
       }
 
-      if (options.force !== true && !await this.isToolInstalled(adapter)) {
-        this.log(`Tool not installed: ${adapter.displayName}`, 'WARN');
+      if (options.force !== true && !(await this.isToolInstalled(adapter))) {
+        this.log(`Tool not installed: ${adapter.displayName}`, "WARN");
         skipCount++;
         continue;
       }
@@ -326,18 +348,24 @@ class StigmergySkillsHub {
         results.push(result);
         if (result.success) {
           successCount++;
-          this.log(`✅ Synced to ${adapter.displayName}`, 'OK');
+          this.log(`✅ Synced to ${adapter.displayName}`, "OK");
         } else {
           errorCount++;
-          this.log(`❌ Failed to sync to ${adapter.displayName}: ${result.error}`, 'ERROR');
+          this.log(
+            `❌ Failed to sync to ${adapter.displayName}: ${result.error}`,
+            "ERROR",
+          );
         }
       } catch (error) {
         errorCount++;
-        this.log(`❌ Error syncing to ${adapter.displayName}: ${error.message}`, 'ERROR');
+        this.log(
+          `❌ Error syncing to ${adapter.displayName}: ${error.message}`,
+          "ERROR",
+        );
         results.push({
           tool: adapter.id,
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -345,14 +373,17 @@ class StigmergySkillsHub {
     this.registry.lastSync = new Date().toISOString();
     await this.saveRegistry();
 
-    this.log(`Sync complete: ${successCount} success, ${skipCount} skipped, ${errorCount} errors`, 'INFO');
+    this.log(
+      `Sync complete: ${successCount} success, ${skipCount} skipped, ${errorCount} errors`,
+      "INFO",
+    );
 
     return {
       total: this.adapters.length,
       success: successCount,
       skipped: skipCount,
       errors: errorCount,
-      results
+      results,
     };
   }
 
@@ -363,16 +394,16 @@ class StigmergySkillsHub {
     const sourcePath = path.join(this.metaSkillsDir, adapter.metaSkillFile);
     const targetPath = this.expandPath(adapter.targetPath);
 
-    this.log(`Syncing to ${adapter.displayName}...`, 'DEBUG');
+    this.log(`Syncing to ${adapter.displayName}...`, "DEBUG");
 
     try {
       // Read source meta-skill
-      const metaSkillContent = await fs.readFile(sourcePath, 'utf8');
+      const metaSkillContent = await fs.readFile(sourcePath, "utf8");
 
       // Read target file (or create empty)
-      let targetContent = '';
+      let targetContent = "";
       try {
-        targetContent = await fs.readFile(targetPath, 'utf8');
+        targetContent = await fs.readFile(targetPath, "utf8");
       } catch (e) {
         // File doesn't exist, create directory first
         const targetDir = path.dirname(targetPath);
@@ -382,15 +413,15 @@ class StigmergySkillsHub {
       // Remove existing META_SKILL section
       targetContent = targetContent.replace(
         /<!-- META_SKILL_START -->[\s\S]*?<!-- META_SKILL_END -->\n?/g,
-        ''
+        "",
       );
 
       // Inject new META_SKILL
-      const injectedContent = metaSkillContent + '\n\n---\n\n' + targetContent;
+      const injectedContent = metaSkillContent + "\n\n---\n\n" + targetContent;
 
       // Write to target
       if (options.dryRun !== true) {
-        await fs.writeFile(targetPath, injectedContent, 'utf8');
+        await fs.writeFile(targetPath, injectedContent, "utf8");
       }
 
       // Update registry
@@ -398,20 +429,20 @@ class StigmergySkillsHub {
       this.registry.tools[adapter.id] = {
         metaSkill: adapter.metaSkillFile,
         syncedAt: new Date().toISOString(),
-        sourceHash: hash
+        sourceHash: hash,
       };
 
       return {
         tool: adapter.id,
         success: true,
         targetPath,
-        bytesWritten: injectedContent.length
+        bytesWritten: injectedContent.length,
       };
     } catch (error) {
       return {
         tool: adapter.id,
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -433,7 +464,7 @@ class StigmergySkillsHub {
    * Get status of all tools
    */
   async getStatus() {
-    this.log('Getting status...', 'INFO');
+    this.log("Getting status...", "INFO");
 
     const status = [];
 
@@ -448,7 +479,7 @@ class StigmergySkillsHub {
         installed,
         synced: !!syncInfo,
         lastSync: syncInfo?.syncedAt || null,
-        metaSkill: adapter.metaSkillFile
+        metaSkill: adapter.metaSkillFile,
       });
     }
 
@@ -466,10 +497,7 @@ class StigmergySkillsHub {
    * Calculate content hash
    */
   hashContent(content) {
-    return crypto
-      .createHash('md5')
-      .update(content)
-      .digest('hex');
+    return crypto.createHash("md5").update(content).digest("hex");
   }
 }
 

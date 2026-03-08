@@ -5,19 +5,19 @@ class Logger {
   }
 
   info(message) {
-    this.log('INFO', message);
+    this.log("INFO", message);
   }
 
   warn(message) {
-    this.log('WARN', message);
+    this.log("WARN", message);
   }
 
   error(message) {
-    this.log('ERROR', message);
+    this.log("ERROR", message);
   }
 
   debug(message) {
-    this.log('DEBUG', message);
+    this.log("DEBUG", message);
   }
 
   log(level, message) {

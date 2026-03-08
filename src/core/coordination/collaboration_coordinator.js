@@ -1,20 +1,20 @@
 /**
  * Collaboration Coordinator for Multi-CLI Collaboration
- * 
+ *
  * This coordinator handles indirect collaboration requests by:
  * - Reading PROJECT_SPEC.json for context
  * - Analyzing collaboration background and requirements
  * - Selecting the most suitable agents
  * - Updating collaboration state
  * - Recording collaboration history
- * 
+ *
  * @module CollaborationCoordinator
  */
 
-const fs = require('fs');
-const fsPromises = require('fs').promises;
-const path = require('path');
-const { EventEmitter } = require('events');
+const fs = require("fs");
+const fsPromises = require("fs").promises;
+const path = require("path");
+const { EventEmitter } = require("events");
 
 class CollaborationCoordinator extends EventEmitter {
   // Static constants for configuration
@@ -24,245 +24,277 @@ class CollaborationCoordinator extends EventEmitter {
     COLLABORATION_TTL: 24 * 60 * 60 * 1000, // 24 hours
     STATE_SAVE_DEBOUNCE: 1000, // 1 second
     HISTORY_SAVE_DEBOUNCE: 500, // 500ms
-    CLEANUP_INTERVAL: 60 * 60 * 1000 // 1 hour
+    CLEANUP_INTERVAL: 60 * 60 * 1000, // 1 hour
   };
 
   // Static keyword patterns for task classification (cached for performance)
   static TASK_KEYWORDS = {
-    'code-generation': ['write', 'create', 'generate', 'implement', 'develop'],
-    'code-analysis': ['analyze', 'review', 'audit', 'inspect', 'examine'],
-    'code-optimization': ['optimize', 'improve', 'refactor', 'enhance'],
-    'testing': ['test', 'verify', 'validate', 'check'],
-    'documentation': ['document', 'write docs', 'create documentation'],
-    'debugging': ['debug', 'fix', 'resolve', 'troubleshoot'],
-    'deployment': ['deploy', 'release', 'publish']
+    "code-generation": ["write", "create", "generate", "implement", "develop"],
+    "code-analysis": ["analyze", "review", "audit", "inspect", "examine"],
+    "code-optimization": ["optimize", "improve", "refactor", "enhance"],
+    testing: ["test", "verify", "validate", "check"],
+    documentation: ["document", "write docs", "create documentation"],
+    debugging: ["debug", "fix", "resolve", "troubleshoot"],
+    deployment: ["deploy", "release", "publish"],
   };
 
   static COMPLEXITY_INDICATORS = {
-    high: ['architecture', 'system', 'framework', 'integration', 'multiple', 'complex'],
-    medium: ['feature', 'module', 'component', 'function', 'class'],
-    low: ['fix', 'update', 'change', 'small', 'simple']
+    high: [
+      "architecture",
+      "system",
+      "framework",
+      "integration",
+      "multiple",
+      "complex",
+    ],
+    medium: ["feature", "module", "component", "function", "class"],
+    low: ["fix", "update", "change", "small", "simple"],
   };
 
   static SKILL_KEYWORDS = {
-    'programming': ['code', 'function', 'class', 'algorithm', 'programming'],
-    'analysis': ['analyze', 'review', 'audit', 'inspect'],
-    'testing': ['test', 'verify', 'validate'],
-    'documentation': ['document', 'write', 'explain'],
-    'debugging': ['debug', 'fix', 'resolve'],
-    'optimization': ['optimize', 'improve', 'refactor'],
-    'architecture': ['design', 'architecture', 'system', 'framework']
+    programming: ["code", "function", "class", "algorithm", "programming"],
+    analysis: ["analyze", "review", "audit", "inspect"],
+    testing: ["test", "verify", "validate"],
+    documentation: ["document", "write", "explain"],
+    debugging: ["debug", "fix", "resolve"],
+    optimization: ["optimize", "improve", "refactor"],
+    architecture: ["design", "architecture", "system", "framework"],
   };
 
   static EFFORT_MAP = {
     low: { minHours: 1, maxHours: 2, complexity: 1 },
     medium: { minHours: 2, maxHours: 4, complexity: 2 },
-    high: { minHours: 4, maxHours: 8, complexity: 3 }
+    high: { minHours: 4, maxHours: 8, complexity: 3 },
   };
 
   constructor(options = {}) {
     super();
-    
+
     this.options = {
-      projectSpecPath: options.projectSpecPath || './PROJECT_SPEC.json',
+      projectSpecPath: options.projectSpecPath || "./PROJECT_SPEC.json",
       enableHistory: options.enableHistory !== false,
-      historyPath: options.historyPath || './logs/collaboration-history.json',
+      historyPath: options.historyPath || "./logs/collaboration-history.json",
       enableLogging: options.enableLogging !== false,
       enableStateManagement: options.enableStateManagement !== false,
-      statePath: options.statePath || './logs/collaboration-state.json',
-      maxHistorySize: options.maxHistorySize || CollaborationCoordinator.DEFAULTS.MAX_HISTORY_SIZE,
-      maxActiveCollaborations: options.maxActiveCollaborations || CollaborationCoordinator.DEFAULTS.MAX_ACTIVE_COLLABORATIONS,
-      collaborationTTL: options.collaborationTTL || CollaborationCoordinator.DEFAULTS.COLLABORATION_TTL,
-      stateSaveDebounce: options.stateSaveDebounce || CollaborationCoordinator.DEFAULTS.STATE_SAVE_DEBOUNCE,
-      historySaveDebounce: options.historySaveDebounce || CollaborationCoordinator.DEFAULTS.HISTORY_SAVE_DEBOUNCE,
-      ...options
+      statePath: options.statePath || "./logs/collaboration-state.json",
+      maxHistorySize:
+        options.maxHistorySize ||
+        CollaborationCoordinator.DEFAULTS.MAX_HISTORY_SIZE,
+      maxActiveCollaborations:
+        options.maxActiveCollaborations ||
+        CollaborationCoordinator.DEFAULTS.MAX_ACTIVE_COLLABORATIONS,
+      collaborationTTL:
+        options.collaborationTTL ||
+        CollaborationCoordinator.DEFAULTS.COLLABORATION_TTL,
+      stateSaveDebounce:
+        options.stateSaveDebounce ||
+        CollaborationCoordinator.DEFAULTS.STATE_SAVE_DEBOUNCE,
+      historySaveDebounce:
+        options.historySaveDebounce ||
+        CollaborationCoordinator.DEFAULTS.HISTORY_SAVE_DEBOUNCE,
+      ...options,
     };
-    
+
     // Collaboration state
     this.state = {
       activeCollaborations: new Map(),
       collaborationHistory: [],
       agentCapabilities: new Map(),
-      lastCoordinationTime: null
+      lastCoordinationTime: null,
     };
-    
+
     // Agent selection strategy
-    this.agentSelectionStrategy = options.agentSelectionStrategy || 'best-match';
-    
+    this.agentSelectionStrategy =
+      options.agentSelectionStrategy || "best-match";
+
     // Debounce timer for state saving
     this._stateSaveTimer = null;
     this._historySaveTimer = null;
-    
+
     // ProjectSpec cache
     this._projectSpecCache = null;
     this._projectSpecCacheTime = 0;
     this._projectSpecCacheTTL = 60000; // 1 minute cache TTL
-    
+
     // Cleanup interval
     this._cleanupInterval = null;
-    
+
     // Load initial state
     if (this.options.enableStateManagement) {
       this._loadState();
     }
-    
+
     // Load collaboration history
     if (this.options.enableHistory) {
       this._loadHistory();
     }
-    
+
     // Initialize agent capabilities
     this._initializeAgentCapabilities();
-    
+
     // Start cleanup interval
     this._startCleanupInterval();
   }
 
   /**
    * Coordinate a collaboration request
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request object
    * @param {Object} context - Execution context
    * @returns {Promise<Object>} Coordination result with selected agents
    */
   async coordinateCollaboration(collaborationRequest, context = {}) {
     const startTime = Date.now();
-    
+
     try {
       // Validate collaboration request
-      if (!collaborationRequest || !collaborationRequest.involvedCLIs || collaborationRequest.involvedCLIs.length < 2) {
-        throw new Error('Collaboration request requires at least 2 CLI tools');
+      if (
+        !collaborationRequest ||
+        !collaborationRequest.involvedCLIs ||
+        collaborationRequest.involvedCLIs.length < 2
+      ) {
+        throw new Error("Collaboration request requires at least 2 CLI tools");
       }
-      
+
       // Log coordination request
       if (this.options.enableLogging) {
         this._logCoordinationRequest(collaborationRequest, context);
       }
-      
+
       // Read PROJECT_SPEC for context
       const projectSpec = await this._readProjectSpec();
-      
+
       // Analyze collaboration background and requirements
       const collaborationContext = await this._analyzeCollaborationContext(
         collaborationRequest,
         projectSpec,
-        context
+        context,
       );
-      
+
       // Select agents for collaboration
       const selectedAgents = await this._selectAgents(
         collaborationRequest.involvedCLIs,
-        collaborationContext
+        collaborationContext,
       );
-      
+
       // Create collaboration session
       const collaborationSession = {
         id: this._generateCollaborationId(),
         request: collaborationRequest,
         context: collaborationContext,
         agents: selectedAgents,
-        status: 'active',
+        status: "active",
         startTime: new Date().toISOString(),
         endTime: null,
-        tasks: []
+        tasks: [],
       };
-      
+
       // Update state
-      this.state.activeCollaborations.set(collaborationSession.id, collaborationSession);
+      this.state.activeCollaborations.set(
+        collaborationSession.id,
+        collaborationSession,
+      );
       this.state.lastCoordinationTime = Date.now();
-      
+
       // Record collaboration history
       if (this.options.enableHistory) {
         this._recordCollaboration(collaborationSession);
       }
-      
+
       // Save state (debounced)
       if (this.options.enableStateManagement) {
         this._debouncedSaveState();
       }
-      
+
       // Emit coordination event
-      this.emit('coordinated', {
+      this.emit("coordinated", {
         session: collaborationSession,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      
+
       return {
         success: true,
         collaborationId: collaborationSession.id,
         agents: selectedAgents,
         context: collaborationContext,
         estimatedDuration: this._estimateDuration(collaborationContext),
-        recommendations: this._generateRecommendations(collaborationContext)
+        recommendations: this._generateRecommendations(collaborationContext),
       };
-      
     } catch (error) {
       // Log coordination error
       if (this.options.enableLogging) {
         this._logCoordinationError(collaborationRequest, error, context);
       }
-      
+
       // Emit error event
-      this.emit('error', {
+      this.emit("error", {
         request: collaborationRequest,
         error: error,
         context: context,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      
+
       return {
         success: false,
         error: error.message,
         agents: [],
-        context: null
+        context: null,
       };
     }
   }
 
   /**
    * Read PROJECT_SPEC.json for context with caching
-   * 
+   *
    * @returns {Promise<Object>} PROJECT_SPEC data
    * @private
    */
   async _readProjectSpec() {
     const now = Date.now();
-    
+
     // Return cached version if still valid
-    if (this._projectSpecCache && (now - this._projectSpecCacheTime) < this._projectSpecCacheTTL) {
+    if (
+      this._projectSpecCache &&
+      now - this._projectSpecCacheTime < this._projectSpecCacheTTL
+    ) {
       return this._projectSpecCache;
     }
-    
+
     try {
       const specPath = path.resolve(this.options.projectSpecPath);
-      
+
       try {
         await fsPromises.access(specPath);
       } catch {
         if (this.options.enableLogging) {
-          console.log(`[CollaborationCoordinator] PROJECT_SPEC not found at ${specPath}, using default configuration`);
+          console.log(
+            `[CollaborationCoordinator] PROJECT_SPEC not found at ${specPath}, using default configuration`,
+          );
         }
         const defaultSpec = this._getDefaultProjectSpec();
         this._projectSpecCache = defaultSpec;
         this._projectSpecCacheTime = now;
         return defaultSpec;
       }
-      
-      const specContent = await fsPromises.readFile(specPath, 'utf8');
+
+      const specContent = await fsPromises.readFile(specPath, "utf8");
       const projectSpec = JSON.parse(specContent);
-      
+
       // Update cache
       this._projectSpecCache = projectSpec;
       this._projectSpecCacheTime = now;
-      
+
       if (this.options.enableLogging) {
-        console.log(`[CollaborationCoordinator] Successfully loaded PROJECT_SPEC from ${specPath}`);
+        console.log(
+          `[CollaborationCoordinator] Successfully loaded PROJECT_SPEC from ${specPath}`,
+        );
       }
-      
+
       return projectSpec;
-      
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error reading PROJECT_SPEC: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error reading PROJECT_SPEC: ${error.message}`,
+      );
       const defaultSpec = this._getDefaultProjectSpec();
       this._projectSpecCache = defaultSpec;
       this._projectSpecCacheTime = now;
@@ -272,41 +304,46 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Get default PROJECT_SPEC
-   * 
+   *
    * @returns {Object} Default PROJECT_SPEC
    * @private
    */
   _getDefaultProjectSpec() {
     return {
       project: {
-        name: 'Stigmergy Multi-Agents',
-        description: 'Multi-CLI AI collaboration system',
-        version: '1.0.0'
+        name: "Stigmergy Multi-Agents",
+        description: "Multi-CLI AI collaboration system",
+        version: "1.0.0",
       },
       agents: [],
       skills: [],
       collaboration: {
         enabled: true,
         maxConcurrentCollaborations: 5,
-        defaultTimeout: 300000 // 5 minutes
-      }
+        defaultTimeout: 300000, // 5 minutes
+      },
     };
   }
 
   /**
    * Analyze collaboration context and requirements
    * Optimized to cache lowercase task string
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request
    * @param {Object} projectSpec - PROJECT_SPEC data
    * @param {Object} context - Execution context
    * @returns {Promise<Object>} Collaboration context
    * @private
    */
-  async _analyzeCollaborationContext(collaborationRequest, projectSpec, context) {
+  async _analyzeCollaborationContext(
+    collaborationRequest,
+    projectSpec,
+    context,
+  ) {
     const task = collaborationRequest.task;
     // Cache lowercase version to avoid repeated calls
-    const taskLower = task && typeof task === 'string' ? task.toLowerCase() : '';
+    const taskLower =
+      task && typeof task === "string" ? task.toLowerCase() : "";
 
     // Compute complexity once and reuse
     const complexity = this._assessComplexityOptimized(taskLower);
@@ -316,9 +353,12 @@ class CollaborationCoordinator extends EventEmitter {
       complexity: complexity,
       requiredSkills: this._identifyRequiredSkillsOptimized(taskLower),
       estimatedEffort: this._estimateEffortFromComplexity(complexity),
-      dependencies: this._identifyDependencies(collaborationRequest, projectSpec),
+      dependencies: this._identifyDependencies(
+        collaborationRequest,
+        projectSpec,
+      ),
       constraints: this._identifyConstraints(projectSpec),
-      priority: this._assessPriority(collaborationRequest, taskLower)
+      priority: this._assessPriority(collaborationRequest, taskLower),
     };
 
     return analysis;
@@ -333,17 +373,17 @@ class CollaborationCoordinator extends EventEmitter {
    */
   _classifyTaskTypeOptimized(taskLower) {
     if (!taskLower) {
-      return 'general';
+      return "general";
     }
 
     const taskKeywords = CollaborationCoordinator.TASK_KEYWORDS;
     for (const [type, keywords] of Object.entries(taskKeywords)) {
-      if (keywords.some(keyword => taskLower.includes(keyword))) {
+      if (keywords.some((keyword) => taskLower.includes(keyword))) {
         return type;
       }
     }
 
-    return 'general';
+    return "general";
   }
 
   /**
@@ -355,21 +395,23 @@ class CollaborationCoordinator extends EventEmitter {
    */
   _assessComplexityOptimized(taskLower) {
     if (!taskLower) {
-      return 'medium';
+      return "medium";
     }
 
     const indicators = CollaborationCoordinator.COMPLEXITY_INDICATORS;
-    if (indicators.high.some(indicator => taskLower.includes(indicator))) {
-      return 'high';
-    } else if (indicators.medium.some(indicator => taskLower.includes(indicator))) {
-      return 'medium';
+    if (indicators.high.some((indicator) => taskLower.includes(indicator))) {
+      return "high";
+    } else if (
+      indicators.medium.some((indicator) => taskLower.includes(indicator))
+    ) {
+      return "medium";
     }
-    return 'low';
+    return "low";
   }
 
   /**
    * Identify required skills (optimized version with pre-lowercased input)
-   * 
+   *
    * @param {string} taskLower - Lowercase task description
    * @returns {Array<string>} List of required skills
    * @private
@@ -383,7 +425,7 @@ class CollaborationCoordinator extends EventEmitter {
     const requiredSkills = new Set();
 
     for (const [skill, keywords] of Object.entries(skillKeywords)) {
-      if (keywords.some(keyword => taskLower.includes(keyword))) {
+      if (keywords.some((keyword) => taskLower.includes(keyword))) {
         requiredSkills.add(skill);
       }
     }
@@ -405,7 +447,7 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Identify dependencies
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request
    * @param {Object} projectSpec - PROJECT_SPEC data
    * @returns {Array<string>} List of dependencies
@@ -413,46 +455,50 @@ class CollaborationCoordinator extends EventEmitter {
    */
   _identifyDependencies(collaborationRequest, projectSpec) {
     const dependencies = [];
-    
+
     // Check for dependencies in PROJECT_SPEC
     if (projectSpec.dependencies) {
       dependencies.push(...projectSpec.dependencies);
     }
-    
+
     // Check for inter-CLI dependencies
     const involvedCLIs = collaborationRequest.involvedCLIs;
     if (involvedCLIs.length > 2) {
-      dependencies.push('multi-cli-coordination');
+      dependencies.push("multi-cli-coordination");
     }
-    
+
     return dependencies;
   }
 
   /**
    * Identify constraints
-   * 
+   *
    * @param {Object} projectSpec - PROJECT_SPEC data
    * @returns {Array<string>} List of constraints
    * @private
    */
   _identifyConstraints(projectSpec) {
     const constraints = [];
-    
+
     if (projectSpec.collaboration) {
       if (projectSpec.collaboration.maxConcurrentCollaborations) {
-        constraints.push(`max-concurrent: ${projectSpec.collaboration.maxConcurrentCollaborations}`);
+        constraints.push(
+          `max-concurrent: ${projectSpec.collaboration.maxConcurrentCollaborations}`,
+        );
       }
       if (projectSpec.collaboration.defaultTimeout) {
-        constraints.push(`timeout: ${projectSpec.collaboration.defaultTimeout}ms`);
+        constraints.push(
+          `timeout: ${projectSpec.collaboration.defaultTimeout}ms`,
+        );
       }
     }
-    
+
     return constraints;
   }
 
   /**
    * Assess priority (uses optimized complexity check)
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request
    * @param {string} taskLower - Lowercase task description
    * @returns {string} Priority level (high, medium, low)
@@ -463,16 +509,16 @@ class CollaborationCoordinator extends EventEmitter {
     if (collaborationRequest.priority) {
       return collaborationRequest.priority;
     }
-    
+
     // Assess priority based on task complexity
     const complexity = this._assessComplexityOptimized(taskLower);
-    
+
     return complexity; // complexity maps directly to priority
   }
 
   /**
    * Select agents for collaboration
-   * 
+   *
    * @param {Array<string>} involvedCLIs - List of involved CLI tools
    * @param {Object} collaborationContext - Collaboration context
    * @returns {Promise<Array<Object>>} Selected agents
@@ -480,32 +526,32 @@ class CollaborationCoordinator extends EventEmitter {
    */
   async _selectAgents(involvedCLIs, collaborationContext) {
     const selectedAgents = [];
-    
+
     for (const cli of involvedCLIs) {
       const agent = {
         name: cli,
         capabilities: this.state.agentCapabilities.get(cli) || [],
         role: this._assignAgentRole(cli, collaborationContext),
         tasks: [],
-        status: 'available'
+        status: "available",
       };
-      
+
       selectedAgents.push(agent);
     }
-    
+
     // Sort agents by capability match
     selectedAgents.sort((a, b) => {
       const aMatch = this._calculateCapabilityMatch(a, collaborationContext);
       const bMatch = this._calculateCapabilityMatch(b, collaborationContext);
       return bMatch - aMatch;
     });
-    
+
     return selectedAgents;
   }
 
   /**
    * Assign agent role
-   * 
+   *
    * @param {string} cli - CLI tool name
    * @param {Object} collaborationContext - Collaboration context
    * @returns {string} Agent role
@@ -513,20 +559,20 @@ class CollaborationCoordinator extends EventEmitter {
    */
   _assignAgentRole(cli, collaborationContext) {
     const roleMap = {
-      'claude': 'primary-analyst',
-      'qwen': 'code-generator',
-      'iflow': 'orchestrator',
-      'codex': 'code-completer',
-      'codebuddy': 'assistant',
-      'qodercli': 'reviewer'
+      claude: "primary-analyst",
+      qwen: "code-generator",
+      iflow: "orchestrator",
+      codex: "code-completer",
+      codebuddy: "assistant",
+      qodercli: "reviewer",
     };
-    
-    return roleMap[cli] || 'contributor';
+
+    return roleMap[cli] || "contributor";
   }
 
   /**
    * Calculate capability match score
-   * 
+   *
    * @param {Object} agent - Agent object
    * @param {Object} collaborationContext - Collaboration context
    * @returns {number} Match score (0-1)
@@ -535,21 +581,21 @@ class CollaborationCoordinator extends EventEmitter {
   _calculateCapabilityMatch(agent, collaborationContext) {
     const requiredSkills = collaborationContext.requiredSkills || [];
     const agentCapabilities = agent.capabilities || [];
-    
+
     if (requiredSkills.length === 0) {
       return 0.5; // Default score when no requirements
     }
-    
-    const matchingSkills = requiredSkills.filter(skill => 
-      agentCapabilities.includes(skill)
+
+    const matchingSkills = requiredSkills.filter((skill) =>
+      agentCapabilities.includes(skill),
     );
-    
+
     return matchingSkills.length / requiredSkills.length;
   }
 
   /**
    * Generate collaboration ID
-   * 
+   *
    * @returns {string} Unique collaboration ID
    * @private
    */
@@ -559,58 +605,65 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Estimate collaboration duration
-   * 
+   *
    * @param {Object} collaborationContext - Collaboration context
    * @returns {number} Estimated duration in milliseconds
    * @private
    */
   _estimateDuration(collaborationContext) {
-    const effort = collaborationContext.estimatedEffort || { minHours: 2, maxHours: 4 };
+    const effort = collaborationContext.estimatedEffort || {
+      minHours: 2,
+      maxHours: 4,
+    };
     const avgHours = (effort.minHours + effort.maxHours) / 2;
     return avgHours * 60 * 60 * 1000; // Convert hours to milliseconds
   }
 
   /**
    * Generate recommendations
-   * 
+   *
    * @param {Object} collaborationContext - Collaboration context
    * @returns {Array<string>} List of recommendations
    * @private
    */
   _generateRecommendations(collaborationContext) {
     const recommendations = [];
-    
-    if (collaborationContext.complexity === 'high') {
-      recommendations.push('Consider breaking down into smaller sub-tasks');
-      recommendations.push('Increase timeout duration for complex tasks');
+
+    if (collaborationContext.complexity === "high") {
+      recommendations.push("Consider breaking down into smaller sub-tasks");
+      recommendations.push("Increase timeout duration for complex tasks");
     }
-    
+
     if (collaborationContext.dependencies.length > 0) {
-      recommendations.push('Ensure all dependencies are available before starting');
+      recommendations.push(
+        "Ensure all dependencies are available before starting",
+      );
     }
-    
+
     if (collaborationContext.requiredSkills.length > 3) {
-      recommendations.push('Consider adding more agents for specialized skills');
+      recommendations.push(
+        "Consider adding more agents for specialized skills",
+      );
     }
-    
+
     return recommendations;
   }
 
   /**
    * Initialize agent capabilities
-   * 
+   *
    * @private
    */
   _initializeAgentCapabilities() {
     const defaultCapabilities = {
-      'claude': ['analysis', 'documentation', 'architecture', 'debugging'],
-      'qwen': ['programming', 'code-generation', 'testing'],
-      'iflow': ['orchestration', 'coordination', 'workflow'],
-      'codex': ['code-completion', 'programming', 'debugging'],
-      'codebuddy': ['assistance', 'documentation', 'testing'],
-      'qodercli': ['review', 'analysis', 'documentation']
+      claude: ["analysis", "documentation", "architecture", "debugging"],
+      qwen: ["programming", "code-generation", "testing"],
+      iflow: ["orchestration", "coordination", "workflow"],
+      codex: ["code-completion", "programming", "debugging"],
+      codebuddy: ["assistance", "documentation", "testing"],
+      qodercli: ["review", "analysis", "documentation"],
     };
-    
+
     for (const [cli, capabilities] of Object.entries(defaultCapabilities)) {
       this.state.agentCapabilities.set(cli, capabilities);
     }
@@ -618,7 +671,7 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Record collaboration to history
-   * 
+   *
    * @param {Object} collaborationSession - Collaboration session
    * @private
    */
@@ -626,26 +679,27 @@ class CollaborationCoordinator extends EventEmitter {
     const historyEntry = {
       id: collaborationSession.id,
       timestamp: collaborationSession.startTime,
-      agents: collaborationSession.agents.map(a => a.name),
+      agents: collaborationSession.agents.map((a) => a.name),
       task: collaborationSession.request.task,
-      status: collaborationSession.status
+      status: collaborationSession.status,
     };
-    
+
     this.state.collaborationHistory.push(historyEntry);
-    
+
     // Keep only configured max entries
     const maxSize = this.options.maxHistorySize;
     if (this.state.collaborationHistory.length > maxSize) {
-      this.state.collaborationHistory = this.state.collaborationHistory.slice(-maxSize);
+      this.state.collaborationHistory =
+        this.state.collaborationHistory.slice(-maxSize);
     }
-    
+
     // Debounced save history
     this._debouncedSaveHistory();
   }
 
   /**
    * Debounced save history
-   * 
+   *
    * @private
    */
   _debouncedSaveHistory() {
@@ -674,42 +728,49 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Load collaboration history (sync version for initialization)
-   * 
+   *
    * @private
    */
   _loadHistory() {
     try {
       if (fs.existsSync(this.options.historyPath)) {
-        const historyContent = fs.readFileSync(this.options.historyPath, 'utf8');
+        const historyContent = fs.readFileSync(
+          this.options.historyPath,
+          "utf8",
+        );
         this.state.collaborationHistory = JSON.parse(historyContent);
       }
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error loading history: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error loading history: ${error.message}`,
+      );
     }
   }
 
   /**
    * Save collaboration history (async version)
-   * 
+   *
    * @private
    */
   async _saveHistoryAsync() {
     try {
       const historyDir = path.dirname(this.options.historyPath);
       await fsPromises.mkdir(historyDir, { recursive: true });
-      
+
       await fsPromises.writeFile(
         this.options.historyPath,
-        JSON.stringify(this.state.collaborationHistory, null, 2)
+        JSON.stringify(this.state.collaborationHistory, null, 2),
       );
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error saving history: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error saving history: ${error.message}`,
+      );
     }
   }
 
   /**
    * Save collaboration history (sync version for shutdown)
-   * 
+   *
    * @private
    */
   _saveHistory() {
@@ -718,64 +779,72 @@ class CollaborationCoordinator extends EventEmitter {
       if (!fs.existsSync(historyDir)) {
         fs.mkdirSync(historyDir, { recursive: true });
       }
-      
+
       fs.writeFileSync(
         this.options.historyPath,
-        JSON.stringify(this.state.collaborationHistory, null, 2)
+        JSON.stringify(this.state.collaborationHistory, null, 2),
       );
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error saving history: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error saving history: ${error.message}`,
+      );
     }
   }
 
   /**
    * Load state (sync version for initialization)
-   * 
+   *
    * @private
    */
   _loadState() {
     try {
       if (fs.existsSync(this.options.statePath)) {
-        const stateContent = fs.readFileSync(this.options.statePath, 'utf8');
+        const stateContent = fs.readFileSync(this.options.statePath, "utf8");
         const loadedState = JSON.parse(stateContent);
-        
+
         // Convert agentCapabilities back to Map
         if (loadedState.agentCapabilities) {
-          this.state.agentCapabilities = new Map(Object.entries(loadedState.agentCapabilities));
+          this.state.agentCapabilities = new Map(
+            Object.entries(loadedState.agentCapabilities),
+          );
         }
       }
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error loading state: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error loading state: ${error.message}`,
+      );
     }
   }
 
   /**
    * Save state (async version)
-   * 
+   *
    * @private
    */
   async _saveStateAsync() {
     try {
       const stateDir = path.dirname(this.options.statePath);
       await fsPromises.mkdir(stateDir, { recursive: true });
-      
+
       const stateToSave = {
         ...this.state,
-        agentCapabilities: Object.fromEntries(this.state.agentCapabilities)
+        agentCapabilities: Object.fromEntries(this.state.agentCapabilities),
       };
-      
+
       await fsPromises.writeFile(
         this.options.statePath,
-        JSON.stringify(stateToSave, null, 2)
+        JSON.stringify(stateToSave, null, 2),
       );
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error saving state: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error saving state: ${error.message}`,
+      );
     }
   }
 
   /**
    * Save state (sync version for shutdown)
-   * 
+   *
    * @private
    */
   _saveState() {
@@ -784,18 +853,20 @@ class CollaborationCoordinator extends EventEmitter {
       if (!fs.existsSync(stateDir)) {
         fs.mkdirSync(stateDir, { recursive: true });
       }
-      
+
       const stateToSave = {
         ...this.state,
-        agentCapabilities: Object.fromEntries(this.state.agentCapabilities)
+        agentCapabilities: Object.fromEntries(this.state.agentCapabilities),
       };
-      
+
       fs.writeFileSync(
         this.options.statePath,
-        JSON.stringify(stateToSave, null, 2)
+        JSON.stringify(stateToSave, null, 2),
       );
     } catch (error) {
-      console.error(`[CollaborationCoordinator] Error saving state: ${error.message}`);
+      console.error(
+        `[CollaborationCoordinator] Error saving state: ${error.message}`,
+      );
     }
   }
 
@@ -834,12 +905,14 @@ class CollaborationCoordinator extends EventEmitter {
     }
 
     if (cleaned > 0 && this.options.enableLogging) {
-      console.log(`[CollaborationCoordinator] Cleaned up ${cleaned} expired collaborations`);
+      console.log(
+        `[CollaborationCoordinator] Cleaned up ${cleaned} expired collaborations`,
+      );
     }
 
     // Emit cleanup event
     if (cleaned > 0) {
-      this.emit('cleanup', { cleaned, timestamp: new Date().toISOString() });
+      this.emit("cleanup", { cleaned, timestamp: new Date().toISOString() });
     }
   }
 
@@ -872,7 +945,9 @@ class CollaborationCoordinator extends EventEmitter {
     this.removeAllListeners();
 
     if (this.options.enableLogging) {
-      console.log('[CollaborationCoordinator] Coordinator destroyed and resources cleaned up');
+      console.log(
+        "[CollaborationCoordinator] Coordinator destroyed and resources cleaned up",
+      );
     }
   }
 
@@ -884,28 +959,36 @@ class CollaborationCoordinator extends EventEmitter {
    * @private
    */
   _logCoordinationRequest(collaborationRequest, context) {
-    console.log(`[CollaborationCoordinator] Coordinating collaboration request`);
-    console.log(`  Involved CLIs: ${collaborationRequest.involvedCLIs.join(', ')}`);
+    console.log(
+      `[CollaborationCoordinator] Coordinating collaboration request`,
+    );
+    console.log(
+      `  Involved CLIs: ${collaborationRequest.involvedCLIs.join(", ")}`,
+    );
     console.log(`  Task: ${collaborationRequest.task}`);
     console.log(`  Confidence: ${collaborationRequest.confidence}`);
   }
 
   /**
    * Log coordination error
-   * 
+   *
    * @param {Object} collaborationRequest - Collaboration request
    * @param {Error} error - Error object
    * @param {Object} context - Execution context
    * @private
    */
   _logCoordinationError(collaborationRequest, error, context) {
-    console.error(`[CollaborationCoordinator] Coordination error: ${error.message}`);
-    console.error(`  Involved CLIs: ${collaborationRequest.involvedCLIs?.join(', ') || 'N/A'}`);
+    console.error(
+      `[CollaborationCoordinator] Coordination error: ${error.message}`,
+    );
+    console.error(
+      `  Involved CLIs: ${collaborationRequest.involvedCLIs?.join(", ") || "N/A"}`,
+    );
   }
 
   /**
    * Get collaboration statistics
-   * 
+   *
    * @returns {Object} Collaboration statistics
    */
   getStatistics() {
@@ -913,13 +996,13 @@ class CollaborationCoordinator extends EventEmitter {
       totalCollaborations: this.state.collaborationHistory.length,
       activeCollaborations: this.state.activeCollaborations.size,
       lastCoordinationTime: this.state.lastCoordinationTime,
-      agentCapabilities: Object.fromEntries(this.state.agentCapabilities)
+      agentCapabilities: Object.fromEntries(this.state.agentCapabilities),
     };
   }
 
   /**
    * Get collaboration history
-   * 
+   *
    * @param {number} limit - Maximum number of entries to return
    * @returns {Array<Object>} Collaboration history
    */
@@ -937,7 +1020,7 @@ class CollaborationCoordinator extends EventEmitter {
 
   /**
    * Update agent capabilities
-   * 
+   *
    * @param {string} agentName - Agent name
    * @param {Array<string>} capabilities - List of capabilities
    */

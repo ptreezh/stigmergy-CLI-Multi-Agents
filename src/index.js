@@ -12,17 +12,17 @@
  */
 
 // Import the modular router (router-beta.js)
-const main = require('./cli/router-beta');
+const main = require("./cli/router-beta");
 
 // Export core components for backward compatibility
-const MemoryManager = require('./core/memory_manager');
-const StigmergyInstaller = require('./core/installer');
-const { maxOfTwo, isAuthenticated } = require('./utils/helpers');
+const MemoryManager = require("./core/memory_manager");
+const StigmergyInstaller = require("./core/installer");
+const { maxOfTwo, isAuthenticated } = require("./utils/helpers");
 
 // Run the main application
 if (require.main === module) {
   main().catch((error) => {
-    console.error('[FATAL] Unhandled error in Stigmergy CLI:', error);
+    console.error("[FATAL] Unhandled error in Stigmergy CLI:", error);
     process.exit(1);
   });
 }

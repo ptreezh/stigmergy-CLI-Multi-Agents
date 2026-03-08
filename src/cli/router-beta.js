@@ -449,7 +449,10 @@ async function main() {
   program
     .command("soul")
     .description("Soul 自我进化系统 - AI 自主学习和反思")
-    .argument("[subcommand]", "Soul subcommand (init|status|evolve|reflect|create)")
+    .argument(
+      "[subcommand]",
+      "Soul subcommand (init|status|evolve|reflect|create)",
+    )
     .argument("[args...]", "Additional arguments")
     .option("-v, --verbose", "Verbose output")
     .option("--cli <name>", "Target specific CLI tool")

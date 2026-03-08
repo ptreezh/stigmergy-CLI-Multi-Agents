@@ -9,11 +9,11 @@
  * 4. 验证部署状态
  */
 
-const HookManager = require('./HookManager');
-const ContextInjector = require('./ContextInjector');
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
+const HookManager = require("./HookManager");
+const ContextInjector = require("./ContextInjector");
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
 
 class PluginDeployer {
   constructor(options = {}) {
@@ -29,16 +29,12 @@ class PluginDeployer {
   async deploySuperpowers(cliName, options = {}) {
     console.log(`\n🚀 Deploying superpowers to ${cliName}...`);
 
-    const {
-      skills = [],
-      hooks = {},
-      contextInjection = true
-    } = options;
+    const { skills = [], hooks = {}, contextInjection = true } = options;
 
     const results = {
       hooks: false,
       context: false,
-      skills: false
+      skills: false,
     };
 
     // 1. 部署 hooks
@@ -76,7 +72,7 @@ class PluginDeployer {
     if (allSuccess) {
       console.log(`✅ Successfully deployed superpowers to ${cliName}\n`);
     } else {
-      console.log(`⚠️  Partially deployed to ${cliName}:`, results, '\n');
+      console.log(`⚠️  Partially deployed to ${cliName}:`, results, "\n");
     }
 
     return results;
@@ -96,14 +92,18 @@ class PluginDeployer {
       let hookContent;
 
       // 根据钩子类型生成实现
-      if (hookName === 'sessionStart' || hookName === 'session-start') {
+      if (hookName === "sessionStart" || hookName === "session-start") {
         hookContent = this.hookManager.generateSessionStartHook(cliName);
       } else {
         // 通用钩子模板
         hookContent = this._generateGenericHook(cliName, hookName, hookConfig);
       }
 
-      await this.hookManager.createHookImplementation(cliName, hookName, hookContent);
+      await this.hookManager.createHookImplementation(
+        cliName,
+        hookName,
+        hookContent,
+      );
     }
   }
 
@@ -119,7 +119,7 @@ class PluginDeployer {
     // 注入上下文
     await this.contextInjector.injectContext(cliName, skillList, {
       priority: 1,
-      title: 'Stigmergy Skills'
+      title: "Stigmergy Skills",
     });
   }
 
@@ -129,30 +129,38 @@ class PluginDeployer {
   async deploySkillFiles(cliName, skills) {
     console.log(`  📦 Deploying skill files...`);
 
-    const skillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+    const skillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
 
     // 确保目录存在
     await fs.mkdir(skillsDir, { recursive: true });
 
     for (const skill of skills) {
-      const skillName = typeof skill === 'string' ? skill : skill.name;
+      const skillName = typeof skill === "string" ? skill : skill.name;
       const skillDir = path.join(skillsDir, skillName);
 
       // 创建技能目录
       await fs.mkdir(skillDir, { recursive: true });
 
       // 检查技能文件是否存在
-      const sourceSkillFile = path.join(__dirname, '..', '..', '..', 'skills', skillName, 'skill.md');
+      const sourceSkillFile = path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "skills",
+        skillName,
+        "skill.md",
+      );
 
       try {
         await fs.access(sourceSkillFile);
 
         // 读取技能内容
-        const skillContent = await fs.readFile(sourceSkillFile, 'utf8');
+        const skillContent = await fs.readFile(sourceSkillFile, "utf8");
 
         // 写入目标位置（支持 skill.md 和 SKILL.md）
-        const targetSkillFile = path.join(skillDir, 'skill.md');
-        await fs.writeFile(targetSkillFile, skillContent, 'utf8');
+        const targetSkillFile = path.join(skillDir, "skill.md");
+        await fs.writeFile(targetSkillFile, skillContent, "utf8");
 
         if (this.verbose) {
           console.log(`    ✅ Deployed: ${skillName}`);
@@ -174,7 +182,7 @@ class PluginDeployer {
     const results = {
       hooks: false,
       context: false,
-      skills: false
+      skills: false,
     };
 
     // 1. 移除 hooks
@@ -206,7 +214,7 @@ class PluginDeployer {
     if (allSuccess) {
       console.log(`✅ Successfully removed superpowers from ${cliName}\n`);
     } else {
-      console.log(`⚠️  Partially removed from ${cliName}:`, results, '\n');
+      console.log(`⚠️  Partially removed from ${cliName}:`, results, "\n");
     }
 
     return results;
@@ -219,13 +227,20 @@ class PluginDeployer {
     console.log(`  🗑️  Removing hooks...`);
 
     // 移除 hooks.json 中的配置
-    await this.hookManager.removeHooksConfig(cliName, ['sessionStart', 'session-start']);
+    await this.hookManager.removeHooksConfig(cliName, [
+      "sessionStart",
+      "session-start",
+    ]);
 
     // 移除 hook 实现文件
-    const hooksDir = path.join(os.homedir(), `.${cliName}`, 'hooks');
+    const hooksDir = path.join(os.homedir(), `.${cliName}`, "hooks");
 
     try {
-      const hookFiles = ['sessionStart.js', 'session-start.js', 'session-start.ts'];
+      const hookFiles = [
+        "sessionStart.js",
+        "session-start.js",
+        "session-start.ts",
+      ];
 
       for (const hookFile of hookFiles) {
         const hookPath = path.join(hooksDir, hookFile);
@@ -254,7 +269,7 @@ class PluginDeployer {
   async undeploySkillFiles(cliName) {
     console.log(`  🗑️  Removing skill files...`);
 
-    const skillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+    const skillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
 
     try {
       // 读取技能目录
@@ -262,14 +277,16 @@ class PluginDeployer {
 
       for (const skillDir of skillDirs) {
         // 只移除使用 superpowers 的技能
-        const skillPath = path.join(skillsDir, skillDir, 'skill.md');
+        const skillPath = path.join(skillsDir, skillDir, "skill.md");
 
         try {
-          const content = await fs.readFile(skillPath, 'utf8');
+          const content = await fs.readFile(skillPath, "utf8");
 
           // 检查是否是 superpowers 技能
-          if (content.includes('name: using-superpowers') ||
-              content.includes('Skill deployed from Stigmergy')) {
+          if (
+            content.includes("name: using-superpowers") ||
+            content.includes("Skill deployed from Stigmergy")
+          ) {
             const fullSkillDir = path.join(skillsDir, skillDir);
             await fs.rm(fullSkillDir, { recursive: true });
 
@@ -297,7 +314,7 @@ class PluginDeployer {
     const results = {
       hooks: false,
       context: false,
-      skills: []
+      skills: [],
     };
 
     // 1. 验证 hooks
@@ -330,14 +347,14 @@ class PluginDeployer {
 
     // 3. 验证技能文件
     try {
-      const skillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+      const skillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
       const skillDirs = await fs.readdir(skillsDir);
 
       for (const skillDir of skillDirs) {
-        if (skillDir.startsWith('.')) continue;
+        if (skillDir.startsWith(".")) continue;
 
-        const skillPath = path.join(skillsDir, skillDir, 'skill.md');
-        const altSkillPath = path.join(skillsDir, skillDir, 'SKILL.md');
+        const skillPath = path.join(skillsDir, skillDir, "skill.md");
+        const altSkillPath = path.join(skillsDir, skillDir, "SKILL.md");
 
         try {
           await fs.access(skillPath);
@@ -357,9 +374,12 @@ class PluginDeployer {
       console.log(`  ❌ Skills verification failed: ${error.message}`);
     }
 
-    const allSuccess = results.hooks && results.context && results.skills.length > 0;
+    const allSuccess =
+      results.hooks && results.context && results.skills.length > 0;
 
-    console.log(`\n${allSuccess ? '✅' : '⚠️'} Deployment status: ${allSuccess ? 'Fully deployed' : 'Partially deployed'}\n`);
+    console.log(
+      `\n${allSuccess ? "✅" : "⚠️"} Deployment status: ${allSuccess ? "Fully deployed" : "Partially deployed"}\n`,
+    );
 
     return results;
   }
@@ -368,7 +388,7 @@ class PluginDeployer {
    * 批量部署到多个 CLI
    */
   async deployToMultiple(clinames, options = {}) {
-    console.log('\n🚀 Batch Deployment\n');
+    console.log("\n🚀 Batch Deployment\n");
 
     const results = {};
 
@@ -378,20 +398,23 @@ class PluginDeployer {
       } catch (error) {
         console.log(`❌ Failed to deploy to ${cliName}: ${error.message}`);
         results[cliName] = {
-          error: error.message
+          error: error.message,
         };
       }
     }
 
     // 打印摘要
-    console.log('\n📊 Deployment Summary:\n');
+    console.log("\n📊 Deployment Summary:\n");
 
     for (const [cliName, result] of Object.entries(results)) {
       if (result.error) {
         console.log(`  ❌ ${cliName}: ${result.error}`);
       } else {
-        const status = result.hooks && result.context && result.skills ? '✅' : '⚠️';
-        console.log(`  ${status} ${cliName}: hooks=${result.hooks}, context=${result.context}, skills=${result.skills}`);
+        const status =
+          result.hooks && result.context && result.skills ? "✅" : "⚠️";
+        console.log(
+          `  ${status} ${cliName}: hooks=${result.hooks}, context=${result.context}, skills=${result.skills}`,
+        );
       }
     }
 
@@ -410,11 +433,11 @@ class PluginDeployer {
     }
 
     // 否则扫描 CLI 的 skills 目录
-    const skillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+    const skillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
 
     try {
       const skillDirs = await fs.readdir(skillsDir);
-      return skillDirs.filter(d => !d.startsWith('.'));
+      return skillDirs.filter((d) => !d.startsWith("."));
     } catch {
       return [];
     }

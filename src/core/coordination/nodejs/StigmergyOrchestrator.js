@@ -3,11 +3,11 @@
  * 实现CLI之间的间接协同，避免冲突，智能聚合结果
  */
 
-const { EventEmitter } = require('events');
-const { spawn } = require('child_process');
-const StigmergyEnvironment = require('./StigmergyEnvironment');
-const FileLockManager = require('./FileLockManager');
-const ResultAggregator = require('./ResultAggregator');
+const { EventEmitter } = require("events");
+const { spawn } = require("child_process");
+const StigmergyEnvironment = require("./StigmergyEnvironment");
+const FileLockManager = require("./FileLockManager");
+const ResultAggregator = require("./ResultAggregator");
 
 class StigmergyOrchestrator extends EventEmitter {
   constructor(options = {}) {
@@ -23,15 +23,15 @@ class StigmergyOrchestrator extends EventEmitter {
     this.environment = new StigmergyEnvironment({ workDir: this.workDir });
     this.fileLockManager = new FileLockManager({
       workDir: this.workDir,
-      lockTimeout: options.lockTimeout || 300000
+      lockTimeout: options.lockTimeout || 300000,
     });
     this.resultAggregator = new ResultAggregator({
-      cliWeights: options.cliWeights
+      cliWeights: options.cliWeights,
     });
 
     // 协同模式
-    this.coordinationMode = options.coordinationMode || 'parallel';  // parallel, competitive, collaborative
-    this.aggregationStrategy = options.aggregationStrategy || 'consensus';
+    this.coordinationMode = options.coordinationMode || "parallel"; // parallel, competitive, collaborative
+    this.aggregationStrategy = options.aggregationStrategy || "consensus";
 
     this._initializeCLIRegistry();
   }
@@ -42,64 +42,75 @@ class StigmergyOrchestrator extends EventEmitter {
   _initializeCLIRegistry() {
     const clis = [
       {
-        name: 'qwen',
-        command: 'qwen',
-        params: ['-y'],
+        name: "qwen",
+        command: "qwen",
+        params: ["-y"],
         available: true,
-        capabilities: ['code', 'chinese', 'analysis', 'documentation']
+        capabilities: ["code", "chinese", "analysis", "documentation"],
       },
       {
-        name: 'iflow',
-        command: 'iflow',
+        name: "iflow",
+        command: "iflow",
         params: [],
         available: true,
-        capabilities: ['code', 'analysis', 'interactive']
+        capabilities: ["code", "analysis", "interactive"],
       },
       {
-        name: 'claude',
-        command: 'claude',
-        params: ['-p', '', '--dangerously-skip-permissions', '--allowed-tools', 'Bash,Edit,Read,Write,RunCommand,ComputerTools'],
+        name: "claude",
+        command: "claude",
+        params: [
+          "-p",
+          "",
+          "--dangerously-skip-permissions",
+          "--allowed-tools",
+          "Bash,Edit,Read,Write,RunCommand,ComputerTools",
+        ],
         available: true,
-        capabilities: ['analysis', 'documentation', 'reasoning', 'complex']
+        capabilities: ["analysis", "documentation", "reasoning", "complex"],
       },
       {
-        name: 'gemini',
-        command: 'gemini',
-        params: ['-y'],
+        name: "gemini",
+        command: "gemini",
+        params: ["-y"],
         available: true,
-        capabilities: ['multilingual', 'creative', 'writing', 'design']
+        capabilities: ["multilingual", "creative", "writing", "design"],
       },
       {
-        name: 'codebuddy',
-        command: 'codebuddy',
-        params: ['-p', '', '-y'],
+        name: "codebuddy",
+        command: "codebuddy",
+        params: ["-p", "", "-y"],
         available: true,
-        capabilities: ['completion', 'refactoring', 'optimization', 'quality']
+        capabilities: ["completion", "refactoring", "optimization", "quality"],
       },
       {
-        name: 'codex',
-        command: 'codex',
-        params: ['-p', '', '-y'],
+        name: "codex",
+        command: "codex",
+        params: ["-p", "", "-y"],
         available: true,
-        capabilities: ['debugging', 'bug-fixing', 'error-handling']
+        capabilities: ["debugging", "bug-fixing", "error-handling"],
       },
       {
-        name: 'copilot',
-        command: 'copilot',
-        params: ['-p', '', '--allow-all-tools'],
+        name: "copilot",
+        command: "copilot",
+        params: ["-p", "", "--allow-all-tools"],
         available: true,
-        capabilities: ['best-practices', 'suggestions', 'patterns', 'architecture']
+        capabilities: [
+          "best-practices",
+          "suggestions",
+          "patterns",
+          "architecture",
+        ],
       },
       {
-        name: 'qodercli',
-        command: 'qodercli',
-        params: ['-y'],
+        name: "qodercli",
+        command: "qodercli",
+        params: ["-y"],
         available: true,
-        capabilities: ['code', 'general']
-      }
+        capabilities: ["code", "general"],
+      },
     ];
 
-    clis.forEach(cli => {
+    clis.forEach((cli) => {
       this.cliRegistry.set(cli.name, cli);
       // 注册到环境
       this.environment.registerAgent(cli.name, cli.capabilities);
@@ -111,11 +122,12 @@ class StigmergyOrchestrator extends EventEmitter {
    */
   async executeConcurrent(task, options = {}) {
     const mode = options.mode || this.coordinationMode;
-    const aggregationStrategy = options.aggregationStrategy || this.aggregationStrategy;
+    const aggregationStrategy =
+      options.aggregationStrategy || this.aggregationStrategy;
     const concurrencyLimit = options.concurrencyLimit || this.concurrency;
     const timeout = options.timeout || 0;
 
-    this.emit('task-start', { task, mode, aggregationStrategy });
+    this.emit("task-start", { task, mode, aggregationStrategy });
 
     const startTime = Date.now();
     const taskId = `task_${Date.now()}`;
@@ -129,51 +141,71 @@ class StigmergyOrchestrator extends EventEmitter {
       let results;
 
       switch (mode) {
-        case 'competitive':
+        case "competitive":
           // 竞争模式：所有CLI执行相同任务，选择最佳结果
-          results = await this._executeCompetitive(task, concurrencyLimit, timeout, taskId);
+          results = await this._executeCompetitive(
+            task,
+            concurrencyLimit,
+            timeout,
+            taskId,
+          );
           break;
 
-        case 'collaborative':
+        case "collaborative":
           // 协同模式：根据特长分配子任务
-          results = await this._executeCollaborative(task, concurrencyLimit, timeout, taskId);
+          results = await this._executeCollaborative(
+            task,
+            concurrencyLimit,
+            timeout,
+            taskId,
+          );
           break;
 
-        case 'parallel':
+        case "parallel":
         default:
           // 并行模式：传统并行执行
-          results = await this._executeParallel(task, concurrencyLimit, timeout, taskId);
+          results = await this._executeParallel(
+            task,
+            concurrencyLimit,
+            timeout,
+            taskId,
+          );
           break;
       }
 
       // 聚合结果
-      console.log(`\n🔄 Aggregating results using ${aggregationStrategy} strategy...`);
-      const aggregated = this.resultAggregator.aggregate(results, aggregationStrategy);
+      console.log(
+        `\n🔄 Aggregating results using ${aggregationStrategy} strategy...`,
+      );
+      const aggregated = this.resultAggregator.aggregate(
+        results,
+        aggregationStrategy,
+      );
 
       const endTime = Date.now();
       const totalTime = endTime - startTime;
 
       // 记录结果到环境
-      results.forEach(r => {
+      results.forEach((r) => {
         this.environment.cacheResult(taskId, r.cli, r);
       });
 
       // 添加聚合痕迹
       this.environment.addTrace({
-        type: 'result_aggregation',
+        type: "result_aggregation",
         taskId,
         strategy: aggregationStrategy,
         resultsCount: results.length,
-        successCount: results.filter(r => r.success).length,
-        selectedResult: aggregated.cli || 'aggregated'
+        successCount: results.filter((r) => r.success).length,
+        selectedResult: aggregated.cli || "aggregated",
       });
 
       // 检测冲突
       const conflicts = this.environment.detectConflicts();
       if (conflicts.length > 0) {
         console.log(`\n⚠️  Detected ${conflicts.length} potential conflicts`);
-        conflicts.forEach(c => {
-          console.log(`   📁 ${c.filePath}: ${c.modifiers.join(' vs ')}`);
+        conflicts.forEach((c) => {
+          console.log(`   📁 ${c.filePath}: ${c.modifiers.join(" vs ")}`);
         });
       }
 
@@ -183,19 +215,18 @@ class StigmergyOrchestrator extends EventEmitter {
         mode,
         aggregationStrategy,
         totalResults: results.length,
-        successCount: results.filter(r => r.success).length,
-        failedCount: results.filter(r => !r.success).length,
+        successCount: results.filter((r) => r.success).length,
+        failedCount: results.filter((r) => !r.success).length,
         totalTime,
         results,
         aggregated,
-        conflicts
+        conflicts,
       };
 
-      this.emit('task-complete', { task, result: finalResult });
+      this.emit("task-complete", { task, result: finalResult });
       return finalResult;
-
     } catch (error) {
-      this.emit('task-error', { task, error });
+      this.emit("task-error", { task, error });
       throw error;
     }
   }
@@ -205,10 +236,10 @@ class StigmergyOrchestrator extends EventEmitter {
    */
   async _executeParallel(task, concurrencyLimit, timeout, taskId) {
     const availableCLIs = this._selectAvailableCLIs(concurrencyLimit);
-    console.log(`\n🤖 Selected CLIs: ${availableCLIs.join(', ')}`);
+    console.log(`\n🤖 Selected CLIs: ${availableCLIs.join(", ")}`);
 
-    const promises = availableCLIs.map(cliName =>
-      this._executeWithCLI(cliName, task, timeout, 0, taskId)
+    const promises = availableCLIs.map((cliName) =>
+      this._executeWithCLI(cliName, task, timeout, 0, taskId),
     );
 
     return await Promise.all(promises);
@@ -219,24 +250,26 @@ class StigmergyOrchestrator extends EventEmitter {
    */
   async _executeCompetitive(task, concurrencyLimit, timeout, taskId) {
     const availableCLIs = this._selectAvailableCLIs(concurrencyLimit);
-    console.log(`\n⚔️  Competitive mode: ${availableCLIs.length} CLIs competing`);
+    console.log(
+      `\n⚔️  Competitive mode: ${availableCLIs.length} CLIs competing`,
+    );
 
-    console.log(`\n🤖 Competitors: ${availableCLIs.join(', ')}`);
+    console.log(`\n🤖 Competitors: ${availableCLIs.join(", ")}`);
 
-    const promises = availableCLIs.map(cliName =>
-      this._executeWithCLI(cliName, task, timeout, 0, taskId)
+    const promises = availableCLIs.map((cliName) =>
+      this._executeWithCLI(cliName, task, timeout, 0, taskId),
     );
 
     const results = await Promise.all(promises);
 
     // 记录竞争痕迹
-    results.forEach(r => {
+    results.forEach((r) => {
       this.environment.addTrace({
-        type: 'competition',
+        type: "competition",
         taskId,
         cliName: r.cli,
         success: r.success,
-        executionTime: r.executionTime
+        executionTime: r.executionTime,
       });
     });
 
@@ -253,10 +286,15 @@ class StigmergyOrchestrator extends EventEmitter {
     const taskType = this._analyzeTaskType(task);
 
     // 根据任务类型选择最合适的CLIs
-    const selectedCLIs = this._selectCLIsByCapability(taskType, concurrencyLimit);
+    const selectedCLIs = this._selectCLIsByCapability(
+      taskType,
+      concurrencyLimit,
+    );
 
     console.log(`\n📊 Task type: ${taskType}`);
-    console.log(`🤖 Selected specialists: ${selectedCLIs.map(c => c.name).join(', ')}`);
+    console.log(
+      `🤖 Selected specialists: ${selectedCLIs.map((c) => c.name).join(", ")}`,
+    );
 
     // 分配子任务
     const subTasks = this._decomposeTask(task, selectedCLIs, taskType);
@@ -264,26 +302,28 @@ class StigmergyOrchestrator extends EventEmitter {
     // 执行子任务
     const results = [];
     for (const subTask of subTasks) {
-      console.log(`\n📝 Sub-task for ${subTask.cli}: ${subTask.task.substring(0, 50)}...`);
+      console.log(
+        `\n📝 Sub-task for ${subTask.cli}: ${subTask.task.substring(0, 50)}...`,
+      );
 
       const result = await this._executeWithCLI(
         subTask.cli,
         subTask.task,
         timeout,
         0,
-        taskId
+        taskId,
       );
 
       results.push(result);
 
       // 记录协同痕迹
       this.environment.addTrace({
-        type: 'collaboration',
+        type: "collaboration",
         taskId,
         cliName: subTask.cli,
         subTask: subTask.task,
         dependency: subTask.dependency,
-        success: result.success
+        success: result.success,
       });
     }
 
@@ -296,20 +336,40 @@ class StigmergyOrchestrator extends EventEmitter {
   _analyzeTaskType(task) {
     const taskLower = task.toLowerCase();
 
-    if (taskLower.includes('分析') || taskLower.includes('analyze') || taskLower.includes('review')) {
-      return 'analysis';
-    } else if (taskLower.includes('代码') || taskLower.includes('function') || taskLower.includes('实现')) {
-      return 'code';
-    } else if (taskLower.includes('测试') || taskLower.includes('test')) {
-      return 'testing';
-    } else if (taskLower.includes('文档') || taskLower.includes('document') || taskLower.includes('readme')) {
-      return 'documentation';
-    } else if (taskLower.includes('重构') || taskLower.includes('refactor') || taskLower.includes('优化')) {
-      return 'refactoring';
-    } else if (taskLower.includes('调试') || taskLower.includes('debug') || taskLower.includes('bug')) {
-      return 'debugging';
+    if (
+      taskLower.includes("分析") ||
+      taskLower.includes("analyze") ||
+      taskLower.includes("review")
+    ) {
+      return "analysis";
+    } else if (
+      taskLower.includes("代码") ||
+      taskLower.includes("function") ||
+      taskLower.includes("实现")
+    ) {
+      return "code";
+    } else if (taskLower.includes("测试") || taskLower.includes("test")) {
+      return "testing";
+    } else if (
+      taskLower.includes("文档") ||
+      taskLower.includes("document") ||
+      taskLower.includes("readme")
+    ) {
+      return "documentation";
+    } else if (
+      taskLower.includes("重构") ||
+      taskLower.includes("refactor") ||
+      taskLower.includes("优化")
+    ) {
+      return "refactoring";
+    } else if (
+      taskLower.includes("调试") ||
+      taskLower.includes("debug") ||
+      taskLower.includes("bug")
+    ) {
+      return "debugging";
     } else {
-      return 'general';
+      return "general";
     }
   }
 
@@ -318,22 +378,24 @@ class StigmergyOrchestrator extends EventEmitter {
    */
   _selectCLIsByCapability(taskType, limit) {
     const taskCapabilities = {
-      'analysis': ['analysis', 'reasoning'],
-      'code': ['code'],
-      'testing': ['code', 'quality'],
-      'documentation': ['documentation', 'writing'],
-      'refactoring': ['refactoring', 'optimization'],
-      'debugging': ['debugging', 'bug-fixing'],
-      'general': ['code', 'general']
+      analysis: ["analysis", "reasoning"],
+      code: ["code"],
+      testing: ["code", "quality"],
+      documentation: ["documentation", "writing"],
+      refactoring: ["refactoring", "optimization"],
+      debugging: ["debugging", "bug-fixing"],
+      general: ["code", "general"],
     };
 
-    const requiredCaps = taskCapabilities[taskType] || ['general'];
+    const requiredCaps = taskCapabilities[taskType] || ["general"];
 
     // 评分并排序
     const scored = Array.from(this.cliRegistry.values())
-      .filter(cli => cli.available)
-      .map(cli => {
-        const score = cli.capabilities.filter(cap => requiredCaps.includes(cap)).length;
+      .filter((cli) => cli.available)
+      .map((cli) => {
+        const score = cli.capabilities.filter((cap) =>
+          requiredCaps.includes(cap),
+        ).length;
         return { ...cli, score };
       })
       .sort((a, b) => b.score - a.score)
@@ -350,31 +412,31 @@ class StigmergyOrchestrator extends EventEmitter {
     const subTasks = [];
 
     const angles = {
-      'code': [
-        { suffix: ' 请提供完整的代码实现', prefix: '' },
-        { suffix: ' 请注重代码质量和可维护性', prefix: '【质量视角】' },
-        { suffix: ' 请添加详细注释', prefix: '【文档视角】' }
+      code: [
+        { suffix: " 请提供完整的代码实现", prefix: "" },
+        { suffix: " 请注重代码质量和可维护性", prefix: "【质量视角】" },
+        { suffix: " 请添加详细注释", prefix: "【文档视角】" },
       ],
-      'analysis': [
-        { suffix: ' 请深入分析', prefix: '' },
-        { suffix: ' 请找出潜在问题', prefix: '【批判视角】' },
-        { suffix: ' 请提供改进建议', prefix: '【优化视角】' }
+      analysis: [
+        { suffix: " 请深入分析", prefix: "" },
+        { suffix: " 请找出潜在问题", prefix: "【批判视角】" },
+        { suffix: " 请提供改进建议", prefix: "【优化视角】" },
       ],
-      'default': [
-        { suffix: '', prefix: '' },
-        { suffix: ' 请详细说明', prefix: '【详细版】' },
-        { suffix: ' 请简洁回答', prefix: '【简洁版】' }
-      ]
+      default: [
+        { suffix: "", prefix: "" },
+        { suffix: " 请详细说明", prefix: "【详细版】" },
+        { suffix: " 请简洁回答", prefix: "【简洁版】" },
+      ],
     };
 
-    const taskAngles = angles[taskType] || angles['default'];
+    const taskAngles = angles[taskType] || angles["default"];
 
     selectedCLIs.forEach((cli, index) => {
       const angle = taskAngles[index % taskAngles.length];
       subTasks.push({
         cli: cli.name,
         task: `${angle.prefix}${task}${angle.suffix}`,
-        dependency: null
+        dependency: null,
       });
     });
 
@@ -391,7 +453,9 @@ class StigmergyOrchestrator extends EventEmitter {
       throw new Error(`CLI ${cliName} not found in registry`);
     }
 
-    console.log(`\n🚀 Executing with ${cliName} (attempt ${currentRetry + 1}/${this.maxRetries + 1})...`);
+    console.log(
+      `\n🚀 Executing with ${cliName} (attempt ${currentRetry + 1}/${this.maxRetries + 1})...`,
+    );
     console.log(`📋 Task: ${task.substring(0, 100)}...`);
 
     // 分配任务
@@ -402,18 +466,28 @@ class StigmergyOrchestrator extends EventEmitter {
     try {
       // 构建命令参数
       let args;
-      if (cliName === 'qwen' || cliName === 'qodercli' || cliName === 'gemini') {
+      if (
+        cliName === "qwen" ||
+        cliName === "qodercli" ||
+        cliName === "gemini"
+      ) {
         args = [task, ...cliConfig.params];
-      } else if (cliName === 'iflow') {
+      } else if (cliName === "iflow") {
         args = [task];
-      } else if (cliName === 'codebuddy' || cliName === 'codex') {
-        args = [...cliConfig.params.map(p => p === '' ? task : p)];
-      } else if (cliName === 'copilot') {
-        args = ['-p', task, '--allow-all-tools'];
-      } else if (cliName === 'claude') {
-        args = ['-p', task, '--dangerously-skip-permissions', '--allowed-tools', 'Bash,Edit,Read,Write,RunCommand,ComputerTools'];
+      } else if (cliName === "codebuddy" || cliName === "codex") {
+        args = [...cliConfig.params.map((p) => (p === "" ? task : p))];
+      } else if (cliName === "copilot") {
+        args = ["-p", task, "--allow-all-tools"];
+      } else if (cliName === "claude") {
+        args = [
+          "-p",
+          task,
+          "--dangerously-skip-permissions",
+          "--allowed-tools",
+          "Bash,Edit,Read,Write,RunCommand,ComputerTools",
+        ];
       } else {
-        args = ['-p', task];
+        args = ["-p", task];
       }
 
       // 执行命令
@@ -426,7 +500,7 @@ class StigmergyOrchestrator extends EventEmitter {
         cli: cliName,
         success: true,
         output: result,
-        executionTime: endTime - startTime
+        executionTime: endTime - startTime,
       };
 
       // 标记任务完成
@@ -444,7 +518,13 @@ class StigmergyOrchestrator extends EventEmitter {
 
         await this._recoverSession(cliName);
 
-        return await this._executeWithCLI(cliName, task, timeout, currentRetry + 1, taskId);
+        return await this._executeWithCLI(
+          cliName,
+          task,
+          timeout,
+          currentRetry + 1,
+          taskId,
+        );
       }
 
       return {
@@ -452,7 +532,7 @@ class StigmergyOrchestrator extends EventEmitter {
         success: false,
         output: null,
         executionTime: endTime - startTime,
-        error: errorMsg
+        error: errorMsg,
       };
     }
   }
@@ -464,13 +544,13 @@ class StigmergyOrchestrator extends EventEmitter {
     console.log(`💾 Recovering session for ${cliName}...`);
 
     return new Promise((resolve) => {
-      const process = spawn('stigmergy', ['resume', cliName, '5'], {
-        stdio: 'inherit',
+      const process = spawn("stigmergy", ["resume", cliName, "5"], {
+        stdio: "inherit",
         shell: true,
-        cwd: this.workDir
+        cwd: this.workDir,
       });
 
-      process.on('close', (code) => {
+      process.on("close", (code) => {
         console.log(`✅ Session recovery completed (code=${code})`);
         resolve();
       });
@@ -487,57 +567,59 @@ class StigmergyOrchestrator extends EventEmitter {
    */
   _spawnCommand(cliName, command, args, timeout) {
     return new Promise((resolve, reject) => {
-      let output = '';
-      let errorOutput = '';
+      let output = "";
+      let errorOutput = "";
       let interactionDetected = false;
 
       const interactionPatterns = [
-        />> ?>|\(y\/n\)|Continue\?|Press any key|输入|确认/i
+        />> ?>|\(y\/n\)|Continue\?|Press any key|输入|确认/i,
       ];
 
       const childProcess = spawn(command, args, {
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ["ignore", "pipe", "pipe"],
         shell: true,
         cwd: this.workDir,
-        env: { ...process.env, FORCE_COLOR: '0' }
+        env: { ...process.env, FORCE_COLOR: "0" },
       });
 
-      childProcess.stdout?.on('data', (data) => {
+      childProcess.stdout?.on("data", (data) => {
         const text = data.toString();
         output += text;
 
         for (const pattern of interactionPatterns) {
           if (pattern.test(text)) {
             interactionDetected = true;
-            console.log(`\n⚠️  [${cliName}] Interactive prompt detected, terminating...`);
-            childProcess.kill('SIGTERM');
+            console.log(
+              `\n⚠️  [${cliName}] Interactive prompt detected, terminating...`,
+            );
+            childProcess.kill("SIGTERM");
             break;
           }
         }
 
-        const lines = text.split('\n');
-        lines.forEach(line => {
+        const lines = text.split("\n");
+        lines.forEach((line) => {
           if (line.trim()) {
             console.log(`[${cliName}] ${line}`);
           }
         });
       });
 
-      childProcess.stderr?.on('data', (data) => {
+      childProcess.stderr?.on("data", (data) => {
         const text = data.toString();
         errorOutput += text;
 
-        const lines = text.split('\n');
-        lines.forEach(line => {
+        const lines = text.split("\n");
+        lines.forEach((line) => {
           if (line.trim()) {
             console.error(`[${cliName}] ERROR: ${line}`);
           }
         });
       });
 
-      childProcess.on('close', (code) => {
+      childProcess.on("close", (code) => {
         if (interactionDetected) {
-          reject(new Error('Interactive prompt detected - auto-terminated'));
+          reject(new Error("Interactive prompt detected - auto-terminated"));
         } else if (code === 0) {
           resolve(output);
         } else {
@@ -545,21 +627,26 @@ class StigmergyOrchestrator extends EventEmitter {
         }
       });
 
-      childProcess.on('error', (error) => {
+      childProcess.on("error", (error) => {
         reject(error);
       });
 
       // 超时控制
       const defaultTimeout = 120000;
-      const timeoutId = setTimeout(() => {
-        if (!childProcess.killed) {
-          console.log(`\n⏱️  [${cliName}] Timeout after ${defaultTimeout}ms, terminating...`);
-          childProcess.kill('SIGTERM');
-          setTimeout(() => childProcess.kill('SIGKILL'), 5000);
-        }
-      }, timeout > 0 ? timeout : defaultTimeout);
+      const timeoutId = setTimeout(
+        () => {
+          if (!childProcess.killed) {
+            console.log(
+              `\n⏱️  [${cliName}] Timeout after ${defaultTimeout}ms, terminating...`,
+            );
+            childProcess.kill("SIGTERM");
+            setTimeout(() => childProcess.kill("SIGKILL"), 5000);
+          }
+        },
+        timeout > 0 ? timeout : defaultTimeout,
+      );
 
-      childProcess.on('close', () => {
+      childProcess.on("close", () => {
         clearTimeout(timeoutId);
       });
     });

@@ -9,9 +9,9 @@
  * 4. 重试机制和备用CLI
  */
 
-const { spawn } = require('child_process');
-const os = require('os');
-const path = require('path');
+const { spawn } = require("child_process");
+const os = require("os");
+const path = require("path");
 
 class EnhancedCLIExecutor {
   constructor(options = {}) {
@@ -27,45 +27,51 @@ class EnhancedCLIExecutor {
   getCLIArgsConfig() {
     return {
       qwen: {
-        direct: ['<task>', '-y'],
-        alternative: ['call', 'qwen', '<task>'],
-        resumeCmd: ['resume', 'qwen', '5']
+        direct: ["<task>", "-y"],
+        alternative: ["call", "qwen", "<task>"],
+        resumeCmd: ["resume", "qwen", "5"],
       },
       iflow: {
-        direct: ['<task>', '-y'],
-        alternative: ['call', 'iflow', '<task>'],
-        resumeCmd: ['resume', 'iflow', '5']
+        direct: ["<task>", "-y"],
+        alternative: ["call", "iflow", "<task>"],
+        resumeCmd: ["resume", "iflow", "5"],
       },
       qodercli: {
-        direct: ['<task>', '-y'],
-        alternative: ['call', 'qodercli', '<task>'],
-        resumeCmd: ['resume', 'qodercli', '5']
+        direct: ["<task>", "-y"],
+        alternative: ["call", "qodercli", "<task>"],
+        resumeCmd: ["resume", "qodercli", "5"],
       },
       gemini: {
-        direct: ['<task>', '-y'],
-        alternative: ['call', 'gemini', '<task>'],
-        resumeCmd: ['resume', 'gemini', '5']
+        direct: ["<task>", "-y"],
+        alternative: ["call", "gemini", "<task>"],
+        resumeCmd: ["resume", "gemini", "5"],
       },
       codebuddy: {
-        direct: ['-p', '<task>', '-y'],
-        alternative: ['call', 'codebuddy', '<task>'],
-        resumeCmd: ['resume', 'codebuddy', '5']
+        direct: ["-p", "<task>", "-y"],
+        alternative: ["call", "codebuddy", "<task>"],
+        resumeCmd: ["resume", "codebuddy", "5"],
       },
       codex: {
-        direct: ['-p', '<task>', '-y'],
-        alternative: ['call', 'codex', '<task>'],
-        resumeCmd: ['resume', 'codex', '5']
+        direct: ["-p", "<task>", "-y"],
+        alternative: ["call", "codex", "<task>"],
+        resumeCmd: ["resume", "codex", "5"],
       },
       copilot: {
-        direct: ['-p', '<task>', '--allow-all-tools'],
-        alternative: ['call', 'copilot', '<task>'],
-        resumeCmd: ['resume', 'copilot', '5']
+        direct: ["-p", "<task>", "--allow-all-tools"],
+        alternative: ["call", "copilot", "<task>"],
+        resumeCmd: ["resume", "copilot", "5"],
       },
       claude: {
-        direct: ['-p', '<task>', '--dangerously-skip-permissions', '--allowed-tools', 'Bash,Edit,Read,Write,RunCommand,ComputerTools'],
-        alternative: ['call', 'claude', '<task>'],
-        resumeCmd: ['resume', 'claude', '5']
-      }
+        direct: [
+          "-p",
+          "<task>",
+          "--dangerously-skip-permissions",
+          "--allowed-tools",
+          "Bash,Edit,Read,Write,RunCommand,ComputerTools",
+        ],
+        alternative: ["call", "claude", "<task>"],
+        resumeCmd: ["resume", "claude", "5"],
+      },
     };
   }
 
@@ -74,13 +80,13 @@ class EnhancedCLIExecutor {
    */
   getFallbackCLIMap() {
     return {
-      'qwen': 'iflow',
-      'iflow': 'qwen',
-      'gemini': 'qwen',
-      'codebuddy': 'qwen',
-      'codex': 'qwen',
-      'copilot': 'claude',
-      'claude': 'qwen'
+      qwen: "iflow",
+      iflow: "qwen",
+      gemini: "qwen",
+      codebuddy: "qwen",
+      codex: "qwen",
+      copilot: "claude",
+      claude: "qwen",
     };
   }
 
@@ -91,18 +97,26 @@ class EnhancedCLIExecutor {
     const currentRetry = options.currentRetry || 0;
     const enableSessionResume = options.enableSessionResume !== false;
 
-    this.log(`🤖 Executing with ${cliName} (attempt ${currentRetry + 1}/${this.maxRetries + 1})`);
-    this.log(`📋 Task: ${task.substring(0, 100)}${task.length > 100 ? '...' : ''}`);
+    this.log(
+      `🤖 Executing with ${cliName} (attempt ${currentRetry + 1}/${this.maxRetries + 1})`,
+    );
+    this.log(
+      `📋 Task: ${task.substring(0, 100)}${task.length > 100 ? "..." : ""}`,
+    );
 
     const args = this._buildArgs(cliName, task);
-    this.log(`🔧 Command: ${cliName} ${args.join(' ')}`);
+    this.log(`🔧 Command: ${cliName} ${args.join(" ")}`);
 
     try {
       const result = await this._spawnProcess(cliName, args, task);
 
       // 如果执行失败，尝试恢复和重试
-      if (!result.success && enableSessionResume && currentRetry < this.maxRetries) {
-        this.log(`⚠️  Execution failed, attempting auto-recovery...`);
+      if (
+        !result.success &&
+        enableSessionResume &&
+        currentRetry < this.maxRetries
+      ) {
+        this.log("⚠️  Execution failed, attempting auto-recovery...");
 
         // 1. 恢复会话
         await this._recoverSession(cliName);
@@ -110,7 +124,7 @@ class EnhancedCLIExecutor {
         // 2. 重新执行
         return await this.executeCLI(cliName, task, {
           currentRetry: currentRetry + 1,
-          enableSessionResume: true
+          enableSessionResume: true,
         });
       }
 
@@ -120,7 +134,6 @@ class EnhancedCLIExecutor {
       }
 
       return result;
-
     } catch (error) {
       this.log(`❌ Exception: ${error.message}`);
       return await this._tryFallbackCLI(cliName, task);
@@ -133,10 +146,10 @@ class EnhancedCLIExecutor {
   _buildArgs(cliName, task) {
     const config = this.getCLIArgsConfig()[cliName];
     if (!config) {
-      return ['-p', task];
+      return ["-p", task];
     }
 
-    return config.direct.map(arg => arg === '<task>' ? task : arg);
+    return config.direct.map((arg) => (arg === "<task>" ? task : arg));
   }
 
   /**
@@ -145,23 +158,23 @@ class EnhancedCLIExecutor {
   async _spawnProcess(cliName, args, task) {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
-      let output = '';
-      let errorOutput = '';
+      let output = "";
+      let errorOutput = "";
       let interactionDetected = false;
 
       // 交互式提示模式
       const interactionPatterns = [
-        />> ?>|\(y\/n\)|Continue\?|Press any key|输入|确认/i
+        />> ?>|\(y\/n\)|Continue\?|Press any key|输入|确认/i,
       ];
 
       const childProcess = spawn(cliName, args, {
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: ["ignore", "pipe", "pipe"],
         shell: true,
-        env: { ...process.env, FORCE_COLOR: '0' }
+        env: { ...process.env, FORCE_COLOR: "0" },
       });
 
       // 检测交互式输出
-      childProcess.stdout.on('data', (data) => {
+      childProcess.stdout.on("data", (data) => {
         const text = data.toString();
         output += text;
 
@@ -169,8 +182,8 @@ class EnhancedCLIExecutor {
         for (const pattern of interactionPatterns) {
           if (pattern.test(text)) {
             interactionDetected = true;
-            this.log(`⚠️  Detected interactive prompt, terminating...`);
-            childProcess.kill('SIGTERM');
+            this.log("⚠️  Detected interactive prompt, terminating...");
+            childProcess.kill("SIGTERM");
             break;
           }
         }
@@ -178,24 +191,26 @@ class EnhancedCLIExecutor {
         process.stdout.write(data);
       });
 
-      childProcess.stderr.on('data', (data) => {
+      childProcess.stderr.on("data", (data) => {
         errorOutput += data.toString();
         process.stderr.write(data);
       });
 
-      childProcess.on('close', (code) => {
+      childProcess.on("close", (code) => {
         const executionTime = Date.now() - startTime;
 
-        this.log(`✅ Execution completed in ${executionTime}ms (exit code: ${code})`);
+        this.log(
+          `✅ Execution completed in ${executionTime}ms (exit code: ${code})`,
+        );
 
         if (interactionDetected) {
           resolve({
             success: false,
             cli: cliName,
             task: task,
-            error: 'Interactive prompt detected',
+            error: "Interactive prompt detected",
             exitCode: code,
-            needsRecovery: true
+            needsRecovery: true,
           });
         } else if (code !== 0) {
           resolve({
@@ -204,7 +219,7 @@ class EnhancedCLIExecutor {
             task: task,
             error: errorOutput || `Exit code ${code}`,
             exitCode: code,
-            needsRecovery: true
+            needsRecovery: true,
           });
         } else {
           resolve({
@@ -213,18 +228,18 @@ class EnhancedCLIExecutor {
             task: task,
             output: output,
             executionTime,
-            exitCode: code
+            exitCode: code,
           });
         }
       });
 
-      childProcess.on('error', (error) => {
+      childProcess.on("error", (error) => {
         resolve({
           success: false,
           cli: cliName,
           task: task,
           error: error.message,
-          needsRecovery: true
+          needsRecovery: true,
         });
       });
 
@@ -234,8 +249,8 @@ class EnhancedCLIExecutor {
         setTimeout(() => {
           if (!childProcess.killed) {
             this.log(`⏱️  Timeout after ${timeout}ms, terminating...`);
-            childProcess.kill('SIGTERM');
-            setTimeout(() => childProcess.kill('SIGKILL'), 5000);
+            childProcess.kill("SIGTERM");
+            setTimeout(() => childProcess.kill("SIGKILL"), 5000);
           }
         }, timeout);
       }
@@ -249,12 +264,12 @@ class EnhancedCLIExecutor {
     this.log(`💾 Recovering session for ${cliName}...`);
 
     return new Promise((resolve) => {
-      const process = spawn('stigmergy', ['resume', cliName, '5'], {
-        stdio: 'inherit',
-        shell: true
+      const process = spawn("stigmergy", ["resume", cliName, "5"], {
+        stdio: "inherit",
+        shell: true,
       });
 
-      process.on('close', (code) => {
+      process.on("close", (code) => {
         this.log(`✅ Session recovery completed (code=${code})`);
         resolve();
       });
@@ -280,7 +295,7 @@ class EnhancedCLIExecutor {
     try {
       return await this.executeCLI(fallback, task, {
         currentRetry: this.maxRetries, // 避免无限循环
-        enableSessionResume: false
+        enableSessionResume: false,
       });
     } catch (error) {
       this.log(`❌ Fallback CLI ${fallback} also failed: ${error.message}`);

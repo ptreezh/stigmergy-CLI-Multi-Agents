@@ -3,7 +3,7 @@
  * Provides centralized cache initialization and management for skills and agents
  */
 
-const LocalSkillScanner = require('../../core/local_skill_scanner');
+const LocalSkillScanner = require("../../core/local_skill_scanner");
 
 /**
  * Initialize or update skills/agents cache
@@ -28,65 +28,69 @@ async function ensureSkillsCache(options = {}) {
 
     if (!hasCache) {
       // First time - generate cache
-      console.log('[CACHE] Generating skills/agents cache (first time)...');
+      console.log("[CACHE] Generating skills/agents cache (first time)...");
       await scanner.initialize();
       const results = scanner.getScanResults();
 
       if (results) {
         const totalSkills = Object.values(results.skills || {}).flat().length;
         const totalAgents = Object.values(results.agents || {}).flat().length;
-        console.log(`[CACHE] Cache generated: ${totalSkills} skills, ${totalAgents} agents`);
+        console.log(
+          `[CACHE] Cache generated: ${totalSkills} skills, ${totalAgents} agents`,
+        );
 
         return {
           success: true,
           skills: totalSkills,
           agents: totalAgents,
-          action: 'generated'
+          action: "generated",
         };
       }
     } else if (force) {
       // Force refresh requested
-      console.log('[CACHE] Refreshing skills/agents cache...');
+      console.log("[CACHE] Refreshing skills/agents cache...");
       await scanner.initialize(true);
       const results = scanner.getScanResults();
 
       if (results) {
         const totalSkills = Object.values(results.skills || {}).flat().length;
         const totalAgents = Object.values(results.agents || {}).flat().length;
-        console.log(`[CACHE] Cache refreshed: ${totalSkills} skills, ${totalAgents} agents`);
+        console.log(
+          `[CACHE] Cache refreshed: ${totalSkills} skills, ${totalAgents} agents`,
+        );
 
         return {
           success: true,
           skills: totalSkills,
           agents: totalAgents,
-          action: 'refreshed'
+          action: "refreshed",
         };
       }
     } else {
       // Incremental update - only scan changed directories
-      if (verbose || process.env.DEBUG === 'true') {
-        console.log('[CACHE] Updating skills/agents cache (incremental)...');
+      if (verbose || process.env.DEBUG === "true") {
+        console.log("[CACHE] Updating skills/agents cache (incremental)...");
       }
       await scanner.scanIncremental();
 
       return {
         success: true,
-        action: 'updated'
+        action: "updated",
       };
     }
   } catch (error) {
     // Cache initialization is not critical - don't fail the command
-    if (verbose || process.env.DEBUG === 'true') {
+    if (verbose || process.env.DEBUG === "true") {
       console.log(`[CACHE] Warning: ${error.message}`);
     }
 
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
 
 module.exports = {
-  ensureSkillsCache
+  ensureSkillsCache,
 };

@@ -125,7 +125,7 @@ class SoulMerger {
 
       this._saveHistory(result);
 
-      console.log(`[Merger] ✅ Complete:`);
+      console.log("[Merger] ✅ Complete:");
       console.log(`   Original: ${result.originalTotal} entries`);
       console.log(`   Merged: ${result.mergedTotal} entries`);
       console.log(`   Deduplicated: ${result.deduplicated}\n`);
@@ -358,7 +358,7 @@ class SoulMerger {
       // 找到所有soul目录
       const souls = await this._findAllSouls();
 
-      console.log(`\n🕛 [Merger] Daily merge started at 0:00`);
+      console.log("\n🕛 [Merger] Daily merge started at 0:00");
       console.log(`   Found ${souls.length} souls to merge\n`);
 
       for (const soul of souls) {

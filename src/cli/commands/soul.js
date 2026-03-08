@@ -309,12 +309,12 @@ async function handleSoulCommand(subcommand, args = [], options = {}) {
 
   // Map common aliases
   const commandMap = {
-    'reflect': 'check',  // reflect -> check (self-reflection)
-    'check': 'check',
-    'init': 'init',
-    'status': 'status',
-    'evolve': 'evolve',
-    'create': 'create'
+    reflect: "check", // reflect -> check (self-reflection)
+    check: "check",
+    init: "init",
+    status: "status",
+    evolve: "evolve",
+    create: "create",
   };
 
   const mappedCommand = commandMap[subcommand] || subcommand;

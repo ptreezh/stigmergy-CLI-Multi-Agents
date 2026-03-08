@@ -3,28 +3,31 @@
 /**
  * Qoder CLI Hook installer
  * Used to automatically install and configure Qoder CLI notification Hook plugins
- * 
+ *
  * Usage:
  * node install_qoder_integration.js [install|uninstall|status]
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const { spawn } = require('child_process');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
+const { spawn } = require("child_process");
 
 class QoderHookInstaller {
   constructor() {
-    this.qoderConfigDir = path.join(os.homedir(), '.qoder');
-    this.hooksDir = path.join(this.qoderConfigDir, 'hooks');
-    this.logsDir = path.join(this.qoderConfigDir, 'logs');
-    this.cacheDir = path.join(this.qoderConfigDir, 'cache');
-    
+    this.qoderConfigDir = path.join(os.homedir(), ".qoder");
+    this.hooksDir = path.join(this.qoderConfigDir, "hooks");
+    this.logsDir = path.join(this.qoderConfigDir, "logs");
+    this.cacheDir = path.join(this.qoderConfigDir, "cache");
+
     // Adapter paths
     this.currentDir = __dirname;
-    this.hookAdapterFile = path.join(this.currentDir, 'notification_hook_adapter.js');
-    this.configFile = path.join(this.currentDir, 'config.json');
-    
+    this.hookAdapterFile = path.join(
+      this.currentDir,
+      "notification_hook_adapter.js",
+    );
+    this.configFile = path.join(this.currentDir, "config.json");
+
     // Installation status
     this.installationLog = [];
   }
@@ -34,11 +37,11 @@ class QoderHookInstaller {
    */
   async installHooks() {
     try {
-      console.log('Starting Qoder CLI Hook plugin installation...');
+      console.log("Starting Qoder CLI Hook plugin installation...");
 
       // 1. Check environment and platform
-      if (!await this._checkEnvironment()) {
-        console.error('Environment check failed');
+      if (!(await this._checkEnvironment())) {
+        console.error("Environment check failed");
         return false;
       }
 
@@ -46,26 +49,26 @@ class QoderHookInstaller {
       await this._createDirectories();
 
       // 3. Copy adapter files
-      if (!await this._installAdapterFiles()) {
-        console.error('Adapter file installation failed');
+      if (!(await this._installAdapterFiles())) {
+        console.error("Adapter file installation failed");
         return false;
       }
 
       // 4. Create Hook scripts
-      if (!await this._createHookScripts()) {
-        console.error('Hook script creation failed');
+      if (!(await this._createHookScripts())) {
+        console.error("Hook script creation failed");
         return false;
       }
 
       // 5. Set up environment config
-      if (!await this._setupEnvironmentConfig()) {
-        console.error('Environment config setup failed');
+      if (!(await this._setupEnvironmentConfig())) {
+        console.error("Environment config setup failed");
         return false;
       }
 
       // 6. Create startup scripts
-      if (!await this._createStartupScripts()) {
-        console.error('Startup script creation failed');
+      if (!(await this._createStartupScripts())) {
+        console.error("Startup script creation failed");
         return false;
       }
 
@@ -73,18 +76,25 @@ class QoderHookInstaller {
       await this._createGlobalCrossCliDocumentation();
 
       // 8. Verify installation
-      if (!await this._verifyInstallation()) {
-        console.error('Installation verification failed');
+      if (!(await this._verifyInstallation())) {
+        console.error("Installation verification failed");
         return false;
       }
 
-      console.log('Qoder CLI Hook plugin installation successful');
-      await this._logInstallation('success', 'Hook plugin installed successfully');
+      console.log("Qoder CLI Hook plugin installation successful");
+      await this._logInstallation(
+        "success",
+        "Hook plugin installed successfully",
+      );
       return true;
-
     } catch (error) {
-      console.error(`Failed to install Qoder CLI Hook plugin: ${error.message}`);
-      await this._logInstallation('error', `Installation failed: ${error.message}`);
+      console.error(
+        `Failed to install Qoder CLI Hook plugin: ${error.message}`,
+      );
+      await this._logInstallation(
+        "error",
+        `Installation failed: ${error.message}`,
+      );
       return false;
     }
   }
@@ -94,7 +104,7 @@ class QoderHookInstaller {
    */
   async uninstallHooks() {
     try {
-      console.log('Starting Qoder CLI Hook plugin uninstallation...');
+      console.log("Starting Qoder CLI Hook plugin uninstallation...");
 
       // 1. Backup configuration
       await this._backupConfiguration();
@@ -111,13 +121,20 @@ class QoderHookInstaller {
       // 5. Clean up temporary files
       await this._cleanupTempFiles();
 
-      console.log('Qoder CLI Hook plugin uninstallation successful');
-      await this._logInstallation('success', 'Hook plugin uninstalled successfully');
+      console.log("Qoder CLI Hook plugin uninstallation successful");
+      await this._logInstallation(
+        "success",
+        "Hook plugin uninstalled successfully",
+      );
       return true;
-
     } catch (error) {
-      console.error(`Failed to uninstall Qoder CLI Hook plugin: ${error.message}`);
-      await this._logInstallation('error', `Uninstall failed: ${error.message}`);
+      console.error(
+        `Failed to uninstall Qoder CLI Hook plugin: ${error.message}`,
+      );
+      await this._logInstallation(
+        "error",
+        `Uninstall failed: ${error.message}`,
+      );
       return false;
     }
   }
@@ -129,22 +146,22 @@ class QoderHookInstaller {
     try {
       // Check Node.js version
       const nodeVersion = process.version;
-      const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0]);
+      const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
       if (majorVersion < 14) {
-        console.error('Node.js 14 or higher required');
+        console.error("Node.js 14 or higher required");
         return false;
       }
 
       // Check platform support
       const currentPlatform = os.platform();
-      if (!['darwin', 'linux', 'win32'].includes(currentPlatform)) {
-        console.warn(`Platform ${currentPlatform} may not be fully supported, will use fallback mechanism`);
+      if (!["darwin", "linux", "win32"].includes(currentPlatform)) {
+        console.warn(
+          `Platform ${currentPlatform} may not be fully supported, will use fallback mechanism`,
+        );
       }
 
       // Check if required files exist
-      const requiredFiles = [
-        this.configFile
-      ];
+      const requiredFiles = [this.configFile];
 
       for (const file of requiredFiles) {
         try {
@@ -156,18 +173,19 @@ class QoderHookInstaller {
       }
 
       // Check system tools
-      if (currentPlatform === 'darwin') {
+      if (currentPlatform === "darwin") {
         // Check if osascript is available
         try {
-          await this._runCommand('osascript', ['-e', '1'], { timeout: 2000 });
+          await this._runCommand("osascript", ["-e", "1"], { timeout: 2000 });
         } catch (error) {
-          console.warn('osascript unavailable, notification function may be limited');
+          console.warn(
+            "osascript unavailable, notification function may be limited",
+          );
         }
       }
 
       console.log(`Environment check passed (${currentPlatform})`);
       return true;
-
     } catch (error) {
       console.error(`Environment check failed: ${error.message}`);
       return false;
@@ -182,7 +200,7 @@ class QoderHookInstaller {
       this.qoderConfigDir,
       this.hooksDir,
       this.logsDir,
-      this.cacheDir
+      this.cacheDir,
     ];
 
     for (const directory of directories) {
@@ -197,7 +215,10 @@ class QoderHookInstaller {
   async _installAdapterFiles() {
     try {
       // 复制Hook适配器到Qoder目录（如果存在）
-      const adapterDest = path.join(this.qoderConfigDir, 'notification_hook_adapter.js');
+      const adapterDest = path.join(
+        this.qoderConfigDir,
+        "notification_hook_adapter.js",
+      );
       try {
         await fs.copyFile(this.hookAdapterFile, adapterDest);
         console.log(`复制Hook适配器到: ${adapterDest}`);
@@ -206,7 +227,7 @@ class QoderHookInstaller {
       }
 
       // 复制配置文件
-      const configDest = path.join(this.qoderConfigDir, 'config.json');
+      const configDest = path.join(this.qoderConfigDir, "config.json");
       try {
         await fs.copyFile(this.configFile, configDest);
         console.log(`复制配置文件到: ${configDest}`);
@@ -216,18 +237,17 @@ class QoderHookInstaller {
           cross_cli_enabled: true,
           notifications: {
             enabled: true,
-            cross_cli: true
+            cross_cli: true,
           },
           keywords: {
-            cross_cli: ['请用', '调用', '用', '让', 'use', 'call', 'ask']
-          }
+            cross_cli: ["请用", "调用", "用", "让", "use", "call", "ask"],
+          },
         };
         await fs.writeFile(configDest, JSON.stringify(defaultConfig, null, 2));
         console.log(`创建默认配置文件: ${configDest}`);
       }
 
       return true;
-
     } catch (error) {
       console.error(`安装适配器文件失败: ${error.message}`);
       return false;
@@ -240,7 +260,7 @@ class QoderHookInstaller {
   async _createHookScripts() {
     try {
       const platform = os.platform();
-      const isWindows = platform === 'win32';
+      const isWindows = platform === "win32";
 
       if (isWindows) {
         return await this._createWindowsHookScripts();
@@ -401,22 +421,22 @@ exit 0
 
     // 写入脚本文件
     const scripts = {
-      'pre_hook.sh': preHookContent,
-      'post_hook.sh': postHookContent,
-      'error_hook.sh': errorHookContent
+      "pre_hook.sh": preHookContent,
+      "post_hook.sh": postHookContent,
+      "error_hook.sh": errorHookContent,
     };
 
     for (const [filename, content] of Object.entries(scripts)) {
       const scriptPath = path.join(this.hooksDir, filename);
-      await fs.writeFile(scriptPath, content, 'utf8');
-      
+      await fs.writeFile(scriptPath, content, "utf8");
+
       // 设置执行权限（Unix系统）
       try {
         await fs.chmod(scriptPath, 0o755);
       } catch (error) {
         console.warn(`设置执行权限失败: ${scriptPath}`);
       }
-      
+
       console.log(`创建Hook脚本: ${scriptPath}`);
     }
 
@@ -507,14 +527,14 @@ exit /b 0
 
     // 写入脚本文件
     const scripts = {
-      'pre_hook.bat': preHookContent,
-      'post_hook.bat': postHookContent,
-      'error_hook.bat': errorHookContent
+      "pre_hook.bat": preHookContent,
+      "post_hook.bat": postHookContent,
+      "error_hook.bat": errorHookContent,
     };
 
     for (const [filename, content] of Object.entries(scripts)) {
       const scriptPath = path.join(this.hooksDir, filename);
-      await fs.writeFile(scriptPath, content, 'utf8');
+      await fs.writeFile(scriptPath, content, "utf8");
       console.log(`创建Hook脚本: ${scriptPath}`);
     }
 
@@ -527,23 +547,22 @@ exit /b 0
   async _setupEnvironmentConfig() {
     try {
       const envConfig = {
-        QODER_CROSS_CLI_ENABLED: '1',
-        QODER_CROSS_CLI_RESPONSE_FILE: '',
-        QODER_CROSS_CLI_REQUEST_FILE: '',
-        QODER_CROSS_CLI_STATUS_FILE: '',
-        QODER_HOOK_STAGE: '',
-        QODER_HOOK_COMMAND: '',
-        QODER_HOOK_SESSION_ID: '',
-        QODER_HOOK_LOG_LEVEL: 'INFO',
-        QODER_HOOK_PLATFORM: os.platform()
+        QODER_CROSS_CLI_ENABLED: "1",
+        QODER_CROSS_CLI_RESPONSE_FILE: "",
+        QODER_CROSS_CLI_REQUEST_FILE: "",
+        QODER_CROSS_CLI_STATUS_FILE: "",
+        QODER_HOOK_STAGE: "",
+        QODER_HOOK_COMMAND: "",
+        QODER_HOOK_SESSION_ID: "",
+        QODER_HOOK_LOG_LEVEL: "INFO",
+        QODER_HOOK_PLATFORM: os.platform(),
       };
 
-      const envConfigPath = path.join(this.qoderConfigDir, 'environment.json');
+      const envConfigPath = path.join(this.qoderConfigDir, "environment.json");
       await fs.writeFile(envConfigPath, JSON.stringify(envConfig, null, 2));
 
       console.log(`环境配置已创建: ${envConfigPath}`);
       return true;
-
     } catch (error) {
       console.error(`设置环境配置失败: ${error.message}`);
       return false;
@@ -556,10 +575,10 @@ exit /b 0
   async _createStartupScripts() {
     try {
       const platform = os.platform();
-      const isWindows = platform === 'win32';
-      
+      const isWindows = platform === "win32";
+
       let startupScript;
-      
+
       if (isWindows) {
         startupScript = `@echo off
 REM Qoder CLI Cross-CLI Hook启动脚本
@@ -619,9 +638,12 @@ echo "Qoder Hook监控已停止"
 `;
       }
 
-      const startupScriptPath = path.join(this.qoderConfigDir, isWindows ? 'start_hooks.bat' : 'start_hooks.sh');
-      await fs.writeFile(startupScriptPath, startupScript, 'utf8');
-      
+      const startupScriptPath = path.join(
+        this.qoderConfigDir,
+        isWindows ? "start_hooks.bat" : "start_hooks.sh",
+      );
+      await fs.writeFile(startupScriptPath, startupScript, "utf8");
+
       // 设置执行权限（Unix系统）
       if (!isWindows) {
         try {
@@ -633,7 +655,6 @@ echo "Qoder Hook监控已停止"
 
       console.log(`启动脚本已创建: ${startupScriptPath}`);
       return true;
-
     } catch (error) {
       console.error(`创建启动脚本失败: ${error.message}`);
       return false;
@@ -646,32 +667,38 @@ echo "Qoder Hook监控已停止"
   async _verifyInstallation() {
     try {
       const platform = os.platform();
-      const isWindows = platform === 'win32';
-      
+      const isWindows = platform === "win32";
+
       // 检查必要文件是否存在
       const requiredFiles = [
-        path.join(this.qoderConfigDir, 'config.json'),
-        path.join(this.qoderConfigDir, 'environment.json'),
-        path.join(this.qoderConfigDir, isWindows ? 'start_hooks.bat' : 'start_hooks.sh')
+        path.join(this.qoderConfigDir, "config.json"),
+        path.join(this.qoderConfigDir, "environment.json"),
+        path.join(
+          this.qoderConfigDir,
+          isWindows ? "start_hooks.bat" : "start_hooks.sh",
+        ),
       ];
 
       // Hook脚本文件根据平台不同
       if (isWindows) {
         requiredFiles.push(
-          path.join(this.hooksDir, 'pre_hook.bat'),
-          path.join(this.hooksDir, 'post_hook.bat'),
-          path.join(this.hooksDir, 'error_hook.bat')
+          path.join(this.hooksDir, "pre_hook.bat"),
+          path.join(this.hooksDir, "post_hook.bat"),
+          path.join(this.hooksDir, "error_hook.bat"),
         );
       } else {
         requiredFiles.push(
-          path.join(this.hooksDir, 'pre_hook.sh'),
-          path.join(this.hooksDir, 'post_hook.sh'),
-          path.join(this.hooksDir, 'error_hook.sh')
+          path.join(this.hooksDir, "pre_hook.sh"),
+          path.join(this.hooksDir, "post_hook.sh"),
+          path.join(this.hooksDir, "error_hook.sh"),
         );
       }
 
       // 检查适配器文件（可选）
-      const adapterFile = path.join(this.qoderConfigDir, 'notification_hook_adapter.js');
+      const adapterFile = path.join(
+        this.qoderConfigDir,
+        "notification_hook_adapter.js",
+      );
       try {
         await fs.access(adapterFile);
         requiredFiles.push(adapterFile);
@@ -688,9 +715,8 @@ echo "Qoder Hook监控已停止"
         }
       }
 
-      console.log('安装验证通过');
+      console.log("安装验证通过");
       return true;
-
     } catch (error) {
       console.error(`安装验证失败: ${error.message}`);
       return false;
@@ -703,24 +729,24 @@ echo "Qoder Hook监控已停止"
   async _backupConfiguration() {
     try {
       const now = new Date();
-      const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-      const backupDir = path.join(this.qoderConfigDir, 'backup', timestamp);
+      const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}_${now.getHours().toString().padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now.getSeconds().toString().padStart(2, "0")}`;
+      const backupDir = path.join(this.qoderConfigDir, "backup", timestamp);
       await fs.mkdir(backupDir, { recursive: true });
 
       // 备份Hook目录
       try {
-        await this._copyDirectory(this.hooksDir, path.join(backupDir, 'hooks'));
+        await this._copyDirectory(this.hooksDir, path.join(backupDir, "hooks"));
       } catch (error) {
         // 目录可能不存在
       }
 
       // 备份配置文件
       const configFiles = [
-        'notification_hook_adapter.js',
-        'config.json',
-        'environment.json',
-        'start_hooks.sh',
-        'start_hooks.bat'
+        "notification_hook_adapter.js",
+        "config.json",
+        "environment.json",
+        "start_hooks.sh",
+        "start_hooks.bat",
       ];
 
       for (const configFile of configFiles) {
@@ -735,7 +761,6 @@ echo "Qoder Hook监控已停止"
       }
 
       console.log(`配置已备份到: ${backupDir}`);
-
     } catch (error) {
       console.warn(`备份配置失败: ${error.message}`);
     }
@@ -747,12 +772,12 @@ echo "Qoder Hook监控已停止"
   async _cleanupHookScripts() {
     try {
       const platform = os.platform();
-      const isWindows = platform === 'win32';
-      
-      const scripts = isWindows 
-        ? ['pre_hook.bat', 'post_hook.bat', 'error_hook.bat']
-        : ['pre_hook.sh', 'post_hook.sh', 'error_hook.sh'];
-        
+      const isWindows = platform === "win32";
+
+      const scripts = isWindows
+        ? ["pre_hook.bat", "post_hook.bat", "error_hook.bat"]
+        : ["pre_hook.sh", "post_hook.sh", "error_hook.sh"];
+
       for (const script of scripts) {
         const scriptPath = path.join(this.hooksDir, script);
         try {
@@ -762,7 +787,6 @@ echo "Qoder Hook监控已停止"
           // 文件可能不存在
         }
       }
-
     } catch (error) {
       console.warn(`清理Hook脚本失败: ${error.message}`);
     }
@@ -774,11 +798,11 @@ echo "Qoder Hook监控已停止"
   async _cleanupAdapterFiles() {
     try {
       const files = [
-        'notification_hook_adapter.js',
-        'config.json',
-        'environment.json',
-        'start_hooks.sh',
-        'start_hooks.bat'
+        "notification_hook_adapter.js",
+        "config.json",
+        "environment.json",
+        "start_hooks.sh",
+        "start_hooks.bat",
       ];
 
       for (const fileName of files) {
@@ -790,7 +814,6 @@ echo "Qoder Hook监控已停止"
           // 文件可能不存在
         }
       }
-
     } catch (error) {
       console.warn(`清理适配器文件失败: ${error.message}`);
     }
@@ -802,13 +825,13 @@ echo "Qoder Hook监控已停止"
   async _cleanupEnvironment() {
     try {
       const envVars = [
-        'QODER_CROSS_CLI_ENABLED',
-        'QODER_CROSS_CLI_RESPONSE_FILE',
-        'QODER_CROSS_CLI_REQUEST_FILE',
-        'QODER_CROSS_CLI_STATUS_FILE',
-        'QODER_HOOK_STAGE',
-        'QODER_HOOK_COMMAND',
-        'QODER_HOOK_SESSION_ID'
+        "QODER_CROSS_CLI_ENABLED",
+        "QODER_CROSS_CLI_RESPONSE_FILE",
+        "QODER_CROSS_CLI_REQUEST_FILE",
+        "QODER_CROSS_CLI_STATUS_FILE",
+        "QODER_HOOK_STAGE",
+        "QODER_HOOK_COMMAND",
+        "QODER_HOOK_SESSION_ID",
       ];
 
       for (const envVar of envVars) {
@@ -817,8 +840,7 @@ echo "Qoder Hook监控已停止"
         }
       }
 
-      console.log('环境变量已清理');
-
+      console.log("环境变量已清理");
     } catch (error) {
       console.warn(`清理环境变量失败: ${error.message}`);
     }
@@ -829,7 +851,7 @@ echo "Qoder Hook监控已停止"
    */
   async _cleanupTempFiles() {
     try {
-      const tempPattern = path.join(this.cacheDir, 'qoder_cross_cli_temp_*');
+      const tempPattern = path.join(this.cacheDir, "qoder_cross_cli_temp_*");
       const tempDirs = await this._glob(tempPattern);
 
       for (const tempDir of tempDirs) {
@@ -840,7 +862,6 @@ echo "Qoder Hook监控已停止"
           // 目录可能不存在
         }
       }
-
     } catch (error) {
       console.warn(`清理临时文件失败: ${error.message}`);
     }
@@ -867,15 +888,15 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 *This document is automatically generated and maintained by Stigmergy CLI*
 `;
 
-      const docPath = path.join(this.qoderConfigDir, 'CROSS_CLI_GUIDE.md');
-      await fs.writeFile(docPath, docContent, 'utf8');
+      const docPath = path.join(this.qoderConfigDir, "CROSS_CLI_GUIDE.md");
+      await fs.writeFile(docPath, docContent, "utf8");
       console.log(`创建Cross-CLI通信指南: ${docPath}`);
 
       // 如果存在qoder.md文件，则在末尾追加Cross-CLI通信提示
-      const qoderMdPath = path.join(os.homedir(), '.qoder', 'qoder.md');
+      const qoderMdPath = path.join(os.homedir(), ".qoder", "qoder.md");
       try {
         await fs.access(qoderMdPath);
-        
+
         const crossCliContent = `
 
 ## Cross-CLI Communication
@@ -888,12 +909,11 @@ Examples:
 
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
-        await fs.appendFile(qoderMdPath, crossCliContent, 'utf8');
-        console.log('Append Cross-CLI communication prompt to QODER.md');
+        await fs.appendFile(qoderMdPath, crossCliContent, "utf8");
+        console.log("Append Cross-CLI communication prompt to QODER.md");
       } catch (error) {
         // 文件可能不存在，忽略
       }
-
     } catch (error) {
       console.warn(`创建Cross-CLI通信指南失败: ${error.message}`);
     }
@@ -904,45 +924,61 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
    */
   async getInstallationStatus() {
     const platform = os.platform();
-    const isWindows = platform === 'win32';
-    
+    const isWindows = platform === "win32";
+
     const filesExist = {
       hook_adapter: false,
       config: false,
       pre_hook: false,
       post_hook: false,
       error_hook: false,
-      startup_script: false
+      startup_script: false,
     };
 
     // 检查文件是否存在
     try {
-      await fs.access(path.join(this.qoderConfigDir, 'notification_hook_adapter.js'));
+      await fs.access(
+        path.join(this.qoderConfigDir, "notification_hook_adapter.js"),
+      );
       filesExist.hook_adapter = true;
     } catch (error) {}
 
     try {
-      await fs.access(path.join(this.qoderConfigDir, 'config.json'));
+      await fs.access(path.join(this.qoderConfigDir, "config.json"));
       filesExist.config = true;
     } catch (error) {}
 
     try {
-      await fs.access(path.join(this.hooksDir, isWindows ? 'pre_hook.bat' : 'pre_hook.sh'));
+      await fs.access(
+        path.join(this.hooksDir, isWindows ? "pre_hook.bat" : "pre_hook.sh"),
+      );
       filesExist.pre_hook = true;
     } catch (error) {}
 
     try {
-      await fs.access(path.join(this.hooksDir, isWindows ? 'post_hook.bat' : 'post_hook.sh'));
+      await fs.access(
+        path.join(this.hooksDir, isWindows ? "post_hook.bat" : "post_hook.sh"),
+      );
       filesExist.post_hook = true;
     } catch (error) {}
 
     try {
-      await fs.access(path.join(this.hooksDir, isWindows ? 'error_hook.bat' : 'error_hook.sh'));
+      await fs.access(
+        path.join(
+          this.hooksDir,
+          isWindows ? "error_hook.bat" : "error_hook.sh",
+        ),
+      );
       filesExist.error_hook = true;
     } catch (error) {}
 
     try {
-      await fs.access(path.join(this.qoderConfigDir, isWindows ? 'start_hooks.bat' : 'start_hooks.sh'));
+      await fs.access(
+        path.join(
+          this.qoderConfigDir,
+          isWindows ? "start_hooks.bat" : "start_hooks.sh",
+        ),
+      );
       filesExist.startup_script = true;
     } catch (error) {}
 
@@ -951,7 +987,7 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
       qoder_config_dir: this.qoderConfigDir,
       hooks_dir: this.hooksDir,
       files_exist: filesExist,
-      installation_log: this.installationLog
+      installation_log: this.installationLog,
     };
   }
 
@@ -963,12 +999,12 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
       timestamp: new Date().toISOString(),
       status: status,
       message: message,
-      platform: os.platform()
+      platform: os.platform(),
     };
     this.installationLog.push(logEntry);
 
     // 写入日志文件
-    const logFile = path.join(this.logsDir, 'installation.log');
+    const logFile = path.join(this.logsDir, "installation.log");
     await fs.mkdir(path.dirname(logFile), { recursive: true });
 
     try {
@@ -983,31 +1019,31 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
    */
   async _runCommand(command, args, options = {}) {
     return new Promise((resolve, reject) => {
-      const child = spawn(command, args, { 
-        stdio: 'pipe',
-        ...options 
+      const child = spawn(command, args, {
+        stdio: "pipe",
+        ...options,
       });
-      
-      let stdout = '';
-      let stderr = '';
-      
-      child.stdout.on('data', (data) => {
+
+      let stdout = "";
+      let stderr = "";
+
+      child.stdout.on("data", (data) => {
         stdout += data.toString();
       });
-      
-      child.stderr.on('data', (data) => {
+
+      child.stderr.on("data", (data) => {
         stderr += data.toString();
       });
-      
-      child.on('close', (code) => {
+
+      child.on("close", (code) => {
         if (code === 0) {
           resolve({ stdout, stderr });
         } else {
           reject(new Error(`Command failed with code ${code}: ${stderr}`));
         }
       });
-      
-      child.on('error', reject);
+
+      child.on("error", reject);
     });
   }
 
@@ -1037,13 +1073,13 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
     // 简单的glob实现，仅支持*通配符
     const dir = path.dirname(pattern);
     const base = path.basename(pattern);
-    const regex = new RegExp('^' + base.replace(/\*/g, '.*') + '$');
-    
+    const regex = new RegExp("^" + base.replace(/\*/g, ".*") + "$");
+
     try {
       const files = await fs.readdir(dir);
       return files
-        .filter(file => regex.test(file))
-        .map(file => path.join(dir, file));
+        .filter((file) => regex.test(file))
+        .map((file) => path.join(dir, file));
     } catch (error) {
       return [];
     }
@@ -1057,21 +1093,23 @@ async function main() {
 
   const installer = new QoderHookInstaller();
 
-  if (command === 'install') {
+  if (command === "install") {
     const success = await installer.installHooks();
-    console.log(`安装${success ? '成功' : '失败'}`);
+    console.log(`安装${success ? "成功" : "失败"}`);
     return success ? 0 : 1;
-  } else if (command === 'uninstall') {
+  } else if (command === "uninstall") {
     const success = await installer.uninstallHooks();
-    console.log(`卸载${success ? '成功' : '失败'}`);
+    console.log(`卸载${success ? "成功" : "失败"}`);
     return success ? 0 : 1;
-  } else if (command === 'status') {
+  } else if (command === "status") {
     const status = await installer.getInstallationStatus();
-    console.log('Qoder Hook插件状态:');
+    console.log("Qoder Hook插件状态:");
     console.log(JSON.stringify(status, null, 2));
     return 0;
   } else {
-    console.log('用法: node install_qoder_integration.js [install|uninstall|status]');
+    console.log(
+      "用法: node install_qoder_integration.js [install|uninstall|status]",
+    );
     return 1;
   }
 }
@@ -1081,10 +1119,12 @@ module.exports = QoderHookInstaller;
 
 // 如果直接运行此脚本
 if (require.main === module) {
-  main().then(exitCode => {
-    process.exit(exitCode);
-  }).catch(error => {
-    console.error('[FATAL]', error.message);
-    process.exit(1);
-  });
+  main()
+    .then((exitCode) => {
+      process.exit(exitCode);
+    })
+    .catch((error) => {
+      console.error("[FATAL]", error.message);
+      process.exit(1);
+    });
 }

@@ -3,9 +3,9 @@
  * Handles CLI tool status checking commands
  */
 
-const { CLI_TOOLS } = require('../../core/cli_tools');
-const chalk = require('chalk');
-const { formatToolStatus } = require('../utils/formatters');
+const { CLI_TOOLS } = require("../../core/cli_tools");
+const chalk = require("chalk");
+const { formatToolStatus } = require("../utils/formatters");
 
 /**
  * Handle status command
@@ -16,13 +16,18 @@ const { formatToolStatus } = require('../utils/formatters');
  */
 async function handleStatusCommand(options = {}) {
   try {
-    const supportedTools = ['claude', 'gemini', 'qwen', 'codebuddy', 'codex', 'iflow', 'qodercli', 'copilot'];
+    // Use all tools from CLI_TOOLS that have autoInstall: true
+    const supportedTools = Object.keys(CLI_TOOLS).filter(
+      (tool) => CLI_TOOLS[tool] && CLI_TOOLS[tool].autoInstall,
+    );
 
     if (options.cli) {
       // Check specific CLI
       if (!supportedTools.includes(options.cli)) {
         console.log(chalk.red(`❌ Unknown CLI tool: ${options.cli}`));
-        console.log(chalk.yellow(`Supported tools: ${supportedTools.join(', ')}`));
+        console.log(
+          chalk.yellow(`Supported tools: ${supportedTools.join(", ")}`),
+        );
         process.exit(1);
       }
 
@@ -43,17 +48,21 @@ async function handleStatusCommand(options = {}) {
               console.log(chalk.gray(`   📍 Path: ${status.path}`));
             }
             if (status.lastChecked) {
-              console.log(chalk.gray(`   🕐 Last checked: ${status.lastChecked}`));
+              console.log(
+                chalk.gray(`   🕐 Last checked: ${status.lastChecked}`),
+              );
             }
           }
         }
       } catch (error) {
-        console.log(chalk.red(`❌ Error checking ${options.cli}: ${error.message}`));
+        console.log(
+          chalk.red(`❌ Error checking ${options.cli}: ${error.message}`),
+        );
         process.exit(1);
       }
     } else {
       // Check all CLIs
-      console.log(chalk.cyan('📊 CLI Tools Status:'));
+      console.log(chalk.cyan("📊 CLI Tools Status:"));
 
       let installedCount = 0;
       const results = [];
@@ -62,12 +71,12 @@ async function handleStatusCommand(options = {}) {
         try {
           // 添加超时保护
           const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout')), 5000)
+            setTimeout(() => reject(new Error("Timeout")), 5000),
           );
-          
+
           const statusPromise = CLI_TOOLS.checkInstallation(tool);
           const status = await Promise.race([statusPromise, timeoutPromise]);
-          
+
           results.push({ tool, ...status });
 
           if (status.installed) {
@@ -83,22 +92,30 @@ async function handleStatusCommand(options = {}) {
       }
 
       // Summary
-      console.log('');
-      console.log(chalk.blue(`📈 Summary: ${installedCount}/${supportedTools.length} tools installed`));
+      console.log("");
+      console.log(
+        chalk.blue(
+          `📈 Summary: ${installedCount}/${supportedTools.length} tools installed`,
+        ),
+      );
 
       if (installedCount < supportedTools.length) {
-        console.log(chalk.yellow('\n💡 To install missing tools, run:'));
-        console.log(chalk.cyan('   stigmergy install'));
+        console.log(chalk.yellow("\n💡 To install missing tools, run:"));
+        console.log(chalk.cyan("   stigmergy install"));
 
-        const missing = results.filter(r => !r.installed);
+        const missing = results.filter((r) => !r.installed);
         if (missing.length > 0 && missing.length < supportedTools.length) {
-          console.log(chalk.cyan(`   stigmergy install --cli ${missing.map(r => r.tool).join(',')}`));
+          console.log(
+            chalk.cyan(
+              `   stigmergy install --cli ${missing.map((r) => r.tool).join(",")}`,
+            ),
+          );
         }
       }
 
       if (options.json) {
-        console.log('');
-        console.log(chalk.blue('📄 Detailed JSON output:'));
+        console.log("");
+        console.log(chalk.blue("📄 Detailed JSON output:"));
         console.log(JSON.stringify(results, null, 2));
       }
     }
@@ -109,5 +126,5 @@ async function handleStatusCommand(options = {}) {
 }
 
 module.exports = {
-  handleStatusCommand
+  handleStatusCommand,
 };

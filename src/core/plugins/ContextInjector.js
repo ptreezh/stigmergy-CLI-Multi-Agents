@@ -9,9 +9,9 @@
  * 4. 支持条件注入
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
 
 class ContextInjector {
   constructor(options = {}) {
@@ -27,13 +27,13 @@ class ContextInjector {
 
     // 不同 CLI 的主配置文件名不同
     const docNames = {
-      'claude': 'claude.md',
-      'iflow': 'IFLOW.md',
-      'qwen': 'qwen.md',
-      'codebuddy': 'CODEBUDDY.md',
-      'codex': 'codex.md',
-      'copilot': 'copilot.md',
-      'qodercli': 'qodercli.md'
+      claude: "claude.md",
+      iflow: "IFLOW.md",
+      qwen: "qwen.md",
+      codebuddy: "CODEBUDDY.md",
+      codex: "codex.md",
+      copilot: "copilot.md",
+      qodercli: "qodercli.md",
     };
 
     const docName = docNames[cliName.toLowerCase()] || `${cliName}.md`;
@@ -46,9 +46,9 @@ class ContextInjector {
   generateContextInjection(skills, options = {}) {
     const {
       priority = 1,
-      title = 'Stigmergy Skills',
+      title = "Stigmergy Skills",
       usage = null,
-      cliName = 'universal'
+      cliName = "universal",
     } = options;
 
     // 默认 usage 说明
@@ -71,23 +71,25 @@ Base directory will be provided for resolving bundled resources.
     const usageText = usage || defaultUsage;
 
     // 生成技能列表
-    const skillsList = skills.map(skill => {
-      if (typeof skill === 'string') {
-        return `
+    const skillsList = skills
+      .map((skill) => {
+        if (typeof skill === "string") {
+          return `
 <skill>
 <name>${skill}</name>
 <description>Skill deployed from Stigmergy CLI coordination layer</description>
 <location>stigmergy</location>
 </skill>`;
-      } else if (typeof skill === 'object') {
-        return `
+        } else if (typeof skill === "object") {
+          return `
 <skill>
 <name>${skill.name}</name>
-<description>${skill.description || 'Skill deployed from Stigmergy'}</description>
-<location>${skill.location || 'stigmergy'}</location>
+<description>${skill.description || "Skill deployed from Stigmergy"}</description>
+<location>${skill.location || "stigmergy"}</location>
 </skill>`;
-      }
-    }).join('\n');
+        }
+      })
+      .join("\n");
 
     return `
 <!-- SKILLS_START -->
@@ -113,11 +115,13 @@ ${skillsList}
   generateClaudeContextInjection(skills, options = {}) {
     const { priority = 1 } = options;
 
-    const skillsList = skills.map(skill => {
-      const skillName = typeof skill === 'string' ? skill : skill.name;
-      const description = typeof skill === 'object' ? skill.description : '';
-      return `- ${skillName}${description ? ': ' + description : ''}`;
-    }).join('\n');
+    const skillsList = skills
+      .map((skill) => {
+        const skillName = typeof skill === "string" ? skill : skill.name;
+        const description = typeof skill === "object" ? skill.description : "";
+        return `- ${skillName}${description ? ": " + description : ""}`;
+      })
+      .join("\n");
 
     return `
 <!-- SKILLS_START -->
@@ -154,25 +158,25 @@ ${skillsList}
     }
 
     // 读取现有内容
-    const existingContent = await fs.readFile(docPath, 'utf8');
+    const existingContent = await fs.readFile(docPath, "utf8");
 
     // 生成新的上下文注入
     let injection;
-    if (cliName.toLowerCase() === 'claude') {
+    if (cliName.toLowerCase() === "claude") {
       injection = this.generateClaudeContextInjection(skills, options);
     } else {
       injection = this.generateContextInjection(skills, options);
     }
 
     // 检查是否已经存在 SKILLS_START 标记
-    const hasSkillsSection = existingContent.includes('<!-- SKILLS_START -->');
+    const hasSkillsSection = existingContent.includes("<!-- SKILLS_START -->");
 
     let updatedContent;
 
     if (hasSkillsSection) {
       // 替换现有的 skills section
-      const startMarker = '<!-- SKILLS_START -->';
-      const endMarker = '<!-- SKILLS_END -->';
+      const startMarker = "<!-- SKILLS_START -->";
+      const endMarker = "<!-- SKILLS_END -->";
 
       const startIndex = existingContent.indexOf(startMarker);
       const endIndex = existingContent.indexOf(endMarker) + endMarker.length;
@@ -187,7 +191,7 @@ ${skillsList}
       }
     } else {
       // 追加新的 skills section
-      updatedContent = existingContent.trimEnd() + '\n' + injection + '\n';
+      updatedContent = existingContent.trimEnd() + "\n" + injection + "\n";
 
       if (this.verbose) {
         console.log(`  ➕ Adding new skills section to ${cliName}.md`);
@@ -200,7 +204,7 @@ ${skillsList}
       return true;
     }
 
-    await fs.writeFile(docPath, updatedContent, 'utf8');
+    await fs.writeFile(docPath, updatedContent, "utf8");
 
     if (this.verbose) {
       console.log(`  ✅ Injected context to: ${docPath}`);
@@ -226,10 +230,10 @@ ${skillsList}
     }
 
     // 读取现有内容
-    const existingContent = await fs.readFile(docPath, 'utf8');
+    const existingContent = await fs.readFile(docPath, "utf8");
 
     // 检查是否存在 SKILLS_START 标记
-    if (!existingContent.includes('<!-- SKILLS_START -->')) {
+    if (!existingContent.includes("<!-- SKILLS_START -->")) {
       if (this.verbose) {
         console.log(`  ℹ️  No skills section found in ${cliName}.md`);
       }
@@ -237,18 +241,17 @@ ${skillsList}
     }
 
     // 移除 skills section
-    const startMarker = '<!-- SKILLS_START -->';
-    const endMarker = '<!-- SKILLS_END -->';
+    const startMarker = "<!-- SKILLS_START -->";
+    const endMarker = "<!-- SKILLS_END -->";
 
     const startIndex = existingContent.indexOf(startMarker);
     const endIndex = existingContent.indexOf(endMarker) + endMarker.length;
 
     const updatedContent =
-      existingContent.slice(0, startIndex) +
-      existingContent.slice(endIndex);
+      existingContent.slice(0, startIndex) + existingContent.slice(endIndex);
 
     // 清理多余的换行
-    const cleanedContent = updatedContent.replace(/\n{3,}/g, '\n\n');
+    const cleanedContent = updatedContent.replace(/\n{3,}/g, "\n\n");
 
     // 写入文件
     if (this.dryRun) {
@@ -256,7 +259,7 @@ ${skillsList}
       return true;
     }
 
-    await fs.writeFile(docPath, cleanedContent, 'utf8');
+    await fs.writeFile(docPath, cleanedContent, "utf8");
 
     if (this.verbose) {
       console.log(`  ✅ Removed context from: ${docPath}`);
@@ -282,10 +285,10 @@ ${skillsList}
     }
 
     // 读取现有内容
-    const existingContent = await fs.readFile(docPath, 'utf8');
+    const existingContent = await fs.readFile(docPath, "utf8");
 
     // 检查是否存在 skills section
-    if (!existingContent.includes('<!-- SKILLS_START -->')) {
+    if (!existingContent.includes("<!-- SKILLS_START -->")) {
       if (this.verbose) {
         console.log(`  ℹ️  No skills section found in ${cliName}.md`);
       }
@@ -295,7 +298,7 @@ ${skillsList}
     // 查找技能条目
     const skillEntryRegex = new RegExp(
       `<skill>\\s*<name>${skillName}</name>[\\s\\S]*?</skill>`,
-      'g'
+      "g",
     );
 
     // 检查技能是否存在
@@ -306,12 +309,12 @@ ${skillsList}
       const newSkillEntry = `
 <skill>
 <name>${skillName}</name>
-<description>${skillData.description || 'Skill deployed from Stigmergy'}</description>
-<location>${skillData.location || 'stigmergy'}</location>
+<description>${skillData.description || "Skill deployed from Stigmergy"}</description>
+<location>${skillData.location || "stigmergy"}</location>
 </skill>`;
 
       // 在 </available_skills> 之前插入
-      const endTag = '</available_skills>';
+      const endTag = "</available_skills>";
       const insertPosition = existingContent.indexOf(endTag);
 
       const updatedContent =
@@ -324,7 +327,7 @@ ${skillsList}
         return true;
       }
 
-      await fs.writeFile(docPath, updatedContent, 'utf8');
+      await fs.writeFile(docPath, updatedContent, "utf8");
 
       if (this.verbose) {
         console.log(`  ✅ Added skill "${skillName}" to ${cliName}.md`);
@@ -338,9 +341,9 @@ ${skillsList}
         `
 <skill>
 <name>${skillName}</name>
-<description>${skillData.description || 'Skill deployed from Stigmergy'}</description>
-<location>${skillData.location || 'stigmergy'}</location>
-</skill>`
+<description>${skillData.description || "Skill deployed from Stigmergy"}</description>
+<location>${skillData.location || "stigmergy"}</location>
+</skill>`,
       );
 
       if (this.dryRun) {
@@ -348,7 +351,7 @@ ${skillsList}
         return true;
       }
 
-      await fs.writeFile(docPath, updatedContent, 'utf8');
+      await fs.writeFile(docPath, updatedContent, "utf8");
 
       if (this.verbose) {
         console.log(`  ✅ Updated skill "${skillName}" in ${cliName}.md`);
@@ -372,15 +375,15 @@ ${skillsList}
     }
 
     // 读取现有内容
-    const existingContent = await fs.readFile(docPath, 'utf8');
+    const existingContent = await fs.readFile(docPath, "utf8");
 
     // 查找并移除技能条目
     const skillEntryRegex = new RegExp(
       `<skill>\\s*<name>${skillName}</name>[\\s\\S]*?</skill>\\n*`,
-      'g'
+      "g",
     );
 
-    const updatedContent = existingContent.replace(skillEntryRegex, '');
+    const updatedContent = existingContent.replace(skillEntryRegex, "");
 
     if (updatedContent === existingContent) {
       // 没有找到技能
@@ -396,7 +399,7 @@ ${skillsList}
       return true;
     }
 
-    await fs.writeFile(docPath, updatedContent, 'utf8');
+    await fs.writeFile(docPath, updatedContent, "utf8");
 
     if (this.verbose) {
       console.log(`  ✅ Removed skill "${skillName}" from ${cliName}.md`);
@@ -419,16 +422,16 @@ ${skillsList}
     }
 
     // 读取现有内容
-    const existingContent = await fs.readFile(docPath, 'utf8');
+    const existingContent = await fs.readFile(docPath, "utf8");
 
     // 检查是否存在 skills section
-    if (!existingContent.includes('<!-- SKILLS_START -->')) {
+    if (!existingContent.includes("<!-- SKILLS_START -->")) {
       return null;
     }
 
     // 提取 skills section
-    const startMarker = '<!-- SKILLS_START -->';
-    const endMarker = '<!-- SKILLS_END -->';
+    const startMarker = "<!-- SKILLS_START -->";
+    const endMarker = "<!-- SKILLS_END -->";
 
     const startIndex = existingContent.indexOf(startMarker);
     const endIndex = existingContent.indexOf(endMarker) + endMarker.length;
@@ -445,40 +448,40 @@ ${skillsList}
     if (!injectedContext) {
       return {
         valid: false,
-        error: 'No skills section found'
+        error: "No skills section found",
       };
     }
 
     // 检查必需的标记
-    const hasStartMarker = injectedContext.includes('<!-- SKILLS_START -->');
-    const hasEndMarker = injectedContext.includes('<!-- SKILLS_END -->');
-    const hasSkillsSystem = injectedContext.includes('<skills_system');
-    const hasAvailableSkills = injectedContext.includes('<available_skills>');
+    const hasStartMarker = injectedContext.includes("<!-- SKILLS_START -->");
+    const hasEndMarker = injectedContext.includes("<!-- SKILLS_END -->");
+    const hasSkillsSystem = injectedContext.includes("<skills_system");
+    const hasAvailableSkills = injectedContext.includes("<available_skills>");
 
     if (!hasStartMarker || !hasEndMarker) {
       return {
         valid: false,
-        error: 'Missing start or end marker'
+        error: "Missing start or end marker",
       };
     }
 
     if (!hasSkillsSystem) {
       return {
         valid: false,
-        error: 'Missing skills_system tag'
+        error: "Missing skills_system tag",
       };
     }
 
     if (!hasAvailableSkills) {
       return {
         valid: false,
-        error: 'Missing available_skills section'
+        error: "Missing available_skills section",
       };
     }
 
     return {
       valid: true,
-      context: injectedContext
+      context: injectedContext,
     };
   }
 }

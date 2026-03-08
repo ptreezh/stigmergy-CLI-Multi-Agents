@@ -4,20 +4,20 @@
  * 基于可用CLI的模型算力进行智能经验提取
  */
 
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { spawn } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 class LLMInsightExtractor {
   constructor() {
     this.projectDir = process.cwd();
-    this.stigmergyMd = path.join(this.projectDir, 'STIGMERGY.md');
+    this.stigmergyMd = path.join(this.projectDir, "STIGMERGY.md");
   }
 
   /**
    * 使用可用的CLI分析会话并提取经验
    */
-  async extractFromSession(sessionContent, cliType = 'auto') {
+  async extractFromSession(sessionContent, cliType = "auto") {
     console.log(`[LLM提取] 使用 ${cliType} 分析会话...`);
 
     // 1. 选择最合适的CLI
@@ -36,7 +36,7 @@ class LLMInsightExtractor {
     return {
       ...structuredInsights,
       sourceCLI: selectedCLI,
-      extractedAt: new Date().toISOString()
+      extractedAt: new Date().toISOString(),
     };
   }
 
@@ -44,24 +44,26 @@ class LLMInsightExtractor {
    * 智能选择最合适的CLI
    */
   async selectBestCLI(preferredCLI, sessionContent) {
-    if (preferredCLI !== 'auto') {
+    if (preferredCLI !== "auto") {
       return preferredCLI;
     }
 
     // 检测会话内容特征
     const hasChinese = /[\u4e00-\u9fa5]/.test(sessionContent);
-    const hasCode = /```(?:javascript|python|java|go|rust)/.test(sessionContent);
+    const hasCode = /```(?:javascript|python|java|go|rust)/.test(
+      sessionContent,
+    );
     const isComplex = sessionContent.length > 1000;
 
     // 根据特征选择CLI
     if (hasChinese && !hasCode) {
-      return 'qwen';  // 中文内容优先用qwen
+      return "qwen"; // 中文内容优先用qwen
     } else if (hasCode && isComplex) {
-      return 'claude';  // 复杂代码分析用claude
+      return "claude"; // 复杂代码分析用claude
     } else if (hasCode) {
-      return 'codebuddy';  // 代码相关问题用codebuddy
+      return "codebuddy"; // 代码相关问题用codebuddy
     } else {
-      return 'claude';  // 默认用claude
+      return "claude"; // 默认用claude
     }
   }
 
@@ -149,22 +151,22 @@ ${sessionContent}
 
       const cli = spawn(command, {
         shell: true,
-        stdio: ['inherit', 'pipe', 'pipe'],
-        timeout: 120000 // 2分钟超时
+        stdio: ["inherit", "pipe", "pipe"],
+        timeout: 120000, // 2分钟超时
       });
 
-      let output = '';
-      let errorOutput = '';
+      let output = "";
+      let errorOutput = "";
 
-      cli.stdout.on('data', (data) => {
+      cli.stdout.on("data", (data) => {
         output += data.toString();
       });
 
-      cli.stderr.on('data', (data) => {
+      cli.stderr.on("data", (data) => {
         errorOutput += data.toString();
       });
 
-      cli.on('close', (code) => {
+      cli.on("close", (code) => {
         if (code === 0 && output.trim()) {
           resolve(output.trim());
         } else {
@@ -174,7 +176,7 @@ ${sessionContent}
         }
       });
 
-      cli.on('error', (error) => {
+      cli.on("error", (error) => {
         console.log(`[LLM提取] CLI执行失败，使用基础分析`);
         resolve(this.basicAnalysis(prompt));
       });
@@ -193,20 +195,29 @@ ${sessionContent}
    */
   basicAnalysis(content) {
     // 简单的关键词和模式提取
-    const hasSuccess = content.includes('成功') || content.includes('完成') || content.includes('✅');
-    const hasProblem = content.includes('错误') || content.includes('失败') || content.includes('问题');
-    const hasSolution = content.includes('解决') || content.includes('修复') || content.includes('优化');
+    const hasSuccess =
+      content.includes("成功") ||
+      content.includes("完成") ||
+      content.includes("✅");
+    const hasProblem =
+      content.includes("错误") ||
+      content.includes("失败") ||
+      content.includes("问题");
+    const hasSolution =
+      content.includes("解决") ||
+      content.includes("修复") ||
+      content.includes("优化");
 
     return `
 # 经验层级 1：快速概览
-${hasSuccess ? '成功完成了任务' : hasProblem ? '遇到并处理了问题' : '进行了技术讨论'}
+${hasSuccess ? "成功完成了任务" : hasProblem ? "遇到并处理了问题" : "进行了技术讨论"}
 
 # 经验层级 2：核心要点
 ## 问题是什么
-${hasProblem ? '遇到了技术问题' : '需要完成的任务'}
+${hasProblem ? "遇到了技术问题" : "需要完成的任务"}
 
 ## 解决方案
-${hasSolution ? '找到并实施了解决方案' : '通过分析和讨论解决'}
+${hasSolution ? "找到并实施了解决方案" : "通过分析和讨论解决"}
 
 ## 适用场景
 技术问题解决, 代码开发, 调试调试
@@ -251,37 +262,37 @@ ${hasSolution ? '找到并实施了解决方案' : '通过分析和讨论解决'
   parseAnalysisResult(analysis) {
     // 提取各个层级的内容
     const levels = {
-      level1: { name: '快速概览', content: '' },
-      level2: { name: '核心要点', content: '' },
-      level3: { name: '详细说明', content: '' },
-      level4: { name: '上下文和变体', content: '' },
-      level5: { name: '元数据', content: '' }
+      level1: { name: "快速概览", content: "" },
+      level2: { name: "核心要点", content: "" },
+      level3: { name: "详细说明", content: "" },
+      level4: { name: "上下文和变体", content: "" },
+      level5: { name: "元数据", content: "" },
     };
 
     // 简单解析（实际可以用更复杂的markdown解析）
-    const lines = analysis.split('\n');
+    const lines = analysis.split("\n");
     let currentLevel = null;
 
     for (const line of lines) {
-      if (line.startsWith('# 经验层级 1')) {
-        currentLevel = 'level1';
-      } else if (line.startsWith('# 经验层级 2')) {
-        currentLevel = 'level2';
-      } else if (line.startsWith('# 经验层级 3')) {
-        currentLevel = 'level3';
-      } else if (line.startsWith('# 经验层级 4')) {
-        currentLevel = 'level4';
-      } else if (line.startsWith('# 经验层级 5')) {
-        currentLevel = 'level5';
+      if (line.startsWith("# 经验层级 1")) {
+        currentLevel = "level1";
+      } else if (line.startsWith("# 经验层级 2")) {
+        currentLevel = "level2";
+      } else if (line.startsWith("# 经验层级 3")) {
+        currentLevel = "level3";
+      } else if (line.startsWith("# 经验层级 4")) {
+        currentLevel = "level4";
+      } else if (line.startsWith("# 经验层级 5")) {
+        currentLevel = "level5";
       } else if (currentLevel && line.trim()) {
-        levels[currentLevel].content += line + '\n';
+        levels[currentLevel].content += line + "\n";
       }
     }
 
     return {
       levels,
       fullAnalysis: analysis,
-      hasValidContent: analysis.includes('经验层级')
+      hasValidContent: analysis.includes("经验层级"),
     };
   }
 
@@ -366,10 +377,10 @@ ${insights.fullAnalysis}
   async appendToMemory(pyramidMD) {
     try {
       fs.appendFileSync(this.stigmergyMd, pyramidMD);
-      console.log('[LLM提取] ✅ 经验已追加到 STIGMERGY.md');
+      console.log("[LLM提取] ✅ 经验已追加到 STIGMERGY.md");
       return true;
     } catch (error) {
-      console.error('[LLM提取] ❌ 追加失败:', error.message);
+      console.error("[LLM提取] ❌ 追加失败:", error.message);
       return false;
     }
   }

@@ -5,10 +5,10 @@
  * and error recovery capabilities.
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const { spawnSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const { spawnSync } = require("child_process");
 
 class CacheCleaner {
   constructor(options = {}) {
@@ -45,10 +45,10 @@ class CacheCleaner {
       ...options,
     };
 
-    console.log('🧹 Starting Comprehensive Cache Cleaning...\n');
+    console.log("🧹 Starting Comprehensive Cache Cleaning...\n");
 
     if (this.options.dryRun) {
-      console.log('🔍 DRY RUN MODE - No files will be deleted\n');
+      console.log("🔍 DRY RUN MODE - No files will be deleted\n");
     }
 
     try {
@@ -82,7 +82,7 @@ class CacheCleaner {
 
       return this.results;
     } catch (error) {
-      console.error('�?Cache cleaning failed:', error.message);
+      console.error("�?Cache cleaning failed:", error.message);
       this.results.errors.push(error.message);
       return this.results;
     }
@@ -92,27 +92,27 @@ class CacheCleaner {
    * Clean Stigmergy cache and temporary files
    */
   async cleanStigmergyCache() {
-    console.log('📁 Cleaning Stigmergy cache...');
+    console.log("📁 Cleaning Stigmergy cache...");
 
-    const stigmergyDir = path.join(this.homeDir, '.stigmergy');
-    const testDir = path.join(this.homeDir, '.stigmergy-test');
+    const stigmergyDir = path.join(this.homeDir, ".stigmergy");
+    const testDir = path.join(this.homeDir, ".stigmergy-test");
 
     // Clean main cache directory
     if (fs.existsSync(stigmergyDir)) {
-      await this.cleanStigmergyDirectory(stigmergyDir, 'main');
+      await this.cleanStigmergyDirectory(stigmergyDir, "main");
     }
 
     // Clean test directory
     if (fs.existsSync(testDir)) {
-      await this.cleanStigmergyDirectory(testDir, 'test');
+      await this.cleanStigmergyDirectory(testDir, "test");
     }
 
     // Clean cache subdirectories specifically
     const cachePaths = [
-      path.join(stigmergyDir, 'cache'),
-      path.join(stigmergyDir, 'logs'),
-      path.join(stigmergyDir, 'temp'),
-      path.join(stigmergyDir, '.tmp'),
+      path.join(stigmergyDir, "cache"),
+      path.join(stigmergyDir, "logs"),
+      path.join(stigmergyDir, "temp"),
+      path.join(stigmergyDir, ".tmp"),
     ];
 
     for (const cachePath of cachePaths) {
@@ -121,7 +121,7 @@ class CacheCleaner {
       }
     }
 
-    console.log('�?Stigmergy cache cleaning completed');
+    console.log("�?Stigmergy cache cleaning completed");
   }
 
   /**
@@ -141,7 +141,7 @@ class CacheCleaner {
     console.log(`    📋 Found ${recentFiles.length} files to clean`);
 
     if (this.options.dryRun) {
-      this.logFiles(recentFiles, '      🔍 ');
+      this.logFiles(recentFiles, "      🔍 ");
       return;
     }
 
@@ -153,19 +153,19 @@ class CacheCleaner {
    * Clean NPX cache of Stigmergy entries
    */
   async cleanNPXCache() {
-    console.log('📦 Cleaning NPX cache...');
+    console.log("📦 Cleaning NPX cache...");
 
     const npxCacheDirs = await this.findNPXCacheDirectories();
 
     if (npxCacheDirs.length === 0) {
-      console.log('  ℹ️  No Stigmergy entries in NPX cache');
+      console.log("  ℹ️  No Stigmergy entries in NPX cache");
       return;
     }
 
     console.log(`  📦 Found ${npxCacheDirs.length} Stigmergy cache entries`);
 
     if (this.options.dryRun) {
-      this.logFiles(npxCacheDirs, '    🔍 ');
+      this.logFiles(npxCacheDirs, "    🔍 ");
       return;
     }
 
@@ -194,25 +194,25 @@ class CacheCleaner {
    * Clean NPM cache
    */
   async cleanNPMCache() {
-    console.log('📦 Cleaning NPM cache...');
+    console.log("📦 Cleaning NPM cache...");
 
     try {
       // Use npm cache clean command
       if (this.options.dryRun) {
-        console.log('  🔍 Would run: npm cache clean --force');
+        console.log("  🔍 Would run: npm cache clean --force");
         return;
       }
 
-      const result = spawnSync('npm', ['cache', 'clean', '--force'], {
-        encoding: 'utf8',
+      const result = spawnSync("npm", ["cache", "clean", "--force"], {
+        encoding: "utf8",
         shell: true,
-        stdio: this.options.verbose ? 'inherit' : 'pipe',
+        stdio: this.options.verbose ? "inherit" : "pipe",
       });
 
       if (result.status === 0) {
-        console.log('  �?NPM cache cleaned successfully');
+        console.log("  �?NPM cache cleaned successfully");
       } else {
-        console.log('  ⚠️  NPM cache clean failed, trying manual cleanup');
+        console.log("  ⚠️  NPM cache clean failed, trying manual cleanup");
         await this.manualNPMCacheClean();
       }
     } catch (error) {
@@ -226,8 +226,8 @@ class CacheCleaner {
    */
   async manualNPMCacheClean() {
     const npmCacheDirs = [
-      path.join(this.homeDir, '.npm', '_cacache'),
-      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_cacache'),
+      path.join(this.homeDir, ".npm", "_cacache"),
+      path.join(this.homeDir, "AppData", "Local", "npm-cache", "_cacache"),
     ];
 
     for (const cacheDir of npmCacheDirs) {
@@ -242,19 +242,19 @@ class CacheCleaner {
    * Clean CLI configurations
    */
   async cleanCLIConfigurations() {
-    console.log('⚙️  Cleaning CLI configurations...');
+    console.log("⚙️  Cleaning CLI configurations...");
 
     const supportedCLIs = [
-      'claude',
-      'gemini',
-      'qwen',
-      'iflow',
-      'qodercli',
-      'codebuddy',
-      'codex',
-      'copilot',
-      'qwencode',
-      'kode',
+      "claude",
+      "gemini",
+      "qwen",
+      "iflow",
+      "qodercli",
+      "codebuddy",
+      "codex",
+      "copilot",
+      "qwencode",
+      "kode",
     ];
 
     let totalCleaned = 0;
@@ -275,7 +275,7 @@ class CacheCleaner {
       console.log(`  📂 ${cli}: ${stigmergyFiles.length} Stigmergy files`);
 
       if (this.options.dryRun) {
-        this.logFiles(stigmergyFiles, '    🔍 ');
+        this.logFiles(stigmergyFiles, "    🔍 ");
         continue;
       }
 
@@ -296,12 +296,12 @@ class CacheCleaner {
    * Clean temporary files
    */
   async cleanTemporaryFiles() {
-    console.log('🗑�? Cleaning temporary files...');
+    console.log("🗑�? Cleaning temporary files...");
 
     const tempDirs = [
       os.tmpdir(),
-      path.join(this.homeDir, 'AppData', 'Local', 'Temp'),
-      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_tmp'),
+      path.join(this.homeDir, "AppData", "Local", "Temp"),
+      path.join(this.homeDir, "AppData", "Local", "npm-cache", "_tmp"),
     ];
 
     let totalRemoved = 0;
@@ -322,7 +322,7 @@ class CacheCleaner {
       );
 
       if (this.options.dryRun) {
-        this.logFiles(tempFiles.slice(0, 5), '    🔍 ');
+        this.logFiles(tempFiles.slice(0, 5), "    🔍 ");
         if (tempFiles.length > 5) {
           console.log(`    ... and ${tempFiles.length - 5} more`);
         }
@@ -357,7 +357,7 @@ class CacheCleaner {
     console.log(`🎯 Selective cleaning: ${targetDirectory}`);
 
     if (!fs.existsSync(targetDirectory)) {
-      console.log('  ℹ️  Directory not found');
+      console.log("  ℹ️  Directory not found");
       return;
     }
 
@@ -383,7 +383,7 @@ class CacheCleaner {
     console.log(`  📋 Found ${filesToRemove.length} files to remove`);
 
     if (this.options.dryRun) {
-      this.logFiles(filesToRemove, '    🔍 ');
+      this.logFiles(filesToRemove, "    🔍 ");
       return;
     }
 
@@ -586,13 +586,13 @@ class CacheCleaner {
 
   isStigmergyFile(fileName) {
     const stigmergyPatterns = [
-      'stigmergy',
-      'cross-cli',
-      'hook',
-      'integration',
-      'cache',
-      '.tmp',
-      'temp',
+      "stigmergy",
+      "cross-cli",
+      "hook",
+      "integration",
+      "cache",
+      ".tmp",
+      "temp",
     ];
 
     const lowerFileName = fileName.toLowerCase();
@@ -604,9 +604,9 @@ class CacheCleaner {
   async findNPXCacheDirectories() {
     const cacheDirs = [];
     const possibleNPXBases = [
-      path.join(this.homeDir, 'AppData', 'Local', 'npm-cache', '_npx'),
-      path.join(this.homeDir, '.npm', '_npx'),
-      path.join(os.tmpdir(), 'npm-cache', '_npx'),
+      path.join(this.homeDir, "AppData", "Local", "npm-cache", "_npx"),
+      path.join(this.homeDir, ".npm", "_npx"),
+      path.join(os.tmpdir(), "npm-cache", "_npx"),
     ];
 
     for (const npxCacheBase of possibleNPXBases) {
@@ -621,8 +621,8 @@ class CacheCleaner {
           const entryPath = path.join(npxCacheBase, entry);
           const stigmergyPath = path.join(
             entryPath,
-            'node_modules',
-            'stigmergy',
+            "node_modules",
+            "stigmergy",
           );
 
           if (fs.existsSync(stigmergyPath)) {
@@ -646,8 +646,8 @@ class CacheCleaner {
       for (const file of files) {
         if (
           this.isStigmergyFile(file.name) ||
-          file.name.startsWith('stigmergy-') ||
-          file.name.includes('stigmergy')
+          file.name.startsWith("stigmergy-") ||
+          file.name.includes("stigmergy")
         ) {
           const fullPath = path.join(tempDir, file.name);
           tempFiles.push(fullPath);
@@ -682,9 +682,9 @@ class CacheCleaner {
     const fileName = path.basename(filePath);
 
     // Simple glob pattern matching
-    const regexPattern = pattern.replace(/\*/g, '.*').replace(/\?/g, '.');
+    const regexPattern = pattern.replace(/\*/g, ".*").replace(/\?/g, ".");
 
-    const regex = new RegExp(regexPattern, 'i');
+    const regex = new RegExp(regexPattern, "i");
     return regex.test(fileName);
   }
 
@@ -715,13 +715,13 @@ class CacheCleaner {
   }
 
   formatBytes(bytes) {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 Bytes';
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    if (bytes === 0) return "0 Bytes";
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   }
 
-  logFiles(files, prefix = '') {
+  logFiles(files, prefix = "") {
     files.slice(0, 10).forEach((file) => {
       console.log(`${prefix}${path.basename(file)}`);
     });
@@ -732,11 +732,11 @@ class CacheCleaner {
   }
 
   printSummary() {
-    console.log('\n📊 CACHE CLEANING SUMMARY:');
-    console.log('='.repeat(50));
+    console.log("\n📊 CACHE CLEANING SUMMARY:");
+    console.log("=".repeat(50));
 
     if (this.options.dryRun) {
-      console.log('🔍 DRY RUN MODE - No files were actually deleted');
+      console.log("🔍 DRY RUN MODE - No files were actually deleted");
     } else {
       console.log(`📁 Directories removed: ${this.results.directoriesRemoved}`);
       console.log(`📄 Files removed: ${this.results.filesRemoved}`);
@@ -761,7 +761,7 @@ class CacheCleaner {
       });
     }
 
-    console.log('\n�?Cache cleaning completed!');
+    console.log("\n�?Cache cleaning completed!");
   }
 }
 

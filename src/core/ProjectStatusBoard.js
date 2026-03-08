@@ -52,7 +52,7 @@ class ProjectStatusBoard {
       const content = await fs.readFile(this.statusFilePath, "utf8");
       return this._parseStatus(content);
     } catch (error) {
-      console.error(`[STATUS] Failed to read status:`, error.message);
+      console.error("[STATUS] Failed to read status:", error.message);
       return null;
     }
   }
@@ -71,7 +71,7 @@ class ProjectStatusBoard {
       await fs.writeFile(this.statusFilePath, content, "utf8");
 
       if (process.env.DEBUG === "true") {
-        console.log(`[STATUS] Updated status board`);
+        console.log("[STATUS] Updated status board");
       }
 
       return newStatus;
@@ -224,7 +224,7 @@ class ProjectStatusBoard {
     const sections = [];
 
     // 1. 当前状态
-    sections.push(`## 当前状态`);
+    sections.push("## 当前状态");
     sections.push(`- 当前CLI: ${status.currentCLI || "none"}`);
     sections.push(`- 项目阶段: ${status.projectInfo.phase || "initial"}`);
     sections.push(`- 最后活动: ${status.lastActivity || "never"}`);
@@ -232,7 +232,7 @@ class ProjectStatusBoard {
 
     // 2. 任务概览
     if (status.taskQueue && status.taskQueue.length > 0) {
-      sections.push(`## 任务队列`);
+      sections.push("## 任务队列");
       const pending = status.taskQueue.filter((t) => t.status === "pending");
       const ongoing = status.taskQueue.filter((t) => t.status === "ongoing");
       const completed = status.taskQueue.filter(
@@ -248,7 +248,7 @@ class ProjectStatusBoard {
       }
 
       if (ongoing.length > 0) {
-        sections.push(`### 进行中`);
+        sections.push("### 进行中");
         ongoing.forEach((t) => {
           sections.push(`- [→] ${t.task} (${t.cli})`);
         });
@@ -276,7 +276,7 @@ class ProjectStatusBoard {
 
     // 5. 协作历史（最近）
     if (status.collaborationHistory && status.collaborationHistory.length > 0) {
-      sections.push(`## 协作历史`);
+      sections.push("## 协作历史");
       status.collaborationHistory.slice(-maxHistory).forEach((h) => {
         const icon =
           h.type === "task" ? "📋" : h.type === "finding" ? "💡" : "🎯";
@@ -695,7 +695,7 @@ class ProjectStatusBoard {
     lines.push("");
 
     lines.push("---");
-    lines.push(`*此文件由 Stigmergy 自动维护，请勿手动编辑*`);
+    lines.push("*此文件由 Stigmergy 自动维护，请勿手动编辑*");
     lines.push(`*更新时间: ${timeStr}*`);
 
     return lines.join("\n");

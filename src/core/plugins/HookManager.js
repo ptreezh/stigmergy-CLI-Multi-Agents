@@ -9,9 +9,9 @@
  * - CodeBuddy: hooks.json
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
 
 class HookManager {
   constructor(options = {}) {
@@ -27,20 +27,27 @@ class HookManager {
     const cliConfigDir = path.join(os.homedir(), `.${cliName}`);
 
     switch (cliName.toLowerCase()) {
-      case 'claude':
+      case "claude":
         // Claude 使用 .claude-plugin/hooks/hooks.json
-        return path.join(cliConfigDir, 'plugins', 'superpowers', '.claude-plugin', 'hooks', 'hooks.json');
+        return path.join(
+          cliConfigDir,
+          "plugins",
+          "superpowers",
+          ".claude-plugin",
+          "hooks",
+          "hooks.json",
+        );
 
-      case 'iflow':
-      case 'qwen':
-      case 'codebuddy':
-      case 'codex':
+      case "iflow":
+      case "qwen":
+      case "codebuddy":
+      case "codex":
         // 这些 CLI 使用根目录的 hooks.json
-        return path.join(cliConfigDir, 'hooks.json');
+        return path.join(cliConfigDir, "hooks.json");
 
       default:
         // 默认使用 hooks.json
-        return path.join(cliConfigDir, 'hooks.json');
+        return path.join(cliConfigDir, "hooks.json");
     }
   }
 
@@ -51,18 +58,25 @@ class HookManager {
     const cliConfigDir = path.join(os.homedir(), `.${cliName}`);
 
     switch (cliName.toLowerCase()) {
-      case 'claude':
+      case "claude":
         // Claude 使用 TypeScript hooks
-        return path.join(cliConfigDir, 'plugins', 'superpowers', '.claude-plugin', 'hooks', `${hookName}.ts`);
+        return path.join(
+          cliConfigDir,
+          "plugins",
+          "superpowers",
+          ".claude-plugin",
+          "hooks",
+          `${hookName}.ts`,
+        );
 
-      case 'iflow':
-      case 'qwen':
-      case 'codebuddy':
+      case "iflow":
+      case "qwen":
+      case "codebuddy":
         // 其他 CLI 使用 JavaScript hooks
-        return path.join(cliConfigDir, 'hooks', `${hookName}.js`);
+        return path.join(cliConfigDir, "hooks", `${hookName}.js`);
 
       default:
-        return path.join(cliConfigDir, 'hooks', `${hookName}.js`);
+        return path.join(cliConfigDir, "hooks", `${hookName}.js`);
     }
   }
 
@@ -80,19 +94,19 @@ class HookManager {
     let configContent;
 
     switch (cliName.toLowerCase()) {
-      case 'claude':
+      case "claude":
         configContent = this._generateClaudeHooksConfig(hooksConfig);
         break;
 
-      case 'iflow':
+      case "iflow":
         configContent = this._generateIFlowHooksConfig(hooksConfig);
         break;
 
-      case 'qwen':
+      case "qwen":
         configContent = this._generateQwenHooksConfig(hooksConfig);
         break;
 
-      case 'codebuddy':
+      case "codebuddy":
         configContent = this._generateCodeBuddyHooksConfig(hooksConfig);
         break;
 
@@ -102,11 +116,17 @@ class HookManager {
 
     if (this.dryRun) {
       console.log(`  [DRY RUN] Would create: ${hooksConfigPath}`);
-      console.log(`  [DRY RUN] Content:\n${JSON.stringify(configContent, null, 2)}`);
+      console.log(
+        `  [DRY RUN] Content:\n${JSON.stringify(configContent, null, 2)}`,
+      );
       return;
     }
 
-    await fs.writeFile(hooksConfigPath, JSON.stringify(configContent, null, 2), 'utf8');
+    await fs.writeFile(
+      hooksConfigPath,
+      JSON.stringify(configContent, null, 2),
+      "utf8",
+    );
 
     if (this.verbose) {
       console.log(`  ✅ Created hooks config: ${hooksConfigPath}`);
@@ -124,15 +144,15 @@ class HookManager {
         enabled: hookConfig.enabled || true,
         priority: hookConfig.priority || 1,
         implementation: {
-          type: 'typescript',
-          file: `hooks/${hookName}.ts`
-        }
+          type: "typescript",
+          file: `hooks/${hookName}.ts`,
+        },
       };
     }
 
     return {
-      version: '1.0.0',
-      hooks
+      version: "1.0.0",
+      hooks,
     };
   }
 
@@ -149,15 +169,15 @@ class HookManager {
         handler: hookConfig.handler || `hooks/${hookName}.js`,
         context_injection: hookConfig.context_injection || {
           enabled: true,
-          format: 'markdown',
-          max_length: 2000
-        }
+          format: "markdown",
+          max_length: 2000,
+        },
       };
     }
 
     return {
-      version: '1.0.0',
-      hooks
+      version: "1.0.0",
+      hooks,
     };
   }
 
@@ -172,17 +192,23 @@ class HookManager {
         enabled: hookConfig.enabled || true,
         context_injection: {
           trigger_keywords: hookConfig.trigger_keywords || [
-            'task', 'project', 'code', 'debug', 'test', 'design', 'implement'
+            "task",
+            "project",
+            "code",
+            "debug",
+            "test",
+            "design",
+            "implement",
           ],
           max_context_length: hookConfig.max_context_length || 2000,
-          injection_format: hookConfig.injection_format || 'markdown'
-        }
+          injection_format: hookConfig.injection_format || "markdown",
+        },
       };
     }
 
     return {
-      version: '1.0.0',
-      hooks
+      version: "1.0.0",
+      hooks,
     };
   }
 
@@ -197,13 +223,13 @@ class HookManager {
         enabled: hookConfig.enabled || true,
         trigger_patterns: hookConfig.trigger_patterns || [],
         handler: hookConfig.handler || `hooks/${hookName}.js`,
-        priority: hookConfig.priority || 'medium'
+        priority: hookConfig.priority || "medium",
       };
     }
 
     return {
-      version: '1.0.0',
-      hooks
+      version: "1.0.0",
+      hooks,
     };
   }
 
@@ -216,13 +242,13 @@ class HookManager {
     for (const [hookName, hookConfig] of Object.entries(hooksConfig)) {
       hooks[hookName] = {
         enabled: hookConfig.enabled || true,
-        handler: hookConfig.handler || `hooks/${hookName}.js`
+        handler: hookConfig.handler || `hooks/${hookName}.js`,
       };
     }
 
     return {
-      version: '1.0.0',
-      hooks
+      version: "1.0.0",
+      hooks,
     };
   }
 
@@ -241,7 +267,7 @@ class HookManager {
       return;
     }
 
-    await fs.writeFile(hookPath, hookContent, 'utf8');
+    await fs.writeFile(hookPath, hookContent, "utf8");
 
     if (this.verbose) {
       console.log(`  ✅ Created hook implementation: ${hookPath}`);
@@ -253,12 +279,12 @@ class HookManager {
    */
   generateSessionStartHook(cliName) {
     switch (cliName.toLowerCase()) {
-      case 'claude':
+      case "claude":
         return this._generateClaudeSessionStartHook();
 
-      case 'iflow':
-      case 'qwen':
-      case 'codebuddy':
+      case "iflow":
+      case "qwen":
+      case "codebuddy":
         return this._generateGenericSessionStartHook(cliName);
 
       default:
@@ -420,10 +446,10 @@ module.exports = { sessionStart };
     const hooksConfigPath = this.getHooksConfigPath(cliName);
 
     try {
-      const content = await fs.readFile(hooksConfigPath, 'utf8');
+      const content = await fs.readFile(hooksConfigPath, "utf8");
       return JSON.parse(content);
     } catch (error) {
-      if (error.code === 'ENOENT') {
+      if (error.code === "ENOENT") {
         // 文件不存在，返回空配置
         return { hooks: {} };
       }
@@ -440,23 +466,29 @@ module.exports = { sessionStart };
     // 合并 hooks
     const mergedHooks = {
       ...existingConfig.hooks,
-      ...newHooks
+      ...newHooks,
     };
 
     const updatedConfig = {
       ...existingConfig,
-      hooks: mergedHooks
+      hooks: mergedHooks,
     };
 
     const hooksConfigPath = this.getHooksConfigPath(cliName);
 
     if (this.dryRun) {
       console.log(`  [DRY RUN] Would update: ${hooksConfigPath}`);
-      console.log(`  [DRY RUN] Content:\n${JSON.stringify(updatedConfig, null, 2)}`);
+      console.log(
+        `  [DRY RUN] Content:\n${JSON.stringify(updatedConfig, null, 2)}`,
+      );
       return;
     }
 
-    await fs.writeFile(hooksConfigPath, JSON.stringify(updatedConfig, null, 2), 'utf8');
+    await fs.writeFile(
+      hooksConfigPath,
+      JSON.stringify(updatedConfig, null, 2),
+      "utf8",
+    );
 
     if (this.verbose) {
       console.log(`  ✅ Updated hooks config: ${hooksConfigPath}`);
@@ -480,7 +512,11 @@ module.exports = { sessionStart };
       return;
     }
 
-    await fs.writeFile(hooksConfigPath, JSON.stringify(existingConfig, null, 2), 'utf8');
+    await fs.writeFile(
+      hooksConfigPath,
+      JSON.stringify(existingConfig, null, 2),
+      "utf8",
+    );
 
     if (this.verbose) {
       console.log(`  ✅ Removed hooks from: ${hooksConfigPath}`);

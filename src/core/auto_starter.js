@@ -24,14 +24,14 @@ class AutoStarter {
    */
   isRegistered() {
     switch (this.platform) {
-      case "win32":
-        return this._checkWindows();
-      case "linux":
-        return this._checkLinux();
-      case "darwin":
-        return this._checkMacOS();
-      default:
-        return false;
+    case "win32":
+      return this._checkWindows();
+    case "linux":
+      return this._checkLinux();
+    case "darwin":
+      return this._checkMacOS();
+    default:
+      return false;
     }
   }
 
@@ -42,15 +42,15 @@ class AutoStarter {
     console.log(`\n🚀 注册开机自启 (${this.platform})...`);
 
     switch (this.platform) {
-      case "win32":
-        return this._registerWindows();
-      case "linux":
-        return this._registerLinux();
-      case "darwin":
-        return this._registerMacOS();
-      default:
-        console.log("⚠️ 不支持的平台");
-        return false;
+    case "win32":
+      return this._registerWindows();
+    case "linux":
+      return this._registerLinux();
+    case "darwin":
+      return this._registerMacOS();
+    default:
+      console.log("⚠️ 不支持的平台");
+      return false;
     }
   }
 
@@ -61,14 +61,14 @@ class AutoStarter {
     console.log(`\n🗑️ 取消开机自启 (${this.platform})...`);
 
     switch (this.platform) {
-      case "win32":
-        return this._unregisterWindows();
-      case "linux":
-        return this._unregisterLinux();
-      case "darwin":
-        return this._unregisterMacOS();
-      default:
-        return false;
+    case "win32":
+      return this._unregisterWindows();
+    case "linux":
+      return this._unregisterLinux();
+    case "darwin":
+      return this._unregisterMacOS();
+    default:
+      return false;
     }
   }
 
@@ -78,7 +78,7 @@ class AutoStarter {
     try {
       // 检查注册表
       const result = execSync(
-        `reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v StigmergyAutoSupervisor`,
+        'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v StigmergyAutoSupervisor',
         { encoding: "utf-8", stdio: "pipe" },
       );
       return result.includes("StigmergyAutoSupervisor");
@@ -125,7 +125,7 @@ start /b node "${path.join(__dirname, "..", "src", "index.js")}" auto-supervisor
   _unregisterWindows() {
     try {
       execSync(
-        `reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v StigmergyAutoSupervisor /f`,
+        'reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v StigmergyAutoSupervisor /f',
         { encoding: "utf-8", stdio: "pipe" },
       );
       console.log("✅ Windows开机自启已取消");
@@ -381,27 +381,27 @@ if (require.main === module) {
   const starter = new AutoStarter();
 
   switch (command) {
-    case "install":
-    case "register":
-      starter.register();
-      break;
+  case "install":
+  case "register":
+    starter.register();
+    break;
 
-    case "uninstall":
-    case "remove":
-      starter.unregister();
-      break;
+  case "uninstall":
+  case "remove":
+    starter.unregister();
+    break;
 
-    case "status":
-    default:
-      const status = starter.getStatus();
-      console.log("\n📋 Stigmergy Auto-Supervisor 状态\n");
-      console.log(`平台: ${status.platform}`);
-      console.log(`注册: ${status.registered ? "✅ 已注册" : "❌ 未注册"}`);
-      console.log(`\n命令:`);
-      console.log(`   注册: ${status.commands.register}`);
-      console.log(`   卸载: ${status.commands.unregister}`);
-      console.log(`   启动: ${status.commands.start}`);
-      console.log(`   停止: ${status.commands.stop}\n`);
+  case "status":
+  default:
+    const status = starter.getStatus();
+    console.log("\n📋 Stigmergy Auto-Supervisor 状态\n");
+    console.log(`平台: ${status.platform}`);
+    console.log(`注册: ${status.registered ? "✅ 已注册" : "❌ 未注册"}`);
+    console.log("\n命令:");
+    console.log(`   注册: ${status.commands.register}`);
+    console.log(`   卸载: ${status.commands.unregister}`);
+    console.log(`   启动: ${status.commands.start}`);
+    console.log(`   停止: ${status.commands.stop}\n`);
   }
 }
 

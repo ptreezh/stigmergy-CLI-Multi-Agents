@@ -255,7 +255,7 @@ class SoulMemoryManager {
       }
     }
 
-    console.log(`[RutDetection] ✅ 无思维定势`);
+    console.log("[RutDetection] ✅ 无思维定势");
     return false;
   }
 
@@ -292,12 +292,12 @@ class SoulMemoryManager {
   // ========== 自我反思 ==========
 
   async _selfReflection() {
-    console.log(`\n🧠 [SelfReflection] 进行自我反思...`);
+    console.log("\n🧠 [SelfReflection] 进行自我反思...");
 
     const loop = this.state.experienceLoop;
 
     if (loop.phase === "idle" || !loop.context) {
-      console.log(`[SelfReflection] 无活动可反思`);
+      console.log("[SelfReflection] 无活动可反思");
       return;
     }
 
@@ -346,16 +346,16 @@ class SoulMemoryManager {
   // ========== 记忆管理 ==========
 
   _checkMemorySync() {
-    console.log(`[Heartbeat] 检查记忆同步...`);
+    console.log("[Heartbeat] 检查记忆同步...");
     // 检查各记忆文件是否存在，不存在则创建
   }
 
   _checkExperienceRecording() {
-    console.log(`[Heartbeat] 检查经验记录...`);
+    console.log("[Heartbeat] 检查经验记录...");
   }
 
   _evaluateBreakthrough() {
-    console.log(`[Heartbeat] 评估突破时机...`);
+    console.log("[Heartbeat] 评估突破时机...");
   }
 
   _addToMemory(pattern) {
@@ -441,14 +441,14 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
     if (intervalMs === undefined) intervalMs = 30 * 60 * 1000;
 
     if (this.heartbeatInterval) {
-      console.log(`[Heartbeat] 心跳调度器已在运行`);
+      console.log("[Heartbeat] 心跳调度器已在运行");
       return;
     }
 
     console.log(`[Heartbeat] 启动30分钟心跳调度器 (间隔: ${intervalMs}ms)`);
 
     this.heartbeat().then(() => {
-      console.log(`[Heartbeat] 初始心跳完成`);
+      console.log("[Heartbeat] 初始心跳完成");
     });
 
     this.heartbeatInterval = setInterval(async () => {
@@ -456,7 +456,7 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
         await this.heartbeat();
         console.log(`[Heartbeat] 周期心跳完成: ${new Date().toISOString()}`);
       } catch (e) {
-        console.error(`[Heartbeat] 心跳错误:`, e.message);
+        console.error("[Heartbeat] 心跳错误:", e.message);
       }
     }, intervalMs);
 
@@ -469,7 +469,7 @@ ${reflection.adjustments.map((a) => `- ${a}`).join("\n")}
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
-      console.log(`[Heartbeat] 心跳调度器已停止`);
+      console.log("[Heartbeat] 心跳调度器已停止");
       this.state.heartbeatStoppedAt = new Date().toISOString();
       this._saveState();
     }

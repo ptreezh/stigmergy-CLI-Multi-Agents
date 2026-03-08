@@ -5,23 +5,25 @@
  * to all AI CLI tools that support skills (~/.cli-name/skills/)
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
 class SkillSyncManager {
   constructor(options = {}) {
-    this.stigmergySkillsDir = options.stigmergySkillsDir || path.join(os.homedir(), '.stigmergy/skills');
+    this.stigmergySkillsDir =
+      options.stigmergySkillsDir ||
+      path.join(os.homedir(), ".stigmergy/skills");
 
     // All CLI tools that support skills
     this.cliTools = [
-      'claude',
-      'codex',
-      'iflow',
-      'qwen',
-      'qodercli',
-      'codebuddy',
-      'opencode'
+      "claude",
+      "codex",
+      "iflow",
+      "qwen",
+      "qodercli",
+      "codebuddy",
+      "opencode",
       // Add more as they become available
     ];
   }
@@ -37,7 +39,9 @@ class SkillSyncManager {
 
     // Check if skill exists
     if (!fs.existsSync(skillPath)) {
-      throw new Error(`Skill '${skillName}' not found in ${this.stigmergySkillsDir}`);
+      throw new Error(
+        `Skill '${skillName}' not found in ${this.stigmergySkillsDir}`,
+      );
     }
 
     console.log(`\n[SYNC] Syncing '${skillName}' to all CLI tools...\n`);
@@ -59,7 +63,12 @@ class SkillSyncManager {
         continue;
       }
 
-      const result = await this.syncSkillToCLI(skillPath, skillName, cliName, options);
+      const result = await this.syncSkillToCLI(
+        skillPath,
+        skillName,
+        cliName,
+        options,
+      );
       results.push(result);
 
       if (result.success) {
@@ -67,7 +76,9 @@ class SkillSyncManager {
       }
     }
 
-    console.log(`\n✓ Synced to ${successful}/${this.cliTools.length} CLI tools`);
+    console.log(
+      `\n✓ Synced to ${successful}/${this.cliTools.length} CLI tools`,
+    );
 
     if (skipped > 0) {
       console.log(`  ⊘ Skipped ${skipped} CLI tools`);
@@ -78,7 +89,7 @@ class SkillSyncManager {
       totalCLIs: this.cliTools.length,
       successful,
       skipped,
-      results
+      results,
     };
   }
 
@@ -92,7 +103,7 @@ class SkillSyncManager {
    */
   async syncSkillToCLI(skillPath, skillName, cliName, options = {}) {
     const cliHomeDir = path.join(os.homedir(), `.${cliName}`);
-    const cliSkillsDir = path.join(cliHomeDir, 'skills');
+    const cliSkillsDir = path.join(cliHomeDir, "skills");
     const targetPath = path.join(cliSkillsDir, skillName);
 
     // Dry run mode
@@ -101,7 +112,7 @@ class SkillSyncManager {
         success: true,
         cliName,
         dryRun: true,
-        reason: 'Dry run - would sync'
+        reason: "Dry run - would sync",
       };
     }
 
@@ -110,7 +121,7 @@ class SkillSyncManager {
       return {
         success: false,
         cliName,
-        reason: 'CLI not installed'
+        reason: "CLI not installed",
       };
     }
 
@@ -130,7 +141,7 @@ class SkillSyncManager {
         return {
           success: false,
           cliName,
-          reason: 'Skill already exists (use --force to overwrite)'
+          reason: "Skill already exists (use --force to overwrite)",
         };
       }
 
@@ -140,14 +151,13 @@ class SkillSyncManager {
       return {
         success: true,
         cliName,
-        targetPath
+        targetPath,
       };
-
     } catch (error) {
       return {
         success: false,
         cliName,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -161,8 +171,8 @@ class SkillSyncManager {
     const skills = await this.listInstalledSkills();
 
     if (skills.length === 0) {
-      console.log('[SYNC] No skills found to sync');
-      console.log('Install skills first: stigmergy skill install <source>');
+      console.log("[SYNC] No skills found to sync");
+      console.log("Install skills first: stigmergy skill install <source>");
       return [];
     }
 
@@ -177,16 +187,18 @@ class SkillSyncManager {
     }
 
     // Summary
-    console.log('\n' + '='.repeat(60));
-    console.log('📊 Sync Summary');
-    console.log('='.repeat(60));
+    console.log("\n" + "=".repeat(60));
+    console.log("📊 Sync Summary");
+    console.log("=".repeat(60));
 
     const totalSuccessful = results.reduce((sum, r) => sum + r.successful, 0);
     const totalPossible = results.reduce((sum, r) => sum + r.totalCLIs, 0);
 
     console.log(`Total Skills: ${results.length}`);
     console.log(`Successful Syncs: ${totalSuccessful}/${totalPossible}`);
-    console.log(`Success Rate: ${((totalSuccessful / totalPossible) * 100).toFixed(1)}%\n`);
+    console.log(
+      `Success Rate: ${((totalSuccessful / totalPossible) * 100).toFixed(1)}%\n`,
+    );
 
     return results;
   }
@@ -202,30 +214,32 @@ class SkillSyncManager {
       return skills;
     }
 
-    const entries = fs.readdirSync(this.stigmergySkillsDir, { withFileTypes: true });
+    const entries = fs.readdirSync(this.stigmergySkillsDir, {
+      withFileTypes: true,
+    });
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
         const skillPath = path.join(this.stigmergySkillsDir, entry.name);
-        const skillMdPath = path.join(skillPath, 'SKILL.md');
+        const skillMdPath = path.join(skillPath, "SKILL.md");
 
         if (fs.existsSync(skillMdPath)) {
           // Try to read metadata
           try {
-            const content = fs.readFileSync(skillMdPath, 'utf8');
+            const content = fs.readFileSync(skillMdPath, "utf8");
             const metadata = this.parseMetadata(content);
 
             skills.push({
               name: entry.name,
               path: skillPath,
-              ...metadata
+              ...metadata,
             });
           } catch {
             // If metadata parsing fails, use basic info
             skills.push({
               name: entry.name,
               path: skillPath,
-              description: 'No description'
+              description: "No description",
             });
           }
         }
@@ -244,14 +258,14 @@ class SkillSyncManager {
     const status = {};
 
     for (const cliName of this.cliTools) {
-      const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+      const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
       const skillPath = path.join(cliSkillsDir, skillName);
       const cliHomeDir = path.join(os.homedir(), `.${cliName}`);
 
       status[cliName] = {
         deployed: fs.existsSync(skillPath),
         cliInstalled: fs.existsSync(cliHomeDir),
-        path: skillPath
+        path: skillPath,
       };
     }
 
@@ -267,7 +281,7 @@ class SkillSyncManager {
     const report = {
       totalSkills: skills.length,
       totalCLIs: this.cliTools.length,
-      skills: {}
+      skills: {},
     };
 
     for (const skill of skills) {
@@ -284,9 +298,9 @@ class SkillSyncManager {
    */
   parseMetadata(content) {
     const metadata = {
-      name: '',
-      description: '',
-      version: '1.0.0'
+      name: "",
+      description: "",
+      version: "1.0.0",
     };
 
     // Parse title (first # heading)
@@ -341,7 +355,7 @@ class SkillSyncManager {
    * @returns {boolean} Success status
    */
   removeFromCLI(skillName, cliName) {
-    const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, 'skills');
+    const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
     const skillPath = path.join(cliSkillsDir, skillName);
 
     if (fs.existsSync(skillPath)) {
@@ -367,18 +381,20 @@ class SkillSyncManager {
       const removed = this.removeFromCLI(skillName, cliName);
       results.push({
         cliName,
-        removed
+        removed,
       });
     }
 
-    const removedCount = results.filter(r => r.removed).length;
-    console.log(`\n✓ Removed from ${removedCount}/${this.cliTools.length} CLI tools`);
+    const removedCount = results.filter((r) => r.removed).length;
+    console.log(
+      `\n✓ Removed from ${removedCount}/${this.cliTools.length} CLI tools`,
+    );
 
     return {
       skillName,
       totalCLIs: this.cliTools.length,
       removed: removedCount,
-      results
+      results,
     };
   }
 }

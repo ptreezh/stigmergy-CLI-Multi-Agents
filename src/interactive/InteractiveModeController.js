@@ -176,54 +176,54 @@ class InteractiveModeController extends EventEmitter {
       // Execute based on command type
       let result;
       switch (command.type) {
-        case "task":
-          result = await this._executeTask(command);
-          break;
-        case "exit":
-          result = await this._executeExit();
-          break;
-        case "help":
-          result = await this._executeHelp();
-          break;
-        case "terminal":
-          result = await this._executeTerminalCommand(command);
-          break;
-        case "status":
-          result = await this._executeStatus();
-          break;
-        case "context": // 🔥 新增：查看上下文状态
-          result = await this._executeContextStatus();
-          break;
-        case "clear": // 🔥 新增：清除上下文
-          result = await this._executeClearContext(command);
-          break;
-        case "delegate":
-          result = await this._executeDelegate(command);
-          break;
-        case "use":
-          result = await this._executeUse(command);
-          break;
-        case "ask":
-          result = await this._executeAsk(command);
-          break;
-        case "route":
-          result = await this._executeRoute(command);
-          break;
-        case "parallel":
-        case "concurrent":
-          result = await this._executeConcurrent(command);
-          break;
-        case "empty":
-          result = { success: true, message: "No command" };
-          break;
-        case "error":
-          result = { success: false, error: command.error };
-          break;
-        default:
-          result = {
-            success: false,
-            error: `Unknown command type: ${command.type}`,
-          };
+      case "task":
+        result = await this._executeTask(command);
+        break;
+      case "exit":
+        result = await this._executeExit();
+        break;
+      case "help":
+        result = await this._executeHelp();
+        break;
+      case "terminal":
+        result = await this._executeTerminalCommand(command);
+        break;
+      case "status":
+        result = await this._executeStatus();
+        break;
+      case "context": // 🔥 新增：查看上下文状态
+        result = await this._executeContextStatus();
+        break;
+      case "clear": // 🔥 新增：清除上下文
+        result = await this._executeClearContext(command);
+        break;
+      case "delegate":
+        result = await this._executeDelegate(command);
+        break;
+      case "use":
+        result = await this._executeUse(command);
+        break;
+      case "ask":
+        result = await this._executeAsk(command);
+        break;
+      case "route":
+        result = await this._executeRoute(command);
+        break;
+      case "parallel":
+      case "concurrent":
+        result = await this._executeConcurrent(command);
+        break;
+      case "empty":
+        result = { success: true, message: "No command" };
+        break;
+      case "error":
+        result = { success: false, error: command.error };
+        break;
+      default:
+        result = {
+          success: false,
+          error: `Unknown command type: ${command.type}`,
+        };
       }
 
       // Add to session history
@@ -1028,7 +1028,7 @@ ${task}
             );
           }
 
-          console.log(`\n[iflow] Fallback successful!`);
+          console.log("\n[iflow] Fallback successful!");
 
           return {
             ...fallbackResult,
@@ -1037,7 +1037,7 @@ ${task}
             originalCLI: cliName,
           };
         } catch (fallbackError) {
-          console.error(`[iflow] Fallback also failed:`, fallbackError.message);
+          console.error("[iflow] Fallback also failed:", fallbackError.message);
         }
       }
 
@@ -1118,7 +1118,7 @@ ${task}
 
     try {
       console.log(
-        `\n🚀 Starting concurrent execution with CentralOrchestrator...`,
+        "\n🚀 Starting concurrent execution with CentralOrchestrator...",
       );
       console.log(`📊 Concurrency level: ${this.options.concurrency || 3}`);
       console.log(`📋 Task: ${task.substring(0, 100)}...`);
@@ -1126,7 +1126,7 @@ ${task}
       // 临时关闭 readline 接口以避免冲突
       const readlineWasOpen = this.readlineInterface !== null;
       if (readlineWasOpen) {
-        console.log(`\n⏸️  Temporarily pausing input interface...`);
+        console.log("\n⏸️  Temporarily pausing input interface...");
         this.readlineInterface.pause();
         this.readlineInterface.close();
         this.readlineInterface = null;
@@ -1141,14 +1141,14 @@ ${task}
         });
 
         // 显示结果
-        console.log(`\n📊 Execution Summary:`);
+        console.log("\n📊 Execution Summary:");
         console.log(`  Total: ${result.totalResults} CLIs`);
         console.log(`  Success: ${result.successCount}`);
         console.log(`  Failed: ${result.failedCount}`);
         console.log(`  Total Time: ${result.totalTime}ms`);
 
         // 显示每个 CLI 的结果
-        console.log(`\n📝 Detailed Results:`);
+        console.log("\n📝 Detailed Results:");
         result.results.forEach((r, i) => {
           console.log(`\n  [${i + 1}] ${r.cli}:`);
           console.log(
@@ -1175,12 +1175,12 @@ ${task}
       } finally {
         // 重新创建 readline 接口
         if (readlineWasOpen && this.isActive) {
-          console.log(`\n▶️  Resuming input interface...`);
+          console.log("\n▶️  Resuming input interface...");
           this.readlineInterface = this._createReadlineInterface();
         }
       }
     } catch (error) {
-      console.error(`\n❌ Concurrent execution failed:`, error.message);
+      console.error("\n❌ Concurrent execution failed:", error.message);
       return {
         success: false,
         error: error.message,
@@ -1353,7 +1353,7 @@ ${task}
       if (result.cli) {
         console.log("");
         console.log("========================================");
-        console.log(`  Execution Result`);
+        console.log("  Execution Result");
         console.log("========================================");
         console.log(`CLI: ${result.cli}`);
         console.log(`Task: ${result.task}`);

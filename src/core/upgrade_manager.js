@@ -3,20 +3,20 @@
  * 管理所有AI CLI 工具的升级和依赖更新
  */
 
-const { spawn, spawnSync } = require('child_process');
-const path = require('path');
-const os = require('os');
-const fs = require('fs/promises');
-const chalk = require('chalk');
-const semver = require('semver');
-const { CLI_TOOLS } = require('./cli_tools');
-const { errorHandler } = require('./error_handler');
+const { spawn, spawnSync } = require("child_process");
+const path = require("path");
+const os = require("os");
+const fs = require("fs/promises");
+const chalk = require("chalk");
+const semver = require("semver");
+const { CLI_TOOLS } = require("./cli_tools");
+const { errorHandler } = require("./error_handler");
 
 class UpgradeManager {
   constructor() {
     this.cliTools = CLI_TOOLS;
-    this.cacheDir = path.join(os.homedir(), '.stigmergy', 'cache');
-    this.upgradeLog = path.join(os.homedir(), '.stigmergy', 'upgrade.log');
+    this.cacheDir = path.join(os.homedir(), ".stigmergy", "cache");
+    this.upgradeLog = path.join(os.homedir(), ".stigmergy", "upgrade.log");
   }
 
   async initialize() {
@@ -45,14 +45,21 @@ class UpgradeManager {
         try {
           latestVersion = await this.getLatestVersion(toolName, toolConfig);
         } catch (versionError) {
-          console.error(`Error retrieving latest version for ${toolName}:`, versionError.message);
-          latestVersion = 'Unknown';
+          console.error(
+            `Error retrieving latest version for ${toolName}:`,
+            versionError.message,
+          );
+          latestVersion = "Unknown";
         }
 
         // Only perform semver comparison if both versions are valid semantic versions
         let needsUpgrade = false;
-        if (currentVersion !== 'Not installed' && latestVersion !== 'Unknown' && 
-            semver.valid(currentVersion) && semver.valid(latestVersion)) {
+        if (
+          currentVersion !== "Not installed" &&
+          latestVersion !== "Unknown" &&
+          semver.valid(currentVersion) &&
+          semver.valid(latestVersion)
+        ) {
           needsUpgrade = semver.gt(latestVersion, currentVersion);
         }
 
@@ -63,7 +70,7 @@ class UpgradeManager {
           config: toolConfig,
         };
 
-        const status = versions[toolName].needsUpgrade ? 'UP' : 'OK';
+        const status = versions[toolName].needsUpgrade ? "UP" : "OK";
         console.log(
           `${status} ${toolName}: ${currentVersion} -> ${latestVersion}`,
         );
@@ -83,8 +90,8 @@ class UpgradeManager {
     try {
       const result = spawnSync(toolConfig.version, {
         shell: true,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "pipe"],
       });
 
       if (result.error) {
@@ -101,9 +108,9 @@ class UpgradeManager {
         return versionMatch[1];
       }
 
-      throw new Error('Could not parse version from output');
+      throw new Error("Could not parse version from output");
     } catch (error) {
-      return 'Not installed';
+      return "Not installed";
     }
   }
 
@@ -115,22 +122,24 @@ class UpgradeManager {
       // 从 npm 注册表获取最新版本
       const packageName = this.extractPackageName(toolConfig.install);
       if (!packageName) {
-        throw new Error('Could not extract package name');
+        throw new Error("Could not extract package name");
       }
 
-      const result = spawnSync('npm', ['view', packageName, 'version'], {
+      const result = spawnSync("npm", ["view", packageName, "version"], {
         shell: true,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "pipe"],
       });
 
       // Check for execution errors
       if (result.error) {
-        throw new Error(`npm command execution failed: ${result.error.message}`);
+        throw new Error(
+          `npm command execution failed: ${result.error.message}`,
+        );
       }
 
       if (result.status !== 0) {
-        throw new Error(`npm view failed: ${result.stderr || 'Unknown error'}`);
+        throw new Error(`npm view failed: ${result.stderr || "Unknown error"}`);
       }
 
       const latestVersion = result.stdout.trim();
@@ -138,11 +147,14 @@ class UpgradeManager {
         return latestVersion;
       }
 
-      throw new Error('No version information available');
+      throw new Error("No version information available");
     } catch (error) {
       // Log the actual error for debugging, but return 'Unknown' to prevent crashes
-      console.error(`Error getting latest version for ${toolName}:`, error.message);
-      return 'Unknown';
+      console.error(
+        `Error getting latest version for ${toolName}:`,
+        error.message,
+      );
+      return "Unknown";
     }
   }
 
@@ -165,10 +177,10 @@ class UpgradeManager {
 
     try {
       // 检查npm 警告
-      const packageJsonPath = path.join(process.cwd(), 'package.json');
+      const packageJsonPath = path.join(process.cwd(), "package.json");
       if (await this.fileExists(packageJsonPath)) {
         const packageJson = JSON.parse(
-          await fs.readFile(packageJsonPath, 'utf8'),
+          await fs.readFile(packageJsonPath, "utf8"),
         );
 
         // 检查各个依赖的版本
@@ -186,13 +198,13 @@ class UpgradeManager {
       const importProcessorErrors = await this.checkImportProcessorErrors();
       if (importProcessorErrors.length > 0) {
         deprecations.push({
-          type: 'ImportProcessor',
+          type: "ImportProcessor",
           issues: importProcessorErrors,
         });
       }
     } catch (error) {
       deprecations.push({
-        type: 'General',
+        type: "General",
         issues: [error.message],
       });
     }
@@ -208,16 +220,16 @@ class UpgradeManager {
 
     // 已知的过时包列表
     const deprecatedPackages = {
-      inflight: 'Use lru-cache instead',
-      rimraf: 'Use rimraf v4+',
-      'glob@7': 'Use glob v9+',
-      'eslint@8': 'Use eslint v9+',
+      inflight: "Use lru-cache instead",
+      rimraf: "Use rimraf v4+",
+      "glob@7": "Use glob v9+",
+      "eslint@8": "Use eslint v9+",
     };
 
     for (const [deprecated, reason] of Object.entries(deprecatedPackages)) {
       if (
         dependency === deprecated ||
-        dependency.startsWith(deprecated + '@')
+        dependency.startsWith(deprecated + "@")
       ) {
         issues.push(`Deprecated: ${reason}`);
       }
@@ -235,21 +247,21 @@ class UpgradeManager {
     try {
       // 检查常见的 ImportProcessor 位置
       const commonPaths = [
-        path.join(os.homedir(), 'AppData', 'Roaming', 'npm', 'node_modules'),
-        path.join(os.homedir(), '.npm', 'modules'),
-        '/usr/local/lib/node_modules',
+        path.join(os.homedir(), "AppData", "Roaming", "npm", "node_modules"),
+        path.join(os.homedir(), ".npm", "modules"),
+        "/usr/local/lib/node_modules",
       ];
 
       for (const npmPath of commonPaths) {
         try {
           const importProcessorPath = path.join(
             npmPath,
-            '**',
-            '*ImportProcessor*',
+            "**",
+            "*ImportProcessor*",
           );
-          const result = spawnSync('find', [importProcessorPath], {
+          const result = spawnSync("find", [importProcessorPath], {
             shell: true,
-            encoding: 'utf8',
+            encoding: "utf8",
           });
 
           if (result.stdout.trim()) {
@@ -272,7 +284,7 @@ class UpgradeManager {
   async generateUpgradePlan(options = {}) {
     const { dryRun = false, force = false } = options;
 
-    console.log('📋 Generating upgrade plan...');
+    console.log("📋 Generating upgrade plan...");
 
     const { versions, errors } = await this.checkVersions();
     const deprecations = await this.checkDeprecations();
@@ -299,21 +311,21 @@ class UpgradeManager {
 
     // 添加修复计划
     for (const deprecation of deprecations) {
-      if (deprecation.type === 'ImportProcessor') {
+      if (deprecation.type === "ImportProcessor") {
         plan.fixes.push({
-          type: 'ImportProcessor',
-          description: 'Remove or reinstall affected CLI tools',
+          type: "ImportProcessor",
+          description: "Remove or reinstall affected CLI tools",
           actions: [
-            'npm uninstall -g @google/gemini-cli',
-            'npm cache clean --force',
-            'npm install -g @google/gemini-cli@latest',
+            "npm uninstall -g @google/gemini-cli",
+            "npm cache clean --force",
+            "npm install -g @google/gemini-cli@latest",
           ],
         });
       } else {
         plan.fixes.push({
-          type: 'Dependency',
+          type: "Dependency",
           dependency: deprecation.dependency,
-          description: deprecation.issues.join(', '),
+          description: deprecation.issues.join(", "),
           actions: [`Update ${deprecation.dependency} to latest version`],
         });
       }
@@ -333,7 +345,7 @@ class UpgradeManager {
   async executeUpgrade(plan, options = {}) {
     const { dryRun = false, force = false } = options;
 
-    console.log('🚀 Executing upgrade plan...');
+    console.log("🚀 Executing upgrade plan...");
 
     const results = {
       successful: [],
@@ -342,7 +354,7 @@ class UpgradeManager {
     };
 
     if (dryRun) {
-      console.log('🔍 DRY RUN MODE - No actual changes will be made');
+      console.log("🔍 DRY RUN MODE - No actual changes will be made");
     }
 
     // 升级 CLI 工具
@@ -352,11 +364,11 @@ class UpgradeManager {
           console.log(`⬆️  Upgrading ${upgrade.tool}...`);
 
           const result = spawnSync(
-            'npm',
-            ['install', '-g', upgrade.command.split(' ').pop()],
+            "npm",
+            ["install", "-g", upgrade.command.split(" ").pop()],
             {
               shell: true,
-              stdio: 'inherit',
+              stdio: "inherit",
             },
           );
 
@@ -364,7 +376,7 @@ class UpgradeManager {
             results.successful.push(upgrade);
             console.log(`✅${upgrade.tool} upgraded successfully`);
           } else {
-            results.failed.push({ ...upgrade, error: 'Installation failed' });
+            results.failed.push({ ...upgrade, error: "Installation failed" });
             console.log(`❌${upgrade.tool} upgrade failed`);
           }
         } catch (error) {
@@ -385,13 +397,13 @@ class UpgradeManager {
         try {
           console.log(`🔧 Fixing ${fix.type} issues...`);
 
-          if (fix.type === 'ImportProcessor' && force) {
+          if (fix.type === "ImportProcessor" && force) {
             // 执行 ImportProcessor 修复
             for (const action of fix.actions) {
-              if (action.includes('npm')) {
+              if (action.includes("npm")) {
                 const result = spawnSync(action, {
                   shell: true,
-                  stdio: 'inherit',
+                  stdio: "inherit",
                 });
                 if (result.status !== 0) {
                   throw new Error(`Failed to execute: ${action}`);
@@ -425,10 +437,10 @@ class UpgradeManager {
     try {
       await fs.appendFile(
         this.upgradeLog,
-        JSON.stringify(logEntry, null, 2) + '\n',
+        JSON.stringify(logEntry, null, 2) + "\n",
       );
     } catch (error) {
-      console.warn('Warning: Could not write upgrade log:', error.message);
+      console.warn("Warning: Could not write upgrade log:", error.message);
     }
   }
 

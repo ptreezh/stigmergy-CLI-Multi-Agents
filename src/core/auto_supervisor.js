@@ -183,14 +183,22 @@ class AutoSupervisor {
    */
   async triggerAutoLearn(cliName) {
     const home = process.env.HOME || process.env.USERPROFILE || "";
-    const soulPath = path.join(home, ".stigmergy", "skills", cliName, "soul.md");
-    
+    const soulPath = path.join(
+      home,
+      ".stigmergy",
+      "skills",
+      cliName,
+      "soul.md",
+    );
+
     // 如果soul.md不存在，先创建
     if (!fs.existsSync(soulPath)) {
       console.log(`[AutoSupervisor] 📝 ${cliName} 创建Soul...`);
       try {
-        fs.mkdirSync(path.join(home, ".stigmergy", "skills", cliName), { recursive: true });
-        
+        fs.mkdirSync(path.join(home, ".stigmergy", "skills", cliName), {
+          recursive: true,
+        });
+
         const soulTemplate = `# Soul.md - AI智能体编排大师
 
 ## 身份 Identity
@@ -227,11 +235,13 @@ class AutoSupervisor {
         fs.writeFileSync(soulPath, soulTemplate, "utf8");
         console.log(`[AutoSupervisor] ✅ ${cliName} Soul已创建`);
       } catch (e) {
-        console.log(`[AutoSupervisor] ⚠️ ${cliName} Soul创建失败: ${e.message}`);
+        console.log(
+          `[AutoSupervisor] ⚠️ ${cliName} Soul创建失败: ${e.message}`,
+        );
         return { cliName, error: e.message };
       }
     }
-    
+
     const startTime = Date.now();
 
     console.log(`[AutoSupervisor] 📚 ${cliName} 启动自动进化...`);
@@ -239,11 +249,15 @@ class AutoSupervisor {
     return new Promise((resolve) => {
       // 正确解析 stigmergy 安装路径
       let stigmergyPath;
-      
+
       // 优先使用环境变量中的路径
-      const stigmergyRoot = process.env.STIGMERGY_ROOT || 
-        path.join(process.env.HOME || process.env.USERPROFILE || "", ".stigmergy");
-      
+      const stigmergyRoot =
+        process.env.STIGMERGY_ROOT ||
+        path.join(
+          process.env.HOME || process.env.USERPROFILE || "",
+          ".stigmergy",
+        );
+
       // 尝试多种方式找到 stigmergy
       const possiblePaths = [
         // 1. 环境变量指定
@@ -251,13 +265,13 @@ class AutoSupervisor {
         // 2. npm global 安装路径
         path.join(stigmergyRoot, "bin", "stigmergy"),
         // 3. 从 npm 获取全局路径
-        process.platform === "win32" 
+        process.platform === "win32"
           ? path.join(stigmergyRoot, "bin", "stigmergy.cmd")
           : path.join(stigmergyRoot, "bin", "stigmergy"),
         // 4. 尝试直接调用 stigmergy 命令
         "stigmergy",
-      ].filter(p => p);
-      
+      ].filter((p) => p);
+
       // 使用第一个存在的路径
       for (const p of possiblePaths) {
         if (p === "stigmergy") {
@@ -269,28 +283,29 @@ class AutoSupervisor {
           break;
         }
       }
-      
+
       // 如果都没找到，使用 "stigmergy" 作为后备（依赖 PATH）
       if (!stigmergyPath) {
         stigmergyPath = "stigmergy";
       }
-      
+
       console.log(`[AutoSupervisor] 使用路径: ${stigmergyPath}`);
-      
+
       // 构建命令
-      const cmdArgs = stigmergyPath === "stigmergy" 
-        ? ["soul", "evolve", cliName]
-        : ["soul", "evolve", cliName];
-      
+      const cmdArgs =
+        stigmergyPath === "stigmergy"
+          ? ["soul", "evolve", cliName]
+          : ["soul", "evolve", cliName];
+
       const proc = spawn(stigmergyPath, cmdArgs, {
         stdio: ["pipe", "pipe", "pipe"],
         shell: process.platform === "win32",
         detached: false,
-        env: { 
-          ...process.env, 
+        env: {
+          ...process.env,
           // 确保 PATH 包含 npm 全局路径
-          PATH: process.env.PATH 
-        }
+          PATH: process.env.PATH,
+        },
       });
 
       let output = "";

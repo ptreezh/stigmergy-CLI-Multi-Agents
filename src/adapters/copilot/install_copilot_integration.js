@@ -2,24 +2,24 @@
 
 /**
  * Copilot CLI Cross-CLI Integration Installer
- * 
+ *
  * Automatically installs and configures Copilot CLI cross-CLI integration features
  * including MCP server registration, custom agent creation, and permission configuration
- * 
+ *
  * 使用方法：
  * node install_copilot_integration.js [--config=path] [--force] [--uninstall] [--verbose]
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const { spawn } = require('child_process');
+const fs = require("fs").promises;
+const path = require("path");
+const os = require("os");
+const { spawn } = require("child_process");
 
 class CopilotIntegrationInstaller {
   constructor(configPath = null, force = false) {
     this.scriptDir = __dirname;
     // Use script directory as project root for standalone installation
-    this.projectRoot = path.join(this.scriptDir, '..', '..', '..');
+    this.projectRoot = path.join(this.scriptDir, "..", "..", "..");
     this.force = force;
     this.startTime = Date.now();
 
@@ -28,23 +28,29 @@ class CopilotIntegrationInstaller {
     } else {
       // In npx environment, may need to search for config file in multiple locations
       const possiblePaths = [
-        path.join(this.scriptDir, 'config.json'),  // Standard location - should be the most likely path
-        path.join(this.scriptDir, '..', 'copilot', 'config.json'),  // In adapters/copilot/
-        path.join(__dirname, 'config.json'),  // Using script directory - also standard location
+        path.join(this.scriptDir, "config.json"), // Standard location - should be the most likely path
+        path.join(this.scriptDir, "..", "copilot", "config.json"), // In adapters/copilot/
+        path.join(__dirname, "config.json"), // Using script directory - also standard location
       ];
 
       // Check environment variables to get project root directory
-      const projectRootEnv = process.env.STIGMERGY_PROJECT_ROOT || '';
+      const projectRootEnv = process.env.STIGMERGY_PROJECT_ROOT || "";
       if (projectRootEnv) {
         // Add environment variable specified path to search list
-        const envConfigPath = path.join(projectRootEnv, 'src', 'adapters', 'copilot', 'config.json');
+        const envConfigPath = path.join(
+          projectRootEnv,
+          "src",
+          "adapters",
+          "copilot",
+          "config.json",
+        );
         possiblePaths.push(envConfigPath);
       }
 
       let configFound = false;
       for (const configPathOption of possiblePaths) {
         try {
-          require('fs').accessSync(configPathOption);
+          require("fs").accessSync(configPathOption);
           this.configPath = configPathOption;
           console.log(`Using config file: ${configPathOption}`);
           configFound = true;
@@ -56,100 +62,107 @@ class CopilotIntegrationInstaller {
 
       if (!configFound) {
         // If all options fail, use default location and dynamically create config
-        this.configPath = path.join(this.scriptDir, 'config.json');
+        this.configPath = path.join(this.scriptDir, "config.json");
 
         // Create default config content
         const defaultConfig = {
-          name: 'copilot',
-          displayName: 'GitHub Copilot CLI',
-          version: '1.0.0',
-          integration_type: 'mcp_server',
-          config_file: '~/.config/copilot/config.json',
-          global_doc: 'copilot.md',
-          description: 'GitHub Copilot CLI MCP Server Integration Adapter',
+          name: "copilot",
+          displayName: "GitHub Copilot CLI",
+          version: "1.0.0",
+          integration_type: "mcp_server",
+          config_file: "~/.config/copilot/config.json",
+          global_doc: "copilot.md",
+          description: "GitHub Copilot CLI MCP Server Integration Adapter",
           mcp_config: {
-            server_name: 'stigmergy-copilot-integration',
-            command: 'node',
-            args: [
-              'src/adapters/copilot/mcp_server.js'
-            ],
+            server_name: "stigmergy-copilot-integration",
+            command: "node",
+            args: ["src/adapters/copilot/mcp_server.js"],
             environment: {
-              NODE_PATH: '.',
-              STIGMERGY_CONFIG_PATH: '~/.stigmergy',
-              COPILOT_ADAPTER_MODE: 'cross_cli'
+              NODE_PATH: ".",
+              STIGMERGY_CONFIG_PATH: "~/.stigmergy",
+              COPILOT_ADAPTER_MODE: "cross_cli",
             },
             health_check_interval: 30,
-            timeout: 60
+            timeout: 60,
           },
           custom_agents: {
             cross_cli_caller: {
-              name: 'CrossCLICaller',
-              description: 'Cross-CLI Tool Calling Agent',
-              version: '1.0.0',
+              name: "CrossCLICaller",
+              description: "Cross-CLI Tool Calling Agent",
+              version: "1.0.0",
               tools: [
-                'cross_cli_execute',
-                'get_available_clis',
-                'check_cli_status'
+                "cross_cli_execute",
+                "get_available_clis",
+                "check_cli_status",
               ],
               permissions: [
-                'execute_external_cli',
-                'read_config',
-                'write_logs'
-              ]
-            }
+                "execute_external_cli",
+                "read_config",
+                "write_logs",
+              ],
+            },
           },
           supported_cli_tools: [
-            'claude',
-            'gemini',
-            'qwen',
-            'iflow',
-            'qoder',
-            'codebuddy',
-            'codex'
+            "claude",
+            "gemini",
+            "qwen",
+            "iflow",
+            "qoder",
+            "codebuddy",
+            "codex",
           ],
           permissions: {
             execute_external_cli: {
-              description: 'Execute external CLI tools',
-              level: 'high',
-              requires_approval: false
+              description: "Execute external CLI tools",
+              level: "high",
+              requires_approval: false,
             },
             read_config: {
-              description: 'Read CLI config files',
-              level: 'medium',
-              requires_approval: false
+              description: "Read CLI config files",
+              level: "medium",
+              requires_approval: false,
             },
             write_logs: {
-              description: 'Write to log files',
-              level: 'low',
-              requires_approval: false
-            }
+              description: "Write to log files",
+              level: "low",
+              requires_approval: false,
+            },
           },
           adapter: {
-            name: 'Copilot MCP Integration Adapter',
-            version: '1.0.0',
-            type: 'mcp_server',
-            module_path: 'src.adapters.copilot.mcp_adapter',
-            class_name: 'CopilotMCPIntegrationAdapter',
+            name: "Copilot MCP Integration Adapter",
+            version: "1.0.0",
+            type: "mcp_server",
+            module_path: "src.adapters.copilot.mcp_adapter",
+            class_name: "CopilotMCPIntegrationAdapter",
             features: [
-              'cross_cli_detection',
-              'command_routing',
-              'result_formatting',
-              'collaboration_tracking'
-            ]
-          }
+              "cross_cli_detection",
+              "command_routing",
+              "result_formatting",
+              "collaboration_tracking",
+            ],
+          },
         };
 
         // Create config file
         try {
-          require('fs').mkdirSync(path.dirname(this.configPath), { recursive: true });
-          require('fs').writeFileSync(this.configPath, JSON.stringify(defaultConfig, null, 2));
+          require("fs").mkdirSync(path.dirname(this.configPath), {
+            recursive: true,
+          });
+          require("fs").writeFileSync(
+            this.configPath,
+            JSON.stringify(defaultConfig, null, 2),
+          );
           console.log(`[OK] Created default config file: ${this.configPath}`);
         } catch (error) {
-          console.error(`Failed to create default config file: ${error.message}`);
+          console.error(
+            `Failed to create default config file: ${error.message}`,
+          );
           throw error;
         }
 
-        console.log(`Using dynamically created config file: ${this.configPath}`);
+        console.log(
+          `Using dynamically created config file: ${this.configPath}`,
+        );
       }
     }
 
@@ -157,14 +170,14 @@ class CopilotIntegrationInstaller {
 
     // Copilot related paths
     this.homeDir = os.homedir();
-    this.copilotDir = path.join(this.homeDir, '.copilot');
-    this.mcpConfigFile = path.join(this.copilotDir, 'mcp-config.json');
-    this.customAgentsDir = path.join(this.copilotDir, 'agents');
+    this.copilotDir = path.join(this.homeDir, ".copilot");
+    this.mcpConfigFile = path.join(this.copilotDir, "mcp-config.json");
+    this.customAgentsDir = path.join(this.copilotDir, "agents");
 
     // Project paths - fallback to script directory if src doesn't exist
-    this.srcDir = path.join(this.projectRoot, 'src');
+    this.srcDir = path.join(this.projectRoot, "src");
     try {
-      require('fs').accessSync(this.srcDir);
+      require("fs").accessSync(this.srcDir);
     } catch (error) {
       this.srcDir = this.scriptDir;
     }
@@ -175,7 +188,7 @@ class CopilotIntegrationInstaller {
    */
   _loadConfig() {
     try {
-      const data = require('fs').readFileSync(this.configPath, 'utf8');
+      const data = require("fs").readFileSync(this.configPath, "utf8");
       return JSON.parse(data);
     } catch (error) {
       console.error(`Failed to load config file: ${error.message}`);
@@ -188,30 +201,30 @@ class CopilotIntegrationInstaller {
    */
   async install() {
     try {
-      console.log('Starting Copilot CLI cross-CLI integration installation...');
+      console.log("Starting Copilot CLI cross-CLI integration installation...");
 
       // 1. Check environment
-      if (!await this._checkEnvironment()) {
+      if (!(await this._checkEnvironment())) {
         return false;
       }
 
       // 2. Create config directories
-      if (!await this._createDirectories()) {
+      if (!(await this._createDirectories())) {
         return false;
       }
 
       // 3. Install MCP server config
-      if (!await this._installMcpServer()) {
+      if (!(await this._installMcpServer())) {
         return false;
       }
 
       // 4. Create custom agents
-      if (!await this._createCustomAgents()) {
+      if (!(await this._createCustomAgents())) {
         return false;
       }
 
       // 5. Setup permissions config
-      if (!await this._setupPermissions()) {
+      if (!(await this._setupPermissions())) {
         return false;
       }
 
@@ -219,14 +232,15 @@ class CopilotIntegrationInstaller {
       await this._createGlobalCrossCliDocumentation();
 
       // 7. Verify installation
-      if (!await this._verifyInstallation()) {
+      if (!(await this._verifyInstallation())) {
         return false;
       }
 
-      console.log('[OK] Copilot CLI cross-CLI integration installed successfully!');
+      console.log(
+        "[OK] Copilot CLI cross-CLI integration installed successfully!",
+      );
       this._printUsageInstructions();
       return true;
-
     } catch (error) {
       console.error(`Installation failed: ${error.message}`);
       return false;
@@ -237,34 +251,36 @@ class CopilotIntegrationInstaller {
    * Check installation environment
    */
   async _checkEnvironment() {
-    console.log('Checking installation environment...');
+    console.log("Checking installation environment...");
 
     // Check Node.js version
     const nodeVersion = process.version;
-    const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0]);
+    const majorVersion = parseInt(nodeVersion.slice(1).split(".")[0]);
     if (majorVersion < 14) {
-      console.error('Node.js 14 or higher required');
+      console.error("Node.js 14 or higher required");
       return false;
     }
 
     // Check if Copilot CLI is installed
     try {
-      await this._runCommand('copilot', ['--version'], { timeout: 5000 });
+      await this._runCommand("copilot", ["--version"], { timeout: 5000 });
     } catch (error) {
-      console.warn('Copilot command not found, please ensure GitHub Copilot CLI is installed');
-      console.info('Installation method: npm install -g @github/copilot');
+      console.warn(
+        "Copilot command not found, please ensure GitHub Copilot CLI is installed",
+      );
+      console.info("Installation method: npm install -g @github/copilot");
     }
 
     // Check adapter file
-    const adapterFile = path.join(this.scriptDir, 'mcp_adapter.js');
+    const adapterFile = path.join(this.scriptDir, "mcp_adapter.js");
     try {
       await fs.access(adapterFile);
     } catch (error) {
       console.warn(`Adapter file does not exist: ${adapterFile}`);
-      console.info('Continuing without adapter file...');
+      console.info("Continuing without adapter file...");
     }
 
-    console.log('[OK] Environment check passed');
+    console.log("[OK] Environment check passed");
     return true;
   }
 
@@ -272,13 +288,13 @@ class CopilotIntegrationInstaller {
    * Create necessary directories
    */
   async _createDirectories() {
-    console.log('Creating config directories...');
+    console.log("Creating config directories...");
 
     const directories = [
       this.copilotDir,
       this.customAgentsDir,
-      path.join(this.copilotDir, 'logs'),
-      path.join(this.copilotDir, 'sessions')
+      path.join(this.copilotDir, "logs"),
+      path.join(this.copilotDir, "sessions"),
     ];
 
     for (const directory of directories) {
@@ -286,12 +302,14 @@ class CopilotIntegrationInstaller {
         await fs.mkdir(directory, { recursive: true });
         console.log(`Created directory: ${directory}`);
       } catch (error) {
-        console.error(`Failed to create directory ${directory}: ${error.message}`);
+        console.error(
+          `Failed to create directory ${directory}: ${error.message}`,
+        );
         return false;
       }
     }
 
-    console.log('[OK] Directories created successfully');
+    console.log("[OK] Directories created successfully");
     return true;
   }
 
@@ -299,7 +317,7 @@ class CopilotIntegrationInstaller {
    * Install MCP server config
    */
   async _installMcpServer() {
-    console.log('Installing MCP server config...');
+    console.log("Installing MCP server config...");
 
     try {
       // Read existing MCP config
@@ -319,12 +337,12 @@ class CopilotIntegrationInstaller {
       const mcpServerConfig = {
         command: this.config.mcp_config.command,
         args: this.config.mcp_config.args,
-        env: this.config.mcp_config.environment
+        env: this.config.mcp_config.environment,
       };
 
       // Add Node.js path to environment variables
       const nodePath = this.scriptDir;
-      if ('NODE_PATH' in mcpServerConfig.env) {
+      if ("NODE_PATH" in mcpServerConfig.env) {
         mcpServerConfig.env.NODE_PATH = `${nodePath}:${mcpServerConfig.env.NODE_PATH}`;
       } else {
         mcpServerConfig.env.NODE_PATH = nodePath;
@@ -334,11 +352,13 @@ class CopilotIntegrationInstaller {
       mcpConfig.mcpServers = mcpServers;
 
       // Save config
-      await fs.writeFile(this.mcpConfigFile, JSON.stringify(mcpConfig, null, 2));
+      await fs.writeFile(
+        this.mcpConfigFile,
+        JSON.stringify(mcpConfig, null, 2),
+      );
 
       console.log(`[OK] MCP server config saved to: ${this.mcpConfigFile}`);
       return true;
-
     } catch (error) {
       console.error(`Failed to install MCP server: ${error.message}`);
       return false;
@@ -351,12 +371,12 @@ class CopilotIntegrationInstaller {
   async _loadExistingMcpConfig() {
     try {
       await fs.access(this.mcpConfigFile);
-      const data = await fs.readFile(this.mcpConfigFile, 'utf8');
+      const data = await fs.readFile(this.mcpConfigFile, "utf8");
       return JSON.parse(data);
     } catch (error) {
       // File doesn't exist or can't be read, return default config
       return {
-        mcpServers: {}
+        mcpServers: {},
       };
     }
   }
@@ -365,10 +385,12 @@ class CopilotIntegrationInstaller {
    * Create custom agents
    */
   async _createCustomAgents() {
-    console.log('Creating custom agents...');
+    console.log("Creating custom agents...");
 
     try {
-      for (const [agentName, agentConfig] of Object.entries(this.config.custom_agents)) {
+      for (const [agentName, agentConfig] of Object.entries(
+        this.config.custom_agents,
+      )) {
         const agentFile = path.join(this.customAgentsDir, `${agentName}.json`);
 
         try {
@@ -388,16 +410,15 @@ class CopilotIntegrationInstaller {
           version: agentConfig.version,
           instructions: this._getAgentInstructions(agentName),
           tools: agentConfig.tools,
-          permissions: agentConfig.permissions
+          permissions: agentConfig.permissions,
         };
 
         await fs.writeFile(agentFile, JSON.stringify(agentData, null, 2));
         console.log(`Created agent: ${agentName}`);
       }
 
-      console.log('[OK] Custom agents created successfully');
+      console.log("[OK] Custom agents created successfully");
       return true;
-
     } catch (error) {
       console.error(`Failed to create custom agents: ${error.message}`);
       return false;
@@ -428,33 +449,38 @@ Available tools:
 - check_cli_status: Check status of a specific CLI tool
 
 Always maintain the original intent and context of the user's request.
-Provide clear, structured results with execution details.`
+Provide clear, structured results with execution details.`,
     };
 
-    return instructions[agentName] || 'Cross-CLI integration agent';
+    return instructions[agentName] || "Cross-CLI integration agent";
   }
 
   /**
    * Setup permissions config
    */
   async _setupPermissions() {
-    console.log('Setting up permissions config...');
+    console.log("Setting up permissions config...");
 
     try {
-      const permissionsConfigFile = path.join(this.copilotDir, 'permissions.json');
+      const permissionsConfigFile = path.join(
+        this.copilotDir,
+        "permissions.json",
+      );
 
       const permissionsConfig = {
-        version: '1.0',
+        version: "1.0",
         permissions: this.config.permissions,
         created_at: new Date().toISOString(),
-        adapter_version: this.config.adapter.version
+        adapter_version: this.config.adapter.version,
       };
 
-      await fs.writeFile(permissionsConfigFile, JSON.stringify(permissionsConfig, null, 2));
+      await fs.writeFile(
+        permissionsConfigFile,
+        JSON.stringify(permissionsConfig, null, 2),
+      );
 
-      console.log('[OK] Permissions config setup completed');
+      console.log("[OK] Permissions config setup completed");
       return true;
-
     } catch (error) {
       console.error(`Failed to setup permissions config: ${error.message}`);
       return false;
@@ -465,13 +491,13 @@ Provide clear, structured results with execution details.`
    * Verify installation
    */
   async _verifyInstallation() {
-    console.log('Verifying installation...');
+    console.log("Verifying installation...");
 
     // Check MCP config file
     try {
       await fs.access(this.mcpConfigFile);
     } catch (error) {
-      console.error('MCP config file does not exist');
+      console.error("MCP config file does not exist");
       return false;
     }
 
@@ -488,7 +514,7 @@ Provide clear, structured results with execution details.`
 
     // Verify MCP config format
     try {
-      const data = await fs.readFile(this.mcpConfigFile, 'utf8');
+      const data = await fs.readFile(this.mcpConfigFile, "utf8");
       const mcpConfig = JSON.parse(data);
 
       const serverName = this.config.mcp_config.server_name;
@@ -496,13 +522,12 @@ Provide clear, structured results with execution details.`
         console.error(`MCP server config not found: ${serverName}`);
         return false;
       }
-
     } catch (error) {
       console.error(`Failed to verify MCP config: ${error.message}`);
       return false;
     }
 
-    console.log('[OK] Installation verified successfully');
+    console.log("[OK] Installation verified successfully");
     return true;
   }
 
@@ -510,27 +535,27 @@ Provide clear, structured results with execution details.`
    * Print usage instructions
    */
   _printUsageInstructions() {
-    console.log('\n' + '='.repeat(60));
-    console.log('Copilot CLI Cross-CLI Integration Installation Complete!');
-    console.log('='.repeat(60));
-    console.log('\n[INFO] Usage Instructions:');
-    console.log('1. Start Copilot CLI:');
-    console.log('   copilot');
-    console.log('\n2. Cross-CLI calling examples:');
+    console.log("\n" + "=".repeat(60));
+    console.log("Copilot CLI Cross-CLI Integration Installation Complete!");
+    console.log("=".repeat(60));
+    console.log("\n[INFO] Usage Instructions:");
+    console.log("1. Start Copilot CLI:");
+    console.log("   copilot");
+    console.log("\n2. Cross-CLI calling examples:");
     console.log('   Chinese: "请用claude帮我写一个Python脚本"');
     console.log('   English: "use gemini to analyze this code"');
-    console.log('\n3. Available agents:');
+    console.log("\n3. Available agents:");
     for (const agentName of Object.keys(this.config.custom_agents)) {
       console.log(`   - ${agentName}`);
     }
-    console.log('\n4. Supported CLI tools:');
+    console.log("\n4. Supported CLI tools:");
     for (const cliTool of this.config.supported_cli_tools) {
       console.log(`   - ${cliTool}`);
     }
-    console.log('\nConfig file locations:');
+    console.log("\nConfig file locations:");
     console.log(`   MCP config: ${this.mcpConfigFile}`);
     console.log(`   Custom agents: ${this.customAgentsDir}`);
-    console.log('\nSee project documentation for more information');
+    console.log("\nSee project documentation for more information");
   }
 
   /**
@@ -554,16 +579,16 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 *This document is automatically generated and maintained by Stigmergy CLI*
 `;
 
-      const docPath = path.join(this.copilotDir, 'CROSS_CLI_GUIDE.md');
+      const docPath = path.join(this.copilotDir, "CROSS_CLI_GUIDE.md");
       await fs.writeFile(docPath, docContent);
 
       console.log(`[OK] Created Cross-CLI Communication Guide: ${docPath}`);
 
       // If copilot.md file exists, append Cross-CLI communication hint to the end
-      const copilotMdPath = path.join(this.copilotDir, 'copilot.md');
+      const copilotMdPath = path.join(this.copilotDir, "copilot.md");
       try {
         await fs.access(copilotMdPath);
-        
+
         const crossCliContent = `
 
 ## Cross-CLI Communication
@@ -577,22 +602,23 @@ Examples:
 Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, codex
 `;
         await fs.appendFile(copilotMdPath, crossCliContent);
-        console.log('[OK] Appended Cross-CLI communication hint to COPILOT.MD');
+        console.log("[OK] Appended Cross-CLI communication hint to COPILOT.MD");
       } catch (error) {
         // File may not exist, ignore
       }
-
     } catch (error) {
-      console.warn(`Failed to create Cross-CLI Communication Guide: ${error.message}`);
+      console.warn(
+        `Failed to create Cross-CLI Communication Guide: ${error.message}`,
+      );
     }
-    console.log('='.repeat(60));
+    console.log("=".repeat(60));
   }
 
   /**
    * Uninstall integration
    */
   async uninstall() {
-    console.log('Uninstalling Copilot CLI cross-CLI integration...');
+    console.log("Uninstalling Copilot CLI cross-CLI integration...");
 
     try {
       // 1. Remove MCP server config
@@ -603,7 +629,10 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
         if (serverName in (mcpConfig.mcpServers || {})) {
           delete mcpConfig.mcpServers[serverName];
 
-          await fs.writeFile(this.mcpConfigFile, JSON.stringify(mcpConfig, null, 2));
+          await fs.writeFile(
+            this.mcpConfigFile,
+            JSON.stringify(mcpConfig, null, 2),
+          );
           console.log(`Removed MCP server config: ${serverName}`);
         }
       } catch (error) {
@@ -621,9 +650,8 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
         }
       }
 
-      console.log('[OK] Uninstallation completed');
+      console.log("[OK] Uninstallation completed");
       return true;
-
     } catch (error) {
       console.error(`Uninstallation failed: ${error.message}`);
       return false;
@@ -635,31 +663,31 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
    */
   async _runCommand(command, args, options = {}) {
     return new Promise((resolve, reject) => {
-      const child = spawn(command, args, { 
-        stdio: 'pipe',
-        ...options 
+      const child = spawn(command, args, {
+        stdio: "pipe",
+        ...options,
       });
-      
-      let stdout = '';
-      let stderr = '';
-      
-      child.stdout.on('data', (data) => {
+
+      let stdout = "";
+      let stderr = "";
+
+      child.stdout.on("data", (data) => {
         stdout += data.toString();
       });
-      
-      child.stderr.on('data', (data) => {
+
+      child.stderr.on("data", (data) => {
         stderr += data.toString();
       });
-      
-      child.on('close', (code) => {
+
+      child.on("close", (code) => {
         if (code === 0) {
           resolve({ stdout, stderr });
         } else {
           reject(new Error(`Command failed with code ${code}: ${stderr}`));
         }
       });
-      
-      child.on('error', reject);
+
+      child.on("error", reject);
     });
   }
 }
@@ -667,7 +695,7 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
 // Main function
 async function main() {
   const args = process.argv.slice(2);
-  
+
   let configPath = null;
   let force = false;
   let uninstall = false;
@@ -675,21 +703,21 @@ async function main() {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg.startsWith('--config=')) {
+    if (arg.startsWith("--config=")) {
       configPath = arg.substring(9);
-    } else if (arg === '--config' && i + 1 < args.length) {
+    } else if (arg === "--config" && i + 1 < args.length) {
       configPath = args[++i];
-    } else if (arg === '--force') {
+    } else if (arg === "--force") {
       force = true;
-    } else if (arg === '--uninstall') {
+    } else if (arg === "--uninstall") {
       uninstall = true;
-    } else if (arg === '--verbose' || arg === '-v') {
+    } else if (arg === "--verbose" || arg === "-v") {
       verbose = true;
     }
   }
 
   if (verbose) {
-    process.env.DEBUG = 'true';
+    process.env.DEBUG = "true";
   }
 
   const installer = new CopilotIntegrationInstaller(configPath, force);
@@ -709,8 +737,8 @@ module.exports = CopilotIntegrationInstaller;
 
 // If run directly
 if (require.main === module) {
-  main().catch(error => {
-    console.error('[FATAL]', error.message);
+  main().catch((error) => {
+    console.error("[FATAL]", error.message);
     process.exit(1);
   });
 }

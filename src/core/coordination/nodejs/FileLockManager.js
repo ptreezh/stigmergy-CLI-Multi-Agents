@@ -3,16 +3,16 @@
  * 使用文件锁确保同一时间只有一个CLI可以修改特定文件
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
 class FileLockManager {
   constructor(options = {}) {
     this.workDir = options.workDir || process.cwd();
-    this.lockDir = path.join(this.workDir, '.stigmergy', 'locks');
-    this.locks = new Map();  // 内存中的锁状态
-    this.lockTimeout = options.lockTimeout || 300000;  // 默认5分钟超时
+    this.lockDir = path.join(this.workDir, ".stigmergy", "locks");
+    this.locks = new Map(); // 内存中的锁状态
+    this.lockTimeout = options.lockTimeout || 300000; // 默认5分钟超时
 
     this._ensureLockDir();
   }
@@ -31,7 +31,7 @@ class FileLockManager {
    */
   _getLockPath(filePath) {
     // 使用文件路径的哈希作为锁文件名
-    const hash = crypto.createHash('sha256').update(filePath).digest('hex');
+    const hash = crypto.createHash("sha256").update(filePath).digest("hex");
     return path.join(this.lockDir, `${hash}.lock`);
   }
 
@@ -49,7 +49,9 @@ class FileLockManager {
 
       // 检查锁是否超时
       if (now - lock.timestamp < this.lockTimeout) {
-        console.warn(`[LOCK] File already locked: ${filePath} by ${lock.cliName}`);
+        console.warn(
+          `[LOCK] File already locked: ${filePath} by ${lock.cliName}`,
+        );
         return false;
       } else {
         // 锁已超时，释放它
@@ -63,22 +65,25 @@ class FileLockManager {
         filePath,
         cliName,
         acquiredAt: now,
-        pid: process.pid
+        pid: process.pid,
       };
 
-      fs.writeFileSync(lockPath, JSON.stringify(lockData), 'utf8');
+      fs.writeFileSync(lockPath, JSON.stringify(lockData), "utf8");
 
       // 记录到内存
       this.locks.set(filePath, {
         cliName,
         timestamp: now,
-        lockPath
+        lockPath,
       });
 
       console.log(`[LOCK] Acquired by ${cliName}: ${filePath}`);
       return true;
     } catch (error) {
-      console.error(`[LOCK] Failed to acquire lock for ${filePath}:`, error.message);
+      console.error(
+        `[LOCK] Failed to acquire lock for ${filePath}:`,
+        error.message,
+      );
       return false;
     }
   }
@@ -94,7 +99,9 @@ class FileLockManager {
       const lock = this.locks.get(filePath);
 
       if (lock.cliName !== cliName) {
-        console.warn(`[LOCK] ${cliName} cannot release lock held by ${lock.cliName} for ${filePath}`);
+        console.warn(
+          `[LOCK] ${cliName} cannot release lock held by ${lock.cliName} for ${filePath}`,
+        );
         return false;
       }
 
@@ -108,7 +115,10 @@ class FileLockManager {
         console.log(`[LOCK] Released by ${cliName}: ${filePath}`);
         return true;
       } catch (error) {
-        console.error(`[LOCK] Failed to release lock for ${filePath}:`, error.message);
+        console.error(
+          `[LOCK] Failed to release lock for ${filePath}:`,
+          error.message,
+        );
         return false;
       }
     }
@@ -165,7 +175,7 @@ class FileLockManager {
     }
 
     this.locks.clear();
-    console.log('[LOCK] All locks released');
+    console.log("[LOCK] All locks released");
   }
 
   /**
@@ -190,7 +200,9 @@ class FileLockManager {
             fs.unlinkSync(lock.lockPath);
           }
           this.locks.delete(filePath);
-          console.log(`[LOCK] Cleaned expired lock: ${filePath} (held by ${lock.cliName})`);
+          console.log(
+            `[LOCK] Cleaned expired lock: ${filePath} (held by ${lock.cliName})`,
+          );
         } catch (error) {
           console.error(`[LOCK] Failed to clean lock: ${filePath}`);
         }
@@ -209,14 +221,14 @@ class FileLockManager {
       locks.push({
         filePath,
         cliName: lock.cliName,
-        heldFor: Date.now() - lock.timestamp
+        heldFor: Date.now() - lock.timestamp,
       });
     }
 
     return {
       totalLocks: this.locks.size,
       locks: locks,
-      lockTimeout: this.lockTimeout
+      lockTimeout: this.lockTimeout,
     };
   }
 

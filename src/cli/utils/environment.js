@@ -3,8 +3,8 @@
  * Contains environment and working directory management
  */
 
-const path = require('path');
-const os = require('os');
+const path = require("path");
+const os = require("os");
 
 /**
  * Get appropriate working directory for CLI tools
@@ -13,15 +13,15 @@ const os = require('os');
  */
 function getWorkingDirectoryForTool(toolName) {
   switch (toolName) {
-    case 'claude':
+    case "claude":
       return process.cwd(); // Current working directory for Claude
-    case 'gemini':
+    case "gemini":
       return process.cwd(); // Current working directory for Gemini
-    case 'qwen':
-      return path.join(os.homedir(), '.qwen'); // Qwen's home directory
-    case 'codebuddy':
+    case "qwen":
+      return path.join(os.homedir(), ".qwen"); // Qwen's home directory
+    case "codebuddy":
       return process.cwd(); // Current working directory for CodeBuddy
-    case 'copilot':
+    case "copilot":
       return process.cwd(); // Current working directory for Copilot
     default:
       return process.cwd(); // Default to current working directory
@@ -38,17 +38,17 @@ function getEnvironmentForTool(toolName) {
 
   // Tool-specific environment setup
   switch (toolName) {
-    case 'qwen':
+    case "qwen":
       // For Qwen CLI, clear Node.js environment variables to avoid import conflicts
       delete env.NODE_PATH;
       delete env.NODE_OPTIONS;
       // Ensure clean environment
       env.PWD = getWorkingDirectoryForTool(toolName);
       break;
-    case 'claude':
+    case "claude":
       // Claude-specific environment setup if needed
       break;
-    case 'gemini':
+    case "gemini":
       // Gemini-specific environment setup if needed
       break;
     default:
@@ -65,11 +65,11 @@ function getEnvironmentForTool(toolName) {
  * @returns {boolean} True if special directory needed
  */
 function needsSpecialDirectory(toolName) {
-  return ['qwen'].includes(toolName);
+  return ["qwen"].includes(toolName);
 }
 
 module.exports = {
   getWorkingDirectoryForTool,
   getEnvironmentForTool,
-  needsSpecialDirectory
+  needsSpecialDirectory,
 };

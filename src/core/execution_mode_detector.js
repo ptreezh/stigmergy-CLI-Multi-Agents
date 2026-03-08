@@ -43,37 +43,41 @@ class ExecutionModeDetector {
    * @private
    */
   _detectMode(options) {
-    const verbose = options.verbose || process.env.DEBUG === 'true';
+    const verbose = options.verbose || process.env.DEBUG === "true";
 
     // Priority 1: Explicit user flags (highest priority)
     if (options.interactive) {
       if (verbose) {
-        console.log('[MODE] Interactive mode forced by --interactive flag');
+        console.log("[MODE] Interactive mode forced by --interactive flag");
       }
-      return 'interactive';
+      return "interactive";
     }
 
     if (options.print) {
       if (verbose) {
-        console.log('[MODE] One-time mode forced by --print flag');
+        console.log("[MODE] One-time mode forced by --print flag");
       }
-      return 'one-time';
+      return "one-time";
     }
 
     // Priority 2: Environment variable
     const envMode = process.env.STIGMERGY_MODE;
     if (envMode) {
-      if (envMode === 'interactive') {
+      if (envMode === "interactive") {
         if (verbose) {
-          console.log('[MODE] Interactive mode from STIGMERGY_MODE environment variable');
+          console.log(
+            "[MODE] Interactive mode from STIGMERGY_MODE environment variable",
+          );
         }
-        return 'interactive';
+        return "interactive";
       }
-      if (envMode === 'one-time' || envMode === 'onetime') {
+      if (envMode === "one-time" || envMode === "onetime") {
         if (verbose) {
-          console.log('[MODE] One-time mode from STIGMERGY_MODE environment variable');
+          console.log(
+            "[MODE] One-time mode from STIGMERGY_MODE environment variable",
+          );
         }
-        return 'one-time';
+        return "one-time";
       }
     }
 
@@ -81,7 +85,7 @@ class ExecutionModeDetector {
     const context = this._analyzeContext();
 
     if (verbose) {
-      console.log('[MODE] Context Analysis:');
+      console.log("[MODE] Context Analysis:");
       console.log(`  - stdin.isTTY: ${context.stdinIsTTY}`);
       console.log(`  - stdout.isTTY: ${context.stdoutIsTTY}`);
       console.log(`  - hasPipedInput: ${context.hasPipedInput}`);
@@ -94,16 +98,16 @@ class ExecutionModeDetector {
 
     if (isInteractiveTerminal && !context.isFromCI && !context.isFromScript) {
       if (verbose) {
-        console.log('[MODE] Detected interactive terminal → Interactive mode');
+        console.log("[MODE] Detected interactive terminal → Interactive mode");
       }
-      return 'interactive';
+      return "interactive";
     }
 
     // All other cases: use one-time mode
     if (verbose) {
-      console.log('[MODE] Detected non-interactive context → One-time mode');
+      console.log("[MODE] Detected non-interactive context → One-time mode");
     }
-    return 'one-time';
+    return "one-time";
   }
 
   /**
@@ -128,7 +132,7 @@ class ExecutionModeDetector {
       isFromScript: this._isRunningFromScript(),
 
       // Get parent process name
-      parentProcess: this._getParentProcessName()
+      parentProcess: this._getParentProcessName(),
     };
 
     return context;
@@ -141,19 +145,19 @@ class ExecutionModeDetector {
   _isCIEnvironment() {
     // Common CI environment variables
     const ciVars = [
-      'CI',
-      'CONTINUOUS_INTEGRATION',
-      'JENKINS_URL',
-      'BUILD_NUMBER',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'TRAVIS',
-      'CIRCLECI',
-      'APPVEYOR',
-      'TEAMCITY_VERSION'
+      "CI",
+      "CONTINUOUS_INTEGRATION",
+      "JENKINS_URL",
+      "BUILD_NUMBER",
+      "GITHUB_ACTIONS",
+      "GITLAB_CI",
+      "TRAVIS",
+      "CIRCLECI",
+      "APPVEYOR",
+      "TEAMCITY_VERSION",
     ];
 
-    return ciVars.some(varName => process.env[varName]);
+    return ciVars.some((varName) => process.env[varName]);
   }
 
   /**
@@ -162,11 +166,12 @@ class ExecutionModeDetector {
    */
   _isRunningFromScript() {
     // Check if called from node script
-    const invokedAsScript = process.argv[1] &&
-                            !process.argv[1].endsWith('stigmergy') &&
-                            (process.argv[1].endsWith('.js') ||
-                             process.argv[1].endsWith('.cjs') ||
-                             process.argv[1].endsWith('.mjs'));
+    const invokedAsScript =
+      process.argv[1] &&
+      !process.argv[1].endsWith("stigmergy") &&
+      (process.argv[1].endsWith(".js") ||
+        process.argv[1].endsWith(".cjs") ||
+        process.argv[1].endsWith(".mjs"));
 
     return invokedAsScript;
   }
@@ -202,11 +207,11 @@ class ExecutionModeDetector {
    */
   getModeDescription(mode) {
     const descriptions = {
-      'interactive': 'Continuous conversation mode (CLI tool stays running)',
-      'one-time': 'Execute and exit mode (returns control after completion)'
+      interactive: "Continuous conversation mode (CLI tool stays running)",
+      "one-time": "Execute and exit mode (returns control after completion)",
     };
 
-    return descriptions[mode] || 'Unknown mode';
+    return descriptions[mode] || "Unknown mode";
   }
 
   /**

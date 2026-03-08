@@ -1,13 +1,13 @@
 // src/core/coordination/nodejs/HealthChecker.js
-const os = require('os');
+const os = require("os");
 
 class HealthChecker {
   constructor() {
-    this.checks = ['AdapterAvailability', 'SystemResources', 'DiskSpace'];
+    this.checks = ["AdapterAvailability", "SystemResources", "DiskSpace"];
   }
 
   async checkHealth() {
-    console.log('[HEALTH_CHECKER] Performing health check...');
+    console.log("[HEALTH_CHECKER] Performing health check...");
 
     const results = {};
     let overallHealthy = true;
@@ -15,7 +15,7 @@ class HealthChecker {
     for (const check of this.checks) {
       try {
         const methodName = `check${check}`;
-        if (typeof this[methodName] === 'function') {
+        if (typeof this[methodName] === "function") {
           results[check.toLowerCase()] = await this[methodName]();
         } else {
           results[check.toLowerCase()] = {
@@ -68,7 +68,7 @@ class HealthChecker {
     // This is a simplified check
     return {
       healthy: true,
-      message: 'Disk space check not implemented in Node.js layer',
+      message: "Disk space check not implemented in Node.js layer",
     };
   }
 }

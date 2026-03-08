@@ -66,7 +66,7 @@ async function integrateToCLI(soulManager, cliAdapter) {
     cliAdapter,
   );
 
-  console.log(`[SoulSystem] Integrated with CLI adapter`);
+  console.log("[SoulSystem] Integrated with CLI adapter");
 
   return soulManager;
 }
