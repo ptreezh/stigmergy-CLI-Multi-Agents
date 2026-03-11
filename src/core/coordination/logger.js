@@ -742,7 +742,7 @@ class Logger extends EventEmitter {
    * @param {any} value - Metric value
    */
   updatePerformanceMetric(metricName, value) {
-    if (this.state.metrics.performanceMetrics.hasOwnProperty(metricName)) {
+    if (Object.hasOwn(this.state.metrics.performanceMetrics, metricName)) {
       this.state.metrics.performanceMetrics[metricName] = value;
     }
   }

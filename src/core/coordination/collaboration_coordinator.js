@@ -18,54 +18,70 @@ const { EventEmitter } = require("events");
 
 class CollaborationCoordinator extends EventEmitter {
   // Static constants for configuration
-  static DEFAULTS = {
-    MAX_HISTORY_SIZE: 100,
-    MAX_ACTIVE_COLLABORATIONS: 50,
-    COLLABORATION_TTL: 24 * 60 * 60 * 1000, // 24 hours
-    STATE_SAVE_DEBOUNCE: 1000, // 1 second
-    HISTORY_SAVE_DEBOUNCE: 500, // 500ms
-    CLEANUP_INTERVAL: 60 * 60 * 1000, // 1 hour
-  };
+  static get DEFAULTS() {
+    return {
+      MAX_HISTORY_SIZE: 100,
+      MAX_ACTIVE_COLLABORATIONS: 50,
+      COLLABORATION_TTL: 24 * 60 * 60 * 1000, // 24 hours
+      STATE_SAVE_DEBOUNCE: 1000, // 1 second
+      HISTORY_SAVE_DEBOUNCE: 500, // 500ms
+      CLEANUP_INTERVAL: 60 * 60 * 1000, // 1 hour
+    };
+  }
 
   // Static keyword patterns for task classification (cached for performance)
-  static TASK_KEYWORDS = {
-    "code-generation": ["write", "create", "generate", "implement", "develop"],
-    "code-analysis": ["analyze", "review", "audit", "inspect", "examine"],
-    "code-optimization": ["optimize", "improve", "refactor", "enhance"],
-    testing: ["test", "verify", "validate", "check"],
-    documentation: ["document", "write docs", "create documentation"],
-    debugging: ["debug", "fix", "resolve", "troubleshoot"],
-    deployment: ["deploy", "release", "publish"],
-  };
+  static get TASK_KEYWORDS() {
+    return {
+      "code-generation": [
+        "write",
+        "create",
+        "generate",
+        "implement",
+        "develop",
+      ],
+      "code-analysis": ["analyze", "review", "audit", "inspect", "examine"],
+      "code-optimization": ["optimize", "improve", "refactor", "enhance"],
+      testing: ["test", "verify", "validate", "check"],
+      documentation: ["document", "write docs", "create documentation"],
+      debugging: ["debug", "fix", "resolve", "troubleshoot"],
+      deployment: ["deploy", "release", "publish"],
+    };
+  }
 
-  static COMPLEXITY_INDICATORS = {
-    high: [
-      "architecture",
-      "system",
-      "framework",
-      "integration",
-      "multiple",
-      "complex",
-    ],
-    medium: ["feature", "module", "component", "function", "class"],
-    low: ["fix", "update", "change", "small", "simple"],
-  };
+  static get COMPLEXITY_INDICATORS() {
+    return {
+      high: [
+        "architecture",
+        "system",
+        "framework",
+        "integration",
+        "multiple",
+        "complex",
+      ],
+      medium: ["feature", "module", "component", "function", "class"],
+      low: ["fix", "update", "change", "small", "simple"],
+    };
+  }
 
-  static SKILL_KEYWORDS = {
-    programming: ["code", "function", "class", "algorithm", "programming"],
-    analysis: ["analyze", "review", "audit", "inspect"],
-    testing: ["test", "verify", "validate"],
-    documentation: ["document", "write", "explain"],
-    debugging: ["debug", "fix", "resolve"],
-    optimization: ["optimize", "improve", "refactor"],
-    architecture: ["design", "architecture", "system", "framework"],
-  };
+  static get SKILL_KEYWORDS() {
+    return {
+      programming: ["code", "function", "class", "algorithm", "programming"],
+      analysis: ["analyze", "review", "audit", "inspect"],
+      testing: ["test", "verify", "validate"],
+      documentation: ["document", "write", "explain"],
+      debugging: ["debug", "fix", "resolve"],
+      optimization: ["optimize", "improve", "refactor"],
+      architecture: ["design", "architecture", "system", "framework"],
+    };
+  }
 
-  static EFFORT_MAP = {
-    low: { minHours: 1, maxHours: 2, complexity: 1 },
-    medium: { minHours: 2, maxHours: 4, complexity: 2 },
-    high: { minHours: 4, maxHours: 8, complexity: 3 },
-  };
+  static get EFFORT_MAP() {
+    return {
+      low: { minHours: 1, maxHours: 2, complexity: 1 },
+      medium: { minHours: 2, maxHours: 4, complexity: 2 },
+      high: { minHours: 4, maxHours: 8, complexity: 3 },
+    };
+  }
 
   constructor(options = {}) {
     super();
@@ -79,19 +95,19 @@ class CollaborationCoordinator extends EventEmitter {
       statePath: options.statePath || "./logs/collaboration-state.json",
       maxHistorySize:
         options.maxHistorySize ||
-        CollaborationCoordinator.DEFAULTS.MAX_HISTORY_SIZE,
+        CollaborationCoordinator.DEFAULTS().MAX_HISTORY_SIZE,
       maxActiveCollaborations:
         options.maxActiveCollaborations ||
-        CollaborationCoordinator.DEFAULTS.MAX_ACTIVE_COLLABORATIONS,
+        CollaborationCoordinator.DEFAULTS().MAX_ACTIVE_COLLABORATIONS,
       collaborationTTL:
         options.collaborationTTL ||
-        CollaborationCoordinator.DEFAULTS.COLLABORATION_TTL,
+        CollaborationCoordinator.DEFAULTS().COLLABORATION_TTL,
       stateSaveDebounce:
         options.stateSaveDebounce ||
-        CollaborationCoordinator.DEFAULTS.STATE_SAVE_DEBOUNCE,
+        CollaborationCoordinator.DEFAULTS().STATE_SAVE_DEBOUNCE,
       historySaveDebounce:
         options.historySaveDebounce ||
-        CollaborationCoordinator.DEFAULTS.HISTORY_SAVE_DEBOUNCE,
+        CollaborationCoordinator.DEFAULTS().HISTORY_SAVE_DEBOUNCE,
       ...options,
     };
 
@@ -398,7 +414,7 @@ class CollaborationCoordinator extends EventEmitter {
       return "medium";
     }
 
-    const indicators = CollaborationCoordinator.COMPLEXITY_INDICATORS;
+    const indicators = CollaborationCoordinator.COMPLEXITY_INDICATORS();
     if (indicators.high.some((indicator) => taskLower.includes(indicator))) {
       return "high";
     } else if (
@@ -421,7 +437,7 @@ class CollaborationCoordinator extends EventEmitter {
       return [];
     }
 
-    const skillKeywords = CollaborationCoordinator.SKILL_KEYWORDS;
+    const skillKeywords = CollaborationCoordinator.SKILL_KEYWORDS();
     const requiredSkills = new Set();
 
     for (const [skill, keywords] of Object.entries(skillKeywords)) {
@@ -441,7 +457,7 @@ class CollaborationCoordinator extends EventEmitter {
    * @private
    */
   _estimateEffortFromComplexity(complexity) {
-    const effortMap = CollaborationCoordinator.EFFORT_MAP;
+    const effortMap = CollaborationCoordinator.EFFORT_MAP();
     return effortMap[complexity] || effortMap.medium;
   }
 
@@ -878,7 +894,7 @@ class CollaborationCoordinator extends EventEmitter {
   _startCleanupInterval() {
     this._cleanupInterval = setInterval(() => {
       this._cleanupExpiredCollaborations();
-    }, CollaborationCoordinator.DEFAULTS.CLEANUP_INTERVAL);
+    }, CollaborationCoordinator.DEFAULTS().CLEANUP_INTERVAL);
 
     // Don't prevent the process from exiting
     if (this._cleanupInterval.unref) {

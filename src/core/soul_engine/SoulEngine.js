@@ -50,7 +50,7 @@ class SoulEngine {
     this.config = {
       maxOuterTurns: options.maxOuterTurns || 10,
       maxInnerTurns: options.maxInnerTurns || 50,
-      heartbeatInterval: options.heartbeatInterval || 60000, // 1分钟
+      heartbeatInterval: options.heartbeatInterval || 60 * 60 * 1000, // 1小时
       autoEvolve: options.autoEvolve !== false,
       verbose: options.verbose || false,
     };

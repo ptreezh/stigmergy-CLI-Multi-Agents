@@ -566,7 +566,7 @@ class CrossCLIExecutor extends EventEmitter {
    * @returns {boolean} True if CLI is supported
    */
   isCLISupported(cliName) {
-    return this.cliCommands.hasOwnProperty(cliName);
+    return Object.hasOwn(this.cliCommands, cliName);
   }
 
   /**
