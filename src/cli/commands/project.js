@@ -529,6 +529,40 @@ async function handleInitCommand(options = {}) {
  * @param {Object} options - Command options
  */
 async function handleSetupCommand(options = {}) {
+  const fs = require("fs");
+  const os = require("os");
+
+  // Check last setup timestamp
+  const configDir = path.join(os.homedir(), ".stigmergy");
+  const timestampFile = path.join(configDir, "last-setup-timestamp");
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  try {
+    if (fs.existsSync(timestampFile)) {
+      const lastSetup = parseInt(fs.readFileSync(timestampFile, "utf8"), 10);
+      const timeSinceLastSetup = Date.now() - lastSetup;
+      if (timeSinceLastSetup < ONE_DAY_MS && !options.force) {
+        const hoursSince = Math.round(timeSinceLastSetup / (1000 * 60 * 60));
+        console.log(
+          chalk.yellow(
+            `[SETUP] ⏭️  Setup was performed ${hoursSince} hours ago. Use --force to override.`,
+          ),
+        );
+        return;
+      }
+    }
+  } catch (e) {
+    // Ignore timestamp errors
+  }
+
+  // Record this setup timestamp
+  try {
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.writeFileSync(timestampFile, Date.now().toString(), "utf8");
+  } catch (e) {
+    // Ignore write errors
+  }
+
   try {
     console.log(chalk.cyan("[SETUP] Starting complete Stigmergy setup...\n"));
 
@@ -586,31 +620,38 @@ async function handleSetupCommand(options = {}) {
     const { available: setupAvailable, missing: setupMissing } =
       await installer.scanCLI();
 
+    // Actually install missing tools first
     if (Object.keys(setupMissing).length > 0) {
-      console.log(chalk.yellow("\n[STEP 1] Missing tools found:"));
+      console.log(chalk.yellow("\n[STEP 1] Installing missing tools:"));
       for (const [toolName, toolInfo] of Object.entries(setupMissing)) {
-        console.log(`  - ${toolInfo.name}: ${toolInfo.install}`);
+        console.log(`  - Installing ${toolInfo.name}...`);
+        try {
+          await installer.install(toolName);
+          console.log(chalk.green(`  ✅ ${toolInfo.name} installed`));
+        } catch (err) {
+          console.log(
+            chalk.red(`  ❌ ${toolInfo.name} failed: ${err.message}`),
+          );
+        }
       }
-
-      console.log(chalk.blue("\n[INFO] To install missing tools, run:"));
-      for (const [toolName, toolInfo] of Object.entries(setupMissing)) {
-        console.log(`  ${toolInfo.install}`);
-      }
+      // Re-scan after installation
+      const { available: newAvailable } = await installer.scanCLI();
+      Object.assign(setupAvailable, newAvailable);
     } else {
       console.log(
         chalk.green("\n[STEP 1] All required tools are already installed!"),
       );
     }
 
-    // Deploy hooks to available CLI tools
+    // Deploy hooks to available CLI tools (AFTER installation)
     if (Object.keys(setupAvailable).length > 0) {
       console.log(
         chalk.blue("\n[STEP 2] Deploying hooks to available tools..."),
       );
       await installer.deployHooks(setupAvailable);
 
-      // Deploy built-in Superpowers (offline capable)
-      console.log(chalk.blue("\n[STEP 2.5] Deploying built-in Superpowers..."));
+      // Deploy built-in Superpowers (AFTER hooks, offline capable)
+      console.log(chalk.blue("\n[STEP 3] Deploying built-in Superpowers..."));
       try {
         const {
           deployBuiltinSuperpowers,

@@ -753,3 +753,5 @@ postInstallDeploy().catch((error) => {
   console.error("部署失败:", error.message);
   process.exit(0);
 });
+
+module.exports = { deployBuiltinSuperpowers };

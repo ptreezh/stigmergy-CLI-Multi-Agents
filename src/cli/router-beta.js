@@ -114,6 +114,48 @@ async function main() {
   const program = new Command();
   const packageJson = require("../../package.json");
 
+  // Show welcome banner for non-help commands
+  const isHelp =
+    process.argv.includes("--help") ||
+    process.argv.includes("-h") ||
+    process.argv.includes("help");
+  const isVersion =
+    process.argv.includes("--version") ||
+    process.argv.includes("-V") ||
+    process.argv.includes("version");
+
+  if (!isHelp && !isVersion) {
+    const welcomeBanner = `
+╔══════════════════════════════════════════════════════════════════════════╗
+║                     🚀 Stigmergy CLI 快速入门                            ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  📥 安装:  npm install -g stigmergy                                     ║
+║                                                                          ║
+║  ⚡ 快速开始 (推荐):                                                     ║
+║     stigmergy setup --force    # 一键安装 + 部署 + 初始化              ║
+║                                                                          ║
+║  📋 常用命令:                                                            ║
+║     stigmergy init               # 初始化项目                           ║
+║     stigmergy status             # 查看 CLI 状态                        ║
+║     stigmergy scan               # 扫描可用工具                         ║
+║     stigmergy install            # 安装 CLI 工具                        ║
+║     stigmergy deploy             # 部署集成钩子                         ║
+║     stigmergy soul status        # Soul 进化系统状态                   ║
+║                                                                          ║
+║  🧬 Soul 进化系统:                                                      ║
+║     stigmergy soul evolve        # 自主进化                             ║
+║     stigmergy soul reflect       # 自我反思                             ║
+║     stigmergy soul co-evolve     # 协同进化                            ║
+║     stigmergy soul compete       # 竞争进化                            ║
+║                                                                          ║
+║  ℹ️  查看完整帮助: stigmergy --help                                     ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+`;
+    console.log(chalk.cyan(welcomeBanner));
+  }
+
   // Program setup
   program
     .version(packageJson.version)
@@ -231,6 +273,7 @@ async function main() {
     .command("setup")
     .description("Complete Stigmergy setup (install + deploy + init)")
     .option("-v, --verbose", "Verbose output")
+    .option("-f, --force", "Force setup even if performed recently")
     .action(async (options) => {
       await handleSetupCommand(options);
     });
