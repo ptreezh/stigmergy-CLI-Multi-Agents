@@ -498,56 +498,56 @@ class DirectoryPermissionManager {
     const homeDir = this.getHomeDirectory();
 
     switch (shellType) {
-    case "powershell":
-      // PowerShell profile locations
-      return path.join(
-        homeDir,
-        "Documents",
-        "WindowsPowerShell",
-        "Microsoft.PowerShell_profile.ps1",
-      );
+      case "powershell":
+        // PowerShell profile locations
+        return path.join(
+          homeDir,
+          "Documents",
+          "WindowsPowerShell",
+          "Microsoft.PowerShell_profile.ps1",
+        );
 
-    case "cmd":
-      // Command Prompt doesn't really have profile files, but we can suggest registry or environment
-      return null;
+      case "cmd":
+        // Command Prompt doesn't really have profile files, but we can suggest registry or environment
+        return null;
 
-    case "wsl":
-      // WSL uses Linux-style shells
-      const shell = process.env.SHELL;
-      if (shell && shell.includes("zsh"))
-        return path.join(os.homedir(), ".zshrc");
-      if (shell && shell.includes("bash"))
-        return path.join(os.homedir(), ".bashrc");
-      return null;
+      case "wsl":
+        // WSL uses Linux-style shells
+        const shell = process.env.SHELL;
+        if (shell && shell.includes("zsh"))
+          return path.join(os.homedir(), ".zshrc");
+        if (shell && shell.includes("bash"))
+          return path.join(os.homedir(), ".bashrc");
+        return null;
 
-    case "zsh":
-      return path.join(homeDir, ".zshrc");
+      case "zsh":
+        return path.join(homeDir, ".zshrc");
 
-    case "bash":
-      // Check for .bash_profile first, then .bashrc
-      if (process.platform === "win32") {
-        // Git Bash on Windows
-        return path.join(homeDir, ".bashrc");
-      } else {
-        // Unix/Linux/macOS
-        const bashProfile = path.join(homeDir, ".bash_profile");
-        if (fs.existsSync(bashProfile)) {
-          return bashProfile;
+      case "bash":
+        // Check for .bash_profile first, then .bashrc
+        if (process.platform === "win32") {
+          // Git Bash on Windows
+          return path.join(homeDir, ".bashrc");
+        } else {
+          // Unix/Linux/macOS
+          const bashProfile = path.join(homeDir, ".bash_profile");
+          if (fs.existsSync(bashProfile)) {
+            return bashProfile;
+          }
+          return path.join(homeDir, ".bashrc");
         }
-        return path.join(homeDir, ".bashrc");
-      }
 
-    case "fish":
-      return path.join(homeDir, ".config/fish/config.fish");
+      case "fish":
+        return path.join(homeDir, ".config/fish/config.fish");
 
-    case "csh":
-      return path.join(homeDir, ".cshrc");
+      case "csh":
+        return path.join(homeDir, ".cshrc");
 
-    case "tcsh":
-      return path.join(homeDir, ".tcshrc");
+      case "tcsh":
+        return path.join(homeDir, ".tcshrc");
 
-    default:
-      return null;
+      default:
+        return null;
     }
   }
 

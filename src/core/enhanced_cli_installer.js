@@ -51,26 +51,26 @@ class EnhancedCLIInstaller {
     let color = chalk.white;
 
     switch (level) {
-    case "info":
-      prefix = `[INFO] ${timestamp}`;
-      color = chalk.blue;
-      break;
-    case "success":
-      prefix = `[SUCCESS] ${timestamp}`;
-      color = chalk.green;
-      break;
-    case "warn":
-      prefix = `[WARN] ${timestamp}`;
-      color = chalk.yellow;
-      break;
-    case "error":
-      prefix = `[ERROR] ${timestamp}`;
-      color = chalk.red;
-      break;
-    case "debug":
-      prefix = `[DEBUG] ${timestamp}`;
-      color = chalk.gray;
-      break;
+      case "info":
+        prefix = `[INFO] ${timestamp}`;
+        color = chalk.blue;
+        break;
+      case "success":
+        prefix = `[SUCCESS] ${timestamp}`;
+        color = chalk.green;
+        break;
+      case "warn":
+        prefix = `[WARN] ${timestamp}`;
+        color = chalk.yellow;
+        break;
+      case "error":
+        prefix = `[ERROR] ${timestamp}`;
+        color = chalk.red;
+        break;
+      case "debug":
+        prefix = `[DEBUG] ${timestamp}`;
+        color = chalk.gray;
+        break;
     }
 
     const logMessage = color(`${prefix} ${message}`);
@@ -456,31 +456,31 @@ class EnhancedCLIInstaller {
    */
   async executeInstallation(toolInfo) {
     switch (this.permissionMode) {
-    case "standard":
-      return await this.executeStandardInstallation(toolInfo);
-    case "elevated":
-      return await this.executeElevatedInstallation(toolInfo);
-    case "user-space":
-      return await this.executeUserSpaceInstallation(toolInfo);
-    case "failed":
-      return await this.executeFallbackInstallation(toolInfo);
-    default:
-      // Try standard first, then escalate if needed
-      const standardResult = await this.executeStandardInstallation(toolInfo);
-      if (standardResult.success) {
-        return standardResult;
-      }
-
-      if (this.isPermissionError(standardResult.error)) {
-        this.log(
-          "warn",
-          "Permission error, escalating to elevated installation...",
-        );
-        this.permissionMode = "elevated";
+      case "standard":
+        return await this.executeStandardInstallation(toolInfo);
+      case "elevated":
         return await this.executeElevatedInstallation(toolInfo);
-      }
+      case "user-space":
+        return await this.executeUserSpaceInstallation(toolInfo);
+      case "failed":
+        return await this.executeFallbackInstallation(toolInfo);
+      default:
+        // Try standard first, then escalate if needed
+        const standardResult = await this.executeStandardInstallation(toolInfo);
+        if (standardResult.success) {
+          return standardResult;
+        }
 
-      return standardResult;
+        if (this.isPermissionError(standardResult.error)) {
+          this.log(
+            "warn",
+            "Permission error, escalating to elevated installation...",
+          );
+          this.permissionMode = "elevated";
+          return await this.executeElevatedInstallation(toolInfo);
+        }
+
+        return standardResult;
     }
   }
 

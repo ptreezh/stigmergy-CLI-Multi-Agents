@@ -1285,29 +1285,29 @@ class CLIHelpAnalyzer {
     let args;
 
     switch (cliName) {
-    case "qwen":
-      // Qwen uses positional arguments
-      command = "qwen";
-      args = [optimizedPrompt];
-      break;
+      case "qwen":
+        // Qwen uses positional arguments
+        command = "qwen";
+        args = [optimizedPrompt];
+        break;
 
-    case "codebuddy":
-      // Codebuddy requires -y flag and skill prefix
-      command = "codebuddy";
-      args = ["-y", "-p", optimizedPrompt];
-      break;
+      case "codebuddy":
+        // Codebuddy requires -y flag and skill prefix
+        command = "codebuddy";
+        args = ["-y", "-p", optimizedPrompt];
+        break;
 
-    case "claude":
-    case "iflow":
-    case "qodercli":
-      // These use -p flag
-      command = cliName;
-      args = ["-p", optimizedPrompt];
-      break;
+      case "claude":
+      case "iflow":
+      case "qodercli":
+        // These use -p flag
+        command = cliName;
+        args = ["-p", optimizedPrompt];
+        break;
 
-    default:
-      command = cliName;
-      args = ["-p", optimizedPrompt];
+      default:
+        command = cliName;
+        args = ["-p", optimizedPrompt];
     }
 
     return {

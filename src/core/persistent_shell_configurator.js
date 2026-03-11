@@ -88,73 +88,73 @@ class PersistentShellConfigurator {
     const homeDir = os.homedir();
 
     switch (shellType) {
-    case "powershell":
-      // PowerShell profile locations (try multiple)
-      const psProfiles = [
-        path.join(
-          homeDir,
-          "Documents",
-          "WindowsPowerShell",
-          "Microsoft.PowerShell_profile.ps1",
-        ),
-        path.join(
-          homeDir,
-          "Documents",
-          "PowerShell",
-          "Microsoft.PowerShell_profile.ps1",
-        ),
-        path.join(
-          homeDir,
-          ".config",
-          "powershell",
-          "Microsoft.PowerShell_profile.ps1",
-        ),
-      ];
+      case "powershell":
+        // PowerShell profile locations (try multiple)
+        const psProfiles = [
+          path.join(
+            homeDir,
+            "Documents",
+            "WindowsPowerShell",
+            "Microsoft.PowerShell_profile.ps1",
+          ),
+          path.join(
+            homeDir,
+            "Documents",
+            "PowerShell",
+            "Microsoft.PowerShell_profile.ps1",
+          ),
+          path.join(
+            homeDir,
+            ".config",
+            "powershell",
+            "Microsoft.PowerShell_profile.ps1",
+          ),
+        ];
 
-      // Return the first existing or most likely location
-      return psProfiles[0]; // We'll try to create this if it doesn't exist
+        // Return the first existing or most likely location
+        return psProfiles[0]; // We'll try to create this if it doesn't exist
 
-    case "cmd":
-      // Command Prompt doesn't have profile files, but we can suggest registry methods
-      return null;
+      case "cmd":
+        // Command Prompt doesn't have profile files, but we can suggest registry methods
+        return null;
 
-    case "wsl":
-      // WSL uses Linux-style shells
-      const wslHome =
+      case "wsl":
+        // WSL uses Linux-style shells
+        const wslHome =
           process.env.HOME ||
           path.join("/mnt", "c", "Users", process.env.USER || "user");
-      const wslShell = process.env.SHELL;
-      if (wslShell && wslShell.includes("zsh"))
-        return path.join(wslHome, ".zshrc");
-      if (wslShell && wslShell.includes("bash"))
+        const wslShell = process.env.SHELL;
+        if (wslShell && wslShell.includes("zsh"))
+          return path.join(wslHome, ".zshrc");
+        if (wslShell && wslShell.includes("bash"))
+          return path.join(wslHome, ".bashrc");
         return path.join(wslHome, ".bashrc");
-      return path.join(wslHome, ".bashrc");
 
-    case "zsh":
-      return path.join(homeDir, ".zshrc");
+      case "zsh":
+        return path.join(homeDir, ".zshrc");
 
-    case "bash":
-      // Check for .bash_profile first, then .bashrc
-      if (process.platform === "win32") {
-        // Git Bash on Windows
-        return path.join(homeDir, ".bashrc");
-      } else {
-        // Unix/Linux/macOS
-        const bashProfile = path.join(homeDir, ".bash_profile");
-        return bashProfile; // We'll check existence and fallback to .bashrc
-      }
+      case "bash":
+        // Check for .bash_profile first, then .bashrc
+        if (process.platform === "win32") {
+          // Git Bash on Windows
+          return path.join(homeDir, ".bashrc");
+        } else {
+          // Unix/Linux/macOS
+          const bashProfile = path.join(homeDir, ".bash_profile");
+          return bashProfile; // We'll check existence and fallback to .bashrc
+        }
 
-    case "fish":
-      return path.join(homeDir, ".config", "fish", "config.fish");
+      case "fish":
+        return path.join(homeDir, ".config", "fish", "config.fish");
 
-    case "csh":
-      return path.join(homeDir, ".cshrc");
+      case "csh":
+        return path.join(homeDir, ".cshrc");
 
-    case "tcsh":
-      return path.join(homeDir, ".tcshrc");
+      case "tcsh":
+        return path.join(homeDir, ".tcshrc");
 
-    default:
-      return null;
+      default:
+        return null;
     }
   }
 
@@ -174,44 +174,44 @@ class PersistentShellConfigurator {
       "# This configuration enables CLI tools to work from any directory\n\n";
 
     switch (shellType) {
-    case "powershell":
-      config += "# PowerShell Environment Configuration\n";
-      config += `$env:npm_config_prefix = "${npmGlobalDir}"\n`;
-      config += `$env:PATH = "${npmBinDir};$env:PATH"\n`;
-      break;
+      case "powershell":
+        config += "# PowerShell Environment Configuration\n";
+        config += `$env:npm_config_prefix = "${npmGlobalDir}"\n`;
+        config += `$env:PATH = "${npmBinDir};$env:PATH"\n`;
+        break;
 
-    case "cmd":
-      config += "# Command Prompt Environment Configuration\n";
-      config += "@echo off\n";
-      config += `set npm_config_prefix=${npmGlobalDir}\n`;
-      config += `set PATH=${npmBinDir};%PATH%\n`;
-      break;
+      case "cmd":
+        config += "# Command Prompt Environment Configuration\n";
+        config += "@echo off\n";
+        config += `set npm_config_prefix=${npmGlobalDir}\n`;
+        config += `set PATH=${npmBinDir};%PATH%\n`;
+        break;
 
-    case "zsh":
-    case "bash":
-      config += "# Shell Environment Configuration\n";
-      config += `export npm_config_prefix="${npmGlobalDir}"\n`;
-      config += `export PATH="${npmBinDir}:$PATH"\n`;
-      break;
+      case "zsh":
+      case "bash":
+        config += "# Shell Environment Configuration\n";
+        config += `export npm_config_prefix="${npmGlobalDir}"\n`;
+        config += `export PATH="${npmBinDir}:$PATH"\n`;
+        break;
 
-    case "fish":
-      config += "# Fish Shell Environment Configuration\n";
-      config += `set -gx npm_config_prefix "${npmGlobalDir}"\n`;
-      config += `set -gx PATH "${npmBinDir}" $PATH\n`;
-      break;
+      case "fish":
+        config += "# Fish Shell Environment Configuration\n";
+        config += `set -gx npm_config_prefix "${npmGlobalDir}"\n`;
+        config += `set -gx PATH "${npmBinDir}" $PATH\n`;
+        break;
 
-    case "csh":
-    case "tcsh":
-      config += "# C Shell Environment Configuration\n";
-      config += `setenv npm_config_prefix "${npmGlobalDir}"\n`;
-      config += `setenv PATH "${npmBinDir}:$PATH"\n`;
-      break;
+      case "csh":
+      case "tcsh":
+        config += "# C Shell Environment Configuration\n";
+        config += `setenv npm_config_prefix "${npmGlobalDir}"\n`;
+        config += `setenv PATH "${npmBinDir}:$PATH"\n`;
+        break;
 
-    default:
-      config += "# Generic Shell Configuration\n";
-      config += `npm_config_prefix="${npmGlobalDir}"\n`;
-      config += `PATH="${npmBinDir}:$PATH"\n`;
-      break;
+      default:
+        config += "# Generic Shell Configuration\n";
+        config += `npm_config_prefix="${npmGlobalDir}"\n`;
+        config += `PATH="${npmBinDir}:$PATH"\n`;
+        break;
     }
 
     return { shellType, config };
@@ -483,18 +483,18 @@ echo   setx PATH "%PATH%;${npmBinDir}"
       console.log("2. Or manually source the profile file:");
 
       switch (this.results.shellType) {
-      case "powershell":
-        console.log("   . $PROFILE");
-        break;
-      case "zsh":
-        console.log("   source ~/.zshrc");
-        break;
-      case "bash":
-        console.log("   source ~/.bashrc");
-        break;
-      case "fish":
-        console.log("   source ~/.config/fish/config.fish");
-        break;
+        case "powershell":
+          console.log("   . $PROFILE");
+          break;
+        case "zsh":
+          console.log("   source ~/.zshrc");
+          break;
+        case "bash":
+          console.log("   source ~/.bashrc");
+          break;
+        case "fish":
+          console.log("   source ~/.config/fish/config.fish");
+          break;
       }
 
       console.log("3. Verify: stigmergy --version");

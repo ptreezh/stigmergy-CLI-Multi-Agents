@@ -26,6 +26,13 @@ class MetaSkillTemplateGenerator {
     const templateName = `using-${toolId}-skills.md`;
     const templatePath = path.join(this.templateDir, templateName);
 
+    // Ensure template directory exists
+    try {
+      await fs.mkdir(this.templateDir, { recursive: true });
+    } catch (e) {
+      // Directory may already exist
+    }
+
     // Check if template already exists
     try {
       await fs.access(templatePath);

@@ -100,27 +100,27 @@ class ErrorHandler {
       const contextMessage = context ? `[CONTEXT] ${context}` : "";
 
       switch (level) {
-      case LOG_LEVELS.ERROR:
-        console.error(chalk.red.bold(consoleMessage));
-        if (contextMessage) console.error(chalk.yellow(contextMessage));
-        if (error.stack) console.error(chalk.gray(error.stack));
-        break;
-      case LOG_LEVELS.WARN:
-        console.warn(chalk.yellow.bold(consoleMessage));
-        if (contextMessage) console.warn(chalk.yellow(contextMessage));
-        break;
-      case LOG_LEVELS.INFO:
-        console.info(chalk.blue(consoleMessage));
-        if (contextMessage) console.info(chalk.gray(contextMessage));
-        break;
-      case LOG_LEVELS.DEBUG:
-        console.debug(chalk.gray(consoleMessage));
-        if (contextMessage) console.debug(chalk.gray(contextMessage));
-        if (error.stack) console.debug(chalk.gray(error.stack));
-        break;
-      default:
-        console.log(chalk.white(consoleMessage));
-        if (contextMessage) console.log(chalk.gray(contextMessage));
+        case LOG_LEVELS.ERROR:
+          console.error(chalk.red.bold(consoleMessage));
+          if (contextMessage) console.error(chalk.yellow(contextMessage));
+          if (error.stack) console.error(chalk.gray(error.stack));
+          break;
+        case LOG_LEVELS.WARN:
+          console.warn(chalk.yellow.bold(consoleMessage));
+          if (contextMessage) console.warn(chalk.yellow(contextMessage));
+          break;
+        case LOG_LEVELS.INFO:
+          console.info(chalk.blue(consoleMessage));
+          if (contextMessage) console.info(chalk.gray(contextMessage));
+          break;
+        case LOG_LEVELS.DEBUG:
+          console.debug(chalk.gray(consoleMessage));
+          if (contextMessage) console.debug(chalk.gray(contextMessage));
+          if (error.stack) console.debug(chalk.gray(error.stack));
+          break;
+        default:
+          console.log(chalk.white(consoleMessage));
+          if (contextMessage) console.log(chalk.gray(contextMessage));
       }
 
       // File logging

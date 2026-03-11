@@ -1041,18 +1041,18 @@ The PROJECT_SPEC.json file serves as the central coordination point for all proj
 
       // Tool-specific configurations
       switch (toolName) {
-      case "copilot":
-        await this.createCopilotConfig(toolInfo);
-        break;
-      case "iflow":
-        await this.createIflowConfig(toolInfo);
-        break;
-      case "qodercli":
-        await this.createQoderConfig(toolInfo);
-        break;
-      case "codebuddy":
-        await this.createCodeBuddyConfig(toolInfo);
-        break;
+        case "copilot":
+          await this.createCopilotConfig(toolInfo);
+          break;
+        case "iflow":
+          await this.createIflowConfig(toolInfo);
+          break;
+        case "qodercli":
+          await this.createQoderConfig(toolInfo);
+          break;
+        case "codebuddy":
+          await this.createCodeBuddyConfig(toolInfo);
+          break;
       }
     } catch (error) {
       console.log(
