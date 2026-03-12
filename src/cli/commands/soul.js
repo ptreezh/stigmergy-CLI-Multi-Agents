@@ -6,6 +6,7 @@
  * stigmergy soul evolve <cli-name|skill-name>
  * stigmergy soul check [content]
  * stigmergy soul create <type> <name>
+ * stigmergy soul create --interactive  [NEW]
  */
 
 const fs = require("fs");
@@ -19,6 +20,8 @@ class SoulCommand {
       evolve: this.evolve.bind(this),
       check: this.check.bind(this),
       create: this.create.bind(this),
+      "create-interactive": this.createInteractive.bind(this),
+      interactive: this.createInteractive.bind(this),
     };
   }
 
@@ -181,6 +184,16 @@ class SoulCommand {
     console.log(`   Name: ${name}`);
     console.log(`\n📝 You can now initialize with:`);
     console.log(`   stigmergy soul init ${name}`);
+    console.log(`\n💡 提示: 也可以使用交互式创建:`);
+    console.log(`   stigmergy soul create --interactive`);
+  }
+
+  async createInteractive(args) {
+    console.log(`\n🤖 启动交互式Soul创建...\n`);
+
+    const { InteractiveSoulCreator } = require("./soul-create-interactive");
+    const creator = new InteractiveSoulCreator();
+    await creator.run({ force: args.includes("--force") });
   }
 
   _generateSoulTemplate(type, name) {
@@ -281,28 +294,35 @@ class SoulCommand {
 async function handleSoulCommand(subcommand, args = [], options = {}) {
   const command = new SoulCommand();
 
+  // 没有子命令时，智能判断
   if (!subcommand) {
-    // Show help if no subcommand provided
+    // 检查是否已有soul
+    const hasSoul = await _checkProjectSoul();
+
+    if (!hasSoul) {
+      // 没有soul，自动进入交互式创建
+      console.log(`
+🧠 检测到项目中还没有Soul配置
+🤖 让我帮您创建一个项目专属的Soul...
+`);
+
+      const { InteractiveSoulCreator } = require("./soul-create-interactive");
+      const creator = new InteractiveSoulCreator();
+      await creator.run({ force: false });
+      return;
+    }
+
+    // 有soul，显示状态和帮助
+    await command.execute(["status"]);
+
     console.log(`
-🧠 Soul 自我进化系统 - AI 自主学习和反思
+💡 可用的Soul命令:
+  stigmergy soul status           # 查看详细状态
+  stigmergy soul evolve            # 执行自主进化
+  stigmergy soul reflect           # 执行自我反思
+  stigmergy soul create --force    # 重新创建Soul
 
-用法: stigmergy soul <command> [options]
-
-命令:
-  init [cli|skill]    初始化 Soul 系统
-  status              查看 Soul 状态
-  evolve [target]     执行自主进化
-  reflect [target]    执行自我反思
-  create <type> <name> 创建新的 Soul
-
-示例:
-  stigmergy soul status           # 查看状态
-  stigmergy soul init claude      # 为 Claude 初始化
-  stigmergy soul evolve           # 执行自主进化
-  stigmergy soul reflect          # 执行自我反思
-
-注意: Soul 功能需要各个 CLI 工具的技能文件已部署
-      使用 'stigmergy deploy' 部署集成
+📚 更多帮助: stigmergy soul --help
 `);
     return;
   }
@@ -315,6 +335,8 @@ async function handleSoulCommand(subcommand, args = [], options = {}) {
     status: "status",
     evolve: "evolve",
     create: "create",
+    "create-interactive": "create-interactive",
+    interactive: "create-interactive",
   };
 
   const mappedCommand = commandMap[subcommand] || subcommand;
@@ -328,6 +350,29 @@ async function handleSoulCommand(subcommand, args = [], options = {}) {
       console.error(error.stack);
     }
   }
+}
+
+/**
+ * 检查项目是否有soul配置
+ */
+async function _checkProjectSoul() {
+  const fs = require("fs");
+  const path = require("path");
+
+  const cwd = process.cwd();
+  const possiblePaths = [
+    path.join(cwd, ".stigmergy", "skills", "soul.md"),
+    path.join(cwd, ".agent", "skills", "soul.md"),
+    path.join(cwd, ".claude", "skills", "soul.md"),
+  ];
+
+  for (const soulPath of possiblePaths) {
+    if (fs.existsSync(soulPath)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 module.exports = { SoulCommand, handleSoulCommand };
