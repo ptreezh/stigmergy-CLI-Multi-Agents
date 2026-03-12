@@ -1,3 +1,10 @@
+---
+name: skill-from-masters
+description: 大师技能 - 提供专家研究方法论用于高级分析任务
+version: 1.0.0
+tags: [research, methodology, expert, grounded-theory, ANT]
+---
+
 # Skill from Masters
 
 **SEO Keywords**: research methodology, grounded theory, actor-network theory, ANT, field analysis, Bourdieu, expert methodology, qualitative research, academic research skills

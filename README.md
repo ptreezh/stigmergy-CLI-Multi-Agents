@@ -7,7 +7,11 @@
 **SEO Keywords**: AI CLI, multi-agent collaboration, Claude CLI, Gemini CLI, Qwen CLI, stigmergy, stigmergy gateway, cross-AI orchestration, AI tool manager, command line AI, AI assistant CLI, multi-model AI, AI agents, remote CLI orchestration, AI gateway, chat-to-CLI
 
 [![npm version](https://badge.fury.io/js/stigmergy.svg)](https://www.npmjs.com/package/stigmergy)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![Twitter Follow](https://img.shields.io/twitter/follow/stigmergy_cli?style=social)](https://twitter.com/stigmergy_cli)
+[![Discord](https://img.shields.io/discord/placeholder?label=Discord&logo=discord)](https://discord.gg/placeholder)
+[![npm](https://img.shields.io/npm/dm/stigmergy)](https://www.npmjs.com/package/stigmergy)
+](https://opensource.org/licenses/MIT)
 
 ## ✨ Features
 

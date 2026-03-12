@@ -176,54 +176,54 @@ class InteractiveModeController extends EventEmitter {
       // Execute based on command type
       let result;
       switch (command.type) {
-      case "task":
-        result = await this._executeTask(command);
-        break;
-      case "exit":
-        result = await this._executeExit();
-        break;
-      case "help":
-        result = await this._executeHelp();
-        break;
-      case "terminal":
-        result = await this._executeTerminalCommand(command);
-        break;
-      case "status":
-        result = await this._executeStatus();
-        break;
-      case "context": // 🔥 新增：查看上下文状态
-        result = await this._executeContextStatus();
-        break;
-      case "clear": // 🔥 新增：清除上下文
-        result = await this._executeClearContext(command);
-        break;
-      case "delegate":
-        result = await this._executeDelegate(command);
-        break;
-      case "use":
-        result = await this._executeUse(command);
-        break;
-      case "ask":
-        result = await this._executeAsk(command);
-        break;
-      case "route":
-        result = await this._executeRoute(command);
-        break;
-      case "parallel":
-      case "concurrent":
-        result = await this._executeConcurrent(command);
-        break;
-      case "empty":
-        result = { success: true, message: "No command" };
-        break;
-      case "error":
-        result = { success: false, error: command.error };
-        break;
-      default:
-        result = {
-          success: false,
-          error: `Unknown command type: ${command.type}`,
-        };
+        case "task":
+          result = await this._executeTask(command);
+          break;
+        case "exit":
+          result = await this._executeExit();
+          break;
+        case "help":
+          result = await this._executeHelp();
+          break;
+        case "terminal":
+          result = await this._executeTerminalCommand(command);
+          break;
+        case "status":
+          result = await this._executeStatus();
+          break;
+        case "context": // 🔥 新增：查看上下文状态
+          result = await this._executeContextStatus();
+          break;
+        case "clear": // 🔥 新增：清除上下文
+          result = await this._executeClearContext(command);
+          break;
+        case "delegate":
+          result = await this._executeDelegate(command);
+          break;
+        case "use":
+          result = await this._executeUse(command);
+          break;
+        case "ask":
+          result = await this._executeAsk(command);
+          break;
+        case "route":
+          result = await this._executeRoute(command);
+          break;
+        case "parallel":
+        case "concurrent":
+          result = await this._executeConcurrent(command);
+          break;
+        case "empty":
+          result = { success: true, message: "No command" };
+          break;
+        case "error":
+          result = { success: false, error: command.error };
+          break;
+        default:
+          result = {
+            success: false,
+            error: `Unknown command type: ${command.type}`,
+          };
       }
 
       // Add to session history

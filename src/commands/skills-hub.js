@@ -188,31 +188,31 @@ async function main() {
 
   try {
     switch (command) {
-    case "init":
-      await init(options);
-      break;
-    case "sync":
-      await sync(options);
-      break;
-    case "status":
-      await status(options);
-      break;
-    case "update":
-      await update(options);
-      break;
-    case "help":
-    case "--help":
-    case "-h":
-      help();
-      break;
-    default:
-      if (!command) {
-        console.error("❌ Error: No command specified\n");
-      } else {
-        console.error(`❌ Error: Unknown command "${command}"\n`);
-      }
-      help();
-      process.exit(1);
+      case "init":
+        await init(options);
+        break;
+      case "sync":
+        await sync(options);
+        break;
+      case "status":
+        await status(options);
+        break;
+      case "update":
+        await update(options);
+        break;
+      case "help":
+      case "--help":
+      case "-h":
+        help();
+        break;
+      default:
+        if (!command) {
+          console.error("❌ Error: No command specified\n");
+        } else {
+          console.error(`❌ Error: Unknown command "${command}"\n`);
+        }
+        help();
+        process.exit(1);
     }
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);
@@ -235,22 +235,22 @@ async function handleSkillsHubCommand(action, options = {}) {
 
   try {
     switch (action) {
-    case "init":
-      await init(options);
-      break;
-    case "sync":
-      await sync(options);
-      break;
-    case "status":
-      await status(options);
-      break;
-    case "update":
-      await update(options);
-      break;
-    default:
-      console.error(`❌ Error: Unknown action "${action}"\n`);
-      help();
-      process.exit(1);
+      case "init":
+        await init(options);
+        break;
+      case "sync":
+        await sync(options);
+        break;
+      case "status":
+        await status(options);
+        break;
+      case "update":
+        await update(options);
+        break;
+      default:
+        console.error(`❌ Error: Unknown action "${action}"\n`);
+        help();
+        process.exit(1);
     }
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);

@@ -520,6 +520,13 @@ Provide ONLY the JavaScript function, no explanations.`;
   }
 
   evaluateCode(code) {
+    // 使用改进的评估逻辑
+    const { evaluateCode: improvedEvaluate } = require('./scripts/compete-improved');
+    return improvedEvaluate(code);
+  }
+  
+  // 保留原方法作为备份
+  evaluateCodeLegacy(code) {
     let score = {
       correctness: 0,
       robustness: 0,
@@ -528,17 +535,16 @@ Provide ONLY the JavaScript function, no explanations.`;
       total: 0
     };
 
-    if (code.includes('function') || code.includes('=>')) score.correctness += 10;
-    if (code.includes('@param') && code.includes('@returns')) score.correctness += 10;
-    if (code.includes('return ')) score.correctness += 10;
-    if (code.includes('throw') || code.includes('Error')) score.correctness += 10;
+    if (code.includes('function') || code.includes('=>')) score.correctness += 15;
+    if (code.includes('return ')) score.correctness += 15;
+    if (code.includes('if') || code.includes('switch')) score.correctness += 10;
 
     if (code.includes('if') || code.includes('typeof')) score.robustness += 10;
     if (code.includes('try') || code.includes('catch')) score.robustness += 10;
     if (code.includes('null') || code.includes('undefined')) score.robustness += 10;
 
-    if (code.includes('/**') && code.includes('*/')) score.documentation += 10;
-    if (code.includes('@example') || code.includes('JSDoc')) score.documentation += 10;
+    if (code.includes('/**') || code.includes('//')) score.documentation += 10;
+    if (code.includes('@param') || code.includes('@returns') || code.includes('@return')) score.documentation += 10;
 
     if (code.includes('const ') || code.includes('let ')) score.bestPractices += 5;
     if (!code.includes('var ')) score.bestPractices += 5;

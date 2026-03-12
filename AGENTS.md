@@ -32,6 +32,21 @@ npm run test:integration
 # Run E2E tests
 npm run test:e2e
 
+# Run automation tests
+npm run test:automation
+
+# Run functional tests
+npm run test:functional
+
+# Run all tests with report
+npm run test:all
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Generate HTML coverage report
+npm run test:report
+
 # Watch mode for development
 npm run test:watch
 
@@ -174,9 +189,17 @@ stigmergy auth-status
 
 ## Configuration Files
 
-- `.eslintrc.js` - Linting rules
-- `jest.config.js` - Test configuration
+- `.eslintrc.js` - Linting rules (indent: 2, single quotes, Unix line endings, semicolons required)
+- `jest.config.js` - Test configuration (coverage thresholds: branches 70%, functions 75%, lines 80%)
 - `package.json` - Scripts and dependencies
+- `.prettierrc` - Code formatting (if present)
+
+## Code Quality
+
+- Run `npm run lint` before committing
+- Run `npm run format` to auto-format code
+- Coverage thresholds enforced: branches 70%, functions 75%, statements/lines 80%
+- Test timeout: 120000ms (2 minutes)
 
 <!-- SKILLS_START -->
 
@@ -289,7 +312,8 @@ Base directory will be provided for resolving bundled resources.
 </skill>
 
 <skill>
-<name>subagent-driven-development</description>Coordinate multiple subagents for complex tasks</description>
+<name>subagent-driven-development</name>
+<description>Coordinate multiple subagents for complex tasks</description>
 <location>superpowers</location>
 </skill>
 
@@ -338,6 +362,234 @@ Base directory will be provided for resolving bundled resources.
 <skill>
 <name>code-reviewer</name>
 <description>Superpowers code-reviewer agent (Claude only)</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>verification-before-completion</name>
+<description>Use when about to claim work is complete - requires running verification commands and confirming output before making any success claims</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>dispatching-parallel-agents</name>
+<description>Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>skill-creator</name>
+<description>Guide for creating effective skills - use when users want to create a new skill</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>skill-from-github</name>
+<description>Create skills by learning from high-quality GitHub projects</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>skill-from-masters</name>
+<description>Discover expert frameworks before creating skills - guides methodology selection</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>web-artifacts-builder</name>
+<description>Suite of tools for creating elaborate HTML artifacts using React, Tailwind CSS, shadcn/ui</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>frontend-design</name>
+<description>Create distinctive, production-grade frontend interfaces with high design quality</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>webapp-testing</name>
+<description>Toolkit for interacting with and testing local web applications using Playwright</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>testing-skills-with-subagents</name>
+<description>Use when creating or editing skills, before deployment, to verify they work under pressure</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>testing-anti-patterns</name>
+<description>Use when writing or changing tests - prevents testing mock behavior and production pollution</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>condition-based-waiting</name>
+<description>Use when tests have race conditions - replaces arbitrary timeouts with condition polling</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>root-cause-tracing</name>
+<description>Use when errors occur deep in execution - systematically traces bugs backward through call stack</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>defense-in-depth</name>
+<description>Use when invalid data causes failures deep in execution - validates at every layer data passes through</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>sharing-skills</name>
+<description>Use when you've developed a broadly useful skill and want to contribute it upstream via pull request</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>resumesession</name>
+<description>Cross-CLI session recovery and history management skill</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>planning-with-files</name>
+<description>Implements Manus-style file-based planning for complex tasks</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>auto-memory-claude</name>
+<description>Advanced auto-memory skill for Claude CLI with JavaScript execution</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>literature-search-zh</name>
+<description>中文学术文献搜索技能 - 支持PubMed、CNKI、万方等中英文数据库</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>scientific-writing-zh</name>
+<description>中文学术论文写作技能 - IMRAD结构、中文学术规范</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>soul-evolution</name>
+<description>自主进化 - 基于双Agent循环的自我学习与进化</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>soul-compete</name>
+<description>竞争进化 - 基于双Agent循环的方案对比与最优选择</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>soul-co-evolve</name>
+<description>协同进化 - 基于双Agent循环的多CLI协作学习</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>soul-reflection</name>
+<description>自我反思 - 基于双Agent循环的分析与学习提取</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>two-agent-loop</name>
+<description>双Agent循环 - 所有进化的基础执行机制</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>theme-factory</name>
+<description>Toolkit for styling artifacts with a theme - 10 pre-set themes</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>docx</name>
+<description>Comprehensive document creation, editing, and analysis for .docx files</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>pdf</name>
+<description>Comprehensive PDF manipulation toolkit</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>pptx</name>
+<description>Presentation creation, editing, and analysis for .pptx files</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>xlsx</name>
+<description>Comprehensive spreadsheet creation, editing, and analysis with formulas</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>search-skill</name>
+<description>Search and recommend Claude Code skills from trusted marketplaces</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>mcp-builder</name>
+<description>Guide for creating high-quality MCP (Model Context Protocol) servers</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>slack-gif-creator</name>
+<description>Knowledge and utilities for creating animated GIFs optimized for Slack</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>internal-comms</name>
+<description>A set of resources for writing internal communications</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>canvas-design</name>
+<description>Create beautiful visual art in .png and .pdf documents</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>algorithmic-art</name>
+<description>Creating algorithmic art using p5.js with seeded randomness</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>doc-coauthoring</name>
+<description>Guide users through a structured workflow for co-authoring documentation</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>brand-guidelines</name>
+<description>Applies Anthropic's official brand colors and typography</description>
+<location>superpowers</location>
+</skill>
+
+<skill>
+<name>template-skill</name>
+<description>Template skill for creating new skills</description>
 <location>superpowers</location>
 </skill>
 

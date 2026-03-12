@@ -1,3 +1,10 @@
+---
+name: cli-integration-sop
+description: CLI 集成标准操作程序 - 用于将新 CLI 工具集成到 Stigmergy 系统
+version: 1.0.0
+tags: [integration, sop, cli, checklist]
+---
+
 # CLI Integration SOP for Stigmergy
 
 ## Overview

@@ -305,72 +305,72 @@ async function handleEnhancedSkillCommand(action, args, options = {}) {
 
   try {
     switch (action) {
-    case "list-collections":
-    case "collections":
-    case "presets":
-      manager.listPredefinedSkills();
-      break;
+      case "list-collections":
+      case "collections":
+      case "presets":
+        manager.listPredefinedSkills();
+        break;
 
-    case "search":
-      if (!args[0]) {
-        console.error("❌ Error: search term required");
-        console.log("\nUsage: stigmergy skill search <keyword>");
-        process.exit(1);
-      }
-      manager.searchSkills(args[0]);
-      break;
+      case "search":
+        if (!args[0]) {
+          console.error("❌ Error: search term required");
+          console.log("\nUsage: stigmergy skill search <keyword>");
+          process.exit(1);
+        }
+        manager.searchSkills(args[0]);
+        break;
 
-    case "info":
-    case "describe":
-      if (!args[0]) {
-        console.error("❌ Error: skill name required");
-        console.log("\nUsage: stigmergy skill info <skill-name>");
-        process.exit(1);
-      }
-      manager.getSkillInfo(args[0]);
-      break;
+      case "info":
+      case "describe":
+        if (!args[0]) {
+          console.error("❌ Error: skill name required");
+          console.log("\nUsage: stigmergy skill info <skill-name>");
+          process.exit(1);
+        }
+        manager.getSkillInfo(args[0]);
+        break;
 
-    case "install": // This will handle both predefined and regular installs
-      if (!args[0]) {
-        console.error("❌ Error: skill name or GitHub source required");
-        console.log(
-          "\nUsage: stigmergy skill install <skill-name|github-source>",
-        );
-        console.log("Example: stigmergy skill install anthropics");
-        console.log("Example: stigmergy skill install anthropics/skills");
-        process.exit(1);
-      }
+      case "install": // This will handle both predefined and regular installs
+        if (!args[0]) {
+          console.error("❌ Error: skill name or GitHub source required");
+          console.log(
+            "\nUsage: stigmergy skill install <skill-name|github-source>",
+          );
+          console.log("Example: stigmergy skill install anthropics");
+          console.log("Example: stigmergy skill install anthropics/skills");
+          process.exit(1);
+        }
 
-      // Check if it's a predefined skill
-      if (PREDEFINED_SKILLS[args[0].toLowerCase()]) {
-        await manager.installPredefinedSkill(args[0], options);
-      } else {
-        // It's a regular GitHub source, delegate to standard manager
-        await manager.skillManager.install(args[0], options);
-      }
-      break;
+        // Check if it's a predefined skill
+        if (PREDEFINED_SKILLS[args[0].toLowerCase()]) {
+          await manager.installPredefinedSkill(args[0], options);
+        } else {
+          // It's a regular GitHub source, delegate to standard manager
+          await manager.skillManager.install(args[0], options);
+        }
+        break;
 
-    default:
-      // If it's a predefined skill name, try to install it
-      if (PREDEFINED_SKILLS[action.toLowerCase()]) {
-        await manager.installPredefinedSkill(
-          action,
-          args[0] ? { source: args[0] } : options,
-        );
-      } else {
-        console.error(`❌ Unknown skill command: ${action}`);
-        console.log("\nAvailable commands:");
-        console.log(
-          "  stigmergy skill list-collections  # List all skill collections",
-        );
-        console.log(
-          "  stigmergy skill search <term>     # Search for skills",
-        );
-        console.log("  stigmergy skill info <name>       # Get skill info");
-        console.log("  stigmergy skill install <name>    # Install by name");
-        console.log("");
-        process.exit(1);
-      }
+      default:
+        // If it's a predefined skill name, try to install it
+        if (PREDEFINED_SKILLS[action.toLowerCase()]) {
+          await manager.installPredefinedSkill(
+            action,
+            args[0] ? { source: args[0] } : options,
+          );
+        } else {
+          console.error(`❌ Unknown skill command: ${action}`);
+          console.log("\nAvailable commands:");
+          console.log(
+            "  stigmergy skill list-collections  # List all skill collections",
+          );
+          console.log(
+            "  stigmergy skill search <term>     # Search for skills",
+          );
+          console.log("  stigmergy skill info <name>       # Get skill info");
+          console.log("  stigmergy skill install <name>    # Install by name");
+          console.log("");
+          process.exit(1);
+        }
     }
   } catch (error) {
     console.error(`\n❌ Command failed: ${error.message}`);

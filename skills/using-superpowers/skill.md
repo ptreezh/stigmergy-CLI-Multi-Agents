@@ -1,193 +1,124 @@
 ---
 name: using-superpowers
-description: Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions
-version: 1.0.0
+description: 强制技能加载协议 - 收到任何消息后必须先检查技能
+version: 2.0.0
 author: universal
 cli: universal
 ---
 
-<EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
+# 🚨 强制技能加载协议
 
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
+## ⚡ 核心规则（不可违背）
 
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-</EXTREMELY-IMPORTANT>
+1. **收到任何消息后，第一件事** = 检查技能目录
+2. **1% 规则** = 1% 可能相关 → **必须加载**
+3. **顺序** = 技能 → 思考 → 行动
 
-# Using Skills
-
-## Overview
-
-This meta-skill teaches you how to find and use other skills in this CLI environment.
-
-## How to Access Skills
-
-**CLI-Specific Instructions**:
-
-- **Claude CLI**: Use the `Skill` tool to load skills
-- **iFlow CLI**: Check `~/.iflow/skills/` directory and read skill.md files
-- **Qwen CLI**: Check `~/.qwen/skills/` directory and read skill.md files
-- **CodeBuddy CLI**: Check `~/.codebuddy/skills/` directory and read skill.md files
-
-## The Rule
-
-**Invoke relevant or requested skills BEFORE any response or action.**
-
-Even a 1% chance a skill might apply means that you should check for skills first. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
-
-## Decision Flow
-
-```
-User message received
-    ↓
-Might any skill apply?
-    ↓ Yes
-Check skills directory/Use Skill tool
-    ↓
-Announce: "Using [skill] to [purpose]"
-    ↓
-Follow skill instructions exactly
-    ↓
-Respond to user
-```
-
-## Red Flags - You're Rationalizing
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Process skills first** (brainstorming, test-driven-development, systematic-debugging)
-   - These determine HOW to approach the task
-
-2. **Implementation skills second** (frontend-design, backend-design)
-   - These guide execution
-
-Examples:
-- "Let's build X" → brainstorming first, then implementation skills
-- "Fix this bug" → systematic-debugging first, then domain-specific skills
-
-## Skill Types
-
-**Rigid Skills** (TDD, systematic-debugging):
-- Follow exactly
-- Don't adapt away from discipline
-
-**Flexible Skills** (brainstorming, patterns):
-- Adapt principles to context
-
-The skill itself tells you which type it is.
-
-## Common Mistakes
-
-### Skipping the skill check
-- **Problem**: Miss critical workflows, waste time
-- **Fix**: ALWAYS check first, even for "simple" tasks
-
-### Checking after gathering information
-- **Problem**: Skills tell you HOW to gather information
-- **Fix**: Check skills BEFORE any action
-
-### Assuming you know the skill
-- **Problem**: Skills evolve, old memories are wrong
-- **Fix**: Always read current version
-
-### Rationalizing away the skill
-- **Problem**: Your brain will invent reasons to skip
-- **Fix**: Trust the system, use the skill
-
-## Quick Reference
-
-| Situation | Action |
-|-----------|--------|
-| Starting any conversation | Load using-superpowers first |
-| Not sure if skill applies | Load it anyway (1% rule) |
-| Multiple skills apply | Process → Implementation order |
-| Skill seems wrong | Load it, then decide |
-| User says "use X skill" | Load X skill immediately |
-| Simple question | Still check for skills |
-
-## CLI-Specific Notes
-
-### For iFlow CLI Users
-Skills are stored in `~/.iflow/skills/skill-name/skill.md`
-- Browse this directory when starting new tasks
-- Read skill.md files to understand each skill
-- Mention skill name to load it (e.g., "使用 brainstorming 技能")
-
-### For Qwen CLI Users
-Skills are stored in `~/.qwen/skills/skill-name/skill.md`
-- Browse this directory when starting new tasks
-- Read skill.md files to understand each skill
-- Mention skill name to load it (e.g., "使用 brainstorming 技能")
-
-### For CodeBuddy CLI Users
-Skills are stored in `~/.codebuddy/skills/skill-name/skill.md`
-- Browse this directory when starting new tasks
-- Read skill.md files to understand each skill
-- Mention skill name to load it (e.g., "使用 brainstorming 技能")
-
-### For Claude CLI Users
-Use the `Skill` tool to load skills from `~/.claude/skills/`
-- Auto-loads based on description matching
-- Most seamless experience
-
-## Integration Examples
-
-### Example 1: Creative Work
-```
-User: "Let's add a new feature"
-AI (with using-superpowers):
-  1. Recognizes this is creative work
-  2. Loads brainstorming skill
-  3. Follows brainstorming process
-  4. May also load test-driven-development skill
-```
-
-### Example 2: Debugging
-```
-User: "There's a bug in my code"
-AI (with using-superpowers):
-  1. Recognizes this is debugging
-  2. Loads systematic-debugging skill
-  3. Follows debugging process
-  4. May also load relevant domain skills
-```
-
-### Example 3: Analysis
-```
-User: "Analyze this system"
-AI (with using-superpowers):
-  1. Recognizes this is analysis work
-  2. Loads relevant analysis skills (field-analysis, network-computation, etc.)
-  3. Follows analysis framework
-  4. Ensures thorough coverage
-```
-
-## Maintaining This Skill
-
-This skill should be updated when:
-- New CLI tools are added
-- Skill access methods change
-- New patterns emerge in skill usage
-
-**Version History**:
-- v1.0.0 (2025-01-25): Initial universal version
-- Supports: claude, iflow, qwen, codebuddy, codex, gemini, copilot
+**这不是可选项。这是强制协议。**
 
 ---
 
-*This is a universal meta-skill that establishes the foundation for all other skills in the system.*
+## ✅ 快速检查清单
+
+收到消息后，按顺序检查:
+
+| 任务类型 | 关键词 | 必须加载的技能 |
+|----------|--------|----------------|
+| 创造性任务 | 创意、想法、设计、新功能 | `brainstorming` |
+| 代码任务 | 测试、bug、修复、实现 | `test-driven-development` |
+| 调试任务 | 错误、问题、为什么 | `systematic-debugging` |
+| 分析任务 | 分析、评估、对比 | `field-analysis` 或 `network-computation` |
+| 规划任务 | 计划、步骤、怎么开始 | `planning-with-files` |
+| 用户提到技能名 | "使用 XX 技能" | **立即加载该技能** |
+
+---
+
+## ❌ 禁止行为（违者重置）
+
+以下想法**必须立即停止**:
+
+| 错误想法 | 正确做法 |
+|----------|----------|
+| "这是简单问题，不需要技能" | 简单问题也会变复杂 → 检查技能 |
+| "我先看看代码再说" | 技能告诉你**如何**看代码 → 先检查 |
+| "我记得这个技能" | 技能会进化 → 读取当前版本 |
+| "这个情况特殊，可以例外" | **没有例外** → 检查技能 |
+| "技能太复杂了" | 简单→复杂→简单 → 先用技能 |
+| "我做完这个再检查" | **先检查** → 再行动 |
+
+---
+
+## 🎯 技能优先级
+
+多个技能适用时，按此顺序:
+
+```
+1. 流程技能 (如何做)
+   └─ brainstorming, test-driven-development, systematic-debugging
+
+2. 领域技能 (做什么)
+   └─ frontend-design, backend-design, field-analysis
+```
+
+**示例**:
+- "添加新功能" → `brainstorming` → `test-driven-development`
+- "修复 bug" → `systematic-debugging` → 领域技能
+
+---
+
+## 📋 决策流程
+
+```
+用户消息
+    ↓
+🔴 立即检查技能目录
+    ↓
+有技能匹配？
+    ├─ 是 → 加载技能 → 遵循技能 → 响应
+    └─ 否 → 直接响应
+```
+
+**关键**: 检查技能在**任何行动之前**
+
+---
+
+## 🔧 CLI 特定说明
+
+| CLI | 技能位置 | 加载方式 |
+|-----|----------|----------|
+| **Qwen** | `~/.qwen/skills/` | 说"使用 [技能名]" |
+| **iFlow** | `~/.iflow/skills/` | 说"使用 [技能名]" |
+| **Claude** | `~/.claude/skills/` | 使用 Skill 工具 |
+| **CodeBuddy** | `~/.codebuddy/skills/` | 说"使用 [技能名]" |
+
+---
+
+## 💡 快速参考
+
+| 情况 | 行动 |
+|------|------|
+| 开始任何对话 | 先加载 `using-superpowers` |
+| 不确定是否适用 | 加载！（1% 规则） |
+| 多个技能适用 | 流程技能 → 领域技能 |
+| 用户说"用 X 技能" | **立即**加载 X |
+| 简单问题 | 仍然检查技能 |
+
+---
+
+## ⚠️ 常见错误
+
+| 错误 | 后果 | 修复 |
+|------|------|------|
+| 跳过技能检查 | 错过关键工作流 | **总是**先检查 |
+| 检查后再收集信息 | 技能告诉你**如何**收集 | 检查**前**置 |
+| 假设记得技能 | 技能会进化 | 读取**当前**版本 |
+| 合理化跳过 | 大脑会找借口 | **信任系统** |
+
+---
+
+**版本**: 2.0.0 (简化版)  
+**支持**: claude, iflow, qwen, codebuddy, codex, gemini, copilot
+
+---
+
+*这是所有技能的元技能。建立技能系统的基础。*
