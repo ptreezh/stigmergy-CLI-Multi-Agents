@@ -111,6 +111,112 @@ function checkAndUpdate() {
   }
 }
 
+/**
+ * 检测项目本地Soul目录
+ */
+function detectProjectSoul() {
+  try {
+    const cwd = process.cwd();
+    const projectPaths = [
+      path.join(cwd, ".stigmergy", "skills"),
+      path.join(cwd, ".agent", "skills"),
+      path.join(cwd, ".claude", "skills"),
+    ];
+
+    for (const skillsPath of projectPaths) {
+      if (!fs.existsSync(skillsPath)) continue;
+
+      // 检查是否存在soul.md
+      const soulPath = path.join(skillsPath, "soul.md");
+      if (fs.existsSync(soulPath)) {
+        try {
+          const soulContent = fs.readFileSync(soulPath, "utf8");
+          return {
+            found: true,
+            path: soulPath,
+            skillsPath: skillsPath,
+            content: soulContent,
+          };
+        } catch (e) {
+          continue;
+        }
+      }
+
+      // 递归检查子目录
+      try {
+        const entries = fs.readdirSync(skillsPath, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isDirectory()) continue;
+          const subSoulPath = path.join(skillsPath, entry.name, "soul.md");
+          if (fs.existsSync(subSoulPath)) {
+            try {
+              const soulContent = fs.readFileSync(subSoulPath, "utf8");
+              return {
+                found: true,
+                path: subSoulPath,
+                skillsPath: path.join(skillsPath, entry.name),
+                content: soulContent,
+              };
+            } catch (e) {
+              continue;
+            }
+          }
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+  } catch (e) {
+    // 静默失败
+  }
+  return { found: false };
+}
+
+/**
+ * 初始化项目本地Soul系统状态
+ */
+function initProjectSoulState(soulInfo) {
+  try {
+    const stateDir = path.join(
+      process.cwd(),
+      ".stigmergy",
+      "soul-state",
+    );
+
+    // 确保目录存在
+    if (!fs.existsSync(stateDir)) {
+      fs.mkdirSync(stateDir, { recursive: true });
+    }
+
+    const statePath = path.join(stateDir, "soul-system-state.json");
+    let state = { initialized: false, lastActive: null };
+
+    // 加载现有状态
+    if (fs.existsSync(statePath)) {
+      try {
+        state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+      } catch (e) {}
+    }
+
+    // 更新状态
+    state.initialized = true;
+    state.lastActive = new Date().toISOString();
+    state.soulPath = soulInfo.path;
+    state.skillsPath = soulInfo.skillsPath;
+
+    // 保存状态
+    fs.writeFileSync(
+      statePath,
+      JSON.stringify(state, null, 2),
+      "utf8"
+    );
+
+    return state;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function sessionStart(context) {
   try {
     checkAndUpdate();
@@ -118,28 +224,49 @@ async function sessionStart(context) {
     const ctx = context || {};
     let additionalContext = "<EXTREMELY_IMPORTANT>\n";
 
-    // 1. 注入 Superpowers 元技能
+    // 1. 检测并初始化项目本地Soul系统
+    const soulInfo = detectProjectSoul();
+    if (soulInfo.found) {
+      console.log("🧠 Soul detected: " + soulInfo.path);
+
+      // 初始化Soul状态
+      const soulState = initProjectSoulState(soulInfo);
+
+      // 注入Soul身份到上下文
+      additionalContext += "## Your Soul Identity (Auto-Loaded)\n";
+      additionalContext += escapeForJson(soulInfo.content) + "\n\n";
+
+      // 标记上下文包含Soul系统
+      ctx._soulSystem = {
+        initialized: true,
+        path: soulInfo.path,
+        skillsPath: soulInfo.skillsPath,
+        state: soulState,
+      };
+    }
+
+    // 2. 注入 Superpowers 元技能
     const usingSuperpowers = readSkill("using-superpowers");
     if (usingSuperpowers) {
       additionalContext +=
         "## Using Superpowers\n" + escapeForJson(usingSuperpowers) + "\n\n";
     }
 
-    // 2. 注入 Soul 进化身份
+    // 3. 注入全局 Soul 进化身份（如果存在）
     const soulContent = readSkill("soul");
-    if (soulContent) {
+    if (soulContent && !soulInfo.found) {
       additionalContext +=
         "## Your Soul (Identity)\n" + escapeForJson(soulContent) + "\n\n";
     }
 
-    // 3. 注入当前目标
+    // 4. 注入当前目标
     const agentsContent = readSkill("agents");
     if (agentsContent) {
       additionalContext +=
         "## Current Goals\n" + escapeForJson(agentsContent) + "\n\n";
     }
 
-    // 4. 注入进化进度
+    // 5. 注入进化进度
     try {
       const statePath = path.join(
         os.homedir(),
@@ -176,7 +303,12 @@ async function sessionStart(context) {
       ctx.additionalContext = additionalContext;
     }
 
-    console.log("🦸 Superpowers context injected (v" + STIGMERGY_VERSION + ")");
+    const injectedMsg = "🦸 Superpowers context injected (v" + STIGMERGY_VERSION + ")";
+    if (soulInfo.found) {
+      console.log(injectedMsg + " | 🧠 Soul auto-initialized");
+    } else {
+      console.log(injectedMsg);
+    }
   } catch (error) {
     try {
       console.error("🦸 Superpowers hook error:", error.message);

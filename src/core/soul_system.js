@@ -20,6 +20,7 @@ async function createSoulSystem(options) {
     skillsPath,
     autoLearn = true,
     learningIntervalHours = 24,
+    taskContext = null,  // 新增：Task API上下文
   } = options;
 
   // 1. 创建SoulManager
@@ -28,6 +29,7 @@ async function createSoulSystem(options) {
     skillsPath,
     autoLearn,
     learningIntervalHours,
+    taskContext,  // 传递Task上下文
   });
 
   // 2. 检测soul.md
@@ -48,6 +50,9 @@ async function createSoulSystem(options) {
   if (autoLearn) {
     soulManager.scheduler.start();
   }
+
+  console.log(`[SoulSystem] ✅ Soul system created successfully`);
+  console.log(`[SoulSystem]    Task Integration: ${taskContext ? 'enabled' : 'disabled (no context)'}`);
 
   return soulManager;
 }
