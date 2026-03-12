@@ -569,13 +569,23 @@ class SkillLoader {
    * 加载内置技能
    */
   async loadBuiltinSkills() {
-    // 找到项目根目录（向上查找 package.json）
-    let rootDir = __dirname;
-    while (rootDir !== path.dirname(rootDir)) {
-      if (fs.existsSync(path.join(rootDir, "package.json"))) {
-        break;
+    // 优先使用用户目录 ~/.stigmergy，然后回退到安装目录
+    const homeDir = require("os").homedir();
+    const userStigmergyDir = path.join(homeDir, ".stigmergy");
+
+    // 首先检查用户目录
+    let rootDir = userStigmergyDir;
+    let useUserDir = fs.existsSync(path.join(userStigmergyDir, "skills"));
+
+    // 如果用户目录没有，回退到安装目录
+    if (!useUserDir) {
+      rootDir = __dirname;
+      while (rootDir !== path.dirname(rootDir)) {
+        if (fs.existsSync(path.join(rootDir, "package.json"))) {
+          break;
+        }
+        rootDir = path.dirname(rootDir);
       }
-      rootDir = path.dirname(rootDir);
     }
 
     const builtinSkillsPath = path.join(rootDir, "skills");
