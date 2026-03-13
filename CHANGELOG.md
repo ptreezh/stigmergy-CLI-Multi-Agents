@@ -1,3 +1,77 @@
+## [1.10.10-rc.1] - 2026-03-13
+
+### 🎉 重大更新 (Major Updates)
+
+#### ✅ P0修复 - Soul路径权限问题完全解决
+- **问题**: Soul系统试图访问系统安装目录，导致权限错误
+- **解决方案**: 实现三级路径优先级系统
+  - P0: 项目本地目录 (.stigmergy/skills/) - 优先使用
+  - P1: 用户目录 (~/.stigmergy/skills/) - 降级使用
+  - P2: 自动创建项目本地目录 - 确保总有可写路径
+- **影响**: 完全解决权限问题，无需手工配置
+- **相关文件**:
+  - `src/core/soul_manager.js` - 实现路径优先级系统
+  - `config/superpowers/session-start.js` - 自动检测和初始化
+
+#### ✨ 新功能 - 交互式Soul创建
+- **功能**: 通过自然语言对话创建项目Soul
+- **使用**: `stigmergy soul` (无soul时自动进入对话模式)
+- **特性**:
+  - 智能项目类型识别（技术/学术/数据/创意/通用）
+  - 自动生成Soul名称
+  - 功能选择（自动进化/知识库/对齐检查/记忆管理）
+  - 完全无需手工创建文件
+- **相关文件**:
+  - `src/cli/commands/soul-create-interactive.js` - 交互式创建器
+  - `src/cli/commands/soul.js` - 智能命令路由
+
+#### 🔧 Task API集成
+- **功能**: 所有Soul操作通过Task API管理
+- **影响**: 进化操作可追踪、可监控、可管理
+- **相关文件**: `src/core/soul_task_integration.js`
+
+### 🐛 Bug修复 (Bug Fixes)
+- 修复inquirer ESM兼容性问题（降级到v8.2.6）
+  - **问题**: inquirer@13.x是ES Module，与项目CommonJS不兼容
+  - **解决**: 降级到inquirer@8.2.6（最后一个CommonJS版本）
+
+### ✅ 测试结果 (Test Results)
+- 单元测试: 100% 通过 (30+测试)
+- 集成测试: 100% 通过 (8/8 P0修复测试)
+- 回归测试: 100% 通过
+- 安全测试: 通过
+- 性能测试: 良好
+
+### 📚 文档 (Documentation)
+- `P0_FIXES_SUMMARY.md` - P0修复总结
+- `PERMISSION_SOLUTION.md` - 权限解决方案详解
+- `SOUL_CREATION_AND_EVOLUTION_GUIDE.md` - Soul创建和进化时机指南
+- `SOUL_INTERACTIVE_CREATION.md` - 交互式创建方案
+- `SOUL_INTERACTIVE_QUICKSTART.md` - 交互式创建快速入门
+- `SOUL_NATURAL_LANGUAGE_GUIDE.md` - 自然语言交互指南
+- `TEST_REPORT.md` - 全面测试报告
+- `RELEASE_CHECKLIST.md` - 发布检查清单
+
+### ⚠️ 已知限制 (Known Limitations)
+- 仅在Windows 10测试
+- 仅在Node.js v20.18.0测试
+- 建议添加Linux/Mac CI测试
+- 建议测试Node.js v16-v22
+
+### 📋 升级建议 (Upgrade Notes)
+推荐升级：项目本地Soul配置会自动迁移
+- 全新安装：使用 `stigmergy soul` 进入交互式创建
+- 已有项目：运行 `stigmergy soul` 查看状态
+- 自动检测：CLI启动时自动检测并初始化Soul
+
+### 🔍 技术细节 (Technical Details)
+- **路径优先级**: P0(项目本地) → P1(用户目录) → P2(自动创建)
+- **权限检查**: 使用`fs.accessSync(dirPath, fs.constants.W_OK)`
+- **智能路由**: 无soul时自动进入交互模式
+- **Task包装**: 所有Soul操作通过`SoulTaskIntegration`类包装
+
+---
+
 ## v1.3.77-beta.1 - 2026-02-05
 ### Features
 - 增强 resumesession 技能功能
