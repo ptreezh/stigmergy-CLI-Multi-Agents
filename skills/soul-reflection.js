@@ -6,6 +6,7 @@
  */
 
 const fs = require('fs');
+const CrossPlatformUtils = require('../../src/utils/cross-platform-utils');
 const path = require('path');
 const os = require('os');
 
@@ -258,13 +259,13 @@ class SoulReflection {
    * 保存反思结果
    */
   async saveReflection(reflection) {
-    const soulStateDir = path.join(os.homedir(), '.stigmergy', 'soul-state');
-    const reflectionDir = path.join(soulStateDir, 'reflections');
+    const soulStateDir = CrossPlatformUtils.buildPath(CrossPlatformUtils.getUserHome(), '.stigmergy', 'soul-state');
+    const reflectionDir = CrossPlatformUtils.buildPath(soulStateDir, 'reflections');
 
     await fs.promises.mkdir(reflectionDir, { recursive: true });
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const reflectionFile = path.join(reflectionDir, `reflection_${timestamp}.json`);
+    const reflectionFile = CrossPlatformUtils.buildPath(reflectionDir, `reflection_${timestamp}.json`);
 
     await fs.promises.writeFile(
       reflectionFile,

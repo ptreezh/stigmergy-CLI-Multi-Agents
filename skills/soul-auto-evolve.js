@@ -6,6 +6,7 @@
  */
 
 const fs = require('fs');
+const CrossPlatformUtils = require('../../src/utils/cross-platform-utils');
 const path = require('path');
 const os = require('os');
 
@@ -286,12 +287,12 @@ class SoulAutoEvolve {
    * 保存技能
    */
   async saveSkill(skill) {
-    const soulStateDir = path.join(os.homedir(), '.stigmergy', 'soul-state');
-    const skillsDir = path.join(soulStateDir, 'evolved-skills');
+    const soulStateDir = CrossPlatformUtils.buildPath(CrossPlatformUtils.getUserHome(), '.stigmergy', 'soul-state');
+    const skillsDir = CrossPlatformUtils.buildPath(soulStateDir, 'evolved-skills');
 
     await fs.promises.mkdir(skillsDir, { recursive: true });
 
-    const skillFile = path.join(skillsDir, `${skill.name}.json`);
+    const skillFile = CrossPlatformUtils.buildPath(skillsDir, `${skill.name}.json`);
 
     await fs.promises.writeFile(
       skillFile,
@@ -305,8 +306,8 @@ class SoulAutoEvolve {
    * 记录进化
    */
   async logEvolution(evolutionData) {
-    const soulStateDir = path.join(os.homedir(), '.stigmergy', 'soul-state');
-    const evolutionLog = path.join(soulStateDir, 'evolution-log.jsonl');
+    const soulStateDir = CrossPlatformUtils.buildPath(CrossPlatformUtils.getUserHome(), '.stigmergy', 'soul-state');
+    const evolutionLog = CrossPlatformUtils.buildPath(soulStateDir, 'evolution-log.jsonl');
 
     const logEntry = {
       timestamp: Date.now(),
