@@ -53,6 +53,12 @@ const CLIS = {
     plugin: "plugins/superpowers",
     hooks: "hooks",
   },
+  qodercli: {
+    name: "Qoder",
+    home: ".qoder",
+    plugin: "plugins/superpowers",
+    hooks: "hooks",
+  },
   gemini: {
     name: "Gemini",
     home: ".config/gemini",
