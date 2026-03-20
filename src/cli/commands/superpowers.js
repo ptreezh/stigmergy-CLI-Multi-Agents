@@ -13,6 +13,9 @@ const os = require("os");
 const REPO_URL = "https://github.com/obra/superpowers.git";
 const CACHE_DIR = path.join(os.homedir(), ".cache", "stigmergy", "superpowers");
 
+// 非 Agent CLI，不支持插件，应该从部署中排除
+const EXCLUDED_CLIS = ["bun", "oh-my-opencode"];
+
 const CLIS = {
   claude: {
     name: "Claude",
@@ -71,7 +74,8 @@ async function deployCompleteSuperpowers(options) {
 
   var home = os.homedir();
   var avail = Object.keys(CLIS).filter(function (k) {
-    return fs.existsSync(path.join(home, CLIS[k].home));
+    // 排除非 Agent CLI 和不存在的 CLI
+    return !EXCLUDED_CLIS.includes(k) && fs.existsSync(path.join(home, CLIS[k].home));
   });
 
   if (avail.length === 0) {
