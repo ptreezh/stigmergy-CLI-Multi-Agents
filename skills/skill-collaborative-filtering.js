@@ -31,6 +31,7 @@
 const path = require('path');
 const SkillFeedbackCollector = require('./skill-feedback-collector');
 const MultiDimensionalSimilarityCalculator = require('./multidimensional-similarity-calculator');
+const ColdStartSolver = require('./cold-start-solver');
 
 class CollaborativeFilteringEngine {
   constructor(config = {}) {
@@ -42,8 +43,12 @@ class CollaborativeFilteringEngine {
     this.useMultiDimensional = config.useMultiDimensional !== false; // 默认启用
     this.similarityCalculator = new MultiDimensionalSimilarityCalculator(config);
 
+    // Phase 3 Task 2: 集成冷启动解决器
+    this.coldStartSolver = new ColdStartSolver(config);
+
     console.log(`🔧 协同过滤引擎初始化 (Phase 3增强版)`);
     console.log(`   多维度相似度: ${this.useMultiDimensional ? '✅ 启用' : '❌ 禁用'}`);
+    console.log(`   冷启动解决: ✅ 启用`);
   }
 
   /**
@@ -52,6 +57,12 @@ class CollaborativeFilteringEngine {
   async recommendSkills(agentId, context = {}) {
     console.log(`\n🎯 为Agent ${agentId} 推荐skills`);
     console.log(`   上下文:`, JSON.stringify(context, null, 2));
+
+    // Phase 3 Task 2: 检查是否为冷启动
+    if (this.coldStartSolver.isColdStart(agentId)) {
+      console.log(`   ❄️  检测到冷启动agent，使用冷启动策略`);
+      return await this.handleColdStart(agentId, context);
+    }
 
     // 1. 获取Agent的历史反馈
     const agentFeedback = this.feedbackCollector.getAgentFeedback(agentId);
@@ -558,6 +569,68 @@ class CollaborativeFilteringEngine {
     );
 
     return this.similarityCalculator.generateSimilarityReport(similarityResult);
+  }
+
+  // ==================== Phase 3 Task 2: 冷启动解决方案 ====================
+
+  /**
+   * 处理冷启动agent
+   */
+  async handleColdStart(agentId, context) {
+    this.coldStartSolver.initialize();
+
+    // 使用冷启动解决器
+    const recommendations = await this.coldStartSolver.solveColdStart(agentId, context);
+
+    // 生成报告
+    const report = this.coldStartSolver.generateColdStartReport(agentId, recommendations);
+
+    console.log(`   ❄️  冷启动推荐完成: ${recommendations.length} 个skills`);
+    console.log(`   📊 策略分布:`, this.getStrategyDistribution(recommendations));
+
+    return recommendations;
+  }
+
+  /**
+   * 获取策略分布统计
+   */
+  getStrategyDistribution(recommendations) {
+    const distribution = {};
+
+    recommendations.forEach(rec => {
+      if (rec.strategies) {
+        rec.strategies.forEach(strategy => {
+          distribution[strategy] = (distribution[strategy] || 0) + 1;
+        });
+      }
+    });
+
+    return distribution;
+  }
+
+  /**
+   * 判断是否为冷启动
+   */
+  isColdStart(agentId) {
+    return this.coldStartSolver.isColdStart(agentId);
+  }
+
+  /**
+   * 获取渐进式策略
+   */
+  getProgressiveStrategy(agentId) {
+    return this.coldStartSolver.getProgressiveStrategy(agentId);
+  }
+
+  /**
+   * 更新冷启动策略权重
+   */
+  updateColdStartWeights(newWeights) {
+    this.coldStartSolver.strategyWeights = {
+      ...this.coldStartSolver.strategyWeights,
+      ...newWeights
+    };
+    console.log(`   ✅ 冷启动策略权重已更新:`, this.coldStartSolver.strategyWeights);
   }
 }
 
