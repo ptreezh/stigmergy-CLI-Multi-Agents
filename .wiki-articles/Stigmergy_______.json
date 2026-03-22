@@ -1,0 +1,64 @@
+{
+  "id": "28ca00be8b863451698b519254969744",
+  "title": "Stigmergy的安全架构设计",
+  "content": "Stigmergy采用三层安全架构来保护AI Agent系统，包括下载前检查、安装前审计和运行时监控。\n\n[Agent A - 创作者: 建议在\"Stigmergy采用三层安全架构来保护...\"部分添加更多详细说明和背景信息。]\n\n[Agent B - 核查员: 需要验证\"Stigmergy采用三层安全架构来保护...\"中的数据准确性和引用来源。]\n\n[Agent C - 编辑者: 可以优化\"Stigmergy采用三层安全架构来保护...\"的语言表达和结构逻辑。]",
+  "versions": [
+    {
+      "version": 1,
+      "content": "Stigmergy采用三层安全架构来保护AI Agent系统，包括下载前检查、安装前审计和运行时监控。",
+      "author": "system",
+      "timestamp": "2026-03-22T10:22:36.058Z",
+      "changes": "Initial version"
+    },
+    {
+      "version": 2,
+      "content": "Stigmergy采用三层安全架构来保护AI Agent系统，包括下载前检查、安装前审计和运行时监控。\n\n[Agent A - 创作者: 建议在\"Stigmergy采用三层安全架构来保护...\"部分添加更多详细说明和背景信息。]",
+      "author": "Agent A - 创作者",
+      "timestamp": "2026-03-22T10:22:36.060Z",
+      "changes": "增加示例",
+      "type": "enhancement"
+    },
+    {
+      "version": 3,
+      "content": "Stigmergy采用三层安全架构来保护AI Agent系统，包括下载前检查、安装前审计和运行时监控。\n\n[Agent A - 创作者: 建议在\"Stigmergy采用三层安全架构来保护...\"部分添加更多详细说明和背景信息。]\n\n[Agent B - 核查员: 需要验证\"Stigmergy采用三层安全架构来保护...\"中的数据准确性和引用来源。]",
+      "author": "Agent B - 核查员",
+      "timestamp": "2026-03-22T10:22:36.061Z",
+      "changes": "确认事实陈述",
+      "type": "verification"
+    },
+    {
+      "version": 4,
+      "content": "Stigmergy采用三层安全架构来保护AI Agent系统，包括下载前检查、安装前审计和运行时监控。\n\n[Agent A - 创作者: 建议在\"Stigmergy采用三层安全架构来保护...\"部分添加更多详细说明和背景信息。]\n\n[Agent B - 核查员: 需要验证\"Stigmergy采用三层安全架构来保护...\"中的数据准确性和引用来源。]\n\n[Agent C - 编辑者: 可以优化\"Stigmergy采用三层安全架构来保护...\"的语言表达和结构逻辑。]",
+      "author": "Agent C - 编辑者",
+      "timestamp": "2026-03-22T10:22:36.061Z",
+      "changes": "改进结构逻辑",
+      "type": "refinement"
+    }
+  ],
+  "currentVersion": 4,
+  "createdAt": "2026-03-22T10:22:36.057Z",
+  "updatedAt": "2026-03-22T10:22:36.061Z",
+  "contributors": [
+    "Agent A - 创作者",
+    "Agent B - 核查员",
+    "Agent C - 编辑者"
+  ],
+  "consensus": {
+    "score": 0.7949999999999999,
+    "level": "moderate",
+    "rounds": 1,
+    "achieved": true
+  },
+  "credibility": {
+    "score": 0.6901666666666666,
+    "level": "medium",
+    "factors": {
+      "versionCount": 4,
+      "contributorCount": 3,
+      "iterationCount": 1,
+      "consensusScore": 0.7949999999999999
+    },
+    "overall": "69.0%"
+  },
+  "metadata": {}
+}

@@ -1,0 +1,57 @@
+{
+  "articleTitle": "Stigmergy的安全架构设计",
+  "iterations": [
+    {
+      "round": 1,
+      "edits": [
+        {
+          "agentId": "creator",
+          "agentName": "Agent A - 创作者",
+          "round": 1,
+          "action": "增加示例",
+          "type": "enhancement",
+          "content": "建议在\"Stigmergy采用三层安全架构来保护...\"部分添加更多详细说明和背景信息。",
+          "rationale": "提升内容完整性和可读性",
+          "confidence": 0.85,
+          "apply": true
+        },
+        {
+          "agentId": "fact_checker",
+          "agentName": "Agent B - 核查员",
+          "round": 1,
+          "action": "确认事实陈述",
+          "type": "verification",
+          "content": "需要验证\"Stigmergy采用三层安全架构来保护...\"中的数据准确性和引用来源。",
+          "rationale": "确保内容准确性和可信度",
+          "confidence": 0.9,
+          "apply": true
+        },
+        {
+          "agentId": "editor",
+          "agentName": "Agent C - 编辑者",
+          "round": 1,
+          "action": "改进结构逻辑",
+          "type": "refinement",
+          "content": "可以优化\"Stigmergy采用三层安全架构来保护...\"的语言表达和结构逻辑。",
+          "rationale": "提高内容质量和可读性",
+          "confidence": 0.82,
+          "apply": true
+        },
+        {
+          "agentId": "auditor",
+          "agentName": "Agent D - 审计者",
+          "round": 1,
+          "action": "确保质量要求",
+          "type": "audit",
+          "content": "应检查\"Stigmergy采用三层安全架构来保护...\"的一致性和完整性。",
+          "rationale": "保证内容质量和一致性",
+          "confidence": 0.88,
+          "apply": false
+        }
+      ],
+      "consensus": 0.7949999999999999,
+      "timestamp": "2026-03-22T10:22:36.060Z"
+    }
+  ],
+  "timestamp": "2026-03-22T10:22:36.060Z"
+}
