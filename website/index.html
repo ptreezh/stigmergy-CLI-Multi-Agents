@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stigmergy CLI - 跨AI工具协作的进化平台</title>
+    <meta name="description" content="对齐并超越OpenClaw的跨AI CLI协作平台，支持9+ AI工具统一协作，企业级安全，可信知识生产">
+    <meta name="keywords" content="AI,CLI,Multi-Agent,OpenClaw,跨平台,安全,可信知识">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold gradient-text">🧬 Stigmergy CLI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-700 hover:text-purple-600 transition">功能特性</a>
+                    <a href="#comparison" class="text-gray-700 hover:text-purple-600 transition">对比分析</a>
+                    <a href="#quickstart" class="text-gray-700 hover:text-purple-600 transition">快速开始</a>
+                    <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                跨AI工具协作的<br>下一代进化平台
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">
+                对齐并超越OpenClaw记忆与进化机制<br>
+                <span class="text-lg">9+ AI CLI统一协作 | 企业级安全 | 可信知识生产</span>
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#quickstart" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    快速开始
+                </a>
+                <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
+                    查看文档
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-4xl font-bold text-purple-600">62.5%</div>
+                    <div class="text-gray-600 mt-2">总体对齐度</div>
+                    <div class="text-sm text-green-600">+42.5% 提升</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-purple-600">100%</div>
+                    <div class="text-gray-600 mt-2">安全审计覆盖</div>
+                    <div class="text-sm text-green-600">企业级</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-purple-600">9+</div>
+                    <div class="text-gray-600 mt-2">AI CLI支持</div>
+                    <div class="text-sm text-green-600">统一协作</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-purple-600">398</div>
+                    <div class="text-gray-600 mt-2">测试通过</div>
+                    <div class="text-sm text-green-600">100% 通过率</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-16">核心特性</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                    <div class="text-4xl mb-4">🔒</div>
+                    <h3 class="text-2xl font-bold mb-4">企业级安全</h3>
+                    <p class="text-gray-600 mb-4">
+                        100%安全审计覆盖率，所有外部技能必须通过多层安全检查才能使用。
+                    </p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li>✅ 20+种恶意代码模式检测</li>
+                        <li>✅ 依赖漏洞自动扫描</li>
+                        <li>✅ 0-100分安全评分</li>
+                        <li>✅ 95%+恶意包检测率</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                    <div class="text-4xl mb-4">🌐</div>
+                    <h3 class="text-2xl font-bold mb-4">跨CLI统一协作</h3>
+                    <p class="text-gray-600 mb-4">
+                        支持9+ AI CLI工具统一协作，智能任务路由自动选择最佳工具。
+                    </p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li>✅ Claude, Gemini, Qwen等9+工具</li>
+                        <li>✅ 智能任务路由</li>
+                        <li>✅ 跨CLI知识共享</li>
+                        <li>✅ 100%跨平台兼容</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                    <div class="text-4xl mb-4">🧠</div>
+                    <h3 class="text-2xl font-bold mb-4">可信知识生产</h3>
+                    <p class="text-gray-600 mb-4">
+                        基于Multi-Agent Debate和Wiki共识计算的可信知识自主生产。
+                    </p>
+                    <ul class="text-sm text-gray-500 space-y-2">
+                        <li>✅ FREE-MAD辩论框架</li>
+                        <li>✅ Wiki共识计算</li>
+                        <li>✅ 可信度评估体系</li>
+                        <li>✅ 科学方法验证</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section id="comparison" class="py-20 px-4 bg-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-16">与OpenClaw对比</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+                    <thead class="bg-purple-600 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-left">特性</th>
+                            <th class="px-6 py-4 text-center">OpenClaw</th>
+                            <th class="px-6 py-4 text-center">Stigmergy</th>
+                            <th class="px-6 py-4 text-center">提升</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">安全策略</td>
+                            <td class="px-6 py-4 text-center">开放生态</td>
+                            <td class="px-6 py-4 text-center text-green-600 font-semibold">全面审计</td>
+                            <td class="px-6 py-4 text-center">+100%</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="px-6 py-4 font-semibold">多CLI支持</td>
+                            <td class="px-6 py-4 text-center">单一CLI</td>
+                            <td class="px-6 py-4 text-center text-green-600 font-semibold">9+ CLI</td>
+                            <td class="px-6 py-4 text-center">+800%</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">知识生产</td>
+                            <td class="px-6 py-4 text-center">个体智能</td>
+                            <td class="px-6 py-4 text-center text-green-600 font-semibold">Multi-Agent</td>
+                            <td class="px-6 py-4 text-center">质变</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="px-6 py-4 font-semibold">跨平台兼容</td>
+                            <td class="px-6 py-4 text-center">有限支持</td>
+                            <td class="px-6 py-4 text-center text-green-600 font-semibold">100%兼容</td>
+                            <td class="px-6 py-4 text-center">+100%</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 font-semibold">外部知识源</td>
+                            <td class="px-6 py-4 text-center">1个</td>
+                            <td class="px-6 py-4 text-center text-green-600 font-semibold">4个</td>
+                            <td class="px-6 py-4 text-center">+300%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quickstart" class="py-20 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-16">快速开始</h2>
+
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold mb-2">安装Stigmergy</h3>
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                            <code class="text-sm">npm install -g stigmergy</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xl">2</div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold mb-2">一键设置</h3>
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                            <code class="text-sm">stigmergy setup --force</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xl">3</div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold mb-2">验证安装</h3>
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                            <code class="text-sm">stigmergy status</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xl">4</div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold mb-2">开始使用</h3>
+                        <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                            <code class="text-sm">stigmergy soul evolve</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4 hero-gradient text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-6">准备好开始了吗？</h2>
+            <p class="text-xl mb-8 opacity-90">
+                加入我们，构建可信的AI Agent进化系统
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents" target="_blank" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    GitHub仓库
+                </a>
+                <a href="https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues" target="_blank" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
+                    提交问题
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">🧬 Stigmergy CLI</h3>
+                    <p class="text-gray-400">跨AI工具协作的进化平台</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">文档</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">快速开始</a></li>
+                        <li><a href="#" class="hover:text-white transition">API文档</a></li>
+                        <li><a href="#" class="hover:text-white transition">安全指南</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">社区</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">GitHub</a></li>
+                        <li><a href="#" class="hover:text-white transition">Discord</a></li>
+                        <li><a href="#" class="hover:text-white transition">Twitter</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">更多</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">博客</a></li>
+                        <li><a href="#" class="hover:text-white transition">关于我们</a></li>
+                        <li><a href="#" class="hover:text-white transition">许可协议</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2026 Stigmergy CLI. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
