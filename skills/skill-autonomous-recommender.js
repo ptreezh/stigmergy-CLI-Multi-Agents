@@ -104,7 +104,14 @@ class AutonomousSkillRecommender {
           const auditResult = await this.securityAuditor.auditSkill(rec.skillName);
           securityScore = auditResult.securityScore;
           securityDetails = auditResult.details;
-          isSafe = securityScore >= 60; // 安全评分阈值
+
+          // 🔴 Phase 1 安全强化：提高安全阈值到90分
+          // 原阈值：60分（40%不安全风险）
+          // 新阈值：90分（10%不安全风险）
+          const SECURITY_THRESHOLD = 90;
+          isSafe = securityScore >= SECURITY_THRESHOLD;
+
+          console.log(`      📊 ${rec.skillName} 安全评分: ${securityScore}/100 (阈值: ${SECURITY_THRESHOLD})`);
         } catch (error) {
           console.log(`      ⚠️  ${rec.skillName} 审计失败: ${error.message}`);
           // 使用简化安全检查
@@ -122,9 +129,9 @@ class AutonomousSkillRecommender {
           securityDetails,
           safe: true
         });
-        console.log(`      ✅ ${rec.skillName} 安全核验通过`);
+        console.log(`      ✅ ${rec.skillName} 安全核验通过 (评分: ${securityScore})`);
       } else {
-        console.log(`      ❌ ${rec.skillName} 安全核验未通过`);
+        console.log(`      ❌ ${rec.skillName} 安全核验未通过 (评分: ${securityScore} < 90)`);
       }
     }
 
@@ -149,6 +156,7 @@ class AutonomousSkillRecommender {
     );
 
     if (hasSecurityIssues) {
+      console.log(`      ❌ ${skillName} 存在安全问题报告`);
       return false;
     }
 
@@ -157,7 +165,15 @@ class AutonomousSkillRecommender {
       sum + f.feedback.reliability, 0
     ) / feedbacks.length;
 
-    return avgReliability >= 3.0;
+    // 🔴 Phase 1 安全强化：提高可靠性阈值
+    // 原阈值：3.0/5.0 (60%)
+    // 新阈值：4.5/5.0 (90%)
+    const RELIABILITY_THRESHOLD = 4.5;
+    const passesThreshold = avgReliability >= RELIABILITY_THRESHOLD;
+
+    console.log(`      📊 ${skillName} 可靠性评分: ${avgReliability.toFixed(2)}/5.00 (阈值: ${RELIABILITY_THRESHOLD})`);
+
+    return passesThreshold;
   }
 
   /**
