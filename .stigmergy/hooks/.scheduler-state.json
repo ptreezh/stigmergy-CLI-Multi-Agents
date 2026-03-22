@@ -1,0 +1,31 @@
+{
+  "state": "running",
+  "timestamp": "2026-03-22T10:00:01.090Z",
+  "schedules": [
+    {
+      "name": "daily-reflection",
+      "cron": "0 2 * * *",
+      "lastRun": null
+    },
+    {
+      "name": "weekly-evolution",
+      "cron": "0 2 * * 0",
+      "lastRun": null
+    },
+    {
+      "name": "monthly-strategy",
+      "cron": "0 2 1 * *",
+      "lastRun": null
+    },
+    {
+      "name": "skill-discovery",
+      "cron": "0 */6 * * *",
+      "lastRun": null
+    },
+    {
+      "name": "quick-check",
+      "cron": "0 * * * *",
+      "lastRun": null
+    }
+  ]
+}
