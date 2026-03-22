@@ -24,7 +24,6 @@ __pycache__/
 
 # Test files
 test/
-tests/
 **/test/**
 **/tests/**
 *.test.js
