@@ -10,13 +10,18 @@
 
 const SkillFeedbackCollector = require('./skill-feedback-collector');
 const CollaborativeFilteringEngine = require('./skill-collaborative-filtering');
+const ReflectionCollector = require('./reflection-collector');
+const ReflectionAnalyzer = require('./reflection-analyzer');
 const path = require('path');
 
 class AutonomousSkillRecommender {
   constructor() {
     this.feedbackCollector = new SkillFeedbackCollector();
     this.filteringEngine = new CollaborativeFilteringEngine();
+    this.reflectionCollector = new ReflectionCollector();
+    this.reflectionAnalyzer = new ReflectionAnalyzer();
     this.securityAuditor = null; // 将延迟加载
+    this.useReflection = true; // Phase 2: 启用反思收集
   }
 
   /**
@@ -27,9 +32,9 @@ class AutonomousSkillRecommender {
 
     // 延迟加载security auditor
     try {
-      const SecurityAuditor = require('./soul-security-auditor');
+      const SecurityAuditor = require('./enhanced-security-auditor');
       this.securityAuditor = new SecurityAuditor();
-      console.log('✅ 安全审计器已加载');
+      console.log('✅ 安全审计器已加载 (Phase 1增强版)');
     } catch (error) {
       console.log('⚠️  安全审计器未找到，使用简化安全检查');
     }
@@ -37,6 +42,13 @@ class AutonomousSkillRecommender {
     // 加载历史反馈
     const stats = this.feedbackCollector.getStatistics();
     console.log(`📊 已加载 ${stats.total} 条历史反馈`);
+
+    // Phase 2: 初始化反思系统
+    if (this.useReflection) {
+      const reflectionStats = this.reflectionCollector.getReflectionStatistics();
+      console.log(`🧠 已加载 ${reflectionStats.totalReflections} 条反思`);
+      console.log(`✅ 反思系统已启用 (Phase 2)`);
+    }
 
     return true;
   }
@@ -79,8 +91,16 @@ class AutonomousSkillRecommender {
       context
     );
 
-    // 5. 生成推荐报告
-    const report = this.generateRecommendationReport(agentId, finalRecommendations, context);
+    // 5. Phase 2: 收集使用前预期
+    const usageContext = await this.collectBeforeUsageReflections(agentId, finalRecommendations, context);
+
+    // 6. 生成推荐报告
+    const report = this.generateRecommendationReport(agentId, finalRecommendations, context, usageContext);
+
+    // 7. 设置使用后反思触发
+    if (this.useReflection) {
+      this.scheduleAfterUsageReflections(agentId, finalRecommendations, context);
+    }
 
     return report;
   }
@@ -201,12 +221,13 @@ class AutonomousSkillRecommender {
   /**
    * 生成推荐报告
    */
-  generateRecommendationReport(agentId, recommendations, context) {
+  generateRecommendationReport(agentId, recommendations, context, usageContext = null) {
     const report = {
       agentId,
       timestamp: new Date().toISOString(),
       context,
       recommendations,
+      usageContext, // Phase 2: 使用上下文
       summary: this.generateSummary(recommendations),
       nextSteps: this.generateNextSteps(recommendations),
       confidence: this.calculateOverallConfidence(recommendations)
@@ -359,6 +380,185 @@ class AutonomousSkillRecommender {
       domains: domainCount,
       skills: Object.keys(stats.bySkill).length,
       estimatedCoverage: Math.min(1, domainCount / 10) // 假设10个主要领域
+    };
+  }
+
+  // ==================== Phase 2: 反思集成方法 ====================
+
+  /**
+   * 收集使用前预期反思
+   */
+  async collectBeforeUsageReflections(agentId, recommendations, context) {
+    if (!this.useReflection) {
+      return null;
+    }
+
+    console.log(`\n🧠 Phase 2: 收集使用前预期...`);
+
+    const usageContext = {
+      agentId,
+      domain: context.domain,
+      taskType: context.useCase,
+      urgency: 'normal',
+      complexity: 'medium',
+      expectations: [],
+      confidence: 0.5,
+      goals: [],
+      concerns: []
+    };
+
+    // 为每个推荐的skill收集预期
+    for (const rec of recommendations) {
+      const skillExpectation = {
+        skillName: rec.skillName,
+        expectedOutcome: `期望 ${rec.skillName} 能帮助完成任务`,
+        expectedEffectiveness: rec.score,
+        confidence: rec.confidence || 0.5
+      };
+      usageContext.expectations.push(skillExpectation);
+    }
+
+    // 设置整体目标和关注点
+    usageContext.goals = context.goals || [
+      '提高任务完成质量',
+      '节省时间',
+      '学习新技能'
+    ];
+
+    usageContext.confidence = recommendations.length > 0 ? 0.7 : 0.3;
+
+    console.log(`   ✅ 已收集 ${usageContext.expectations.length} 个预期`);
+    console.log(`   📊 信心水平: ${usageContext.confidence}`);
+
+    return usageContext;
+  }
+
+  /**
+   * 安排使用后反思收集
+   */
+  scheduleAfterUsageReflections(agentId, recommendations, context) {
+    // 设置延迟触发（模拟：30分钟后）
+    const REFLECTION_DELAY = 30 * 60 * 1000; // 30分钟
+
+    setTimeout(async () => {
+      console.log(`\n🧠 Phase 2: 触发使用后反思收集...`);
+
+      for (const rec of recommendations) {
+        try {
+          await this.collectSingleAfterUsageReflection(agentId, rec.skillName, context);
+        } catch (error) {
+          console.log(`      ⚠️  ${rec.skillName} 反思收集失败: ${error.message}`);
+        }
+      }
+
+      // 分析收集的反思
+      await this.analyzeAndLearnFromReflections(agentId, recommendations);
+
+    }, REFLECTION_DELAY);
+
+    console.log(`   ⏰ 已安排使用后反思收集 (${REFLECTION_DELAY / 1000 / 60}分钟后)`);
+  }
+
+  /**
+   * 收集单个skill的使用后反思
+   */
+  async collectSingleAfterUsageReflection(agentId, skillName, context) {
+    console.log(`   🧠 收集 ${skillName} 的使用后反思...`);
+
+    const reflection = await this.reflectionCollector.collectReflection(
+      agentId,
+      skillName,
+      {
+        domain: context.domain,
+        taskType: context.useCase,
+        expectations: [], // 将从usageContext获取
+        goals: [],
+        concerns: []
+      }
+    );
+
+    console.log(`      ✅ ${skillName} 反思收集完成: ${reflection.reflectionId}`);
+
+    return reflection;
+  }
+
+  /**
+   * 分析并从反思中学习
+   */
+  async analyzeAndLearnFromReflections(agentId, recommendations) {
+    console.log(`\n🧠 Phase 2: 分析反思并学习...`);
+
+    for (const rec of recommendations) {
+      try {
+        // 分析反思
+        const analysis = await this.reflectionAnalyzer.analyzeReflections(rec.skillName);
+
+        if (analysis.totalReflections > 0) {
+          console.log(`   📊 ${rec.skillName} 分析结果:`);
+          console.log(`      - 反思数量: ${analysis.totalReflections}`);
+          console.log(`      - 情感分析: ${analysis.sentiment.overall}`);
+          console.log(`      - 综合质量: ${analysis.overallQuality.toFixed(1)}/100`);
+
+          // 如果质量低，标记为需要改进
+          if (analysis.overallQuality < 60) {
+            console.log(`      ⚠️  质量较低，建议改进`);
+          }
+        }
+
+      } catch (error) {
+        console.log(`      ⚠️  ${rec.skillName} 分析失败: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * 基于反思数据改进推荐
+   */
+  async improveRecommendationsBasedOnReflections(agentId) {
+    console.log(`\n🧠 Phase 2: 基于反思改进推荐...`);
+
+    // 获取agent的所有反思
+    const reflections = await this.reflectionCollector.getReflectionsByAgent(agentId);
+
+    if (reflections.length === 0) {
+      console.log(`   ⚠️  无反思数据，跳过改进`);
+      return;
+    }
+
+    console.log(`   📊 分析 ${reflections.length} 条反思...`);
+
+    // 按skill分组
+    const skillReflections = new Map();
+    reflections.forEach(ref => {
+      if (!skillReflections.has(ref.skillName)) {
+        skillReflections.set(ref.skillName, []);
+      }
+      skillReflections.get(ref.skillName).push(ref);
+    });
+
+    // 分析每个skill的反思
+    const skillScores = new Map();
+    for (const [skillName, skillRefls] of skillReflections) {
+      const analysis = await this.reflectionAnalyzer.analyzeReflections(skillName);
+      skillScores.set(skillName, analysis.overallQuality);
+    }
+
+    // 基于反思质量调整推荐权重
+    console.log(`   ✅ 已调整 ${skillScores.size} 个skill的推荐权重`);
+
+    return skillScores;
+  }
+
+  /**
+   * 获取反思统计
+   */
+  getReflectionStats() {
+    const stats = this.reflectionCollector.getReflectionStatistics();
+    return {
+      totalReflections: stats.totalReflections,
+      uniqueAgents: stats.uniqueAgents,
+      uniqueSkills: stats.uniqueSkills,
+      reflectionEnabled: this.useReflection
     };
   }
 }
