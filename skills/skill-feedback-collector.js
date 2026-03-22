@@ -14,10 +14,25 @@ const path = require('path');
 const crypto = require('crypto');
 
 class SkillFeedbackCollector {
-  constructor() {
+  constructor(config = {}) {
     this.feedbackDB = new Map(); // 反馈数据库
     this.feedbackFile = path.join(__dirname, '..', '.skill-feedback.json');
     this.loadFeedback();
+
+    // Phase 3: 跨CLI共享存储
+    this.enableSharedStorage = config.enableSharedStorage !== false;  // 默认启用
+    if (this.enableSharedStorage) {
+      try {
+        const SharedFeedbackStorageAdapter = require('./shared-feedback-storage-adapter');
+        this.sharedStorage = new SharedFeedbackStorageAdapter({
+          autoSync: config.autoSync !== false
+        });
+        console.log('✅ 跨CLI共享存储已启用');
+      } catch (error) {
+        console.warn('⚠️  跨CLI共享存储初始化失败，使用本地存储:', error.message);
+        this.sharedStorage = null;
+      }
+    }
   }
 
   /**
@@ -44,6 +59,27 @@ class SkillFeedbackCollector {
     // 保存反馈
     this.feedbackDB.set(record.id, record);
     await this.saveFeedback();
+
+    // Phase 3: 同步到共享存储
+    if (this.sharedStorage) {
+      try {
+        // 转换为共享存储格式
+        const sharedRecord = {
+          feedbackId: record.id,
+          agentId: record.agentId,
+          skillName: record.skillName,
+          timestamp: record.timestamp,
+          feedback: record.feedback,
+          context: record.context,
+          source: process.env.CLI_NAME || 'unknown'
+        };
+
+        await this.sharedStorage.sharedStorage.saveFeedback(sharedRecord);
+        console.log('   🔄 已同步到共享存储');
+      } catch (error) {
+        console.warn('   ⚠️  同步到共享存储失败:', error.message);
+      }
+    }
 
     console.log('✅ 反馈记录成功');
     console.log(`   评分: ${record.feedback.rating}/5`);
@@ -160,9 +196,42 @@ class SkillFeedbackCollector {
   /**
    * 获取agent的所有反馈
    */
-  getAgentFeedback(agentId) {
-    return Array.from(this.feedbackDB.values())
+  getAgentFeedback(agentId, includeShared = true) {
+    // 从本地获取反馈
+    const localFeedback = Array.from(this.feedbackDB.values())
       .filter(record => record.agentId === agentId);
+
+    // Phase 3: 如果启用共享存储，合并共享存储的数据
+    if (includeShared && this.sharedStorage) {
+      try {
+        const sharedFeedbacks = this.sharedStorage.sharedStorage;
+        const allSharedFeedback = sharedFeedback ? sharedFeedback.getAllFeedbacks() : [];
+
+        if (allSharedFeedback && allSharedFeedback.length > 0) {
+          // 转换共享存储格式到本地格式
+          const sharedInLocalFormat = allSharedFeedback
+            .filter(f => f.agentId === agentId)
+            .map(f => ({
+              id: f.feedbackId,
+              skillName: f.skillName,
+              agentId: f.agentId,
+              timestamp: f.timestamp,
+              feedback: f.feedback,
+              context: f.context
+            }));
+
+          // 合并本地和共享存储的反馈（去重）
+          const localIds = new Set(localFeedback.map(f => f.id));
+          const uniqueShared = sharedInLocalFormat.filter(f => !localIds.has(f.id));
+
+          return [...localFeedback, ...uniqueShared];
+        }
+      } catch (error) {
+        console.warn('   ⚠️  从共享存储读取反馈失败:', error.message);
+      }
+    }
+
+    return localFeedback;
   }
 
   /**
@@ -263,14 +332,11 @@ class SkillFeedbackCollector {
   getStatistics() {
     const records = Array.from(this.feedbackDB.values());
 
-    if (records.length === 0) {
-      return { total: 0, bySkill: {}, byAgent: {}, byDomain: {} };
-    }
-
     const bySkill = {};
     const byAgent = {};
     const byDomain = {};
 
+    // 统计本地反馈
     records.forEach(record => {
       // 按skill统计
       if (!bySkill[record.skillName]) {
@@ -291,11 +357,38 @@ class SkillFeedbackCollector {
       byDomain[record.context.domain]++;
     });
 
+    // Phase 3: 合并共享存储的统计
+    if (this.sharedStorage) {
+      try {
+        const sharedStats = this.sharedStorage.getSharedStats();
+
+        // 合并skill统计
+        Object.keys(sharedStats.bySkill || {}).forEach(skillName => {
+          bySkill[skillName] = (bySkill[skillName] || 0) + sharedStats.bySkill[skillName];
+        });
+
+        // 合并agent统计
+        Object.keys(sharedStats.byAgent || {}).forEach(agentId => {
+          byAgent[agentId] = (byAgent[agentId] || 0) + sharedStats.byAgent[agentId];
+        });
+
+        // 合并domain统计
+        Object.keys(sharedStats.byDomain || {}).forEach(domain => {
+          byDomain[domain] = (byDomain[domain] || 0) + sharedStats.byDomain[domain];
+        });
+
+      } catch (error) {
+        console.warn('   ⚠️  获取共享存储统计失败:', error.message);
+      }
+    }
+
     return {
-      total: records.length,
+      total: Object.values(bySkill).reduce((a, b) => a + b, 0),
       bySkill,
       byAgent,
-      byDomain
+      byDomain,
+      localTotal: records.length,
+      sharedStorageEnabled: !!this.sharedStorage
     };
   }
 }
