@@ -163,5 +163,199 @@
       "duration": "unknown",
       "agentType": "unknown"
     }
+  },
+  {
+    "id": "bed0a398944b87b1552d36d7f8673f91",
+    "skillName": "dev-browser",
+    "agentId": "claude-agent-1",
+    "timestamp": "2026-03-22T14:00:16.595Z",
+    "feedback": {
+      "rating": 5,
+      "effectiveness": "highly_effective",
+      "easeOfUse": 4,
+      "reliability": 5,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "web-testing",
+      "domain": "automation",
+      "pros": [
+        "功能强大",
+        "易于使用"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "automation",
+      "useCase": "web-testing",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
+  },
+  {
+    "id": "5f67b896cc977c94a1713f3e701a97ea",
+    "skillName": "mathematical-statistics",
+    "agentId": "gemini-agent-1",
+    "timestamp": "2026-03-22T14:00:16.601Z",
+    "feedback": {
+      "rating": 4,
+      "effectiveness": "moderately_effective",
+      "easeOfUse": 3,
+      "reliability": 4,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "statistical-analysis",
+      "domain": "analysis",
+      "pros": [
+        "统计功能完整"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "analysis",
+      "useCase": "statistical-analysis",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
+  },
+  {
+    "id": "402472ed1c406740fe3fc5eab9c19371",
+    "skillName": "dev-browser",
+    "agentId": "qwen-agent-1",
+    "timestamp": "2026-03-22T14:00:16.606Z",
+    "feedback": {
+      "rating": 4,
+      "effectiveness": "moderately_effective",
+      "easeOfUse": 5,
+      "reliability": 4,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "web-automation",
+      "domain": "automation",
+      "pros": [
+        "界面友好"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "automation",
+      "useCase": "web-automation",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
+  },
+  {
+    "id": "3086f35224db076717969e6de586b422",
+    "skillName": "dev-browser",
+    "agentId": "claude-agent-1",
+    "timestamp": "2026-03-22T14:02:01.134Z",
+    "feedback": {
+      "rating": 5,
+      "effectiveness": "highly_effective",
+      "easeOfUse": 4,
+      "reliability": 5,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "web-testing",
+      "domain": "automation",
+      "pros": [
+        "功能强大",
+        "易于使用"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "automation",
+      "useCase": "web-testing",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
+  },
+  {
+    "id": "866abf633cf8858b7eda1ec256523640",
+    "skillName": "mathematical-statistics",
+    "agentId": "gemini-agent-1",
+    "timestamp": "2026-03-22T14:02:01.140Z",
+    "feedback": {
+      "rating": 4,
+      "effectiveness": "moderately_effective",
+      "easeOfUse": 3,
+      "reliability": 4,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "statistical-analysis",
+      "domain": "analysis",
+      "pros": [
+        "统计功能完整"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "analysis",
+      "useCase": "statistical-analysis",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
+  },
+  {
+    "id": "c816625eed3b9bfa64cb228745039860",
+    "skillName": "dev-browser",
+    "agentId": "qwen-agent-1",
+    "timestamp": "2026-03-22T14:02:01.143Z",
+    "feedback": {
+      "rating": 4,
+      "effectiveness": "moderately_effective",
+      "easeOfUse": 5,
+      "reliability": 4,
+      "performance": 3,
+      "accuracy": 3,
+      "wouldRecommend": false,
+      "useCase": "web-automation",
+      "domain": "automation",
+      "pros": [
+        "界面友好"
+      ],
+      "cons": [],
+      "suggestions": "",
+      "unexpectedBehavior": "",
+      "securityConcerns": ""
+    },
+    "context": {
+      "domain": "automation",
+      "useCase": "web-automation",
+      "environment": "development",
+      "complexity": "medium",
+      "duration": "unknown",
+      "agentType": "unknown"
+    }
   }
 ]
