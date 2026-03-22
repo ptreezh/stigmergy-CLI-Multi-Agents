@@ -7,16 +7,43 @@
  * 结合安全核验和应用场景
  *
  * 核心使命：可信的skill协同过滤和自主推荐
+ *
+ * 验证等级: Level 1.5 - Phase 3增强（多维度相似度）代码实现完成
+ *
+ * Phase 3增强:
+ * - 集成多维度相似度计算器
+ * - 支持基础/领域/任务/反思四维度相似度
+ * - 可配置权重和回退机制
+ *
+ * ⚠️ 重要声明：
+ * - 本实现为Level 1.5验证（代码实现+基本测试）
+ * - 多维度相似度计算需要真实反思数据支持
+ * - 未在真实生产环境验证
+ * - 需要Phase 3完成Level 2+真实环境测试
+ *
+ * 局限性：
+ * - 反思数据依赖Phase 2系统
+ * - 多维度计算性能未优化
+ * - 需要大量反馈数据才能体现优势
+ * - 跨CLI协调需要在真实环境测试
  */
 
 const path = require('path');
 const SkillFeedbackCollector = require('./skill-feedback-collector');
+const MultiDimensionalSimilarityCalculator = require('./multidimensional-similarity-calculator');
 
 class CollaborativeFilteringEngine {
-  constructor() {
+  constructor(config = {}) {
     this.feedbackCollector = new SkillFeedbackCollector();
-    this.similarityThreshold = 0.6; // 相似度阈值
-    this.minFeedbackCount = 2; // 最少反馈数量
+    this.similarityThreshold = config.similarityThreshold || 0.6; // 相似度阈值
+    this.minFeedbackCount = config.minFeedbackCount || 2; // 最少反馈数量
+
+    // Phase 3: 集成多维度相似度计算器
+    this.useMultiDimensional = config.useMultiDimensional !== false; // 默认启用
+    this.similarityCalculator = new MultiDimensionalSimilarityCalculator(config);
+
+    console.log(`🔧 协同过滤引擎初始化 (Phase 3增强版)`);
+    console.log(`   多维度相似度: ${this.useMultiDimensional ? '✅ 启用' : '❌ 禁用'}`);
   }
 
   /**
@@ -59,7 +86,7 @@ class CollaborativeFilteringEngine {
   }
 
   /**
-   * 找到相似的Agents
+   * 找到相似的Agents（Phase 3增强：支持多维度相似度）
    */
   async findSimilarAgents(targetAgentId, targetFeedback) {
     const allFeedback = this.feedbackCollector;
@@ -72,8 +99,13 @@ class CollaborativeFilteringEngine {
     for (const otherAgentId of otherAgentIds) {
       const otherFeedback = allFeedback.getAgentFeedback(otherAgentId);
 
-      // 计算相似度
-      const similarity = this.calculateAgentSimilarity(targetFeedback, otherFeedback);
+      // 计算相似度（Phase 3: 传入agent IDs以支持多维度计算）
+      const similarity = await this.calculateAgentSimilarity(
+        targetFeedback,
+        otherFeedback,
+        targetAgentId,
+        otherAgentId
+      );
 
       if (similarity >= this.similarityThreshold) {
         similarities.push({
@@ -92,14 +124,44 @@ class CollaborativeFilteringEngine {
   }
 
   /**
-   * 计算Agent相似度（基于皮尔逊相关系数）
+   * 计算Agent相似度（Phase 3增强：多维度或单维度）
    */
-  calculateAgentSimilarity(feedback1, feedback2) {
+  async calculateAgentSimilarity(feedback1, feedback2, agent1Id = null, agent2Id = null) {
     // 找到共同评价过的skills
     const commonSkills = this.findCommonSkills(feedback1, feedback2);
 
     if (commonSkills.length < this.minFeedbackCount) {
       return 0; // 共同反馈太少，不计算相似度
+    }
+
+    // Phase 3: 使用多维度相似度计算
+    if (this.useMultiDimensional && agent1Id && agent2Id) {
+      try {
+        const result = await this.similarityCalculator.calculateOverallSimilarity(
+          feedback1,
+          feedback2,
+          agent1Id,
+          agent2Id
+        );
+        return result.overall;
+      } catch (error) {
+        console.warn(`   ⚠️  多维度计算失败，回退到单维度: ${error.message}`);
+        return this.calculateBaseSimilarity(feedback1, feedback2);
+      }
+    }
+
+    // 单维度：皮尔逊相关系数
+    return this.calculateBaseSimilarity(feedback1, feedback2);
+  }
+
+  /**
+   * 计算基础相似度（皮尔逊相关系数）
+   */
+  calculateBaseSimilarity(feedback1, feedback2) {
+    const commonSkills = this.findCommonSkills(feedback1, feedback2);
+
+    if (commonSkills.length < this.minFeedbackCount) {
+      return 0;
     }
 
     // 计算皮尔逊相关系数
@@ -439,6 +501,63 @@ class CollaborativeFilteringEngine {
     if (name.includes('data') || name.includes('analyze')) return 'analysis';
     if (name.includes('evolve') || name.includes('learn')) return 'learning';
     return 'general';
+  }
+
+  // ==================== Phase 3: 多维度相似度增强 ====================
+
+  /**
+   * 启用/禁用多维度相似度计算
+   */
+  setMultiDimensionalMode(enabled) {
+    this.useMultiDimensional = enabled;
+    console.log(`   ${enabled ? '✅' : '❌'} 多维度相似度: ${enabled ? '已启用' : '已禁用'}`);
+  }
+
+  /**
+   * 更新多维度权重配置
+   */
+  updateSimilarityWeights(newWeights) {
+    if (!this.similarityCalculator) {
+      console.warn('⚠️  相似度计算器未初始化');
+      return;
+    }
+
+    this.similarityCalculator.updateWeights(newWeights);
+  }
+
+  /**
+   * 获取当前配置
+   */
+  getConfiguration() {
+    return {
+      similarityThreshold: this.similarityThreshold,
+      minFeedbackCount: this.minFeedbackCount,
+      useMultiDimensional: this.useMultiDimensional,
+      similarityWeights: this.similarityCalculator ? this.similarityCalculator.getConfig() : null
+    };
+  }
+
+  /**
+   * 生成相似度分析报告
+   */
+  async generateSimilarityAnalysisReport(agent1Id, agent2Id) {
+    const feedback1 = this.feedbackCollector.getAgentFeedback(agent1Id);
+    const feedback2 = this.feedbackCollector.getAgentFeedback(agent2Id);
+
+    if (feedback1.length === 0 || feedback2.length === 0) {
+      return {
+        error: 'One or both agents have no feedback data'
+      };
+    }
+
+    const similarityResult = await this.similarityCalculator.calculateOverallSimilarity(
+      feedback1,
+      feedback2,
+      agent1Id,
+      agent2Id
+    );
+
+    return this.similarityCalculator.generateSimilarityReport(similarityResult);
   }
 }
 
