@@ -8,6 +8,32 @@
       "priority": 1,
       "matchers": ["startup", "resume", "clear"],
       "file": "session-start.js"
+    },
+    "evolution": {
+      "name": "Evolution",
+      "enabled": true,
+      "priority": 10,
+      "matchers": ["startup", "command"],
+      "commands": ["/stigmergy-evolve", "/evolution", "/evolve", "/自我进化"],
+      "file": "evolution-hook.js",
+      "description": "持续自主进化 - 在会话启动时或命令触发时执行进化",
+      "schedule": {
+        "night": { "interval": 30, "unit": "minutes", "enabled": true },
+        "day": { "interval": 4, "unit": "hours", "enabled": true }
+      },
+      "skillIntegration": {
+        "useSkill": true,
+        "skills": ["two-agent-loop", "soul-evolution"],
+        "directExecute": true
+      }
+    },
+    "skillCreated": {
+      "name": "SkillCreated",
+      "enabled": true,
+      "priority": 5,
+      "matchers": ["evolution-complete", "skill-generated"],
+      "file": "skill-created-hook.js",
+      "description": "自动处理技能创建"
     }
   },
   "skills": [
@@ -45,5 +71,40 @@
       "required": false,
       "failAction": "silent"
     }
+  },
+  "cliCommands": {
+    "description": "在CLI中可用的命令",
+    "commands": [
+      {
+        "name": "/stigmergy-evolve",
+        "description": "触发自主进化",
+        "skill": "soul-evolution"
+      },
+      {
+        "name": "/evolution",
+        "description": "简写触发进化",
+        "skill": "soul-evolution"
+      },
+      {
+        "name": "/evolve",
+        "description": "快速进化",
+        "skill": "soul-evolution"
+      },
+      {
+        "name": "/自我进化",
+        "description": "中文触发进化",
+        "skill": "soul-evolution"
+      },
+      {
+        "name": "/two-agent-loop",
+        "description": "使用双Agent循环执行当前任务",
+        "skill": "two-agent-loop"
+      },
+      {
+        "name": "/skill-create",
+        "description": "从经验创建新技能",
+        "skill": "skill-creator"
+      }
+    ]
   }
 }

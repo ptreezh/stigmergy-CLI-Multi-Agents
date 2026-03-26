@@ -1,0 +1,11 @@
+{
+  "name": "test-crud-skill",
+  "version": "1.0.0",
+  "description": "A skill based on crud pattern",
+  "author": "GBSOSS Skill Generator",
+  "license": "MIT",
+  "tags": [],
+  "pattern": "crud",
+  "createdAt": "2026-01-28T06:25:39.315Z",
+  "updatedAt": "2026-01-28T06:25:39.316Z"
+}

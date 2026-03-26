@@ -221,9 +221,16 @@ async function postInstallDeploy() {
   );
 }
 
+// 非 Agent CLI，不支持插件，应该从部署中排除
+const EXCLUDED_CLIS = ["bun", "oh-my-opencode"];
+
 function detectAvailableCLIs(homeDir) {
   const available = [];
   for (const [cliName, config] of Object.entries(CLI_CONFIGS)) {
+    // 跳过非 Agent CLI (bun 是运行时，oh-my-opencode 是框架)
+    if (EXCLUDED_CLIS.includes(cliName)) {
+      continue;
+    }
     if (fs.existsSync(path.join(homeDir, config.home))) {
       available.push(cliName);
     }

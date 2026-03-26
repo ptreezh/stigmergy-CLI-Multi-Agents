@@ -1,0 +1,26 @@
+{
+  "name": "advanced-test-skill",
+  "version": "1.0.0",
+  "description": "An advanced test skill with parameters",
+  "author": "Stigmergy Skill Creator",
+  "license": "MIT",
+  "tags": [
+    "advanced",
+    "parameterized"
+  ],
+  "parameters": [
+    {
+      "name": "input",
+      "type": "string",
+      "description": "Input data for the skill"
+    },
+    {
+      "name": "options",
+      "type": "object",
+      "description": "Additional options"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-01-28T06:10:15.560Z",
+  "updatedAt": "2026-01-28T06:10:15.560Z"
+}

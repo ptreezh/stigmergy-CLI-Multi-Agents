@@ -1,0 +1,13 @@
+{
+  "name": "business-workflow",
+  "version": "1.0.0",
+  "description": "A skill based on workflow pattern",
+  "author": "GBSOSS Skill Generator",
+  "license": "MIT",
+  "tags": [],
+  "pattern": "workflow",
+  "expertiseLevel": "intermediate",
+  "domain": "general",
+  "createdAt": "2026-01-28T06:32:47.078Z",
+  "updatedAt": "2026-01-28T06:32:47.079Z"
+}

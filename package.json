@@ -43,7 +43,8 @@
     "lint": "eslint src/**/*.js",
     "format": "prettier --write src/**/*.js",
     "gatekeeper": "node .gates/gatekeeper.js",
-    "gatekeeper:check": "node .gates/gatekeeper.js"
+    "gatekeeper:check": "node .gates/gatekeeper.js",
+    "precommit": "npm run gatekeeper"
   },
   "keywords": [
     "ai",
@@ -68,10 +69,15 @@
     "chalk": "^4.1.2",
     "commander": "^14.0.2",
     "cron-parser": "^4.9.0",
+    "file-box": "^1.5.5",
     "inquirer": "^8.2.6",
     "js-yaml": "^4.1.1",
     "playwright": "^1.58.2",
-    "semver": "^7.7.3"
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "semver": "^7.7.3",
+    "wechaty": "^1.20.2",
+    "wechaty-puppet-wechat": "^1.18.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",

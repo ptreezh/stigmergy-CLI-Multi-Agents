@@ -1,0 +1,15 @@
+{
+  "name": "test-skill-direct",
+  "version": "1.0.0",
+  "description": "A test skill created directly",
+  "author": "Stigmergy Skill Creator",
+  "license": "MIT",
+  "tags": [
+    "test",
+    "automation"
+  ],
+  "parameters": [],
+  "dependencies": [],
+  "createdAt": "2026-01-28T06:10:15.556Z",
+  "updatedAt": "2026-01-28T06:10:15.557Z"
+}

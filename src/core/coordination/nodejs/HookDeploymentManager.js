@@ -107,6 +107,9 @@ class HookDeploymentManager {
     // Deploy ResumeSession extension
     await this.deployResumeSessionExtension(cliName, hookDir);
 
+    // Deploy Evolution hook (自主进化)
+    await this.deployEvolutionHook(cliName, hookDir);
+
     // Deploy Skills integration
     await this.deploySkillsIntegration(cliName, hookDir);
 
@@ -115,6 +118,85 @@ class HookDeploymentManager {
 
     // Create basic configuration
     await this.createBasicConfiguration(cliName, hookDir);
+  }
+
+  /**
+   * Deploy Evolution Hook
+   * 部署自主进化Hook
+   */
+  async deployEvolutionHook(cliName, hookDir) {
+    console.log(`[HOOK_DEPLOYMENT] Deploying Evolution hook for ${cliName}...`);
+
+    try {
+      // 读取源文件
+      const sourcePath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "hooks",
+        "evolution-hook.js",
+      );
+
+      if (!fs.existsSync(sourcePath)) {
+        console.warn(
+          `[HOOK_DEPLOYMENT] Evolution hook not found at ${sourcePath}, skipping`,
+        );
+        return false;
+      }
+
+      const evolutionHookContent = fs.readFileSync(sourcePath, "utf8");
+      const destPath = path.join(hookDir, "evolution-hook.js");
+
+      fs.writeFileSync(destPath, evolutionHookContent);
+      console.log(`[HOOK_DEPLOYMENT] Created Evolution hook: ${destPath}`);
+
+      // 更新 hooks.json 添加 evolution hook
+      await this.updateHooksJsonWithEvolution(cliName, hookDir);
+
+      return true;
+    } catch (error) {
+      console.error(
+        `[HOOK_DEPLOYMENT] Failed to deploy Evolution hook:`,
+        error.message,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * 更新 hooks.json 添加 evolution hook
+   */
+  async updateHooksJsonWithEvolution(cliName, hookDir) {
+    const hooksJsonPath = path.join(hookDir, "hooks.json");
+    let hooksConfig = {};
+
+    if (fs.existsSync(hooksJsonPath)) {
+      try {
+        const existingContent = fs.readFileSync(hooksJsonPath, "utf8");
+        hooksConfig = JSON.parse(existingContent);
+      } catch (e) {
+        hooksConfig = {};
+      }
+    }
+
+    // 添加 evolution hook
+    hooksConfig.evolution = {
+      enabled: true,
+      command: "/stigmergy-evolve",
+      handler: "evolution-hook.js",
+      description: "持续自主进化 - 在会话启动时执行进化",
+      schedule: {
+        night: { interval: 30, unit: "minutes", enabled: true },
+        day: { interval: 4, unit: "hours", enabled: true },
+      },
+      version: "1.0.0",
+      deploymentTime: new Date().toISOString(),
+    };
+
+    fs.writeFileSync(hooksJsonPath, JSON.stringify(hooksConfig, null, 2));
+    console.log(
+      `[HOOK_DEPLOYMENT] Updated hooks.json with evolution: ${hooksJsonPath}`,
+    );
   }
 
   async deployResumeSessionExtension(cliName, hookDir) {
