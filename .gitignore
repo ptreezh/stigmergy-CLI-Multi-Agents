@@ -22,15 +22,10 @@ __pycache__/
 *.temp
 .claude/settings.local.json
 
-# Test files
-test/
-**/test/**
-**/tests/**
-*.test.js
-*_test.js
-test_*.js
-test-*.js
-test*.js
+# Test files (keep actual test files, exclude only temp/fixture data)
+tests/**/temp/
+tests/**/fixtures/tmp/
+tests/**/__snapshots__/
 auto-fix-report-*.json
 baseline-test-results-*.json
 deep-verification-report-*.json
@@ -161,3 +156,34 @@ worktrees/
 tests/.test-*.json
 tests/.level2-*.json
 .stigmergy/hooks/.scheduler-state.json
+
+# Soul runtime state
+.stigmergy/session_*.json
+.stigmergy/cli-paths.json
+.stigmergy/history.json
+.stigmergy/soul-state/
+
+# Temporary root files
+0
+vs_community.exe
+fix-gate.js
+traceinfomation.md
+package-locked.json
+task-config.json
+.task-progress.json
+
+# Temporary test directories
+test-e2e-*/
+evolution-test/
+ralph-test/
+
+# Temporary output directories
+hooks/
+soul_plans/
+web-articles/
+
+# Broken files
+*.broken
+
+# Large independent sub-projects
+SmartWorkstation/

@@ -10,7 +10,6 @@ src/**/__tests__/
 docs/
 *.md
 !README.md
-!STIGMERGY.md
 
 # Development configuration
 .eslintrc.js
@@ -23,10 +22,12 @@ tsconfig*.json
 *.map
 *.ts.map
 
-# Keep scripts/ directory for postinstall
-cleanup.js
-postuninstall.js
-preuninstall.js
+# Backup files
+*.backup
+*.backup-*
+*.bak
+*.broken
+*.orig
 
 # Temporary and cache
 .cache/
@@ -73,6 +74,9 @@ gemini.md
 iflow.md
 qwen.md
 AGENTS.md
+codebuddy.md
+codex.md
+copilot.md
 
 # Development files
 CHANGELOG.md
@@ -169,3 +173,17 @@ skills-package/
 # Environment
 .env
 .env.test
+
+# Windows executables
+*.exe
+*.bat
+*.cmd
+!bin/*.cmd
+
+# SmartWorkstation sub-project
+SmartWorkstation/
+packages/
+
+# Refactoring docs
+src/core/REFACTORING_*.md
+**/REFACTORING_*.md
