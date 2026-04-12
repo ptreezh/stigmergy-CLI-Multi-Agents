@@ -71,7 +71,7 @@ Plans:
 - `src/core/soul/DECI/DecisionContext.js` — shared context type (NEW)
 - `src/core/soul/DECI/DecisionBoundary.js` — Layer 1 rule-based boundary checker (NEW)
 - `src/core/soul/DECI/ConfidenceScorer.js` — Layer 2 5-dimension weighted scorer (NEW)
-- `src/core/soul/DECI/EmergencyFallback.js` — Layer 3 extends FailureCircuitBreaker (NEW)
+- `src/core/soul/DECI/EmergencyFallback.js` — Layer 3 implements state-machine pattern inspired by FailureCircuitBreaker (composition, per-strategy bulkhead) (NEW)
 - `src/core/soul/DECI/SoulDecisionEngine.js` — 3-layer gate orchestrator (NEW)
 - `src/core/soul/DECI/DecisionVerifier.js` — DECI-05 post-execution self-check (NEW)
 - `src/core/soul/DECI/FallbackManager.js` — DECI-06 escalation levels (NEW)
