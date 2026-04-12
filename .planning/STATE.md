@@ -2,11 +2,13 @@
 
 ## Current Phase
 
-None — not started. Awaiting user approval to begin Phase 1.
+Phase 1 — context gathered, ready to plan.
 
 ## Phase History
 
-(None — project initialized 2026-04-12)
+| Phase | Name | Context | Plan | Execute | Verified |
+|-------|------|---------|------|---------|---------|
+| 01 | Fix Error Visibility Foundation | ✓ 2026-04-12 | — | — | — |
 
 ## Project Reference
 
