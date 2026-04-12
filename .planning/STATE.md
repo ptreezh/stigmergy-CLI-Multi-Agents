@@ -1,64 +1,55 @@
-# STATE: Soul DECI (Soul 自主决策)
+# Project State
 
-**Current phase:** Not started
-**Focus:** Planning — awaiting user approval of roadmap
+## Current Phase
 
----
+None — not started. Awaiting user approval to begin Phase 1.
+
+## Phase History
+
+(None — project initialized 2026-04-12)
 
 ## Project Reference
 
-**Project:** Soul 自主决策 (DECI)
-**Core value:** Soul 在边界内自主行动，在边界外主动确认
-**Granularity:** Standard
-**Parallelization:** true
-**Mode:** yolo
+See: `.planning/PROJECT.md` (updated 2026-04-12)
 
-**What this project delivers:**
-A decision framework (DECI) overlay on the existing Soul evolution system, enabling autonomous decision-making within user-defined boundaries. The framework adds confidence thresholds, audit logs, post-decision self-checks, and emergency fallback. Built on a fixed error visibility foundation (11 empty catch blocks causing 100+ consecutive failures since 2026-03-07).
+**Core value:** Soul 在边界内自主行动，在边界外主动确认。
 
----
+## Progress Summary
 
-## Current Position
+| Phase | Requirements | Success Criteria | Status |
+|-------|-------------|-----------------|--------|
+| 1. Error Visibility Foundation | 9 (ERR-01~04, DECI-04, EVOL-01~03, INTEG-03) | 8 | Not started |
+| 2. DECI Decision Framework | 21 (DECI-01~06, INTEG-01) | 8 | Not started |
+| 3. Autonomous Evolution Resilience | 6 structural (no new REQ-IDs) | 8 | Not started |
+| 4. Knowledge Production & Gatekeeper | 1 (INTEG-02) + 6 v2 | 7 | Not started |
 
-**Phase:** None — planning phase
-**Plan:** None
-**Status:** Awaiting roadmap approval
+**Total:** 40 tracked requirements across 4 phases
 
-Progress: [--------------------] 0/4 phases
+## Phase Dependencies
 
-| Phase | Progress | Status |
-|-------|----------|--------|
-| 1. Error Visibility Foundation | 0/6 criteria | Not started |
-| 2. Decision Framework | 0/5 criteria | Not started |
-| 3. Evolution Resilience | 0/5 criteria | Not started |
-| 4. Gatekeeper Integration | 0/3 criteria | Not started |
+```
+Phase 1 ──┬── Phase 2 ──┐
+          └── Phase 3 ──┴── Phase 4
+```
 
----
+- Phase 2 depends on Phase 1 (DECI confidence thresholds and audit log need classified errors)
+- Phase 3 depends on Phase 1 (DLQ and circuit breaker need error taxonomy) and Phase 2 (FallbackManager integrated before supervisor wraps it)
+- Phase 4 depends on Phases 1 + 2 + 3 (gatekeeper gates a working, self-recovering system)
 
-## Performance Metrics
+## Known Blockers (before Phase 1 can start)
 
-| Metric | Value | Note |
-|--------|-------|------|
-| v1 Requirements | 17 | OBS-01..06, DECI-01..03,05,06, RES-01..05, GATE-01..03 |
-| Requirements mapped | 17/17 | 100% coverage |
-| Phases | 4 | Standard granularity |
-| Phase dependencies | 3 chains | P1->P2, P1->P3, P3->P4 |
+None — all prerequisites are documented and ready to implement.
 
----
+## Open Questions (user decisions needed during execution)
 
-## Accumulated Context
+| Question | Phase | Options |
+|----------|-------|---------|
+| Minimum viable knowledge extraction output format | Phase 1 | Structured JSON / Markdown with frontmatter / SQLite-vec insert |
+| Minimum viable evolved skill definition | Phase 1 | skill.md + manifest / skill.md + tests + manifest |
+| Initial confidence scoring formula | Phase 2 | Simple weighted average / calibrated from audit log data |
+| Initial DECI-03 boundary config | Phase 2 | Conservative (read-only) / moderate (non-destructive) |
 
-### Known Issues (from research)
-
-- **11 empty catch blocks** silently swallow errors across 5 modules (scheduler x5, merger x2, CLI integration x1, task_planner x1, project x1, superpowers x2) — root cause of 100+ consecutive evolution failures since 2026-03-07
-- **Error taxonomy missing** — no PreconditionError/ProcessError/ValidationError classification, so every recovery strategy retries blindly
-- **Gatekeeper unintegrated** — full logic exists in `.gates/gatekeeper.js` but zero CI integration, never blocks evolution
-- **Minimum knowledge extraction non-functional** — `_extractKnowledge()` returns raw search snippet, not structured output
-- **Minimum skill evolution non-functional** — `_evolveSkills()` creates empty placeholders; `_autoMerge()` prints "not implemented"
-- **Scheduler lock never cleared** — `locked: true` never reset on error, so subsequent evolution cycles never run
-- **Merger silently defaults KB to []** on parse failure — corrupt knowledge base causes permanent data loss
-
-### Architecture Decisions
+## Architecture Decisions
 
 | Decision | Rationale | Status |
 |----------|-----------|--------|
@@ -67,23 +58,22 @@ Progress: [--------------------] 0/4 phases
 | DecisionFramework as overlay, not replacement | Backward compatible with existing evolution/reflection flows | Open |
 | Supervisor tree pattern for restart | Erlang OTP, Netflix Hystrix proven; factory function prevents stale flags | Open |
 | Temp+rename for atomic writes | POSIX rename is atomic; no new dependencies | Open |
+| DECI 3-layer gate: boundary -> confidence -> fallback | Hard rules catch catastrophic cases; score-based handles nuance; circuit breaker handles failure cascades | Open |
 
-### Open Questions (User Decisions Needed)
+## Root Cause Evidence
 
-| Question | Phase | Options |
-|----------|-------|---------|
-| Minimum viable knowledge extraction output format | Phase 1 | Structured JSON / Markdown with frontmatter / SQLite-vec insert |
-| Minimum viable evolved skill definition | Phase 1 | skill.md + manifest / skill.md + tests + manifest |
-| Initial confidence scoring formula | Phase 2 | Simple weighted average / calibrated from audit log |
-| Initial DECI-03 boundary config | Phase 2 | Conservative (read-only) / moderate (non-destructive) |
+The 100+ consecutive evolution failures since 2026-03-07 are directly caused by 11 empty catch blocks catalogued in `CONCERNS.md`:
 
----
-
-## Session Continuity
-
-**Last session:** Roadmap creation
-**Next action:** User approves roadmap -> `/gsd-plan-phase 1` to plan Phase 1 (Error Visibility Foundation)
+| File | Lines | Impact |
+|------|-------|--------|
+| `soul_system_scheduler.js` | 220, 250, 414, 516, 546 | Status polling, task plan loading, alignment config, script chmod, crontab uninstall |
+| `soul_auto_merger.js` | 153, 275 | KB data loading, last merge time |
+| `soul_cli_integration.js` | 73 | Skills path lookup failure |
+| `soul_task_planner.js` | 468 | Reflection file parsing |
+| `project.js` | 449 | Project subcommand error |
+| `superpowers.js` | 228, 280 | File copy operations, state injection |
 
 ---
 
 *State initialized: 2026-04-12*
+*Roadmap: .planning/ROADMAP.md*

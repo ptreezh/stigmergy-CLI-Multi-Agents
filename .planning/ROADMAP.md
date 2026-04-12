@@ -1,151 +1,214 @@
-# ROADMAP: Soul DECI (Soul 自主决策)
+# Soul 自主决策 Roadmap
 
 **Project:** Soul 自主决策 (DECI: Autonomous Decision-Making)
-**Granularity:** Standard
-**Phases:** 4
-**Coverage:** 17/17 v1 requirements mapped
+**Version:** 1.0
+**Created:** 2026-04-12
+**Core Value:** Soul 在边界内自主行动，在边界外主动确认。
 
 ---
 
-## Core Value
+## Overview
 
-**Soul 在边界内自主行动，在边界外主动确认。**
+The DECI roadmap is sequenced to fix the broken foundation first, then layer decision intelligence on top of visible, classified errors. Building autonomous decisions on invisible failures (100+ consecutive evolution failures caused by 11 empty catch blocks) would produce confidently wrong outcomes.
 
-DECI adds autonomous decision-making with confidence thresholds, audit logs, and emergency fallback to the existing Soul evolution system. Cannot be built on broken error handling — 11 empty catch blocks silently swallow all errors, making every downstream phase operate on invisible data.
+| Order | Rationale |
+|-------|-----------|
+| Phase 1 before all others | Error visibility is prerequisite for every other phase. DECI confidence thresholds need error signals. Circuit breaker needs error classification. Audit logs need non-silent errors. |
+| Phase 2 before Phase 3 | DECI decision framework should be stable before building resilience around it. FallbackManager (DECI-06) integrates with circuit breaker, not the other way around. |
+| Phase 3 before Phase 4 | Gatekeeper should gate a working evolution system, not a broken one. Running gatekeeper on 100+ failure state would block all evolution permanently. |
+| Phase 4 last | Knowledge production and CI gate are enhancements on a working, self-recovering, autonomous system. |
 
 ---
 
 ## Phases
 
-- [ ] **Phase 1: Error Visibility Foundation** - Fix 11 empty catch blocks, add error taxonomy, add evolution timeout, add decision audit log, fix knowledge extraction, fix skill evolution
-- [ ] **Phase 2: Decision Framework** - Implement DECI-01/02/03/05/06: autonomous vs escalate logic, confidence thresholds, boundary config, self-check, emergency fallback
-- [ ] **Phase 3: Evolution Resilience** - Add supervisor with exponential backoff, circuit breaker, checkpoint/resume, DLQ, atomic writes
-- [ ] **Phase 4: Gatekeeper Integration** - Wire gatekeeper into evolution loop and CI, persist reports, block promotion below Level 3
+### Phase 1: Fix Error Visibility Foundation
+
+**Goal:** Replace 11 empty catch blocks with structured logging, implement error taxonomy, and deliver minimum viable knowledge/skill extraction — giving every other phase the error signals it needs.
+
+**Requirements:** ERR-01, ERR-02, ERR-03, ERR-04, DECI-04, EVOL-01, EVOL-02, EVOL-03, INTEG-03
+
+**Dependencies:** None (prerequisite for all other phases)
+
+**Estimated files to create/modify:**
+- `src/core/coordination/error_handler.js` — add PreconditionError / ProcessError / ValidationError taxonomy
+- `src/core/soul/failure_circuit_breaker.js` — add error classification methods
+- `src/core/coordination/logger.js` — add DLQ push capability
+- `src/core/soul/soul_skill_evolver.js` — minimum `_extractKnowledge()`, `_evolveSkills()`, `_autoMerge()`
+- `src/core/soul/decision_auditor.js` — DECI-04 append-only JSONL audit log (NEW)
+- `src/core/soul/soul_scheduler.js` — add evolution timeout wrapper (10 min max)
+- 5 files with empty catch blocks — replace each with structured logging + DLQ push + rethrow
+- `.stigmergy/soul-state/decisions/` — directory structure for INTEG-03
+
+**Success Criteria:**
+1. `grep -rn '} catch.* {}' src/` returns 0 results for the 11 known empty blocks
+2. Every caught error is classified as PreconditionError / ProcessError / ValidationError in evolution-log.jsonl
+3. Evolution cycle has a hard timeout of 10 minutes — no cycle hangs indefinitely
+4. Critical path failures surface to operators (not silently swallowed) via Logger or EventBus
+5. `.stigmergy/soul-state/decisions/{YYYY-MM-DD}.jsonl` exists and appends on every decision
+6. `_extractKnowledge()` returns structured content (title + body + metadata), not a pass-through string
+7. `_evolveSkills()` produces a real skill.md + skill-manifest.json, not a placeholder
+8. `_autoMerge()` performs actual KB merging (tmp+rename), not a console.log stub
 
 ---
 
-## Phase Details
+### Phase 2: Implement DECI Decision Framework
 
-### Phase 1: Error Visibility Foundation
+**Goal:** Deliver the full DECI-01 through DECI-06 decision layer — boundary filtering, confidence scoring, self-check, and fallback — wrapping existing Soul components without modifying them.
 
-**Goal:** Every error in the Soul evolution system is visible, classified, and logged — not silently swallowed
+**Requirements:** DECI-01, DECI-01a, DECI-01b, DECI-01c, DECI-02, DECI-02a, DECI-02b, DECI-02c, DECI-03, DECI-03a, DECI-03b, DECI-03c, DECI-05, DECI-05a, DECI-05b, DECI-05c, DECI-06, DECI-06a, DECI-06b, DECI-06c, DECI-06d, INTEG-01
 
-**Depends on:** Nothing (first phase)
+**Dependencies:** Phase 1 (error taxonomy + audit log required for DECI to operate on real signals)
 
-**Requirements:** OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06
+**Estimated files to create/modify:**
+- `src/core/soul/DECI/DecisionBoundary.js` — Layer 1 rule-based boundary checker (NEW)
+- `src/core/soul/DECI/ConfidenceScorer.js` — Layer 2 5-dimension weighted scorer (NEW)
+- `src/core/soul/DECI/EmergencyFallback.js` — Layer 3 extends FailureCircuitBreaker (NEW)
+- `src/core/soul/DECI/SoulDecisionEngine.js` — 3-layer gate orchestrator (NEW)
+- `src/core/soul/DECI/DecisionVerifier.js` — DECI-05 post-execution self-check (NEW)
+- `src/core/soul/DECI/FallbackManager.js` — DECI-06 escalation levels (NEW)
+- `.stigmergy/soul-state/boundaries/boundaries.json` — DECI-03 boundary config schema
+- `src/core/soul_manager.js` — integrate DecisionEngine before autonomous actions (INTEG-01)
 
-**Success Criteria** (what must be TRUE):
-
-1. `grep -rn '} catch' src/core/soul*.js src/core/soul/**/*.js` returns 0 empty catch blocks — every catch includes structured logging with error type, message, stack, timestamp, component name, and DLQ push
-2. Error taxonomy classifies every caught error as PreconditionError, ProcessError, or ValidationError — each type triggers distinct recovery behavior (skip/retry/rotate)
-3. Evolution timeout wrapper aborts any evolution cycle exceeding 10 minutes and logs a timeout event before returning control to the scheduler
-4. Every decision made by DECI produces a DecisionLogger entry containing: input description, available options, chosen option, rationale, timestamp, and confidence score — entries persist to `.stigmergy/soul-state/decisions/`
-5. `_extractKnowledge()` produces structured output (JSON or Markdown with frontmatter) containing at minimum: title, source URL, key concepts, and metadata — not a pass-through of the raw search snippet
-6. `_evolveSkills()` creates non-empty skill files containing at minimum a skill.md skeleton and skill-manifest.json, and `_autoMerge()` either implements the merge logic or explicitly logs that it is disabled
-
-**Plans:** TBD
-
-**UI hint:** no
-
----
-
-### Phase 2: Decision Framework
-
-**Goal:** Soul can decide autonomously within configured boundaries, escalates uncertain decisions to the user, self-checks outcomes, and falls back gracefully on repeated failures
-
-**Depends on:** Phase 1
-
-**Requirements:** DECI-01, DECI-02, DECI-03, DECI-05, DECI-06
-
-**Success Criteria** (what must be TRUE):
-
-1. DecisionFramework classifies every decision as AUTONOMOUS, ESCALATE, or BLOCK — AUTONOMOUS when the decision is within configured boundaries AND confidence >= threshold; ESCALATE when confidence < threshold; BLOCK when decision is outside all boundaries
-2. Decisions with confidence below the configured threshold (per decision type) trigger an IM confirmation prompt before proceeding — the system waits for user confirmation before taking action
-3. Boundary config in `.stigmergy/soul-state/boundaries.json` is validated against a JSON schema at startup; invalid config causes a startup error with a descriptive message, not a silent fallback to unsafe defaults
-4. DecisionVerifier detects when actual outcome diverges from expected outcome and logs a discrepancy event with both values — divergence triggers DECI-06 escalation
-5. FallbackManager activates after N consecutive decision failures (N configurable, default 3): logs fallback activation, sends notification via EventBus, and awaits manual intervention or timeout before resuming autonomous operation
-
-**Plans:** TBD
-
-**UI hint:** no
+**Success Criteria:**
+1. `SoulDecisionEngine.decide(context)` returns `{ final_decision: 'ACT_AUTONOMOUSLY' | 'ASK_USER' | 'BLOCK' | 'HALT_AND_NOTIFY' }` with layer-by-layer reasoning
+2. Layer 1 (DecisionBoundary) correctly BLOCKs destructive operations defined in boundaries.json
+3. Layer 2 (ConfidenceScorer) produces deterministic autonomy_score per decision type; below 0.65 threshold -> ESCALATE
+4. Layer 3 (EmergencyFallback) escalates through NOMINAL -> DEGRADED -> ESCALATE -> ABORT based on consecutive failure count
+5. DecisionVerifier returns PASS / FAIL / UNVERIFIABLE verdict after every autonomous action
+6. `Auditor.getAutonomyRate(days)` returns ratio of autonomous vs. escalated decisions
+7. Every decision record in decisions/{YYYY-MM-DD}.jsonl includes: decision_id, timestamp, situation, layer1/2/3 results, final_decision, outcome
+8. DECI-03 boundaries.json is schema-validated at startup; invalid config throws with clear error
 
 ---
 
-### Phase 3: Evolution Resilience
+### Phase 3: Autonomous Evolution Resilience
 
-**Goal:** The Soul evolution loop survives crashes, retries intelligently, resumes from checkpoints, and never corrupts skill state with partial writes
+**Goal:** Make the evolution loop self-recovering and corruption-resistant — supervisor tree, circuit breaker, checkpoint/resume, DLQ replay, atomic writes, and scheduler singleton.
 
-**Depends on:** Phase 1
+**Requirements:** (Structural resilience — no new REQ-IDs; addresses Pitfalls 2, 3, 6)
 
-**Requirements:** RES-01, RES-02, RES-03, RES-04, RES-05
+**Dependencies:** Phase 1 (DLQ + circuit breaker need error taxonomy) and Phase 2 (FallbackManager integrated before supervisor wraps it)
 
-**Success Criteria** (what must be TRUE):
+**Estimated files to create/modify:**
+- `src/core/evolution/EvolutionSupervisor.js` — root supervisor with exponential backoff (NEW)
+- `src/core/evolution/CircuitBreakerIntegration.js` — per-strategy breakers, bulkhead, event emission (NEW)
+- `src/core/evolution/CheckpointStore.js` — save/resume progress idempotently (NEW)
+- `src/core/evolution/DeadLetterQueue.js` — persist failed tasks JSONL + replay mechanism (NEW)
+- `src/core/soul/soul_auto_merger.js` — replace direct fs.writeFile with tmp+rename atomic writes
+- `src/core/soul/soul_scheduler.js` — PID/flock singleton enforcement
+- `src/core/coordination/error_handler.js` — integrate circuit breaker to skip retries after circuit opens
 
-1. EvolutionSupervisor restarts a crashed evolution loop within 5 seconds using exponential backoff — restart count and backoff interval are logged at each attempt
-2. Circuit breaker opens after 5 consecutive failures of the same evolution strategy and remains open for 5 minutes before transitioning to half-open state — during open state, no retries are attempted and a circuit-open event is logged
-3. CheckpointStore saves evolution progress after each step; on restart, completed steps are skipped and evolution resumes from the last checkpoint — verified by simulating a crash mid-evolution and confirming no completed steps are re-executed
-4. Dead Letter Queue appends every failed evolution cycle with full context (input, error, strategy, timestamp) to an append-only JSONL file; a replay command can re-process any DLQ entry
-5. Merger uses temp+rename pattern for all skill file writes; concurrent write test confirms no partial files appear in the skill directory and no existing files are corrupted
-
-**Plans:** TBD
-
-**UI hint:** no
-
----
-
-### Phase 4: Gatekeeper Integration
-
-**Goal:** Every evolution run passes through gatekeeper verification; CI blocks promotion of unverified skills; gatekeeper reports are persisted and auditable
-
-**Depends on:** Phase 3
-
-**Requirements:** GATE-01, GATE-02, GATE-03
-
-**Success Criteria** (what must be TRUE):
-
-1. GitHub Actions workflow exits non-zero when gatekeeper.js returns a non-zero exit code from an evolution run — CI run is blocked and reported as failed
-2. Gatekeeper verification report is available as a workflow artifact named `soul-gatekeeper-report-{timestamp}.json` after every evolution run, regardless of pass or fail
-3. Skills are not promoted (copied to production skill directories or committed) when gatekeeper verification is below Level 3 — promotion attempt when Level < 3 produces a log warning and is aborted
-
-**Plans:** TBD
-
-**UI hint:** no
+**Success Criteria:**
+1. After 5 consecutive failures on one strategy, circuit breaker trips — evolution pauses and alerts
+2. Each evolution step saves a checkpoint; restart resumes from last completed step (not from scratch)
+3. Failed tasks appear in `.stigmergy/soul-state/evolution-dlq.jsonl` with error type, timestamp, retry count
+4. Replay process reads DLQ entries and retries those with recoverable error types (ProcessError)
+5. Scheduler lock has TTL; expired locks are auto-cleared on startup
+6. Concurrent scheduler invocations do not write conflicting state (flock or first-writer-wins)
+7. Merger writes use atomic tmp+rename — no partial merges corrupt skill state on crash
+8. Evolution loop body is wrapped in try/catch with exponential backoff — single crash does not break loop
 
 ---
 
-## Progress
+### Phase 4: Knowledge Production & Gatekeeper Integration
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Error Visibility Foundation | 0/6 | Not started | - |
-| 2. Decision Framework | 0/5 | Not started | - |
-| 3. Evolution Resilience | 0/5 | Not started | - |
-| 4. Gatekeeper Integration | 0/3 | Not started | - |
+**Goal:** Wire gatekeeper into the evolution loop (CI blocks on failure), enable real multi-agent knowledge cross-validation, identify skill gaps, and auto-generate tests for evolved skills.
 
----
+**Requirements:** INTEG-02, plus v2 capabilities: DECI-07, DECI-08, DECI-09, DECI-10, DECI-11, DECI-12, DECI-13
 
-## Dependencies
+**Dependencies:** Phase 1 (minimum knowledge extraction working), Phase 2 (DECI self-check + fallback), Phase 3 (checkpoint + DLQ operational)
 
-```
-Phase 1 ──┬──► Phase 2 ──┐
-          └──► Phase 3 ──┴──► Phase 4
-```
+**Estimated files to create/modify:**
+- `src/core/evolution/EvolutionSupervisor.js` — invoke gatekeeper.js after each iteration (INTEG-02)
+- `.gates/gatekeeper.js` — invoke programmatically from evolution loop (not just CLI)
+- `src/core/evolution/MultiAgentCrossValidator.js` — real multi-perspective knowledge validation (NEW)
+- `src/core/evolution/SkillGapAnalyzer.js` — compare installed skills vs. mission requirements (NEW)
+- `src/core/evolution/AutonomousTestGenerator.js` — generate tests for evolved skills (NEW)
+- `.github/workflows/evolution-gate.yml` — CI workflow running gatekeeper on evolution artifacts (NEW)
+- `src/core/soul/DECI/ConfidenceCalibrator.js` — outcome-tracked calibration from audit log (NEW)
 
-- Phase 2 depends on Phase 1 (DECI needs error signals from OBS)
-- Phase 4 depends on Phase 3 (Gatekeeper gates a resilient evolution system, not a broken one)
-- Phase 3 can start after Phase 1 (resilience built on visible errors)
-- Phase 4 is the last phase — gatekeeper should gate a working, self-recovering system
-
-## Open Questions (User Decisions Needed During Phases)
-
-| Phase | Question | Options |
-|-------|----------|---------|
-| Phase 1 | What is minimum viable knowledge extraction output? | Structured JSON / Markdown with frontmatter / SQLite-vec insert |
-| Phase 1 | What is minimum viable evolved skill? | skill.md + manifest / skill.md + tests + manifest |
-| Phase 2 | What is the initial confidence scoring formula? | Simple weighted average / calibrated from audit log data |
-| Phase 2 | What are the initial DECI-03 boundaries? | Conservative (read-only) / moderate (non-destructive) / user defines |
+**Success Criteria:**
+1. `gatekeeper.js` is `require()`d and invoked programmatically from the evolution loop — non-zero exit blocks CI
+2. Every evolution iteration produces a gatekeeper report as a required artifact
+3. Multi-agent cross-validation (collaboration strategy) produces real competing outputs, not "Not enough valid analyses"
+4. SkillGapAnalyzer outputs a list of missing capabilities against mission requirements from SOUL.md
+5. AutonomousTestGenerator produces a test file (tests/agent/*.test.js) for every evolved skill before Level 2 claim
+6. ConfidenceCalibrator computes calibration accuracy from decision audit log; updates weights after N decisions
+7. DECI-02 outcome calibration curve is stored per decision type — high-confidence wrong decisions decrement task_familiarity weight
 
 ---
 
-*Roadmap created: 2026-04-12*
-*Derived from: research/SUMMARY.md, REQUIREMENTS.md*
+## Phase Transition Triggers
+
+| Transition | Trigger |
+|-----------|---------|
+| Phase 1 -> Phase 2 | All 8 Phase 1 success criteria pass; evolution-log.jsonl shows classified errors |
+| Phase 2 -> Phase 3 | DECI-01 through DECI-06 all return non-null decisions; audit log has 10+ entries |
+| Phase 3 -> Phase 4 | 5 consecutive evolution cycles complete without loop crash; DLQ replay succeeds |
+| Project complete | All v1 requirements validated |
+
+---
+
+## Requirement Coverage Summary
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ERR-01: Replace 11 empty catch blocks | Phase 1 | Pending |
+| ERR-02: Error taxonomy (3 types) | Phase 1 | Pending |
+| ERR-03: Evolution timeout wrapper (10 min) | Phase 1 | Pending |
+| ERR-04: Non-silent failure reporting | Phase 1 | Pending |
+| DECI-04: Decision audit log (append-only JSONL) | Phase 1 | Pending |
+| EVOL-01: Minimum viable _extractKnowledge() | Phase 1 | Pending |
+| EVOL-02: Minimum viable _evolveSkills() | Phase 1 | Pending |
+| EVOL-03: Auto-merge _autoMerge() | Phase 1 | Pending |
+| INTEG-03: Decision state directory structure | Phase 1 | Pending |
+| DECI-01: SoulDecisionEngine (3-layer gate) | Phase 2 | Pending |
+| DECI-01a: DecisionBoundary (Layer 1) | Phase 2 | Pending |
+| DECI-01b: ConfidenceScorer (Layer 2) | Phase 2 | Pending |
+| DECI-01c: EmergencyFallback (Layer 3) | Phase 2 | Pending |
+| DECI-02: Per-decision-type confidence thresholds | Phase 2 | Pending |
+| DECI-02a: Default threshold 0.65 | Phase 2 | Pending |
+| DECI-02b: Below threshold -> escalate | Phase 2 | Pending |
+| DECI-02c: Outcome-tracked calibration | Phase 2 | Pending |
+| DECI-03: boundaries.json schema | Phase 2 | Pending |
+| DECI-03a: Block rules (destructive always escalate) | Phase 2 | Pending |
+| DECI-03b: Autonomous rules (read-only, trusted) | Phase 2 | Pending |
+| DECI-03c: Schema validated at startup | Phase 2 | Pending |
+| DECI-05: DecisionVerifier (post-execution self-check) | Phase 2 | Pending |
+| DECI-05a: PASS / FAIL / UNVERIFIABLE verdict | Phase 2 | Pending |
+| DECI-05b: FAIL -> trigger DECI-06 fallback | Phase 2 | Pending |
+| DECI-05c: Self-check feeds confidence calibration | Phase 2 | Pending |
+| DECI-06: FallbackManager (consecutive failure escalation) | Phase 2 | Pending |
+| DECI-06a: NOMINAL (0 failures) | Phase 2 | Pending |
+| DECI-06b: DEGRADED (1-2 failures) | Phase 2 | Pending |
+| DECI-06c: ESCALATE (3-4 failures) | Phase 2 | Pending |
+| DECI-06d: ABORT (5+ failures) | Phase 2 | Pending |
+| INTEG-01: DecisionEngine integrated into SoulManager | Phase 2 | Pending |
+| INTEG-02: gatekeeper.js invoked from evolution loop | Phase 4 | Pending |
+| Circuit breaker integration | Phase 3 | Pending |
+| EvolutionSupervisor (root supervisor) | Phase 3 | Pending |
+| CheckpointStore (save/resume) | Phase 3 | Pending |
+| Dead Letter Queue (persist + replay) | Phase 3 | Pending |
+| Atomic writes in Merger | Phase 3 | Pending |
+| Scheduler singleton (PID/flock) | Phase 3 | Pending |
+| Multi-agent knowledge production | Phase 4 | Pending |
+| Skill gap identification | Phase 4 | Pending |
+| Autonomous test generation | Phase 4 | Pending |
+
+**Total tracked requirements: 40 (19 v1 primary + 6 ERR/EVOL/INTEG + 6 Phase 3 structural + 6 Phase 4 v2)**
+**v2 capabilities (DECI-07 through DECI-13): planned for Phase 4 extension**
+
+---
+
+## Constraints
+
+- **No new npm dependencies** — all implementations use Node.js built-ins + existing ErrorHandler + Logger + FailureCircuitBreaker
+- **Backward compatible** — existing evolution/reflection flows unchanged; DECI layer wraps, not replaces
+- **Deterministic outputs** — same context always produces same decision (no randomness)
+- **All decision state in `.stigmergy/soul-state/decisions/`** — consistent with existing Soul state directory
+- **Tech:** Node.js >= 16, ESM/CommonJS mixed
+
+---
+
+*Roadmap created: 2026-04-12 based on research/SUMMARY.md, research/STACK.md, research/FEATURES.md, research/PITFALLS.md, research/ARCHITECTURE.md, REQUIREMENTS.md, PROJECT.md*
