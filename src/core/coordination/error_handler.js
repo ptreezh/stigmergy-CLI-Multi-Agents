@@ -661,8 +661,53 @@ class ErrorHandler extends EventEmitter {
   }
 }
 
+/**
+ * PreconditionError — precondition not met before operation starts.
+ * Examples: missing config file, wrong state, empty input list.
+ * Recovery: Fix inputs, do NOT retry the same operation.
+ */
+class PreconditionError extends Error {
+  constructor(message, context = {}) {
+    super(message);
+    this.name = 'PreconditionError';
+    this.context = context;
+    Error.captureStackTrace(this, PreconditionError);
+  }
+}
+
+/**
+ * ProcessError — operation failed during execution (recoverable).
+ * Examples: network timeout, fs write failure, subprocess crash.
+ * Recovery: Retry with backoff, push to DLQ if persistent.
+ */
+class ProcessError extends Error {
+  constructor(message, context = {}) {
+    super(message);
+    this.name = 'ProcessError';
+    this.context = context;
+    Error.captureStackTrace(this, ProcessError);
+  }
+}
+
+/**
+ * ValidationError — input validation failed, operation cannot proceed.
+ * Examples: JSON parse failure, missing required field, schema violation.
+ * Recovery: Fix input, NOT retry — will fail identically.
+ */
+class ValidationError extends Error {
+  constructor(message, context = {}) {
+    super(message);
+    this.name = 'ValidationError';
+    this.context = context;
+    Error.captureStackTrace(this, ValidationError);
+  }
+}
+
 module.exports = {
   ErrorHandler,
   ErrorType,
   RetryPolicy,
+  PreconditionError,
+  ProcessError,
+  ValidationError,
 };

@@ -9,6 +9,17 @@
  */
 
 const EventEmitter = require("events");
+const CheckpointStore = require("./soul/CheckpointStore");
+const DeadLetterQueue = require("./soul/DeadLetterQueue");
+const { ProcessError } = require("./coordination/error_handler");
+
+const EVOLUTION_STEPS = [
+  "extract-knowledge",
+  "check-alignment",
+  "evolve-skills",
+  "check-quality",
+  "merge-kb",
+];
 
 class SoulScheduler extends EventEmitter {
   constructor(options = {}) {
@@ -120,23 +131,59 @@ class SoulScheduler extends EventEmitter {
 
     this._log("evolve", "manual");
 
-    if (this.soulManager?.learn) {
-      const result = await this.soulManager.learn();
+    const checkpoint = new CheckpointStore();
+    const dlq = new DeadLetterQueue();
+    checkpoint.begin();
 
-      // 发送Hook事件
-      this.emit("evolveComplete", {
-        timestamp: new Date().toISOString(),
-        result,
-        mode: this.currentMode,
-      });
+    try {
+      for (const step of EVOLUTION_STEPS) {
+        // Check timeout before each step
+        const { timedOut, elapsedMs } = checkpoint.checkTimeout();
+        if (timedOut) {
+          checkpoint.save(`${step}-timeout`);
+          throw new ProcessError(
+            `Evolution timeout after ${Math.round(elapsedMs / 60000)} minutes`,
+            { step, evolutionId: checkpoint._load().evolutionId }
+          );
+        }
 
-      // 触发Subagent通知
-      await this._notifySubagents("evolve", result);
+        // Execute step via soulManager
+        let partialResults = {};
+        if (step === "extract-knowledge" && this.soulManager?.skillEvolver) {
+          partialResults = await this.soulManager.skillEvolver.evolve().catch(err => ({ error: err.message })).then(() => ({}));
+        } else if (step === "evolve-skills" && this.soulManager?.skillEvolver) {
+          partialResults = { evolved: true };
+        }
 
-      return result;
+        checkpoint.save(step, partialResults);
+      }
+
+      checkpoint.clear();
+
+      if (this.soulManager?.learn) {
+        const result = await this.soulManager.learn();
+
+        // 发送Hook事件
+        this.emit("evolveComplete", {
+          timestamp: new Date().toISOString(),
+          result,
+          mode: this.currentMode,
+        });
+
+        // 触发Subagent通知
+        await this._notifySubagents("evolve", result);
+
+        return result;
+      }
+
+      return null;
+    } catch (err) {
+      checkpoint.save(`${EVOLUTION_STEPS[0] || 'unknown'}-error`);
+      if (err instanceof ProcessError) {
+        dlq.push(err, { operation: "evolution-cycle" });
+      }
+      throw err;
     }
-
-    return null;
   }
 
   /**

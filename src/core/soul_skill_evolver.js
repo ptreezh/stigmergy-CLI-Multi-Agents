@@ -419,15 +419,77 @@ class SoulSkillEvolver {
    * 从网页提取知识
    */
   async _extractKnowledge(source) {
-    // 简化实现：直接使用snippet
-    return {
-      title: source.title || "Untitled",
-      content: source.snippet || "",
-      source: source.url,
-      sourceType: "web",
-      tags: [],
-      expertise: null,
+    const { execSync } = require('child_process');
+    const crypto = require('crypto');
+
+    const results = {
+      title: source.title || 'Untitled',
+      content: '',
+      source: source.url || 'local-git',
+      metadata: {
+        commitHash: null,
+        author: null,
+        filesChanged: 0,
+        linesAdded: 0,
+        linesDeleted: 0,
+      },
     };
+
+    try {
+      // 1. Recent commit messages (last 24 hours)
+      const sinceDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const logOutput = execSync(
+        `git log --since="${sinceDate}" --pretty=format:"%H|%s|%an|%ad" --date=iso`,
+        { encoding: 'utf8', cwd: process.cwd(), timeout: 5000 }
+      );
+
+      const commits = logOutput.trim().split('\n').filter(Boolean).map(line => {
+        const [hash, subject, author, date] = line.split('|');
+        return { hash, subject, author, date };
+      });
+
+      if (commits.length === 0) {
+        results.content = 'No commits in the last 24 hours.';
+        return results;
+      }
+
+      // 2. Diff stats for changed files
+      const diffStat = execSync(
+        `git diff --stat HEAD~${Math.max(commits.length, 1)}..HEAD`,
+        { encoding: 'utf8', cwd: process.cwd(), timeout: 5000 }
+      );
+
+      // Parse diff stat: "5 files changed, 120 insertions(+), 30 deletions(-)"
+      const statMatch = diffStat.match(/(\d+) files? changed(?:, (\d+) insertions?\(\+\))?(?:, (\d+) deletions?\(\-\))?/);
+      if (statMatch) {
+        results.metadata.filesChanged = parseInt(statMatch[1], 10);
+        results.metadata.linesAdded = parseInt(statMatch[2] || '0', 10);
+        results.metadata.linesDeleted = parseInt(statMatch[3] || '0', 10);
+      }
+
+      // 3. Build content from commit messages
+      results.content = commits.map(c =>
+        `- [${c.hash.slice(0, 7)}] ${c.subject} (${c.author}, ${c.date})`
+      ).join('\n');
+
+      results.metadata.commitHash = commits[0].hash;
+      results.metadata.author = commits[0].author;
+
+      return results;
+    } catch (err) {
+      // Not a git repo, or git not available — fall back to snippet
+      if (err.code === 'ENOENT' || (err.message && err.message.includes('not a git'))) {
+        results.content = source.snippet || 'Git extraction unavailable: not a git repository.';
+        results.source = source.url || 'local-git';
+        return results;
+      }
+      // Wrap as ProcessError and rethrow
+      const { ProcessError } = require('./coordination/error_handler');
+      throw new ProcessError(`Git knowledge extraction failed: ${err.message}`, {
+        operation: '_extractKnowledge',
+        source: source.title,
+      });
+    }
   }
 
   /**
@@ -435,16 +497,75 @@ class SoulSkillEvolver {
    */
   async _evolveSkills(knowledgeList) {
     const results = { created: [], updated: [] };
+    if (!knowledgeList || knowledgeList.length === 0) return results;
 
-    // 简化实现：记录创建的技能
-    for (const knowledge of knowledgeList.slice(
-      0,
-      this.config.evolve.maxSkillsPerCycle,
-    )) {
-      results.created.push({
-        name: `evolved-${knowledge.title.substring(0, 20)}`,
-        source: knowledge.source,
-      });
+    const skillsDir = this.skillsPath || path.join(
+      process.env.HOME || process.env.USERPROFILE,
+      '.stigmergy',
+      'skills'
+    );
+    if (!fs.existsSync(skillsDir)) {
+      fs.mkdirSync(skillsDir, { recursive: true });
+    }
+
+    const maxSkills = this.config.evolve.maxSkillsPerCycle;
+    for (const knowledge of knowledgeList.slice(0, maxSkills)) {
+      try {
+        // Generate skill name from knowledge title
+        const skillName = (knowledge.title || 'untitled')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 50);
+
+        const skillDir = path.join(skillsDir, skillName);
+        if (!fs.existsSync(skillDir)) {
+          fs.mkdirSync(skillDir, { recursive: true });
+        }
+
+        // 1. Create SKILL.md with YAML frontmatter (atomic tmp+rename)
+        const skillMd = `---
+name: ${skillName}
+description: "${(knowledge.title || 'Untitled skill').replace(/"/g, '\\"')}"
+triggers:
+  - "${(knowledge.title || '').toLowerCase().slice(0, 80)}"
+source: ${knowledge.source || 'local-evolution'}
+extracted_at: ${new Date().toISOString()}
+---
+
+# ${knowledge.title || 'Untitled'}
+
+${knowledge.content || ''}
+`;
+        const skillMdPath = path.join(skillDir, 'SKILL.md');
+        const tmpMd = skillMdPath + '.tmp';
+        fs.writeFileSync(tmpMd, skillMd, 'utf8');
+        fs.renameSync(tmpMd, skillMdPath);
+
+        // 2. Create skill-manifest.json (atomic tmp+rename)
+        const manifest = {
+          name: skillName,
+          version: '0.1.0',
+          description: knowledge.title || 'Untitled skill',
+          triggers: [(knowledge.title || '').toLowerCase().slice(0, 80)],
+          source: knowledge.source || 'local-evolution',
+          verification_level: 0,
+          created_at: new Date().toISOString(),
+          knowledge_refs: [{ title: knowledge.title, source: knowledge.source }],
+        };
+        const manifestPath = path.join(skillDir, 'skill-manifest.json');
+        const tmpManifest = manifestPath + '.tmp';
+        fs.writeFileSync(tmpManifest, JSON.stringify(manifest, null, 2), 'utf8');
+        fs.renameSync(tmpManifest, manifestPath);
+
+        results.created.push({ name: skillName, path: skillDir });
+      } catch (err) {
+        // Non-critical: skill creation failure should not halt evolution
+        const { ProcessError } = require('./coordination/error_handler');
+        this._logger?.warn(
+          `_evolveSkills: failed to create skill from "${knowledge.title}": ${err.message}`
+        );
+      }
     }
 
     return results;
@@ -473,9 +594,56 @@ class SoulSkillEvolver {
    * 自动合并
    */
   async _autoMerge() {
-    console.log(
-      "[SoulSkillEvolver] Auto-merge not implemented in this version",
+    const fs = require('fs');
+    const path = require('path');
+
+    const skillsDir = this.skillsPath || path.join(
+      process.env.HOME || process.env.USERPROFILE,
+      '.stigmergy',
+      'skills'
     );
+    const mergedKbPath = path.join(skillsDir, 'knowledge-base-merged.json');
+
+    // 1. Collect all CLI KB JSON files
+    const kbEntries = [];
+    if (!fs.existsSync(skillsDir)) return { merged: false, entryCount: 0 };
+
+    for (const cliDir of fs.readdirSync(skillsDir)) {
+      const kbPath = path.join(skillsDir, cliDir, 'knowledge-base.json');
+      if (!fs.existsSync(kbPath)) continue;
+      try {
+        const data = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
+        if (Array.isArray(data.entries)) {
+          kbEntries.push(...data.entries.map(e => ({ ...e, _cli: cliDir })));
+        }
+      } catch (err) {
+        // ValidationError — skip corrupt KB (logged elsewhere)
+      }
+    }
+
+    // 2. Deduplicate by title (case-insensitive)
+    const seen = new Map();
+    for (const entry of kbEntries) {
+      const key = (entry.title || '').toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.set(key, entry);
+      }
+    }
+
+    // 3. Write merged KB with tmp+rename (atomic)
+    const merged = {
+      version: '1.0',
+      merged_at: new Date().toISOString(),
+      entry_count: seen.size,
+      entries: Array.from(seen.values()),
+    };
+
+    const tmp = mergedKbPath + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(merged, null, 2), 'utf8');
+    fs.renameSync(tmp, mergedKbPath);
+
+    this._logger?.info(`_autoMerge: ${merged.entry_count} unique entries merged`);
+    return { merged: true, entryCount: merged.entry_count };
   }
 
   /**

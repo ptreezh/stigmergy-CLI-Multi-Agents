@@ -746,6 +746,30 @@ class Logger extends EventEmitter {
       this.state.metrics.performanceMetrics[metricName] = value;
     }
   }
+
+  /**
+   * Push a structured error entry to the dead-letter queue.
+   * @param {Object} entry — { id, errorType, message, context, stack, timestamp, retryCount }
+   */
+  pushDLQ(entry) {
+    const dlqPath = path.join(
+      process.env.HOME || process.env.USERPROFILE,
+      '.stigmergy',
+      'soul-state',
+      'evolution-dlq.jsonl'
+    );
+    try {
+      const dir = path.dirname(dlqPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const line = JSON.stringify(entry) + '\n';
+      fs.appendFileSync(dlqPath, line, 'utf8');
+    } catch (err) {
+      // Fallback: log to main log file if DLQ write fails
+      this.error(`DLQ write failed: ${err.message}`, { dlqEntry: entry });
+    }
+  }
 }
 
 module.exports = {
