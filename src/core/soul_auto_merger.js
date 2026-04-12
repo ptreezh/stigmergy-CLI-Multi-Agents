@@ -12,6 +12,7 @@
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
+const DeadLetterQueue = require("./soul/DeadLetterQueue");
 
 const HOME = process.env.HOME || process.env.USERPROFILE;
 const BASE_PATH = path.join(HOME, ".stigmergy", "skills");
@@ -39,6 +40,9 @@ class SoulAutoMerger {
     if (!fs.existsSync(wikiDir)) {
       fs.mkdirSync(wikiDir, { recursive: true });
     }
+
+    // DLQ for error tracking
+    this.dlq = new DeadLetterQueue();
   }
 
   /**
@@ -150,7 +154,13 @@ class SoulAutoMerger {
         try {
           const data = JSON.parse(fs.readFileSync(kbPath, "utf-8"));
           kbs.push({ cli, entries: data.entries || [] });
-        } catch (e) {}
+        } catch (err) {
+          const { ValidationError } = require('./coordination/error_handler');
+          const classified = new ValidationError(err.message, { operation: 'loadKB', file: kbPath, cli });
+          this.logger?.error(`[SoulAutoMerger] ValidationError: skipped corrupt KB for CLI "${cli}": ${classified.message}`, { context: classified.context });
+          this.dlq?.push(classified, { operation: 'loadKB', cli });
+          // Don't throw — skip this corrupt KB, continue with others
+        }
       }
     }
 
@@ -272,7 +282,13 @@ class SoulAutoMerger {
       try {
         const data = JSON.parse(fs.readFileSync(stateFile, "utf-8"));
         return data.lastMergeTime;
-      } catch (e) {}
+      } catch (err) {
+        const { ValidationError } = require('./coordination/error_handler');
+        const classified = new ValidationError(err.message, { operation: 'loadLastMergeTime', file: stateFile });
+        this.logger?.warn(`[SoulAutoMerger] ValidationError: ${classified.message}`, { context: classified.context });
+        this.dlq?.push(classified, { operation: 'loadLastMergeTime' });
+        // Return null for lastMergeTime, don't throw
+      }
     }
     return null;
   }

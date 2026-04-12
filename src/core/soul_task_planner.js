@@ -10,6 +10,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const DeadLetterQueue = require("./soul/DeadLetterQueue");
 
 class SoulTaskPlanner {
   constructor(options = {}) {
@@ -465,7 +466,14 @@ class SoulTaskPlanner {
     if (fs.existsSync(filePath)) {
       try {
         reflections = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-      } catch (e) {}
+      } catch (err) {
+        const { ValidationError } = require('./coordination/error_handler');
+        const classified = new ValidationError(err.message, { operation: '_saveReflection', file: filePath });
+        this.logger?.warn(`[SoulTaskPlanner] ValidationError: skipped corrupt reflections file: ${classified.message}`, { context: classified.context });
+        const dlq = new DeadLetterQueue();
+        try { dlq.push(classified, { operation: '_saveReflection' }); } catch (_) {}
+        // Return empty reflections array, don't throw
+      }
     }
 
     reflections.push(reflection);

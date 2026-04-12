@@ -9,6 +9,7 @@
  */
 
 const { createSoulSystem } = require("./soul_system");
+const DeadLetterQueue = require("./soul/DeadLetterQueue");
 
 /**
  * 集成到Claude Hook适配器
@@ -70,7 +71,14 @@ function findClaudeSkillsPath() {
       if (fs.existsSync(p)) {
         return p;
       }
-    } catch (e) {}
+    } catch (err) {
+      const { PreconditionError } = require('./coordination/error_handler');
+      const classified = new PreconditionError(err.message, { operation: 'checkSkillsPath', path: p });
+      console.error(`[SoulCLIIntegration] PreconditionError: skills path not found: ${classified.message}`);
+      const dlq = new DeadLetterQueue();
+      try { dlq.push(classified, { operation: 'checkSkillsPath' }); } catch (_) {}
+      throw classified;
+    }
   }
 
   return null;

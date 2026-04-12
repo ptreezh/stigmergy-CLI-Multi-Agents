@@ -941,26 +941,38 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
         path.join(this.qoderConfigDir, "notification_hook_adapter.js"),
       );
       filesExist.hook_adapter = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.qoderConfigDir, "notification_hook_adapter.js")}`);
+    }
 
     try {
       await fs.access(path.join(this.qoderConfigDir, "config.json"));
       filesExist.config = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.qoderConfigDir, "config.json")}`);
+    }
 
     try {
       await fs.access(
         path.join(this.hooksDir, isWindows ? "pre_hook.bat" : "pre_hook.sh"),
       );
       filesExist.pre_hook = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.hooksDir, isWindows ? "pre_hook.bat" : "pre_hook.sh")}`);
+    }
 
     try {
       await fs.access(
         path.join(this.hooksDir, isWindows ? "post_hook.bat" : "post_hook.sh"),
       );
       filesExist.post_hook = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.hooksDir, isWindows ? "post_hook.bat" : "post_hook.sh")}`);
+    }
 
     try {
       await fs.access(
@@ -970,7 +982,10 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
         ),
       );
       filesExist.error_hook = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.hooksDir, isWindows ? "error_hook.bat" : "error_hook.sh")}`);
+    }
 
     try {
       await fs.access(
@@ -980,7 +995,10 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
         ),
       );
       filesExist.startup_script = true;
-    } catch (error) {}
+    } catch (error) {
+      // File does not exist — expected for optional integration files
+      this._logger?.debug(`Optional file not found: ${path.join(this.qoderConfigDir, isWindows ? "start_hooks.bat" : "start_hooks.sh")}`);
+    }
 
     return {
       platform: platform,

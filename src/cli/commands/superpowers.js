@@ -225,7 +225,14 @@ function copy(src, dst) {
     else
       try {
         fs.copyFileSync(s, d);
-      } catch (err) {}
+      } catch (err) {
+        const { ProcessError } = require('../../core/coordination/error_handler');
+        const classified = new ProcessError(err.message, { operation: 'copy', from: s, to: d });
+        console.error(`[superpowers.js] ProcessError: failed to copy ${s} -> ${d}: ${classified.message}`);
+        const DLQ = require('../../core/soul/DeadLetterQueue');
+        try { new DLQ().push(classified, { operation: 'copy' }); } catch (_) {}
+        throw classified;
+      }
   }
 }
 
@@ -277,7 +284,12 @@ var HOOK_CONTENT = [
   "        add += '\\\\n\\\\n## Evolution Progress\\\\n';",
   "        add += '- Total Evolutions: ' + (state.totalEvolutions || 0) + '\\\\n';",
   "        add += '- Skills Learned: ' + (state.skillsLearned?.join(', ') || 'None');",
-  "      } catch(e) {}",
+  "      } catch (err) {",
+"        const { PreconditionError } = require('../../core/coordination/error_handler');",
+"        const classified = new PreconditionError(err.message, { operation: 'injectEvolutionState', file: statePath });",
+"        console.warn(`[superpowers.js] PreconditionError: missing/invalid state: \${classified.message}`);",
+"        // Non-critical — state injection is optional enhancement, don't throw",
+"      }",
   "    }",
   "",
   "    add += '</EXTREMELY_IMPORTANT>';",

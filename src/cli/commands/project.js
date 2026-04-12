@@ -446,7 +446,15 @@ function copyDirectoryRecursive(src, dst) {
     } else {
       try {
         fs.copyFileSync(srcPath, dstPath);
-      } catch (e) {}
+      } catch (err) {
+        const { ProcessError } = require('../../core/coordination/error_handler');
+        const classified = new ProcessError(err.message, { operation: 'copyDirectoryRecursive', src: srcPath, dst: dstPath });
+        console.error(`[project.js] ProcessError: failed to copy file from ${srcPath} to ${dstPath}: ${classified.message}`);
+        classified.context = classified.context || {};
+        const DLQ = require('../../core/soul/DeadLetterQueue');
+        try { new DLQ().push(classified, { operation: 'copyDirectoryRecursive' }); } catch (_) {}
+        throw classified;
+      }
     }
   }
 }
@@ -463,16 +471,20 @@ async function handleInitCommand(options = {}) {
       ),
     );
 
-    // Initialize or update skills/agents cache
-    await ensureSkillsCache({ verbose: true });
+    // Initialize or update skills/agents cache (skip if called from setup)
+    if (!options.skipSkillsCache) {
+      await ensureSkillsCache({ verbose: true });
+    }
 
-    // Quick path detection for better tool availability
-    console.log(chalk.blue("[INIT] Detecting CLI tool paths..."));
-    const pathSetup = await setupCLIPaths();
+    // Quick path detection for better tool availability (skip if called from setup)
+    if (!options.skipPathSetup) {
+      console.log(chalk.blue("[INIT] Detecting CLI tool paths..."));
+      const pathSetup = await setupCLIPaths();
 
-    console.log(
-      `[INIT] CLI tool detection: ${pathSetup.report.summary.found}/${pathSetup.report.summary.total} tools found`,
-    );
+      console.log(
+        `[INIT] CLI tool detection: ${pathSetup.report.summary.found}/${pathSetup.report.summary.total} tools found`,
+      );
+    }
 
     // Quick setup for basic project structure
     const projectDir = process.cwd();
@@ -612,8 +624,8 @@ async function handleSetupCommand(options = {}) {
       );
     }
 
-    // Initialize project (will call ensureSkillsCache again, that's ok)
-    await handleInitCommand({ verbose: options.verbose });
+    // Initialize project (skip redundant steps already done above)
+    await handleInitCommand({ verbose: options.verbose, skipPathSetup: true, skipSkillsCache: true });
 
     // Install CLI tools
     const installer = new StigmergyInstaller({ verbose: options.verbose });
@@ -830,12 +842,16 @@ async function executeSmartRoutedCommand(route, options = {}) {
 
     // Get adapted arguments for the tool and mode
     // 🔥 路由模式强制使用自动模式
-    let toolArgs = cliAdapterManager.getArguments(
+    // Save auto-mode flags before enhanced handler can overwrite them
+    const baseToolArgs = cliAdapterManager.getArguments(
       route.tool,
       mode,
       route.prompt,
       true,
     );
+    // Extract auto-mode flags (everything except the last -p/prompt pair)
+    const autoModeFlags = baseToolArgs.slice(0, baseToolArgs.length - 2);
+    let toolArgs = [...baseToolArgs];
 
     // Add OAuth authentication if needed
     toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
@@ -866,9 +882,19 @@ async function executeSmartRoutedCommand(route, options = {}) {
 
         const paramResult = await Promise.race([paramPromise, timeoutPromise]);
 
-        toolArgs = paramResult.arguments;
+        // Merge: preserve auto-mode flags + enhanced prompt args
+        // paramResult.arguments may be ["--print", '"/ant 什么是翻译"'] or ["-p", '"/ant 什么是翻译"']
+        // We need: autoModeFlags + paramResult.arguments (dedup --print if present in both)
+        const enhancedArgs = paramResult.arguments || [];
+        const mergedArgs = [...autoModeFlags];
+        for (const arg of enhancedArgs) {
+          // Skip duplicate --print (already in autoModeFlags)
+          if (arg === "--print" && mergedArgs.includes("--print")) continue;
+          mergedArgs.push(arg);
+        }
+        toolArgs = mergedArgs;
 
-        // Re-add OAuth authentication (paramResult might overwrite)
+        // Re-add OAuth authentication
         toolArgs = addOAuthAuthArgs(route.tool, toolArgs);
 
         if (verbose) {

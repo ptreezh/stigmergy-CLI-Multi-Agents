@@ -217,7 +217,13 @@ class SoulSystemScheduler {
           );
           status.soulAligned = soulStatus.lastAlignmentScore || null;
           status.lastActivity = soulStatus.lastActivity || null;
-        } catch (e) {}
+        } catch (err) {
+          const { PreconditionError } = require('./coordination/error_handler');
+          const classified = new PreconditionError(err.message, { operation: 'loadSoulStatus', file: soulStatusPath });
+          this._logger?.error(`[SoulSystemScheduler] PreconditionError: ${classified.message}`, { context: classified.context });
+          this.dlq?.push(classified, { operation: 'loadSoulStatus' });
+          throw classified;
+        }
       }
     }
 
@@ -247,7 +253,13 @@ class SoulSystemScheduler {
             fs.readFileSync(path.join(plansPath, file), "utf8"),
           );
           this.taskPlans.set(file.replace(".json", ""), plan);
-        } catch (e) {}
+        } catch (err) {
+          const { ValidationError } = require('./coordination/error_handler');
+          const classified = new ValidationError(err.message, { operation: 'loadTaskPlans', file: path.join(plansPath, file) });
+          this._logger?.error(`[SoulSystemScheduler] ValidationError: ${classified.message}`, { context: classified.context });
+          this.dlq?.push(classified, { operation: 'loadTaskPlans' });
+          // Don't throw — skip this plan, continue with others
+        }
       }
     }
 
@@ -411,7 +423,13 @@ class SoulSystemScheduler {
       try {
         const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
         lastAlignment = config.lastAlignmentScore || 0.8;
-      } catch (e) {}
+      } catch (err) {
+        const { ValidationError } = require('./coordination/error_handler');
+        const classified = new ValidationError(err.message, { operation: 'loadAlignmentConfig', file: configPath });
+        this._logger?.error(`[SoulSystemScheduler] ValidationError: ${classified.message}`, { context: classified.context });
+        this.dlq?.push(classified, { operation: 'loadAlignmentConfig' });
+        // Return default alignment 0.8, don't throw
+      }
     }
 
     // 检查当前模式
@@ -513,7 +531,13 @@ node "$SOUL_HOME/bin/soul-evolve.js" >> $LOG_FILE 2>&1
     // 设置执行权限
     try {
       fs.chmodSync(scriptPath, "755");
-    } catch (e) {}
+    } catch (err) {
+      const { ProcessError } = require('./coordination/error_handler');
+      const classified = new ProcessError(err.message, { operation: 'chmodScript', file: scriptPath });
+      this._logger?.warn(`[SoulSystemScheduler] ProcessError (non-critical): ${classified.message}`, { context: classified.context });
+      this.dlq?.push(classified, { operation: 'chmodScript' });
+      // Don't throw — chmod failure is non-critical
+    }
 
     // 添加crontab
     const cronEntry = `*/30 * * * * ${scriptPath}`;
@@ -543,7 +567,13 @@ node "$SOUL_HOME/bin/soul-evolve.js" >> $LOG_FILE 2>&1
         .filter((line) => !line.includes("soul-evolve.sh"));
       execSync(`echo "${lines.join("\n")}" | crontab -`);
       console.log("[SoulSystemScheduler] ✅ Cron jobs uninstalled");
-    } catch (e) {}
+    } catch (err) {
+      const { ProcessError } = require('./coordination/error_handler');
+      const classified = new ProcessError(err.message, { operation: 'uninstallCron' });
+      this._logger?.warn(`[SoulSystemScheduler] ProcessError (non-critical): ${classified.message}`, { context: classified.context });
+      this.dlq?.push(classified, { operation: 'uninstallCron' });
+      // Don't throw — cron uninstall failure is non-critical
+    }
   }
 
   /**
