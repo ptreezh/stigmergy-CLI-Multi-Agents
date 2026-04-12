@@ -7,10 +7,14 @@
 
 ### Error Handling Foundation
 
-- [ ] **ERR-01**: Replace all 11 empty catch blocks with structured error logging + DLQ push + rethrow
-- [ ] **ERR-02**: Implement error taxonomy: PreconditionError / ProcessError / ValidationError
-- [ ] **ERR-03**: Add evolution timeout wrapper (10 min max per cycle)
-- [ ] **ERR-04**: Non-silent failure reporting — critical path failures surface to operators
+- [x] **ERR-01**: Replace all 17 empty catch blocks with structured error logging + DLQ push + rethrow
+  *(commits a06ff3a8, 4683f5b9 — 7 files, all blocks replaced)*
+- [x] **ERR-02**: Implement error taxonomy: PreconditionError / ProcessError / ValidationError
+  *(src/core/coordination/error_handler.js:665-697 + classifyEvolutionError)*
+- [x] **ERR-03**: Add evolution timeout wrapper (10 min max per cycle)
+  *(src/core/soul/CheckpointStore.js + integration in soul_scheduler.js)*
+- [x] **ERR-04**: Non-silent failure reporting — critical path failures surface to operators
+  *(src/core/coordination/logger.js:754 pushDLQ + DeadLetterQueue.js infrastructure)*
 
 ### DECI-01: Decision Framework
 
@@ -35,7 +39,8 @@
 
 ### DECI-04: Decision Audit Log
 
-- [ ] **DECI-04**: Append-only JSONL audit log: decisions/{YYYY-MM-DD}.jsonl
+- [x] **DECI-04**: Append-only JSONL audit log: decisions/{YYYY-MM-DD}.jsonl
+  *(src/core/soul/DecisionAuditor.js — log/getRecentDecisions/getAutonomyRate, decisions_YYYY-MM-DD.jsonl)*
 - [ ] **DECI-04a**: Every decision log: decision_id, timestamp, situation, options, selected, confidence_score, outcome, escalated
 - [ ] **DECI-04b**: Auditor.query() — filter by date range, decision type, outcome
 - [ ] **DECI-04c**: Auditor.getAutonomyRate() — autonomous vs escalated ratio
@@ -57,15 +62,19 @@
 
 ### Minimum Viable Evolution
 
-- [ ] **EVOL-01**: Minimum viable `_extractKnowledge()` — real content extraction
-- [ ] **EVOL-02**: Minimum viable `_evolveSkills()` — real skill.md + tests + manifest
-- [ ] **EVOL-03**: Auto-merge `_autoMerge()` — real knowledge merging
+- [x] **EVOL-01**: Minimum viable `_extractKnowledge()` — real content extraction
+  *(src/core/soul_skill_evolver.js — child_process.execSync git log + git diff)*
+- [x] **EVOL-02**: Minimum viable `_evolveSkills()` — real skill.md + tests + manifest
+  *(src/core/soul_skill_evolver.js — skill.md + skill-manifest.json with tmp+rename)*
+- [x] **EVOL-03**: Auto-merge `_autoMerge()` — real knowledge merging
+  *(src/core/soul_skill_evolver.js — KB deduplication by lowercase title + tmp+rename)*
 
 ### Integration
 
 - [ ] **INTEG-01**: DecisionEngine integrated into SoulManager before autonomous actions
 - [ ] **INTEG-02**: gatekeeper.js invoked programmatically from evolution loop
-- [ ] **INTEG-03**: All decision state in `.stigmergy/soul-state/decisions/`
+- [x] **INTEG-03**: All decision state in `.stigmergy/soul-state/decisions/`
+  *(src/core/soul/DecisionAuditor.js — logDir: .stigmergy/soul-state/decisions/)*
 
 ## v2 Requirements
 
@@ -91,15 +100,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERR-01 | Phase 1 | Pending |
-| ERR-02 | Phase 1 | Pending |
-| ERR-03 | Phase 1 | Pending |
-| ERR-04 | Phase 1 | Pending |
-| DECI-04 | Phase 1 | Pending |
-| EVOL-01 | Phase 1 | Pending |
-| EVOL-02 | Phase 1 | Pending |
-| EVOL-03 | Phase 1 | Pending |
-| INTEG-03 | Phase 1 | Pending |
+| ERR-01 | Phase 1 | **Done** (commits a06ff3a8, 4683f5b9) |
+| ERR-02 | Phase 1 | **Done** (error_handler.js:665) |
+| ERR-03 | Phase 1 | **Done** (CheckpointStore.js + scheduler) |
+| ERR-04 | Phase 1 | **Done** (logger.pushDLQ + DLQ.js) |
+| DECI-04 | Phase 1 | **Done** (DecisionAuditor.js) |
+| EVOL-01 | Phase 1 | **Done** (soul_skill_evolver.js execSync) |
+| EVOL-02 | Phase 1 | **Done** (soul_skill_evolver.js skill creation) |
+| EVOL-03 | Phase 1 | **Done** (soul_skill_evolver.js KB merge) |
+| INTEG-03 | Phase 1 | **Done** (DecisionAuditor.js decisions/) |
 | DECI-01 | Phase 2 | Pending |
 | DECI-01a | Phase 2 | Pending |
 | DECI-01b | Phase 2 | Pending |
@@ -114,8 +123,9 @@
 **Coverage:**
 - v1 requirements: 19 total (grouped by REQ-ID prefix)
 - Mapped to phases: 4
+- **Phase 1 complete: 9/9 ✓**
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 after research synthesis*
+*Last updated: 2026-04-12 — Phase 1 complete (9/9 requirements)*

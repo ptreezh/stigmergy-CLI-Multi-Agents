@@ -2,13 +2,13 @@
 
 ## Current Phase
 
-Phase 1 — context gathered, ready to plan.
+Phase 1 — COMPLETE (9/9 requirements, 2 commits, 10 files)
 
 ## Phase History
 
 | Phase | Name | Context | Plan | Execute | Verified |
 |-------|------|---------|------|---------|---------|
-| 01 | Fix Error Visibility Foundation | ✓ 2026-04-12 | — | — | — |
+| 01 | Fix Error Visibility Foundation | ✓ 2026-04-12 | ✓ 2026-04-12 | ✓ 2026-04-12 | ✓ 2026-04-12 |
 
 ## Project Reference
 
@@ -20,7 +20,7 @@ See: `.planning/PROJECT.md` (updated 2026-04-12)
 
 | Phase | Requirements | Success Criteria | Status |
 |-------|-------------|-----------------|--------|
-| 1. Error Visibility Foundation | 9 (ERR-01~04, DECI-04, EVOL-01~03, INTEG-03) | 8 | Not started |
+| 1. Error Visibility Foundation | 9 (ERR-01~04, DECI-04, EVOL-01~03, INTEG-03) | 8 | **Done** (9/9) |
 | 2. DECI Decision Framework | 21 (DECI-01~06, INTEG-01) | 8 | Not started |
 | 3. Autonomous Evolution Resilience | 6 structural (no new REQ-IDs) | 8 | Not started |
 | 4. Knowledge Production & Gatekeeper | 1 (INTEG-02) + 6 v2 | 7 | Not started |
@@ -38,18 +38,18 @@ Phase 1 ──┬── Phase 2 ──┐
 - Phase 3 depends on Phase 1 (DLQ and circuit breaker need error taxonomy) and Phase 2 (FallbackManager integrated before supervisor wraps it)
 - Phase 4 depends on Phases 1 + 2 + 3 (gatekeeper gates a working, self-recovering system)
 
-## Known Blockers (before Phase 1 can start)
+## Open Questions (Phase 2 decisions needed)
 
-None — all prerequisites are documented and ready to implement.
+Phase 1 decisions resolved (see 01-CONTEXT.md); Phase 2 decisions below.
 
 ## Open Questions (user decisions needed during execution)
 
 | Question | Phase | Options |
 |----------|-------|---------|
-| Minimum viable knowledge extraction output format | Phase 1 | Structured JSON / Markdown with frontmatter / SQLite-vec insert |
-| Minimum viable evolved skill definition | Phase 1 | skill.md + manifest / skill.md + tests + manifest |
-| Initial confidence scoring formula | Phase 2 | Simple weighted average / calibrated from audit log data |
-| Initial DECI-03 boundary config | Phase 2 | Conservative (read-only) / moderate (non-destructive) |
+| Minimum viable knowledge extraction output format | Phase 1 ✓ DONE (Git diffs + commit messages) | Structured JSON / Markdown with frontmatter / SQLite-vec insert |
+| Minimum viable evolved skill definition | Phase 1 ✓ DONE (skill.md + manifest) | skill.md + manifest / skill.md + tests + manifest |
+| Initial confidence scoring formula | Phase 2 | OPEN — user decision needed | Simple weighted average / calibrated from audit log data |
+| Initial DECI-03 boundary config | Phase 2 | OPEN — user decision needed | Conservative (read-only) / moderate (non-destructive) |
 
 ## Architecture Decisions
 
