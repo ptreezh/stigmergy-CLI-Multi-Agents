@@ -56,19 +56,28 @@ The DECI roadmap is sequenced to fix the broken foundation first, then layer dec
 
 **Goal:** Deliver the full DECI-01 through DECI-06 decision layer — boundary filtering, confidence scoring, self-check, and fallback — wrapping existing Soul components without modifying them.
 
-**Requirements:** DECI-01, DECI-01a, DECI-01b, DECI-01c, DECI-02, DECI-02a, DECI-02b, DECI-02c, DECI-03, DECI-03a, DECI-03b, DECI-03c, DECI-05, DECI-05a, DECI-05b, DECI-05c, DECI-06, DECI-06a, DECI-06b, DECI-06c, DECI-06d, INTEG-01
+**Requirements:** DECI-01, DECI-01a, DECI-01b, DECI-01c, DECI-02, DECI-02a, DECI-02b, DECI-03, DECI-03a, DECI-03b, DECI-03c, DECI-05, DECI-05a, DECI-05b, DECI-05c, DECI-06, DECI-06a, DECI-06b, DECI-06c, DECI-06d, INTEG-01
 
 **Dependencies:** Phase 1 (error taxonomy + audit log required for DECI to operate on real signals)
 
+**Plans:** 3 plans in 3 waves
+
+Plans:
+- [ ] 02-01-PLAN.md -- Wave 1: DecisionContext + DecisionBoundary + boundaries.json (Layer 1 + schema)
+- [ ] 02-02-PLAN.md -- Wave 2: ConfidenceScorer + EmergencyFallback + SoulDecisionEngine (Layers 2/3 + orchestrator)
+- [ ] 02-03-PLAN.md -- Wave 3: DecisionVerifier + FallbackManager + SoulManager INTEG-01 + barrel export
+
 **Estimated files to create/modify:**
+- `src/core/soul/DECI/DecisionContext.js` — shared context type (NEW)
 - `src/core/soul/DECI/DecisionBoundary.js` — Layer 1 rule-based boundary checker (NEW)
 - `src/core/soul/DECI/ConfidenceScorer.js` — Layer 2 5-dimension weighted scorer (NEW)
 - `src/core/soul/DECI/EmergencyFallback.js` — Layer 3 extends FailureCircuitBreaker (NEW)
 - `src/core/soul/DECI/SoulDecisionEngine.js` — 3-layer gate orchestrator (NEW)
 - `src/core/soul/DECI/DecisionVerifier.js` — DECI-05 post-execution self-check (NEW)
 - `src/core/soul/DECI/FallbackManager.js` — DECI-06 escalation levels (NEW)
-- `.stigmergy/soul-state/boundaries/boundaries.json` — DECI-03 boundary config schema
-- `src/core/soul_manager.js` — integrate DecisionEngine before autonomous actions (INTEG-01)
+- `src/core/soul/DECI/index.js` — barrel export (NEW)
+- `.stigmergy/soul-state/boundaries/boundaries.json` — DECI-03 boundary config schema (NEW)
+- `src/core/soul_manager.js` — integrate DecisionEngine before autonomous actions (INTEG-01) (MODIFY)
 
 **Success Criteria:**
 1. `SoulDecisionEngine.decide(context)` returns `{ final_decision: 'ACT_AUTONOMOUSLY' | 'ASK_USER' | 'BLOCK' | 'HALT_AND_NOTIFY' }` with layer-by-layer reasoning
@@ -154,37 +163,37 @@ The DECI roadmap is sequenced to fix the broken foundation first, then layer dec
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERR-01: Replace 11 empty catch blocks | Phase 1 | Pending |
-| ERR-02: Error taxonomy (3 types) | Phase 1 | Pending |
-| ERR-03: Evolution timeout wrapper (10 min) | Phase 1 | Pending |
-| ERR-04: Non-silent failure reporting | Phase 1 | Pending |
-| DECI-04: Decision audit log (append-only JSONL) | Phase 1 | Pending |
-| EVOL-01: Minimum viable _extractKnowledge() | Phase 1 | Pending |
-| EVOL-02: Minimum viable _evolveSkills() | Phase 1 | Pending |
-| EVOL-03: Auto-merge _autoMerge() | Phase 1 | Pending |
-| INTEG-03: Decision state directory structure | Phase 1 | Pending |
-| DECI-01: SoulDecisionEngine (3-layer gate) | Phase 2 | Pending |
-| DECI-01a: DecisionBoundary (Layer 1) | Phase 2 | Pending |
-| DECI-01b: ConfidenceScorer (Layer 2) | Phase 2 | Pending |
-| DECI-01c: EmergencyFallback (Layer 3) | Phase 2 | Pending |
-| DECI-02: Per-decision-type confidence thresholds | Phase 2 | Pending |
-| DECI-02a: Default threshold 0.65 | Phase 2 | Pending |
-| DECI-02b: Below threshold -> escalate | Phase 2 | Pending |
-| DECI-02c: Outcome-tracked calibration | Phase 2 | Pending |
-| DECI-03: boundaries.json schema | Phase 2 | Pending |
-| DECI-03a: Block rules (destructive always escalate) | Phase 2 | Pending |
-| DECI-03b: Autonomous rules (read-only, trusted) | Phase 2 | Pending |
-| DECI-03c: Schema validated at startup | Phase 2 | Pending |
-| DECI-05: DecisionVerifier (post-execution self-check) | Phase 2 | Pending |
-| DECI-05a: PASS / FAIL / UNVERIFIABLE verdict | Phase 2 | Pending |
-| DECI-05b: FAIL -> trigger DECI-06 fallback | Phase 2 | Pending |
-| DECI-05c: Self-check feeds confidence calibration | Phase 2 | Pending |
-| DECI-06: FallbackManager (consecutive failure escalation) | Phase 2 | Pending |
-| DECI-06a: NOMINAL (0 failures) | Phase 2 | Pending |
-| DECI-06b: DEGRADED (1-2 failures) | Phase 2 | Pending |
-| DECI-06c: ESCALATE (3-4 failures) | Phase 2 | Pending |
-| DECI-06d: ABORT (5+ failures) | Phase 2 | Pending |
-| INTEG-01: DecisionEngine integrated into SoulManager | Phase 2 | Pending |
+| ERR-01: Replace 11 empty catch blocks | Phase 1 | Done (commits a06ff3a8, 4683f5b9) |
+| ERR-02: Error taxonomy (3 types) | Phase 1 | Done |
+| ERR-03: Evolution timeout wrapper (10 min) | Phase 1 | Done |
+| ERR-04: Non-silent failure reporting | Phase 1 | Done |
+| DECI-04: Decision audit log (append-only JSONL) | Phase 1 | Done |
+| EVOL-01: Minimum viable _extractKnowledge() | Phase 1 | Done |
+| EVOL-02: Minimum viable _evolveSkills() | Phase 1 | Done |
+| EVOL-03: Auto-merge _autoMerge() | Phase 1 | Done |
+| INTEG-03: Decision state directory structure | Phase 1 | Done |
+| DECI-01: SoulDecisionEngine (3-layer gate) | Phase 2 | Pending (02-02) |
+| DECI-01a: DecisionBoundary (Layer 1) | Phase 2 | Pending (02-01) |
+| DECI-01b: ConfidenceScorer (Layer 2) | Phase 2 | Pending (02-02) |
+| DECI-01c: EmergencyFallback (Layer 3) | Phase 2 | Pending (02-02) |
+| DECI-02: Per-decision-type confidence thresholds | Phase 2 | Pending (02-02) |
+| DECI-02a: Default threshold 0.65 | Phase 2 | Pending (02-02) |
+| DECI-02b: Below threshold -> escalate | Phase 2 | Pending (02-02) |
+| DECI-02c: Outcome-tracked calibration | Phase 2 | Deferred to Phase 4 |
+| DECI-03: boundaries.json schema | Phase 2 | Pending (02-01) |
+| DECI-03a: Block rules (destructive always escalate) | Phase 2 | Pending (02-01) |
+| DECI-03b: Autonomous rules (read-only, trusted) | Phase 2 | Pending (02-01) |
+| DECI-03c: Schema validated at startup | Phase 2 | Pending (02-01) |
+| DECI-05: DecisionVerifier (post-execution self-check) | Phase 2 | Pending (02-03) |
+| DECI-05a: PASS / FAIL / UNVERIFIABLE verdict | Phase 2 | Pending (02-03) |
+| DECI-05b: FAIL -> trigger DECI-06 fallback | Phase 2 | Pending (02-03) |
+| DECI-05c: Self-check feeds confidence calibration | Phase 2 | Pending (02-03) |
+| DECI-06: FallbackManager (consecutive failure escalation) | Phase 2 | Pending (02-03) |
+| DECI-06a: NOMINAL (0 failures) | Phase 2 | Pending (02-03) |
+| DECI-06b: DEGRADED (1-2 failures) | Phase 2 | Pending (02-03) |
+| DECI-06c: ESCALATE (3-4 failures) | Phase 2 | Pending (02-03) |
+| DECI-06d: ABORT (5+ failures) | Phase 2 | Pending (02-03) |
+| INTEG-01: DecisionEngine integrated into SoulManager | Phase 2 | Pending (02-03) |
 | INTEG-02: gatekeeper.js invoked from evolution loop | Phase 4 | Pending |
 | Circuit breaker integration | Phase 3 | Pending |
 | EvolutionSupervisor (root supervisor) | Phase 3 | Pending |
@@ -212,3 +221,4 @@ The DECI roadmap is sequenced to fix the broken foundation first, then layer dec
 ---
 
 *Roadmap created: 2026-04-12 based on research/SUMMARY.md, research/STACK.md, research/FEATURES.md, research/PITFALLS.md, research/ARCHITECTURE.md, REQUIREMENTS.md, PROJECT.md*
+*Phase 2 plans added: 2026-04-12*
