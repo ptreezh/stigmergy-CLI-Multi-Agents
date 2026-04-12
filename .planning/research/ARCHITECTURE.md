@@ -1,594 +1,510 @@
-# Architecture Research
+# Soul 自主决策系统架构
 
-**Domain:** Autonomous Agent Evolution System (Error-Resilient Loops)
-**Researched:** 2026-04-12
-**Confidence:** HIGH — based on established patterns (Erlang OTP, Netflix Hystrix, AWS retry guidance) applied to the Stigmergy Soul system's concrete failure modes.
-
-## Research Question
-
-How should an autonomous agent system be structured to survive failures gracefully? What is the right architecture for error-resilient autonomous loops, given: scheduler/merger/task-planner have no error recovery, and 100+ consecutive evolution failures?
+**Domain:** Autonomous Decision-Making for AI Agents
+**Analysis Date:** 2026-04-12
+**Confidence:** HIGH — based on established agent architecture patterns (BDI, OODA, OpenAI AutoGPT/Swarm, ROS2 Behavior Trees) applied to the Stigmergy Soul system's concrete components and requirements (DECI-01 through DECI-06).
 
 ---
 
-## Standard Architecture
+## 1. Research Question
 
-### System Overview
+How are autonomous decision-making systems typically structured? What are major components and how do they interact?
 
-The proven model for fault-tolerant autonomous loops is a **Supervisor Tree** (Erlang OTP, adopted by Akka, Temporal, Kubernetes controllers). Every worker is supervised. Supervisors restart workers. The tree isolates blast radius.
+How does this map to the existing Stigmergy Soul system — layering on top, not replacing it?
+
+---
+
+## 2. Standard Architecture
+
+### 2.1 Reference Models
+
+Four canonical models inform this architecture:
+
+| Model | Origin | Key Insight |
+|-------|--------|-------------|
+| **BDI** (Belief-Desire-Intention) | Bratman, 1987 — used in Jason, PRS | Deliberate goal-based reasoning: Beliefs (state) → Desires (goals) → Intentions (commitments) |
+| **OODA** (Observe-Orient-Decide-Act) | Boyd, 1970s — military/ROS | Fast feedback loop: observe → orient → decide → act |
+| **Behavior Trees** | ROS2, game AI — HALGEN, 2004 | Hierarchical, composable actions with selectors and sequencers |
+| **LLM Agent Loop** | AutoGPT, LangChain, OpenAI Swarm | Plan → Tool Use → Observe → Loop; with explicit tool-result reflection |
+
+**Decision for Soul:** Hybrid. Use OODA's fast loop for simple decisions (boundary-known, high confidence). Use BDI-inspired deliberation for complex multi-step decisions. Behavior Tree selectors model decision boundaries naturally as composable guard conditions.
+
+### 2.2 Component Overview
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│                     Evolution Supervisor (root)                     │
-│  restart-policy: exponential-backoff, max-restarts: 10/hour        │
-├───────────────┬───────────────────┬────────────────────────────────┤
-│  Scheduler    │     Task Planner  │         Merger                 │
-│  Supervisor   │     Supervisor    │         Supervisor             │
-│               │                  │                                 │
-│  ┌──────────┐ │  ┌─────────────┐ │  ┌────────────────────────┐    │
-│  │Scheduler │ │  │Task Planner │ │  │Merger (idempotent ops) │    │
-│  │+Circuit  │ │  │+Checkpoint  │ │  │+Rollback journal       │    │
-│  │ Breaker  │ │  │+DLQ         │ │  │+Conflict resolver      │    │
-│  └────┬─────┘ │  └──────┬──────┘ │  └────────────────────────┘    │
-│       │       │         │        │                                 │
-│  ┌────┴─────┐ │  ┌──────┴──────┐ │                                 │
-│  │Evolution │ │  │ Skill       │ │                                 │
-│  │Loop      │ │  │ Evolver     │ │                                 │
-│  └──────────┘ │  └─────────────┘ │                                 │
-├───────────────┴───────────────────┴────────────────────────────────┤
-│                     Event Bus (error.occurred, task.failed)         │
-├─────────────────────────────────────────────────────────────────────┤
-│          Dead Letter Queue    │    Checkpoint Store                 │
-│  (failed tasks, replayable)  │    (evolution progress snapshots)   │
+┌─────────────────────────────────────────────────────────────────────┐
+│                     DecisionEngine (top-level)                        │
+│                                                                       │
+│  Entrypoint: decide(situation) → DecisionResult                      │
+│                                                                       │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  ┌───────────┐ │
+│  │ Boundary    │  │ Context      │  │ Evaluator   │  │ Selector  │ │
+│  │ Manager     │→ │ Gatherer     │→ │ (scoring)   │→ │ (ranking) │ │
+│  │             │  │              │  │             │  │           │ │
+│  │ - boundaries│  │ - knowledge  │  │ - boundary  │  │ - top-1   │ │
+│  │ - thresholds│  │ - history    │  │   filter    │  │ - fallback│ │
+│  │ - intents   │  │ - skills     │  │ - score     │  │   trigger │ │
+│  └─────────────┘  └──────────────┘  └─────────────┘  └─────────────┘ │
+│                            ↓                                            │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  ┌───────────┐ │
+│  │ Executor    │← │ Verifier      │  │ Auditor     │  │ Escalation│ │
+│  │             │  │               │  │             │  │ Manager   │ │
+│  │ - delegate  │  │ - expected vs │  │ - log JSONL │  │ - fallback│ │
+│  │   to evolver│  │   actual      │  │ - decision  │  │   to user │ │
+│  │   reflector │  │ - pass/fail   │  │   trail     │  │ - notify   │ │
+│  └─────────────┘  └──────────────┘  └─────────────┘  └───────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Component Responsibilities
+### 2.3 Decision Flow: Input → Evaluation → Selection → Execution → Verification
 
-| Component | Responsibility | Failure Mode Without It |
-|-----------|----------------|------------------------|
-| Evolution Supervisor | Restart entire evolution loop on crash, track restart rate | Loop dies silently, no recovery |
-| Scheduler Supervisor | Restart scheduler, apply circuit breaker after N failures | Timer fires but evolve() throws, loop stops |
-| Circuit Breaker | Block calls when error rate is high, allow recovery window | 100+ rapid retries hammer failing subsystem |
-| Task Planner + Checkpoint | Persist progress after each completed task | Full replay from scratch on every restart |
-| Dead Letter Queue (DLQ) | Store failed evolution tasks for later replay | Failed cycles lost, no post-mortem possible |
-| Merger + Rollback Journal | Write file merges atomically with undo log | Partial merges corrupt skill state |
-| Bulkhead | Isolate scheduler failure from merger failure | One bad component poisons all others |
+```
+1. INPUT (situation)
+   User command or scheduled trigger
+   { situation, context, urgency, constraints? }
+
+2. CONTEXT GATHERING (ContextGatherer)
+   Pull from KnowledgeBase + DecisionHistory + SoulIdentity
+   → DecisionContext { facts, history, available_skills, constraints }
+
+3. BOUNDARY FILTERING (BoundaryManager)
+   Load boundaries.json
+   Classify situation: AUTONOMOUS | BOUNDARY_EDGE | OUT_OF_BOUNDS
+   → BoundaryClassification { level, matched_rules, confidence_delta }
+
+4. OPTION GENERATION (Evaluator)
+   Generate N candidate actions
+   Score each against: alignment_score, success_likelihood, urgency
+   → Option[] { action, score, reason, confidence }
+
+5. CONFIDENCE CHECK
+   If max(score) < confidence_threshold OR level == OUT_OF_BOUNDS:
+     → ESCALATE to user with explanation
+   Else:
+     → Continue
+
+6. SELECTION (Selector)
+   Pick top-ranked option
+   Record selection reason
+   → SelectedAction { action, score, reason, decision_id }
+
+7. EXECUTION (Executor)
+   Route to appropriate subsystem:
+     skill_evolution → SoulSkillEvolver
+     self_reflection  → SoulReflector
+     alignment_check  → SoulAlignmentChecker
+     cli_execution    → CLI tools via smart_router
+   → ExecutionResult { outcome, duration_ms, error? }
+
+8. VERIFICATION (Verifier)
+   Compare ExecutionResult against SelectedAction.expected_outcome
+   → Verdict { passed: boolean, discrepancies: string[], retry: boolean }
+
+9. POST-PROCESS
+   If !passed AND retry == true: re-evaluate from step 4 (max 2 retries)
+   If passed OR retries exhausted:
+     Auditor.log(decision) → decisions/{date}.jsonl
+     Emit decision.completed event
+     Return DecisionResult to caller
+```
 
 ---
 
-## Recommended Project Structure
+## 3. Component Definitions
 
-```
-src/core/
-├── evolution/
-│   ├── EvolutionSupervisor.js      # Root supervisor, manages all sub-supervisors
-│   ├── CircuitBreaker.js           # Open/half-open/closed state machine
-│   ├── RetryPolicy.js              # Exponential backoff + jitter
-│   ├── DeadLetterQueue.js          # Persist & replay failed tasks
-│   └── CheckpointStore.js          # Save/resume evolution progress
-├── soul_scheduler.js               # Wrapped by Scheduler Supervisor
-├── soul_task_planner.js            # Uses CheckpointStore, emits to DLQ on failure
-├── soul_merger.js                  # Uses rollback journal, idempotent writes
-└── soul_skill_evolver.js           # Supervised, circuit-broken
-```
+### 3.1 DecisionEngine (orchestrator)
 
-### Structure Rationale
+**File:** `src/core/soul_decision_engine.js`
 
-- **evolution/**: Resilience infrastructure is cross-cutting — keep it separate from soul logic so it can be tested and reasoned about independently.
-- **EvolutionSupervisor.js**: Single entry point that owns the restart policy. Nothing in the soul system starts itself — everything is launched through the supervisor.
-- **CircuitBreaker.js**: Shared utility. Scheduler, task planner, and merger each get their own breaker instance so one tripped breaker doesn't block others (bulkhead).
+**Responsibility:** Top-level orchestrator. Owns the decision lifecycle: context → evaluation → selection → execution → verification. Does NOT implement logic itself — delegates to specialized components.
 
----
-
-## Architectural Patterns
-
-### Pattern 1: Supervisor Tree
-
-**What:** A parent process monitors child workers. When a child throws an unhandled exception, the parent restarts it. The parent tracks restart frequency — if restarts exceed a threshold (e.g., 5 crashes in 60 seconds), it either waits or escalates to its own parent.
-
-**When to use:** Every long-running autonomous loop. Non-negotiable for systems that must self-recover without operator intervention.
-
-**Trade-offs:** Adds startup complexity. Worth it unconditionally for autonomous loops.
-
-**Example (Node.js, no external deps):**
+**Public API:**
 ```javascript
-class EvolutionSupervisor {
-  constructor(options = {}) {
-    this.maxRestarts = options.maxRestarts || 5;
-    this.windowMs = options.windowMs || 60_000;
-    this.restartHistory = [];
-    this.worker = null;
-  }
+class SoulDecisionEngine {
+  async decide(situation: Situation): Promise<DecisionResult>
+  async decideAsync(situation: Situation): Promise<DecisionResult> // non-blocking variant
+  async shouldEscalate(situation: Situation): Promise<EscalationReason | null>
+}
+```
 
-  async start(workerFactory) {
-    this._workerFactory = workerFactory;
-    await this._launch();
-  }
+**Boundary:** Only talks to specialized components. Does not read files or call CLIs directly.
 
-  async _launch() {
-    try {
-      this.worker = this._workerFactory();
-      await this.worker.run(); // long-running — resolves only on intentional stop
-    } catch (error) {
-      await this._handleCrash(error);
+**State:** Stateless between calls. All state persisted by sub-components.
+
+---
+
+### 3.2 BoundaryManager
+
+**File:** `src/core/soul/decision/boundary_manager.js`
+
+**Responsibility:** Load, validate, and query decision boundaries from `boundaries.json`. Classify incoming situations against boundary rules.
+
+**Public API:**
+```javascript
+class BoundaryManager {
+  async loadBoundaries(): Promise<BoundarySet>
+  classify(situation: Situation, context: DecisionContext): BoundaryClassification
+  isWithinBounds(action: Action): boolean
+  getMatchedRules(situation: Situation): BoundaryRule[]
+}
+```
+
+**Data:** `boundaries.json` schema (user-editable, version-controlled):
+```json
+{
+  "version": "1.0.0",
+  "defaultConfidenceThreshold": 0.7,
+  "perCategory": {
+    "skill_evolution": { "confidenceThreshold": 0.6, "maxAutonomousRetries": 2 },
+    "reflection": { "confidenceThreshold": 0.8, "maxAutonomousRetries": 1 },
+    "cli_execution": { "confidenceThreshold": 0.75, "requiresConfirmation": ["rm -rf", "git push --force"] }
+  },
+  "rules": [
+    {
+      "id": "no-destructive-git",
+      "condition": { "action.type": "git", "action.flags": { "contains": "--force" } },
+      "level": "OUT_OF_BOUNDS",
+      "message": "Force-push to git is not permitted autonomously"
+    },
+    {
+      "id": "skill-evolve-trusted-sources",
+      "condition": { "source.type": "in", "source.value": ["github", "npm"] },
+      "level": "AUTONOMOUS",
+      "message": "Skill evolution from trusted sources is permitted"
     }
-  }
-
-  async _handleCrash(error) {
-    const now = Date.now();
-    this.restartHistory = this.restartHistory.filter(t => now - t < this.windowMs);
-    this.restartHistory.push(now);
-
-    if (this.restartHistory.length > this.maxRestarts) {
-      // Escalate: circuit-break the entire evolution loop
-      await this._enterCooldown(error);
-    } else {
-      const delay = Math.min(1000 * 2 ** this.restartHistory.length, 30_000);
-      await new Promise(r => setTimeout(r, delay));
-      await this._launch();
-    }
-  }
-
-  async _enterCooldown(error) {
-    // Log to evolution-log.jsonl, emit event, wait 10 minutes
-    console.error('[Supervisor] Too many crashes, entering cooldown:', error.message);
-    await new Promise(r => setTimeout(r, 10 * 60_000));
-    this.restartHistory = [];
-    await this._launch();
-  }
+  ]
 }
 ```
 
+**Location:** `.stigmergy/soul-state/boundaries/boundaries.json`
+
 ---
 
-### Pattern 2: Circuit Breaker
+### 3.3 ContextGatherer
 
-**What:** A state machine with three states: CLOSED (normal), OPEN (failing — reject all calls immediately), HALF-OPEN (probe with one call to test recovery). Prevents cascading failures and gives downstream systems time to recover.
+**File:** `src/core/soul/decision/context_gatherer.js`
 
-**When to use:** Wrap every external call that can fail (web search, GitHub API, SQLite-vec operations, file system writes). Wrap the entire evolution cycle call from the scheduler.
+**Responsibility:** Aggregate all available context for a decision: knowledge base entries, recent decision history, available skills, current Soul identity state.
 
-**Trade-offs:** Adds latency to failure detection. A breaker that trips too easily causes false positives. Tune `failureThreshold` and `recoveryTimeoutMs` based on observed failure rates.
-
-**Example:**
+**Public API:**
 ```javascript
-class CircuitBreaker {
-  constructor(options = {}) {
-    this.failureThreshold = options.failureThreshold || 5;
-    this.recoveryTimeoutMs = options.recoveryTimeoutMs || 5 * 60_000; // 5 min
-    this.state = 'CLOSED'; // CLOSED | OPEN | HALF_OPEN
-    this.failures = 0;
-    this.lastFailureTime = null;
-    this.name = options.name || 'unnamed';
-  }
-
-  async call(fn) {
-    if (this.state === 'OPEN') {
-      const elapsed = Date.now() - this.lastFailureTime;
-      if (elapsed < this.recoveryTimeoutMs) {
-        throw new Error(`[CircuitBreaker:${this.name}] OPEN — refusing call`);
-      }
-      this.state = 'HALF_OPEN';
-    }
-
-    try {
-      const result = await fn();
-      this._onSuccess();
-      return result;
-    } catch (error) {
-      this._onFailure(error);
-      throw error;
-    }
-  }
-
-  _onSuccess() {
-    this.failures = 0;
-    this.state = 'CLOSED';
-  }
-
-  _onFailure(error) {
-    this.failures++;
-    this.lastFailureTime = Date.now();
-    if (this.failures >= this.failureThreshold) {
-      this.state = 'OPEN';
-      console.error(`[CircuitBreaker:${this.name}] OPEN after ${this.failures} failures`);
-    }
-  }
-
-  isOpen() { return this.state === 'OPEN'; }
+class ContextGatherer {
+  async gather(situation: Situation): Promise<DecisionContext>
+  async getRecentDecisions(count: number): Promise<Decision[]>
+  async getRelevantKnowledge(situation: Situation): Promise<KnowledgeEntry[]>
 }
 ```
 
+**Inputs (read-only):**
+- SoulKnowledgeBase (semantic search by situation keywords)
+- DecisionHistory (last N decisions, used for pattern recognition)
+- SoulIdentity (current mission/role for alignment filtering)
+
+**Outputs:** `DecisionContext` — a structured snapshot of all relevant state at decision time.
+
 ---
 
-### Pattern 3: Checkpoint/Resume
+### 3.4 Evaluator
 
-**What:** After each meaningful unit of work completes, serialize current progress to disk. On restart, load the checkpoint and resume from the last saved position instead of from scratch.
+**File:** `src/core/soul/decision/evaluator.js`
 
-**When to use:** Any multi-step process where steps take significant time (evolution cycles, task planning, skill creation). Essential when 100+ consecutive failures mean no step ever completes.
+**Responsibility:** Generate candidate actions and score them. Each candidate receives: (a) a boundary-filter pass/fail, (b) a multi-factor score, (c) a human-readable reason.
 
-**Trade-offs:** Requires steps to be idempotent (safe to re-run). Adds I/O overhead. Worth it for any step taking >5 seconds.
+**Scoring Factors:**
+| Factor | Weight | Source |
+|--------|--------|--------|
+| `alignment_score` | 30% | SoulAlignmentChecker |
+| `success_likelihood` | 25% | Historical success rate for similar decisions |
+| `urgency` | 20% | Situation urgency field |
+| `confidence` | 15% | Evaluator's own confidence in the scoring |
+| `boundary_clearance` | 10% | BoundaryManager classification |
 
-**Example:**
+**Public API:**
 ```javascript
-class CheckpointStore {
-  constructor(checkpointPath) {
-    this.checkpointPath = checkpointPath;
-  }
-
-  async save(stepName, state) {
-    const checkpoint = {
-      stepName,
-      savedAt: new Date().toISOString(),
-      state
-    };
-    await fs.promises.writeFile(
-      this.checkpointPath,
-      JSON.stringify(checkpoint, null, 2),
-      'utf8'
-    );
-  }
-
-  async load() {
-    try {
-      const raw = await fs.promises.readFile(this.checkpointPath, 'utf8');
-      return JSON.parse(raw);
-    } catch {
-      return null; // No checkpoint — start fresh
-    }
-  }
-
-  async clear() {
-    try { await fs.promises.unlink(this.checkpointPath); } catch { /* no-op */ }
-  }
-}
-
-// Usage in SoulTaskPlanner
-async executePlan() {
-  const checkpoint = await this.checkpointStore.load();
-  const startStep = checkpoint?.stepName ?? 'fetchSources';
-
-  const steps = ['fetchSources', 'extractKnowledge', 'createSkill', 'alignCheck'];
-  const startIndex = steps.indexOf(startStep);
-
-  for (const step of steps.slice(startIndex)) {
-    await this[step]();
-    await this.checkpointStore.save(step, { completedAt: new Date().toISOString() });
-  }
-
-  await this.checkpointStore.clear();
+class Evaluator {
+  async generateOptions(context: DecisionContext): Promise<Option[]>
+  async score(option: Option, context: DecisionContext): Promise<ScoredOption>
 }
 ```
 
 ---
 
-### Pattern 4: Dead Letter Queue (DLQ)
+### 3.5 Selector
 
-**What:** When a task fails after all retries are exhausted, write it to a persistent queue (append to a JSONL file) instead of discarding it. A separate process can replay DLQ entries when conditions improve.
+**File:** `src/core/soul/decision/selector.js`
 
-**When to use:** Evolution cycles that fail due to transient errors (network down, API rate-limited) should not be lost — they contain the intent to evolve. This is particularly important given the 100+ failure streak: those failures should be in a DLQ, not silently dropped.
+**Responsibility:** Given a list of scored options, pick the best one. Apply tie-breaking rules and escalation triggers.
 
-**Trade-offs:** Requires a replay mechanism. DLQ can grow unbounded — add a max-age TTL.
-
-**Example:**
+**Public API:**
 ```javascript
-class DeadLetterQueue {
-  constructor(dlqPath) {
-    this.dlqPath = dlqPath;
-  }
-
-  async push(task, error, retryCount) {
-    const entry = {
-      enqueuedAt: new Date().toISOString(),
-      task,
-      error: { message: error.message, stack: error.stack },
-      retryCount,
-      ttlExpires: new Date(Date.now() + 7 * 24 * 60 * 60_000).toISOString() // 7 days
-    };
-    await fs.promises.appendFile(this.dlqPath, JSON.stringify(entry) + '\n');
-  }
-
-  async replay(handler) {
-    const raw = await fs.promises.readFile(this.dlqPath, 'utf8');
-    const entries = raw.split('\n').filter(Boolean).map(JSON.parse);
-    const now = new Date();
-    const valid = entries.filter(e => new Date(e.ttlExpires) > now);
-
-    for (const entry of valid) {
-      try {
-        await handler(entry.task);
-      } catch (error) {
-        await this.push(entry.task, error, entry.retryCount + 1);
-      }
-    }
-
-    await fs.promises.writeFile(this.dlqPath, ''); // Clear after replay
-  }
+class Selector {
+  select(options: ScoredOption[], threshold: number): SelectionResult
 }
 ```
 
+**Logic:**
+1. Filter out options with `boundary_clearance < threshold`
+2. Sort remaining by composite score (descending)
+3. Top result → return as `SelectedAction`
+4. If no options remain → return `ESCALATE` with `reason`
+5. If top score is within 0.1 of second place → log tie-breaking reason for audit
+
 ---
 
-### Pattern 5: Exponential Backoff with Jitter
+### 3.6 Executor
 
-**What:** Retry a failed operation with increasing wait times. Add random jitter to prevent the "thundering herd" problem where all retries fire simultaneously.
+**File:** `src/core/soul/decision/executor.js`
 
-**When to use:** Any operation that can fail transiently (network calls, CLI subprocess execution). Used inside each supervised component before escalating to the circuit breaker.
+**Responsibility:** Dispatch a `SelectedAction` to the appropriate subsystem. Wraps existing Soul components (SkillEvolver, Reflector, AlignmentChecker) with a common execution interface.
 
-**Example:**
+**Public API:**
 ```javascript
-async function withRetry(fn, options = {}) {
-  const maxAttempts = options.maxAttempts || 3;
-  const baseDelayMs = options.baseDelayMs || 1000;
-  const maxDelayMs = options.maxDelayMs || 30_000;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (attempt === maxAttempts) throw error;
-
-      const exponential = baseDelayMs * (2 ** (attempt - 1));
-      const jitter = Math.random() * baseDelayMs;
-      const delay = Math.min(exponential + jitter, maxDelayMs);
-
-      console.warn(`[Retry] Attempt ${attempt} failed, waiting ${Math.round(delay)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
+class Executor {
+  async execute(action: SelectedAction): Promise<ExecutionResult>
+  async executeAsync(action: SelectedAction): Promise<void> // non-blocking, for scheduled decisions
 }
 ```
 
+**Routing:**
+| Action.type | Routes to |
+|-------------|-----------|
+| `skill_evolution` | SoulSkillEvolver.evolve() |
+| `self_reflection` | SoulReflector.reflect() |
+| `alignment_check` | SoulAlignmentChecker.check() |
+| `cli_execution` | SmartRouter.route() |
+| `abort` | Log and skip (used when boundary is OUT_OF_BOUNDS) |
+
+**Error handling:** All subsystem errors are caught and returned as `ExecutionResult { success: false, error }` — NOT thrown. This prevents one subsystem failure from crashing the decision engine.
+
 ---
 
-### Pattern 6: Idempotent Merger Writes
+### 3.7 Verifier
 
-**What:** Every file write in the merger is wrapped in a write-then-rename atomic swap. A rollback journal records the pre-write state. If the process crashes mid-merge, the journal allows rolling back to a known-good state.
+**File:** `src/core/soul/decision/verifier.js`
 
-**When to use:** Any merge operation touching skill files, knowledge base, or soul state. This is non-negotiable — partial writes to SKILL.md corrupt the skill system.
+**Responsibility:** Post-execution verification — compare actual outcome against expected outcome declared in the SelectedAction. This implements DECI-05.
 
-**Example:**
+**Public API:**
 ```javascript
-async function atomicWrite(targetPath, newContent) {
-  const tmpPath = targetPath + '.tmp.' + Date.now();
-  const backupPath = targetPath + '.bak';
-
-  // Backup current
-  if (fs.existsSync(targetPath)) {
-    await fs.promises.copyFile(targetPath, backupPath);
-  }
-
-  // Write to temp
-  await fs.promises.writeFile(tmpPath, newContent, 'utf8');
-
-  // Atomic rename (POSIX-atomic on same filesystem)
-  await fs.promises.rename(tmpPath, targetPath);
-
-  // Clean backup on success
-  try { await fs.promises.unlink(backupPath); } catch { /* no-op */ }
-}
-
-async function rollbackWrite(targetPath) {
-  const backupPath = targetPath + '.bak';
-  if (fs.existsSync(backupPath)) {
-    await fs.promises.rename(backupPath, targetPath);
-  }
+class Verifier {
+  async verify(action: SelectedAction, result: ExecutionResult): Promise<Verdict>
 }
 ```
 
----
-
-## Data Flow
-
-### Error-Resilient Evolution Cycle
-
-```
-stigmergy soul evolve (CLI trigger)
-    ↓
-EvolutionSupervisor.start()
-    ↓
-Scheduler (wrapped in CircuitBreaker)
-    ↓ — if OPEN → log "skipped, circuit open" → emit error.occurred
-    ↓ — if CLOSED →
-SoulTaskPlanner.executePlan()
-    ├── CheckpointStore.load() → resume from last step if available
-    ├── Step: fetchSources → withRetry(3 attempts, backoff)
-    │       ↓ failure after 3 → DeadLetterQueue.push()
-    ├── CheckpointStore.save('fetchSources')
-    ├── Step: extractKnowledge → withRetry(3 attempts)
-    ├── CheckpointStore.save('extractKnowledge')
-    ├── Step: createSkill → withRetry(3 attempts)
-    │       ↓ uses atomicWrite() for all file mutations
-    ├── CheckpointStore.save('createSkill')
-    ├── Step: alignCheck
-    └── CheckpointStore.clear() — only on full success
-    ↓
-SoulMerger.merge()
-    ├── atomicWrite() for each target file
-    └── rollbackWrite() in catch block
-    ↓
-EventBus.publish({ type: 'evolution.completed' })
-    ↓
-evolution-log.jsonl append (structured, always)
-```
-
-### Failure Escalation Flow
-
-```
-Operation fails
-    ↓
-withRetry (up to 3 attempts, backoff)
-    ↓ — all attempts exhausted →
-CircuitBreaker._onFailure()
-    ↓ — threshold reached → state = OPEN
-    ↓
-DeadLetterQueue.push(task, error)
-    ↓
-EventBus.publish({ type: 'error.occurred', severity: 'HIGH' })
-    ↓
-EvolutionSupervisor._handleCrash()
-    ↓ — restart count within window →
-    ↓ exponential backoff delay → _launch() again
-    ↓ — too many restarts →
-    ↓ _enterCooldown(10 min) → _launch() again
-```
+**Verdict outcomes:**
+- `PASS` — outcome matches expected result within tolerance
+- `FAIL` — outcome deviates; return `retry: true` to trigger re-evaluation
+- `UNVERIFIABLE` — no verifiable outcome (e.g., "skill created" needs human check); skip verification, log as informational
 
 ---
 
-## Scaling Considerations
+### 3.8 Auditor
 
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| Single machine, 1 CLI | Current approach — in-process supervisor, file-based DLQ, SQLite checkpoint |
-| Multiple CLIs, same machine | Add StateLockManager around DLQ and CheckpointStore reads to prevent races |
-| Multiple machines | Replace file-based DLQ/checkpoint with Redis or a proper queue (BullMQ). Out of scope for current cycle. |
+**File:** `src/core/soul/decision/auditor.js`
 
-### Scaling Priorities
+**Responsibility:** Persist every decision to the audit log. Provides replay and analysis capability. Implements DECI-04.
 
-1. **First bottleneck:** Empty catch blocks swallow errors silently. Fix this before adding any new resilience infrastructure. Replace all `catch (e) {}` with `catch (e) { logger.error(...); eventBus.publish('error.occurred', e); }`.
-2. **Second bottleneck:** Scheduler restart on crash. Implement EvolutionSupervisor first — it gives the highest return for the 100+ failure streak problem because it ensures the loop restarts rather than dying.
-
----
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Empty Catch Blocks
-
-**What people do:** `try { await evolve(); } catch (e) {}`
-
-**Why it's wrong:** Errors disappear. The evolution log shows "failure" entries but the actual error message is gone. Debugging becomes impossible. This is the root cause of 100+ consecutive failures — the system fails, swallows the error, and retries immediately without any diagnostic information.
-
-**Do this instead:**
+**Public API:**
 ```javascript
-try {
-  await evolve();
-} catch (error) {
-  logger.error('[SoulScheduler] Evolution failed', {
-    error: error.message,
-    stack: error.stack,
-    cycle: this.cycleCount
-  });
-  eventBus.publish({ type: 'error.occurred', data: { error, component: 'scheduler' } });
-  await dlq.push({ type: 'evolution', cycleCount: this.cycleCount }, error, 0);
-  throw error; // Re-throw so supervisor can handle restart
+class Auditor {
+  async log(decision: DecisionRecord): Promise<void>
+  async query(filters: AuditQuery): Promise<DecisionRecord[]>
+  async getRecent(count: number): Promise<DecisionRecord[]>
 }
 ```
 
+**Audit log entry schema:**
+```json
+{
+  "decisionId": "uuid-v4",
+  "timestamp": "2026-04-12T10:00:00.000Z",
+  "situation": { "type": "skill_evolution", "topic": "frontend" },
+  "context": { "knowledgeCount": 42, "recentDecisions": 5 },
+  "options": [
+    { "action": "evolve:frontend", "score": 0.82, "reasons": ["aligned", "trusted_source"] }
+  ],
+  "selected": { "action": "evolve:frontend", "score": 0.82 },
+  "confidenceThreshold": 0.7,
+  "outcome": "PASS",
+  "verdict": { "passed": true, "discrepancies": [] },
+  "executionDurationMs": 3400,
+  "escalated": false,
+  "retried": false,
+  "soulIdentity": { "name": "Stigmergy-Soul", "cycle": 3 }
+}
+```
+
+**Location:** `.stigmergy/soul-state/decisions/{YYYY-MM-DD}.jsonl` (one file per day, append-only)
+
 ---
 
-### Anti-Pattern 2: Tight Coupling Between Scheduler and Evolver
+### 3.9 EscalationManager
 
-**What people do:** `this.soulManager.evolve()` called directly inside the scheduler timer callback, no isolation.
+**File:** `src/core/soul/decision/escalation_manager.js`
 
-**Why it's wrong:** If `evolve()` hangs (e.g., waiting on a network call that never returns), the timer callback never completes, the scheduler itself becomes unresponsive, and subsequent ticks queue up indefinitely.
+**Responsibility:** Handle decisions that cannot be made autonomously. Present a clear explanation to the user and await confirmation or override.
 
-**Do this instead:** Run evolution in a separate async context with a timeout:
+**Public API:**
 ```javascript
-async _runEvolutionWithTimeout() {
-  const timeoutMs = 10 * 60_000; // 10 minutes max per cycle
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Evolution timed out')), timeoutMs)
-  );
-  return Promise.race([this.soulManager.evolve(), timeout]);
+class EscalationManager {
+  async escalate(escalation: Escalation): Promise<UserResponse>
+  async notifyUser(message: EscalationNotice): Promise<void>
 }
 ```
 
+**Escalation triggers:**
+1. All option scores below `confidenceThreshold`
+2. Situation classified as `OUT_OF_BOUNDS`
+3. Verifier returns `FAIL` after max retries
+4. Executor returns an unhandled error
+
+**User response options:** `CONFIRM`, `MODIFY_AND_CONFIRM`, `REJECT`, `ADD_TO_BOUNDARIES`
+
 ---
 
-### Anti-Pattern 3: Global State in Scheduler
+## 4. Integration with Existing Soul System
 
-**What people do:** Store `this.isRunning`, `this.currentMode`, `this.timers` as plain object properties with no reset on restart.
+### 4.1 Layer Position
 
-**Why it's wrong:** When the supervisor restarts the scheduler, stale flags (`isRunning: true`) prevent it from starting. The supervisor's restart effectively becomes a no-op.
+The DecisionEngine is a **new top-level component** that sits alongside existing Soul components. It does not replace any existing flow. It wraps the existing evolution/reflection flows with a decision layer on top.
 
-**Do this instead:** Factory function pattern — each restart creates a fresh instance:
+```
+Current Soul Architecture (Layer 2: Core Services):
+  src/core/soul_manager.js
+  src/core/soul_knowledge_base.js
+  src/core/soul_skill_evolver.js
+  src/core/soul_alignment_checker.js
+  src/core/soul_reflector.js
+  src/core/soul_scheduler.js
+
+New Layer (layered on top):
+  src/core/soul_decision_engine.js        ← NEW: top-level orchestrator
+  src/core/soul/decision/                  ← NEW: decision sub-components
+    boundary_manager.js
+    context_gatherer.js
+    evaluator.js
+    selector.js
+    executor.js
+    verifier.js
+    auditor.js
+    escalation_manager.js
+```
+
+### 4.2 Entry Points
+
+**Direct trigger:** `stigmergy soul decide "situation description"`
+Routes to: `SoulDecisionEngine.decide(situation)`
+
+**Integrated trigger (recommended):** Before every autonomous action in `SoulManager`, the DecisionEngine is consulted:
+
 ```javascript
-// In EvolutionSupervisor
-await this._launch();
+// In SoulManager — before any autonomous action
+const decision = await soulDecisionEngine.decide({
+  type: 'pre_autonomous_action',
+  action: 'skill_evolution',
+  topic: 'frontend',
+  urgency: 'normal'
+});
 
-_launch() {
-  const scheduler = new SoulScheduler(this.config); // Fresh instance
-  return scheduler.run();
+if (decision.escalated) {
+  await escalationManager.escalate(decision.escalation);
+  return; // wait for user response
 }
+
+const result = await executor.execute(decision.selected);
+```
+
+### 4.3 Data Flow to/from Existing Components
+
+```
+SoulKnowledgeBase ──read──→ ContextGatherer ──context──→ Evaluator
+                                                              ↓ scored options
+SoulAlignmentChecker ──check──→ Evaluator ───────────────→ Selector
+                                                              ↓ selected action
+SoulSkillEvolver ←──────────────────────── Executor ←──────┘
+SoulReflector ←─────────────────────────────────────────────┘
+SoulScheduler ──tick event──→ DecisionEngine.decide() ──→ Auditor
+SoulManager ←──────────────────────────────────────────────┘ (result)
+EventBus ←──────────────── decision.completed ──────────────┘
+```
+
+### 4.4 State Directory
+
+All decision state lives in `.stigmergy/soul-state/decisions/`, consistent with existing Soul state directory.
+
+```
+.stigmergy/soul-state/
+├── decisions/
+│   ├── 2026-04-12.jsonl   # append-only audit log
+│   └── 2026-04-13.jsonl
+├── boundaries/
+│   └── boundaries.json     # user-editable, version-controlled
+└── checkpoints/           # (from error-resilience architecture)
+    └── evolution.json
 ```
 
 ---
 
-### Anti-Pattern 4: Consecutive Failure Without DLQ
+## 5. Build Order
 
-**What people do:** On failure, log "evolution failed", wait for next timer tick, retry from scratch.
+Dependencies between components (build in order):
 
-**Why it's wrong:** After 100 failures, every failure intent is lost. There is no record of what was attempted, what the error was, or what state the system was in. Post-mortem is impossible.
+```
+Phase 1: Infrastructure (no dependencies on other new components)
+  1. Auditor          — log() must work first for debugging
+  2. BoundaryManager   — pure JSON loading + rule matching, no deps
 
-**Do this instead:** Every failure appends to `evolution-log.jsonl` with full context, and the task is pushed to the DLQ. The DLQ provides both the audit trail and the replay mechanism.
+Phase 2: Context (depends on Phase 1)
+  3. ContextGatherer  — reads SoulKnowledgeBase + audit log
 
----
+Phase 3: Decision Logic (depends on Phases 1 + 2)
+  4. Evaluator         — scoring logic, uses BoundaryManager + ContextGatherer
+  5. Selector          — depends on Evaluator output types
+  6. Verifier          — depends on Evaluator + Executor (can be added after)
 
-## Integration Points
+Phase 4: Execution (depends on Phases 2 + 3)
+  7. Executor          — depends on Selector output, routes to existing components
+  8. EscalationManager — depends on Auditor + BoundaryManager
 
-### External Services
+Phase 5: Integration
+  9. SoulDecisionEngine — wire all components together
+  10. SoulManager integration — DecisionEngine consulted before autonomous actions
+```
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| GitHub API (skill fetching) | withRetry + CircuitBreaker | Rate limit = 60 req/hour unauthenticated. Circuit open on 429. |
-| SQLite-vec | withRetry (3x) + file lock | WAL mode prevents most write conflicts. Still needs retry on SQLITE_BUSY. |
-| File system (skill writes) | atomicWrite + rollbackWrite | Never write in-place. Always tmp → rename. |
-| EventBus | Fire-and-forget publish | Never await event bus publish in critical path — it should not block evolution. |
-
-### Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Scheduler → TaskPlanner | Direct async call, wrapped in CircuitBreaker | Scheduler must not catch TaskPlanner errors — let them propagate to supervisor |
-| TaskPlanner → Merger | Direct async call | Merger errors must propagate. Merger owns its own rollback. |
-| Any component → DLQ | Direct push (append to file) | DLQ push must never throw — use its own internal try-catch |
-| Any component → EventBus | Fire-and-forget | `eventBus.publish(...).catch(e => console.error('EventBus error', e))` |
+**Why this order:** Each phase produces a usable artifact. Phase 1 gives you an audit log. Phase 2 gives you context. Phase 3 gives you decisions (log-only, no execution). Phase 4 actually does things. Phase 5 connects to Soul.
 
 ---
 
-## Concrete Recommendations for Stigmergy Soul
+## 6. Component Boundaries Summary
 
-Ordered by impact-to-effort ratio:
+| Component | Reads | Writes | Calls |
+|-----------|-------|--------|-------|
+| DecisionEngine | situation | decision result | all sub-components |
+| BoundaryManager | boundaries.json | — | — |
+| ContextGatherer | SoulKnowledgeBase, audit log | — | — |
+| Evaluator | BoundaryManager, ContextGatherer | — | SoulAlignmentChecker |
+| Selector | Evaluator output | — | — |
+| Executor | SelectedAction | — | SoulSkillEvolver, SoulReflector, SmartRouter |
+| Verifier | ExecutionResult, SelectedAction | — | — |
+| Auditor | — | decisions/{date}.jsonl | — |
+| EscalationManager | decision, boundaries | user notification | — |
 
-### Step 1: Replace all empty catch blocks (1-2 hours, highest impact)
-
-11 empty catch blocks are the reason 100+ failures produce no actionable diagnostics. Replace every `catch (e) {}` with structured logging + DLQ push + rethrow.
-
-### Step 2: Add evolution timeout (30 minutes)
-
-Wrap `soulManager.evolve()` in `Promise.race([evolve(), timeout(10min)])`. This prevents the scheduler from hanging indefinitely on a stalled network call.
-
-### Step 3: Implement EvolutionSupervisor (4-8 hours)
-
-Replace the ad-hoc scheduler start with a supervisor. The supervisor owns all restarts. Single file, no external dependencies.
-
-### Step 4: Add CircuitBreaker to scheduler → evolve call (2 hours)
-
-Wrap the `evolve()` call. Trip after 5 consecutive failures. Recovery window: 5 minutes. This prevents rapid retry loops from hammering a broken subsystem.
-
-### Step 5: Add CheckpointStore to TaskPlanner (4 hours)
-
-Save progress after each of the 7 evolution steps. On restart, skip already-completed steps. This converts each full-cycle failure into a partial retry.
-
-### Step 6: Implement DLQ (2 hours)
-
-Simple JSONL append file. Every exhausted-retry failure goes here. Provides audit trail and replay capability.
-
-### Step 7: Atomic writes in Merger (2 hours)
-
-Replace direct `fs.writeFile` calls with `atomicWrite()`. Add rollback in catch. This prevents partial merges from corrupting skill state.
+**Data flow direction:** situation → ContextGatherer → Evaluator → Selector → Executor → Verifier → Auditor
 
 ---
 
-## Sources
+## 7. Sources
 
-- Erlang OTP Supervisor documentation: https://www.erlang.org/doc/design_principles/sup_princ.html
-- Netflix Hystrix Circuit Breaker (archived): https://github.com/Netflix/Hystrix/wiki/How-it-Works
-- AWS retry guidance (exponential backoff): https://docs.aws.amazon.com/general/latest/gr/api-retries.html
-- Temporal.io workflow patterns (checkpoint/resume): https://docs.temporal.io/concepts/what-is-a-workflow
-- Microsoft Resilience patterns (bulkhead, circuit breaker): https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead
-- Confidence: HIGH for supervisor tree, circuit breaker, retry patterns (industry standard, multiple implementations). MEDIUM for Stigmergy-specific application (based on code inspection, not runtime observation of failures).
+- Bratman, M. E. (1987). *Intention, Plans, and Practical Reason* — BDI model
+- Boyd, J. R. (1995). "The Essence of Winning and Losing" — OODA loop
+- Colledanchise, M. & Ogren, P. (2018). *Behavior Trees in Robotics and AI* — BT architecture
+- AutoGPT architecture: https://github.com/Significant-Gravitas/AutoGPT
+- LangChain Agent architecture: https://docs.langchain.com/docs/modules/agents/
+- OpenAI Swarm: https://github.com/openai/swarm
+- ROS2 Behavior Trees: https://docs.ros.org/en/humble/Tutorials/Understanding/Understanding-Behavior-Trees.html
+- Confidence: HIGH for BDI/OODA/BT patterns (academic + industry validated). HIGH for LangChain/AutoGPT patterns (open source with production use). MEDIUM for Stigmergy-specific integration (based on code structure analysis, not runtime testing).
 
 ---
 
-*Architecture research for: Stigmergy Soul Autonomous Evolution System*
+*Architecture research for: Soul 自主决策 (Autonomous Decision-Making)*
 *Researched: 2026-04-12*
