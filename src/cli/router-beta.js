@@ -63,6 +63,19 @@ const {
 const { handleInteractiveCommand } = require("./commands/interactive");
 const { handleConcurrentCommand } = require("./commands/concurrent");
 const { handleSoulCommand } = require("./commands/soul");
+const {
+  handleOpenCLICommand,
+  listOpenCLISites,
+  exploreAndGenerate,
+  installBrowserExtension
+} = require("./commands/opencli");
+const {
+  initConfig: initCCConfig,
+  setCredential: setCCCredential,
+  generateConfig: generateCCConfig,
+  startCCConnect,
+  showStatus: showCCStatus
+} = require("./commands/cc-config");
 const { GatewayServer } = require("../gateway/server");
 const SmartRouter = require("../core/smart_router");
 const { errorHandler } = require("../core/error_handler");
@@ -71,6 +84,18 @@ const { setupGlobalErrorHandlers } = require("../core/error_handler");
 
 // Set up global error handlers
 setupGlobalErrorHandlers();
+
+// 🔒 加载 Verification Gate 硬约束拦截器
+const { VerificationGate } = require('../core/hooks/verification-gate');
+const globalGate = new VerificationGate({
+  logFile: path.join(os.homedir(), '.stigmergy', 'logs', 'verification-gate.log'),
+  strictMode: true
+});
+
+// 拦截 console.log（生产环境启用）
+if (process.env.NODE_ENV !== 'development' && process.env.VERIFICATION_GATE !== 'false') {
+  globalGate.interceptConsoleLog();
+}
 
 /**
  * Add OAuth authentication arguments to command
@@ -185,19 +210,25 @@ async function main() {
 
   // Install command
   program
-    .command("install")
+    .command("install [gateway]")
     .alias("inst")
     .alias("a")
-    .description("Install CLI tools")
+    .description("Install CLI tools or IM gateways")
     .option("-c, --cli <cli>", "Install specific CLI tool")
     .option("-v, --verbose", "Verbose output")
     .option("-f, --force", "Force installation")
     .option("--all", "Install all CLI tools (ignore autoInstall filter)")
-    .action(async (options) => {
+    .action(async (gateway, options) => {
       // 检测是否通过 'a' 别名调用，自动设置 --all 选项
       const commandName = process.argv[2];
       if (commandName === "a") {
         options.all = true;
+      }
+      // 如果指定了 cc-connect，安装 IM 网关
+      if (gateway === "cc-connect") {
+        const { installAllIMGateways } = require("./commands/install");
+        await installAllIMGateways();
+        return;
       }
       await handleInstallCommand(options);
     });
@@ -501,6 +532,119 @@ async function main() {
     .option("--cli <name>", "Target specific CLI tool")
     .action(async (subcommand, args, options) => {
       await handleSoulCommand(subcommand, args, options);
+    });
+
+  // 🔗 OpenCLI 集成命令 - 453+ 网站 CLI 化
+  program
+    .command("opencli")
+    .description("OpenCLI - 将任何网站转化为CLI (453+命令/73+网站)")
+    .argument("[site]", "网站名称 (bilibili/zhihu/hackernews/reddit/...)")
+    .argument("[command]", "子命令 (hot/search/top/...)")
+    .option("-l, --limit <n>", "返回数量限制")
+    .option("--json", "JSON格式输出")
+    .option("--url <url>", "URL参数（传递给OpenCLI）")
+    .option("--explore <url>", "探索新网站并生成CLI")
+    .option("--list", "列出所有可用网站")
+    .option("--install-ext", "安装浏览器扩展（复用已登录会话）")
+    .option("--doctor", "检查 OpenCLI 连接状态")
+    .option("-t, --timeout <ms>", "超时时间", "60000")
+    .action(async (site, command, options) => {
+      if (options.installExt) {
+        installBrowserExtension();
+      } else if (options.doctor) {
+        try {
+          execSync('opencli doctor', { stdio: 'inherit', timeout: 30000 });
+        } catch (error) { /* already printed */ }
+      } else if (options.list) {
+        listOpenCLISites({ json: options.json });
+      } else if (options.explore) {
+        await exploreAndGenerate(options.explore, options);
+      } else if (site) {
+        await handleOpenCLICommand(site, command, options);
+      } else {
+        console.log(chalk.cyan(`
+╔══════════════════════════════════════════════════════════════╗
+║  OpenCLI - 将任何网站转化为CLI                                ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  已安装: v1.6.1 (453个命令 / 73个网站)                        ║
+║                                                              ║
+║  用法:                                                       ║
+║    stigmergy opencli hackernews top                          ║
+║    stigmergy opencli bilibili hot --limit 5                  ║
+║    stigmergy opencli zhihu hot                               ║
+║    stigmergy opencli google search "关键词"                   ║
+║    stigmergy opencli --explore https://example.com           ║
+║    stigmergy opencli --install-ext        # 安装浏览器扩展            ║
+║    stigmergy opencli --doctor             # 检查连接状态              ║
+║    stigmergy opencli --list               # 列出所有网站              ║
+║                                                              ║
+║  中文网站: B站/知乎/小红书/微博/豆瓣/抖音/V2EX/BOSS直聘       ║
+║  国际网站: Twitter/Reddit/HN/YouTube/Google/Wikipedia       ║
+║  AI工具: ChatGPT/Gemini/Claude/豆包/Grok                     ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+        `));
+      }
+    });
+
+  // cc-connect IM 配置管理命令
+  program
+    .command("cc-config")
+    .alias("cc")
+    .description("cc-connect IM 配置管理 - 一次配置，所有 CLI 接入")
+    .argument("[action]", "操作: init, set, generate, start, status")
+    .argument("[platform]", "IM 平台 (feishu/telegram/dingtalk)")
+    .argument("[key]", "配置项 (app_id/token 等)")
+    .argument("[value]", "配置值")
+    .option("-w, --workdir <dir>", "工作目录")
+    .option("-f, --force", "强制覆盖")
+    .action(async (action, platform, key, value, options) => {
+      switch (action) {
+        case 'init':
+          await initCCConfig(options);
+          break;
+        case 'set':
+          if (!platform || !key || !value) {
+            console.log(chalk.red('用法: stigmergy cc-config set <platform> <key> <value>'));
+            console.log(chalk.gray('示例: stigmergy cc-config set feishu app_id cli_xxx'));
+            return;
+          }
+          await setCCCredential(platform, key, value);
+          break;
+        case 'generate':
+          await generateCCConfig(options);
+          break;
+        case 'start':
+          await startCCConnect(options);
+          break;
+        case 'status':
+          await showCCStatus();
+          break;
+        default:
+          console.log(chalk.cyan(`
+╔══════════════════════════════════════════════════════════════╗
+║  cc-connect IM 配置管理                                       ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  统一 IM 配置，所有 CLI 一次配置全部接入                        ║
+║                                                              ║
+║  用法:                                                        ║
+║    stigmergy cc-config init                 # 初始化配置      ║
+║    stigmergy cc-config set feishu app_id xx # 设置 IM 凭证   ║
+║    stigmergy cc-config generate             # 生成完整配置    ║
+║    stigmergy cc-config start                # 启动 cc-connect ║
+║    stigmergy cc-config status               # 查看配置状态    ║
+║                                                              ║
+║  支持的 IM 平台:                                              ║
+║    飞书 / Telegram / 钉钉 / Slack / Discord / 微信 / QQ       ║
+║                                                              ║
+║  支持的 CLI:                                                  ║
+║    Claude / Gemini / Qwen / iFlow / OpenCode / Codex / Qoder ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+          `));
+      }
     });
 
   // Concurrent execution command
@@ -827,6 +971,38 @@ async function main() {
     await handleInteractiveCommand({});
     return;
   }
+
+  // ── Domain CLI Proxy Commands ──────────────────────────────────────────────
+  // medusa → proxy to medusa CLI (Python pip package)
+  program
+    .command("medusa [args...]")
+    .description("Proxy to Medusa e-commerce CLI (args passed through)")
+    .allowUnknownOption(true)
+    .action(async (argsArr) => {
+      const { spawn } = require("child_process");
+      const medusaArgs = argsArr || [];
+      const fullArgs = process.argv.slice(3); // skip 'stigmergy medusa'
+      const medusaPath = require("which").sync("medusa", { nothrow: true }) || "medusa";
+      const child = spawn(medusaPath, fullArgs, {
+        stdio: "inherit", shell: true, cwd: process.cwd()
+      });
+      child.on("exit", (code) => process.exit(code || 0));
+    });
+
+  // eb-edu → proxy to eb-edu CLI (Python pip package)
+  program
+    .command("eb-edu [args...]")
+    .description("Proxy to eb-edu teaching platform CLI (args passed through)")
+    .allowUnknownOption(true)
+    .action(async (argsArr) => {
+      const { spawn } = require("child_process");
+      const fullArgs = process.argv.slice(3); // skip 'stigmergy eb-edu'
+      const ebEduPath = require("which").sync("eb-edu", { nothrow: true }) || "eb-edu";
+      const child = spawn(ebEduPath, fullArgs, {
+        stdio: "inherit", shell: true, cwd: process.cwd()
+      });
+      child.on("exit", (code) => process.exit(code || 0));
+    });
 
   // Parse command line arguments
   program.parse(process.argv);

@@ -175,11 +175,12 @@ class CLIPathDetector {
   }
 
   /**
-   * Find command in system PATH
+   * Find command in system PATH (cross-platform)
    */
   findCommandInPath(command) {
     try {
-      const result = spawnSync("where", [command], {
+      const cmd = process.platform === "win32" ? "where" : "which";
+      const result = spawnSync(cmd, [command], {
         encoding: "utf8",
         shell: true,
       });

@@ -165,11 +165,31 @@ class SoulKnowledgeBase {
       }
 
       // 专业领域匹配
-      if (
-        entry.expertise &&
-        entry.expertise.toLowerCase().includes(queryLower)
-      ) {
-        score += 4;
+      if (entry.expertise) {
+        if (typeof entry.expertise === 'string') {
+          if (entry.expertise.toLowerCase().includes(queryLower)) {
+            score += 4;
+          }
+        } else if (Array.isArray(entry.expertise)) {
+          for (const exp of entry.expertise) {
+            if (exp.toLowerCase().includes(queryLower)) {
+              score += 4;
+              break;
+            }
+          }
+        } else if (typeof entry.expertise === 'object') {
+          // 处理 {core: [...], related: [...]} 格式
+          const allExpertise = [
+            ...(entry.expertise.core || []),
+            ...(entry.expertise.related || [])
+          ];
+          for (const exp of allExpertise) {
+            if (exp.toLowerCase().includes(queryLower)) {
+              score += 4;
+              break;
+            }
+          }
+        }
       }
 
       if (score > 0) {
@@ -191,8 +211,15 @@ class SoulKnowledgeBase {
     // 按专业领域分组
     const byExpertise = {};
     for (const entry of entries) {
-      const exp = entry.expertise || "general";
-      byExpertise[exp] = (byExpertise[exp] || 0) + 1;
+      let expKey = "general";
+      if (typeof entry.expertise === 'string') {
+        expKey = entry.expertise;
+      } else if (Array.isArray(entry.expertise) && entry.expertise.length > 0) {
+        expKey = entry.expertise[0];
+      } else if (entry.expertise && entry.expertise.core && entry.expertise.core.length > 0) {
+        expKey = entry.expertise.core[0];
+      }
+      byExpertise[expKey] = (byExpertise[expKey] || 0) + 1;
     }
 
     // 按标签分组

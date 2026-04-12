@@ -137,6 +137,117 @@
           }
         ]
       }
+    },
+    {
+      "name": "cli-anything",
+      "displayName": "CLI-Anything",
+      "description": "为任何GUI软件生成生产级CLI接口 - 基于HKUDS CLI-Anything项目",
+      "version": "2.0.0",
+      "author": "stigmergy + HKUDS",
+      "type": "builtin",
+      "category": "cli-generation",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": [
+          "claude",
+          "qwen",
+          "gemini",
+          "iflow",
+          "codebuddy",
+          "codex",
+          "copilot",
+          "kode",
+          "kilocode",
+          "opencode",
+          "qodercli"
+        ],
+        "files": [
+          {
+            "source": "skills/cli-anything/SKILL.md",
+            "destination": "skills/cli-anything/SKILL.md"
+          },
+          {
+            "source": "skills/cli-anything/skill.json",
+            "destination": "skills/cli-anything/skill.json"
+          },
+          {
+            "source": "skills/cli-anything/HARNESS-INTEGRATION.md",
+            "destination": "skills/cli-anything/HARNESS-INTEGRATION.md"
+          }
+        ]
+      }
+    },
+    {
+      "name": "opencli",
+      "displayName": "OpenCLI",
+      "description": "将任何网站/Electron应用转化为CLI工具 - 6500+ Stars",
+      "version": "1.0.0",
+      "author": "stigmergy + jackwener",
+      "type": "builtin",
+      "category": "cli-runtime",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": [
+          "claude",
+          "qwen",
+          "gemini",
+          "iflow",
+          "codebuddy",
+          "opencode",
+          "qodercli",
+          "kilocode"
+        ],
+        "files": [
+          {
+            "source": "skills/opencli/SKILL.md",
+            "destination": "skills/opencli/SKILL.md"
+          },
+          {
+            "source": "skills/opencli/skill.json",
+            "destination": "skills/opencli/skill.json"
+          },
+          {
+            "source": "skills/opencli/BROWSER-EXTENSION-GUIDE.md",
+            "destination": "skills/opencli/BROWSER-EXTENSION-GUIDE.md"
+          }
+        ]
+      }
+    },
+    {
+      "name": "verification-gate",
+      "displayName": "Verification Gate",
+      "description": "验证门禁硬约束 - 独立验证进程自动拦截AI完成声明",
+      "version": "1.0.0",
+      "author": "Stigmergy Soul (双层Agent反思产出)",
+      "type": "builtin",
+      "category": "verification",
+      "enforcement": "hard",
+      "deployment": {
+        "autoDeploy": true,
+        "targetCLIs": [
+          "claude",
+          "qwen",
+          "gemini",
+          "iflow",
+          "codebuddy",
+          "codex",
+          "copilot",
+          "kode",
+          "kilocode",
+          "opencode",
+          "qodercli"
+        ],
+        "files": [
+          {
+            "source": "skills/verification-gate/SKILL.md",
+            "destination": "skills/verification-gate/SKILL.md"
+          },
+          {
+            "source": "skills/verification-gate/skill.json",
+            "destination": "skills/verification-gate/skill.json"
+          }
+        ]
+      }
     }
   ]
 }

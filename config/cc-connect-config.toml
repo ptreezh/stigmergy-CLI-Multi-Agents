@@ -1,0 +1,185 @@
+# cc-connect 配置 - Stigmergy 多 CLI 统一 IM 接入
+#
+# 架构: IM 配置一次，所有 CLI 共享接入
+# 每个 CLI 独立的 IM 机器人，用户可以同时与多个 AI 对话
+#
+# 生成命令: stigmergy cc-config generate
+
+# =============================================================================
+# 全局设置
+# =============================================================================
+
+[log]
+level = "info"
+
+# =============================================================================
+# IM 平台配置模板 (只需修改一次)
+# =============================================================================
+# 
+# 飞书配置:
+FEISHU_APP_ID = "your-feishu-app-id"
+FEISHU_APP_SECRET = "your-feishu-app-secret"
+
+# Telegram 配置:
+TELEGRAM_TOKEN = "your-telegram-bot-token"
+
+# 钉钉配置:
+DINGTALK_CLIENT_ID = "your-dingtalk-client-id"
+DINGTALK_CLIENT_SECRET = "your-dingtalk-client-secret"
+
+# =============================================================================
+# Claude Code 项目
+# =============================================================================
+
+[[projects]]
+name = "claude-code"
+
+[projects.agent]
+type = "claudecode"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "bypassPermissions"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# [[projects.platforms]]
+# type = "telegram"
+# [projects.platforms.options]
+# token = "your-telegram-bot-token"
+
+# =============================================================================
+# Gemini CLI 项目
+# =============================================================================
+
+[[projects]]
+name = "gemini-cli"
+
+[projects.agent]
+type = "gemini"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "yolo"
+cmd = "gemini"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# =============================================================================
+# Qwen CLI 项目
+# =============================================================================
+
+[[projects]]
+name = "qwen"
+
+[projects.agent]
+type = "claudecode"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "bypassPermissions"
+cmd = "qwen"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# =============================================================================
+# iFlow CLI 项目
+# =============================================================================
+
+[[projects]]
+name = "iflow"
+
+[projects.agent]
+type = "iflow"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "yolo"
+cmd = "iflow"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# =============================================================================
+# OpenCode 项目
+# =============================================================================
+
+[[projects]]
+name = "opencode"
+
+[projects.agent]
+type = "opencode"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "yolo"
+cmd = "opencode"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# =============================================================================
+# Codex CLI 项目
+# =============================================================================
+
+[[projects]]
+name = "codex"
+
+[projects.agent]
+type = "codex"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "full-auto"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"
+
+# =============================================================================
+# Qoder CLI 项目
+# =============================================================================
+
+[[projects]]
+name = "qoder"
+
+[projects.agent]
+type = "qoder"
+
+[projects.agent.options]
+work_dir = "/path/to/project"
+mode = "yolo"
+cmd = "qodercli"
+
+[[projects.platforms]]
+type = "feishu"
+[projects.platforms.options]
+app_id = "your-feishu-app-id"
+app_secret = "your-feishu-app-secret"
+allow_from = "*"

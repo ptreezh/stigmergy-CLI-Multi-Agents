@@ -44,6 +44,7 @@
     "format": "prettier --write src/**/*.js",
     "gatekeeper": "node .gates/gatekeeper.js",
     "gatekeeper:check": "node .gates/gatekeeper.js",
+    "gatekeeper:ci": "node .gates/gatekeeper-ci.js",
     "precommit": "npm run gatekeeper"
   },
   "keywords": [
@@ -69,15 +70,34 @@
     "chalk": "^4.1.2",
     "commander": "^14.0.2",
     "cron-parser": "^4.9.0",
-    "file-box": "^1.5.5",
     "inquirer": "^8.2.6",
     "js-yaml": "^4.1.1",
+    "qrcode-terminal": "^0.12.0",
+    "semver": "^7.7.3"
+  },
+  "peerDependencies": {
+    "wechaty": "^1.20.2",
+    "wechaty-puppet-wechat": "^1.18.4",
     "playwright": "^1.58.2",
     "qrcode": "^1.5.4",
-    "qrcode-terminal": "^0.12.0",
-    "semver": "^7.7.3",
-    "wechaty": "^1.20.2",
-    "wechaty-puppet-wechat": "^1.18.4"
+    "file-box": "^1.5.5"
+  },
+  "peerDependenciesMeta": {
+    "wechaty": {
+      "optional": true
+    },
+    "wechaty-puppet-wechat": {
+      "optional": true
+    },
+    "playwright": {
+      "optional": true
+    },
+    "qrcode": {
+      "optional": true
+    },
+    "file-box": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",
@@ -108,5 +128,10 @@
     "KiloCode",
     "Other AI Systems"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "overrides": {
+    "minimatch": "^10.2.4",
+    "brace-expansion": "^2.0.2",
+    "picomatch": "^4.0.3"
+  }
 }

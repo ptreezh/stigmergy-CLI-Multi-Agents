@@ -12,6 +12,8 @@
 const fs = require("fs");
 const path = require("path");
 const SoulTaskIntegration = require("./soul_task_integration");
+const SkillOntologySearch = require("./skill_ontology_search");
+const SkillOrchestrator = require("./skill_orchestrator");
 
 class SoulManager {
   constructor(options = {}) {
@@ -25,6 +27,8 @@ class SoulManager {
     this.taskPlanner = null;
     this.scheduler = null;
     this.memoryManager = null;
+    this.ontologySearch = null;
+    this.orchestrator = null;
     this.isInitialized = false;
     this.lastLearningTime = null;
     this.lastAlignmentCheck = null;
@@ -154,15 +158,15 @@ class SoulManager {
       name: "",
       role: "",
       type: "",
-      personality: {},
-      mission: {},
-      vision: {},
-      expertise: {},
+      personality: { traits: [], style: "", values: "" },
+      mission: { ultimate: "", responsibilities: [] },
+      vision: { short: "", mid: "", long: "" },
+      expertise: { core: [], related: [], depth: "" },
       learningStrategy: {},
       alignmentCriteria: {},
     };
 
-    // 简单解析 - 提取关键字段
+    // 解析内容
     const lines = content.split("\n");
     let currentSection = "";
 
@@ -173,11 +177,36 @@ class SoulManager {
         continue;
       }
 
+      // 身份 Identity
       if (line.includes("**名称**:")) {
         identity.name = line.match(/\*\*名称\*\*:\s*(.+)/)?.[1]?.trim() || "";
       }
       if (line.includes("**角色**:")) {
         identity.role = line.match(/\*\*角色\*\*:\s*(.+)/)?.[1]?.trim() || "";
+      }
+      if (line.includes("**类型**:")) {
+        identity.type = line.match(/\*\*类型\*\*:\s*(.+)/)?.[1]?.trim() || "";
+      }
+
+      // 人格 Personality
+      if (currentSection.includes("人格") && line.includes("**核心特质**:")) {
+        const traitsMatch = line.match(/\*\*核心特质\*\*:\s*(.+)/);
+        if (traitsMatch) {
+          identity.personality.traits = traitsMatch[1].split(/[,、，]/).map(t => t.trim());
+        }
+      }
+
+      // 使命 Mission
+      if (currentSection.includes("使命") && line.includes("**终极目标**:")) {
+        identity.mission.ultimate = line.match(/\*\*终极目标\*\*:\s*(.+)/)?.[1]?.trim() || "";
+      }
+
+      // 专业知识域 Expertise
+      if (currentSection.includes("专业") && line.includes("**核心领域**:")) {
+        const coreMatch = line.match(/\*\*核心领域\*\*:\s*(.+)/);
+        if (coreMatch) {
+          identity.expertise.core = coreMatch[1].split(/[,、，]/).map(t => t.trim());
+        }
       }
     }
 
@@ -218,11 +247,24 @@ class SoulManager {
       knowledgeBase: this.knowledgeBase,
     });
 
+    // 初始化技能本体论搜索
+    this.ontologySearch = new SkillOntologySearch({
+      skillsPath: this.skillsPath,
+    });
+
+    // 初始化技能编排引擎
+    this.orchestrator = new SkillOrchestrator({
+      skillsPath: this.skillsPath,
+    });
+
     console.log(
       `[SoulManager] Initialized for ${this.identity?.name || "Unknown"}`,
     );
     console.log(
       `[SoulManager] Task Integration: ${this.taskIntegration.enabled ? 'enabled' : 'disabled'}`,
+    );
+    console.log(
+      `[SoulManager] Skill Ontology: ${this.ontologySearch ? 'loaded' : 'not found'}`,
     );
     return true;
   }
@@ -244,7 +286,7 @@ class SoulManager {
     }
 
     // 使用Task API包装进化操作
-    return await this.taskIntegration.wrapOperation(
+    const result = await this.taskIntegration.wrapOperation(
       'evolution',
       async () => await this.skillEvolver.evolve(direction),
       {
@@ -257,6 +299,33 @@ class SoulManager {
         }
       }
     );
+
+    // 进化后自动整理技能本体论
+    if (result?.success) {
+      await this.reorganizeOntology();
+    }
+
+    return result;
+  }
+
+  /**
+   * 自动整理技能本体论
+   */
+  async reorganizeOntology() {
+    if (!this.ontologySearch) return { success: false, error: "Ontology search not initialized" };
+
+    console.log("[SoulManager] Reorganizing skill ontology...");
+
+    // 扫描新技能
+    const stats = this.ontologySearch.getStats();
+    console.log(`[SoulManager] Current ontology stats:`, JSON.stringify(stats, null, 2));
+
+    return {
+      success: true,
+      stats,
+      searchCapabilities: this.ontologySearch ? 'ready' : 'not available',
+      orchestrationTemplates: this.orchestrator ? this.orchestrator.listTemplates().length : 0,
+    };
   }
 
   /**

@@ -756,9 +756,11 @@ async function deployBuiltinSkills(homeDir) {
   }
 }
 
-postInstallDeploy().catch((error) => {
-  console.error("部署失败:", error.message);
-  process.exit(0);
-});
+if (require.main === module) {
+  postInstallDeploy().catch((error) => {
+    console.error("部署失败:", error.message);
+    process.exit(1);
+  });
+}
 
-module.exports = { deployBuiltinSuperpowers };
+module.exports = { deployBuiltinSuperpowers, postInstallDeploy };

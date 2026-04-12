@@ -4,6 +4,21 @@ const { spawnSync } = require("child_process");
 const { errorHandler, ERROR_TYPES } = require("./error_handler");
 const CLIPathDetector = require("./cli_path_detector");
 
+// IM 基础设施配置（与 AI CLI 区分）
+const IM_GATEWAYS = {
+  "cc-connect": {
+    name: "cc-connect IM Gateway",
+    version: "cc-connect --version",
+    install: "npm install -g cc-connect",
+    type: "im-gateway", // 区别于 AI CLI
+    description: "多平台 IM 连接器 (飞书/TG/微信/QQ/钉钉/Slack/Discord/LINE)",
+    configDir: path.join(os.homedir(), ".stigmergy", "cc-connect"),
+    configFile: path.join(os.homedir(), ".stigmergy", "cc-connect", "config.toml"),
+    autoInstall: true, // 优先于 AI CLI 安装
+    supportedPlatforms: ["feishu", "telegram", "dingtalk", "slack", "discord", "line", "wecom", "wechat", "qq", "qqbot"]
+  }
+};
+
 // AI CLI Tools Configuration
 const CLI_TOOLS = {
   bun: {
@@ -21,6 +36,16 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".claude", "hooks"),
     config: path.join(os.homedir(), ".claude", "config.json"),
     autoInstall: true, // 默认安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Plugin",
+        install: "/plugin marketplace add HKUDS/CLI-Anything && /plugin install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
   },
   gemini: {
     name: "Gemini CLI",
@@ -28,7 +53,17 @@ const CLI_TOOLS = {
     install: "npm install -g @google/gemini-cli",
     hooksDir: path.join(os.homedir(), ".gemini", "extensions"),
     config: path.join(os.homedir(), ".gemini", "config.json"),
-    autoInstall: true, // 默认安装
+    autoInstall: true,
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
   },
   qwen: {
     name: "Qwen CLI",
@@ -37,6 +72,16 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".qwen", "hooks"),
     config: path.join(os.homedir(), ".qwen", "config.json"),
     autoInstall: true, // 默认安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: " stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
   },
   iflow: {
     name: "iFlow CLI",
@@ -45,54 +90,16 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".iflow", "hooks"),
     config: path.join(os.homedir(), ".iflow", "config.json"),
     autoInstall: true, // 默认安装
-  },
-  qodercli: {
-    name: "Qoder CLI",
-    version: "qodercli --version",
-    install: "npm install -g @qoder-ai/qodercli",
-    hooksDir: path.join(os.homedir(), ".qoder", "hooks"),
-    config: path.join(os.homedir(), ".qoder", "config.json"),
-    autoInstall: true, // 默认安装
-  },
-  codebuddy: {
-    name: "CodeBuddy CLI",
-    version: "codebuddy --version",
-    install: "npm install -g @tencent-ai/codebuddy-code",
-    hooksDir: path.join(os.homedir(), ".codebuddy", "hooks"),
-    config: path.join(os.homedir(), ".codebuddy", "config.json"),
-    autoInstall: true, // 默认安装
-  },
-  copilot: {
-    name: "GitHub Copilot CLI",
-    version: "copilot --version",
-    install: "npm install -g @github/copilot",
-    hooksDir: path.join(os.homedir(), ".copilot", "mcp"),
-    config: path.join(os.homedir(), ".copilot", "config.json"),
-    autoInstall: false, // 默认不安�?
-  },
-  codex: {
-    name: "OpenAI Codex CLI",
-    version: "codex --version",
-    install: "npm install -g @openai/codex",
-    hooksDir: path.join(os.homedir(), ".config", "codex", "slash_commands"),
-    config: path.join(os.homedir(), ".codex", "config.json"),
-    autoInstall: false, // 默认不安�?
-  },
-  kode: {
-    name: "Kode CLI",
-    version: "kode --version",
-    install: "npm install -g @shareai-lab/kode",
-    hooksDir: path.join(os.homedir(), ".kode", "agents"),
-    config: path.join(os.homedir(), ".kode", "config.json"),
-    autoInstall: false, // 默认不安�?
-  },
-  resumesession: {
-    name: "ResumeSession CLI",
-    version: "resumesession --version",
-    install: "npm install -g @stigmergy/resume",
-    hooksDir: path.join(os.homedir(), ".resumesession", "hooks"),
-    config: path.join(os.homedir(), ".resumesession", "config.json"),
-    autoInstall: false, // 内部功能，不单独安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "yaml" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
   },
   opencode: {
     name: "OpenCode AI CLI",
@@ -101,7 +108,61 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".opencode", "hooks"),
     config: path.join(os.homedir(), ".opencode", "config.json"),
     autoInstall: true,
-    dependsOn: ["bun", "oh-my-opencode"], // 依赖 bun 和 oh-my-opencode
+    dependsOn: ["bun", "oh-my-opencode"],
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  qodercli: {
+    name: "Qoder CLI",
+    version: "qodercli --version",
+    install: "npm install -g @qoder-ai/qodercli",
+    hooksDir: path.join(os.homedir(), ".qoder", "hooks"),
+    config: path.join(os.homedir(), ".qoder", "config.json"),
+    autoInstall: true, // 默认安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  codebuddy: {
+    name: "CodeBuddy CLI",
+    version: "codebuddy --version",
+    install: "npm install -g @tencent-ai/codebuddy-code",
+    hooksDir: path.join(os.homedir(), ".codebuddy", "hooks"),
+    config: path.join(os.homedir(), ".codebuddy", "config.json"),
+    autoInstall: true, // 默认安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  resumesession: {
+    name: "ResumeSession CLI",
+    version: "resumesession --version",
+    install: "npm install -g @stigmergy/resume",
+    hooksDir: path.join(os.homedir(), ".resumesession", "hooks"),
+    config: path.join(os.homedir(), ".resumesession", "config.json"),
+    autoInstall: false, // 内部功能，不单独安装
   },
   "oh-my-opencode": {
     name: "Oh-My-OpenCode Plugin",
@@ -125,6 +186,91 @@ const CLI_TOOLS = {
     hooksDir: path.join(os.homedir(), ".kilocode", "hooks"),
     config: path.join(os.homedir(), ".kilocode", "config.json"),
     autoInstall: true,
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: true,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  copilot: {
+    name: "GitHub Copilot CLI",
+    version: "copilot --version",
+    install: "npm install -g @github/copilot",
+    hooksDir: path.join(os.homedir(), ".copilot", "mcp"),
+    config: path.join(os.homedir(), ".copilot", "config.json"),
+    autoInstall: false, // 默认不安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: false,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  codex: {
+    name: "OpenAI Codex CLI",
+    version: "codex --version",
+    install: "npm install -g @openai/codex",
+    hooksDir: path.join(os.homedir(), ".config", "codex", "slash_commands"),
+    config: path.join(os.homedir(), ".codex", "config.json"),
+    autoInstall: false, // 默认不安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: false,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  kode: {
+    name: "Kode CLI",
+    version: "kode --version",
+    install: "npm install -g @shareai-lab/kode",
+    hooksDir: path.join(os.homedir(), ".kode", "agents"),
+    config: path.join(os.homedir(), ".kode", "config.json"),
+    autoInstall: false, // 默认不安装
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    plugins: {
+      "cli-anything": {
+        name: "CLI-Anything Skill",
+        install: "stigmergy skill install cli-anything",
+        description: "为任何GUI软件生成CLI接口",
+        autoInstall: false,
+        sourcePath: path.join(__dirname, "..", "..", "skills", "cli-anything")
+      }
+    }
+  },
+  opencli: {
+    name: "OpenCLI",
+    version: "opencli --version",
+    install: "npm install -g @jackwener/opencli",
+    hooksDir: path.join(os.homedir(), ".opencli", "hooks"),
+    config: path.join(os.homedir(), ".opencli", "config.json"),
+    autoInstall: true,
+    skills: { dir: "skills", format: "skill-md", supportsHooks: true, hookFormat: "json" },
+    browserExtension: {
+      name: "OpenCLI Browser Bridge",
+      description: "浏览器扩展，复用Chrome登录态",
+      installGuide: "skills/opencli/BROWSER-EXTENSION-GUIDE.md"
+    },
+    plugins: {
+      "builtin-adapters": {
+        name: "73+ 内置网站适配器",
+        description: "B站/知乎/小红书/Twitter/Reddit等",
+        autoInstall: true
+      }
+    }
   },
 };
 
@@ -545,6 +691,7 @@ CLI_TOOLS.checkInstallation = checkInstallation;
 
 module.exports = {
   CLI_TOOLS,
+  IM_GATEWAYS,
   validateCLITool,
   initializePathDetection,
   getCLIPath,

@@ -209,6 +209,28 @@ async function handleInstallCommand(options = {}) {
   }
 }
 
+/**
+ * 安装所有 IM 网关
+ */
+async function installAllIMGateways() {
+  const installer = new StigmergyInstaller();
+  const results = await installer.installAllIMGateways();
+
+  const successCount = Object.values(results).filter(r => r.success).length;
+  const totalCount = Object.keys(results).length;
+
+  console.log(chalk.green(`\n✅ IM 网关安装完成: ${successCount}/${totalCount}`));
+
+  for (const [name, result] of Object.entries(results)) {
+    if (result.success) {
+      console.log(chalk.green(`  ✅ ${name}`));
+    } else {
+      console.log(chalk.red(`  ❌ ${name}: ${result.error}`));
+    }
+  }
+}
+
 module.exports = {
   handleInstallCommand,
+  installAllIMGateways,
 };
