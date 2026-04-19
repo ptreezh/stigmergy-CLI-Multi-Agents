@@ -14,6 +14,8 @@ const path = require("path");
 const SoulTaskIntegration = require("./soul_task_integration");
 const SkillOntologySearch = require("./skill_ontology_search");
 const SkillOrchestrator = require("./skill_orchestrator");
+const { SoulDecisionEngine, DecisionContext, DecisionVerifier, FallbackManager } = require("./soul/DECI");
+const DecisionAuditor = require("./soul/DecisionAuditor");
 
 class SoulManager {
   constructor(options = {}) {
@@ -32,6 +34,13 @@ class SoulManager {
     this.isInitialized = false;
     this.lastLearningTime = null;
     this.lastAlignmentCheck = null;
+
+    // DECI decision engine (INTEG-01)
+    this.decisionEngine = null;
+    this.decisionVerifier = null;
+    this.decisionAuditor = null;
+    this.deciEnabled = options.deciEnabled !== false; // default enabled
+    this._pendingDecision = null;
     this.config = {
       autoLearn: options.autoLearn !== false,
       alignmentCheckOnResponse: options.alignmentCheckOnResponse !== false,
@@ -266,7 +275,116 @@ class SoulManager {
     console.log(
       `[SoulManager] Skill Ontology: ${this.ontologySearch ? 'loaded' : 'not found'}`,
     );
+
+    // Initialize DECI decision engine (INTEG-01)
+    await this.initDecisionEngine();
+
     return true;
+  }
+
+  /**
+   * Initialize DECI decision engine
+   */
+  async initDecisionEngine() {
+    if (!this.deciEnabled) return;
+    this.decisionEngine = new SoulDecisionEngine({
+      projectRoot: this.skillsPath,
+    });
+    this.decisionVerifier = new DecisionVerifier();
+    this.decisionAuditor = new DecisionAuditor();
+    console.log(
+      `[SoulManager] DECI Decision Engine: ${this.deciEnabled ? 'enabled' : 'disabled'}`,
+    );
+  }
+
+  /**
+   * DECI pre-action gate — called before every autonomous action.
+   * @param {string} decisionType — operation type identifier
+   * @param {Object} context — { situation, action, ...DecisionContext fields }
+   * @returns {Object|null} — null if action should proceed, object with decision info if blocked/escalated
+   */
+  async preActionHook(decisionType, context) {
+    if (!this.deciEnabled || !this.decisionEngine) return null;
+
+    const ctx = new DecisionContext({
+      situation: context.situation || `Soul ${decisionType} decision`,
+      action: context.action || decisionType,
+      operationCategory: context.operationCategory || this._categorizeOperation(decisionType),
+      contextClarity: context.contextClarity || 0.7,
+      riskLevel: context.riskLevel || this._defaultRiskLevel(decisionType),
+      taskFamiliarity: context.taskFamiliarity || 0.5,
+      outcomeHistory: context.outcomeHistory || 0.5,
+      autonomyBudget: context.autonomyBudget || 1.0,
+      decisionType,
+    });
+
+    const result = this.decisionEngine.decide(ctx);
+
+    // Log to audit (Phase 1 DECI-04)
+    if (this.decisionAuditor) {
+      this.decisionAuditor.log({
+        situation: result.situation,
+        context: ctx.toJSON(),
+        options: null,
+        selected: result.final_decision,
+        confidenceScore: result.layer2 ? result.layer2.score : null,
+        finalDecision: result.final_decision,
+        outcome: null, // filled in after execution
+        escalated: result.final_decision !== 'ACT_AUTONOMOUSLY',
+      });
+    }
+
+    if (result.final_decision === 'BLOCK') {
+      console.warn(`[SoulManager] DECI BLOCKED: ${result.situation} — ${result.layer1.reason}`);
+      return result;
+    }
+
+    if (result.final_decision === 'HALT_AND_NOTIFY') {
+      console.error(`[SoulManager] DECI HALT: ${result.situation} — consecutive failures: ${result.layer3?.consecutive_failures}`);
+      return result;
+    }
+
+    if (result.final_decision === 'ASK_USER') {
+      console.log(`[SoulManager] DECI ESCALATE: ${result.situation} — confidence ${result.layer2?.score?.toFixed(4)} below threshold`);
+      return result;
+    }
+
+    // ACT_AUTONOMOUSLY — proceed, store for post-verification
+    this._pendingDecision = result;
+    return null;
+  }
+
+  /**
+   * Post-action verification — call after autonomous action completes.
+   * @param {Object} outcome — { success: boolean, error?: string }
+   * @param {boolean} skipVerification — true if outcome cannot be verified
+   */
+  async postActionVerify(outcome, skipVerification = false) {
+    if (!this.deciEnabled || !this._pendingDecision) return;
+
+    const verdict = this.decisionVerifier.verify(this._pendingDecision, outcome, { skipVerification });
+    this.decisionVerifier.recordVerdict(verdict, this._pendingDecision.decisionType || 'autonomous');
+
+    const success = verdict.verdict === 'PASS';
+    this.decisionEngine.recordOutcome(success);
+
+    this._pendingDecision = null;
+  }
+
+  _categorizeOperation(decisionType) {
+    const readOnly = ['heartbeat', 'alignment-check'];
+    return readOnly.includes(decisionType) ? 'always_safe' : 'non_destructive';
+  }
+
+  _defaultRiskLevel(decisionType) {
+    const riskMap = {
+      evolve: 0.3,
+      'batch-evolve': 0.4,
+      heartbeat: 0.1,
+      'alignment-check': 0.1,
+      'reorganize-ontology': 0.2,
+    };
+    return riskMap[decisionType] || 0.3;
   }
 
   /**
@@ -285,20 +403,43 @@ class SoulManager {
       return { success: false, error: "Not initialized" };
     }
 
-    // 使用Task API包装进化操作
-    const result = await this.taskIntegration.wrapOperation(
-      'evolution',
-      async () => await this.skillEvolver.evolve(direction),
-      {
-        subject: `执行Soul自主进化 - ${this.identity?.name || 'Unknown'}`,
-        description: `分析近期交互，更新知识库和技能`,
-        activeForm: '执行Soul自主进化中',
-        metadata: {
-          direction,
-          cliName: this.cliName
+    // INTEG-01: DECI pre-action gate
+    const blocked = await this.preActionHook('evolve', {
+      situation: `Soul evolution in direction: ${direction}`,
+      action: `evolve(${direction})`,
+      operationCategory: 'non_destructive',
+      riskLevel: 0.3,
+    });
+    if (blocked) {
+      return {
+        success: false,
+        error: 'DECI blocked/escalated',
+        decision: blocked.final_decision,
+        reason: blocked.layer1?.reason || blocked.layer2?.score,
+      };
+    }
+
+    let result;
+    try {
+      // 使用Task API包装进化操作
+      result = await this.taskIntegration.wrapOperation(
+        'evolution',
+        async () => await this.skillEvolver.evolve(direction),
+        {
+          subject: `执行Soul自主进化 - ${this.identity?.name || 'Unknown'}`,
+          description: `分析近期交互，更新知识库和技能`,
+          activeForm: '执行Soul自主进化中',
+          metadata: {
+            direction,
+            cliName: this.cliName
+          }
         }
-      }
-    );
+      );
+      await this.postActionVerify({ success: result?.success === true });
+    } catch (e) {
+      await this.postActionVerify({ success: false, error: e.message });
+      throw e;
+    }
 
     // 进化后自动整理技能本体论
     if (result?.success) {
@@ -367,20 +508,43 @@ class SoulManager {
       return { aligned: true, score: 1.0 };
     }
 
-    // 使用Task API包装对齐检查
-    return await this.taskIntegration.wrapOperation(
-      'alignment_check',
-      async () => await this.alignmentChecker.check(content),
-      {
-        subject: '执行Soul对齐检查',
-        description: '检查输出是否符合Soul身份定义',
-        activeForm: '执行对齐检查中',
-        metadata: {
-          contentLength: content?.length || 0,
-          cliName: this.cliName
+    // INTEG-01: DECI pre-action gate
+    const blocked = await this.preActionHook('alignment-check', {
+      situation: 'Soul alignment verification',
+      action: 'alignment-check',
+      operationCategory: 'always_safe',
+      riskLevel: 0.1,
+    });
+    if (blocked) {
+      return {
+        aligned: false,
+        score: 0,
+        error: 'DECI blocked/escalated',
+        decision: blocked.final_decision,
+      };
+    }
+
+    let result;
+    try {
+      result = await this.taskIntegration.wrapOperation(
+        'alignment_check',
+        async () => await this.alignmentChecker.check(content),
+        {
+          subject: '执行Soul对齐检查',
+          description: '检查输出是否符合Soul身份定义',
+          activeForm: '执行对齐检查中',
+          metadata: {
+            contentLength: content?.length || 0,
+            cliName: this.cliName
+          }
         }
-      }
-    );
+      );
+      await this.postActionVerify({ success: true });
+    } catch (e) {
+      await this.postActionVerify({ success: false, error: e.message });
+    }
+
+    return result;
   }
 
   /**
@@ -391,20 +555,38 @@ class SoulManager {
       return null;
     }
 
-    // 使用Task API包装心跳操作
-    return await this.taskIntegration.wrapOperation(
-      'heartbeat',
-      async () => await this.memoryManager.heartbeat(),
-      {
-        subject: 'Soul系统心跳检查',
-        description: '检查Soul系统状态、记忆同步、思维定势检测',
-        activeForm: '执行心跳检查中',
-        metadata: {
-          cliName: this.cliName,
-          timestamp: new Date().toISOString()
+    // INTEG-01: DECI pre-action gate
+    const blocked = await this.preActionHook('heartbeat', {
+      situation: 'Soul system heartbeat check',
+      action: 'heartbeat',
+      operationCategory: 'always_safe',
+      riskLevel: 0.1,
+    });
+    if (blocked) {
+      return { error: 'DECI blocked/escalated', decision: blocked.final_decision };
+    }
+
+    let result;
+    try {
+      result = await this.taskIntegration.wrapOperation(
+        'heartbeat',
+        async () => await this.memoryManager.heartbeat(),
+        {
+          subject: 'Soul系统心跳检查',
+          description: '检查Soul系统状态、记忆同步、思维定势检测',
+          activeForm: '执行心跳检查中',
+          metadata: {
+            cliName: this.cliName,
+            timestamp: new Date().toISOString()
+          }
         }
-      }
-    );
+      );
+      await this.postActionVerify({ success: !!result });
+    } catch (e) {
+      await this.postActionVerify({ success: false, error: e.message });
+    }
+
+    return result;
   }
 
   getState() {
