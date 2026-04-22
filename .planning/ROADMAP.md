@@ -63,8 +63,8 @@ The DECI roadmap is sequenced to fix the broken foundation first, then layer dec
 **Plans:** 3 plans in 3 waves
 
 Plans:
-- [ ] 02-01-PLAN.md -- Wave 1: DecisionContext + DecisionBoundary + boundaries.json (Layer 1 + schema)
-- [ ] 02-02-PLAN.md -- Wave 2: ConfidenceScorer + EmergencyFallback + SoulDecisionEngine (Layers 2/3 + orchestrator)
+- [x] 02-01-PLAN.md -- Wave 1: DecisionContext + DecisionBoundary + boundaries.json (Layer 1 + schema)
+- [x] 02-02-PLAN.md -- Wave 2: ConfidenceScorer + EmergencyFallback + SoulDecisionEngine (Layers 2/3 + orchestrator)
 - [ ] 02-03-PLAN.md -- Wave 3: DecisionVerifier + FallbackManager + SoulManager INTEG-01 + barrel export
 
 **Estimated files to create/modify:**
