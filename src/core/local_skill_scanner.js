@@ -83,18 +83,6 @@ class LocalSkillScanner {
   }
 
   /**
-   * Get cache file timestamp
-   */
-  async getCacheTimestamp() {
-    try {
-      const stats = await fs.stat(this.cacheFile);
-      return stats.mtime;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
    * Load scan results from persistent cache
    */
   async loadFromCache() {
@@ -734,55 +722,10 @@ class LocalSkillScanner {
   }
 
   /**
-   * Generate CLI-specific parameter pattern for a skill
-   */
-  generateSkillParameterPattern(skillName, cliName) {
-    const patterns = {
-      claude: `Bash("stigmergy skill read ${skillName}")`,
-      gemini: `--skill ${skillName}`,
-      qwen: `使用${skillName}技能`,
-      codebuddy: `-p "skill:${skillName}"`,
-      iflow: `-p "请使用${skillName}技能"`,
-      copilot: `--skill ${skillName}`,
-      codex: `--skill ${skillName}`,
-      qodercli: `-p "请使用${skillName}技能"`,
-    };
-
-    return patterns[cliName] || `-p "${skillName}"`;
-  }
-
-  /**
-   * Generate CLI-specific parameter pattern for an agent
-   */
-  generateAgentParameterPattern(agentName, cliName) {
-    const patterns = {
-      claude: `Bash("stigmergy use ${agentName} agent")`,
-      gemini: `--agent ${agentName}`,
-      qwen: `使用${agentName}智能体`,
-      codebuddy: `-p "agent:${agentName}"`,
-      iflow: `-p "请使用${agentName}智能体"`,
-      copilot: `--agent ${agentName}`,
-      codex: `--agent ${agentName}`,
-      qodercli: `-p "请使用${agentName}智能体"`,
-    };
-
-    return patterns[cliName] || `-p "${agentName}"`;
-  }
-
-  /**
    * Get cached scan results
    */
   getScanResults() {
     return this.scanResults;
-  }
-
-  /**
-   * Refresh the scan
-   */
-  async refresh() {
-    this.skillCache.clear();
-    this.agentCache.clear();
-    return await this.scanAll();
   }
 }
 

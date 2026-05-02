@@ -10,8 +10,7 @@
  * 🎯 重构说明（v1.4.0）：
  * - 统一 analyzeCLI() 入口点，支持 options 参数
  * - 提取 addEnhancedInfo() 方法，实现不可变对象模式
- * - 简化包装器方法（getCLIPattern, getEnhancedCLIPattern, analyzeCLIEnhanced）
- * - 所有方法保持向后兼容，已添加 @deprecated 注释
+ * - 所有方法保持向后兼容
  *
  * 🧪 测试覆盖：36/36 测试通过（23单元测试 + 13集成测试）
  */
@@ -337,62 +336,6 @@ class CLIHelpAnalyzer {
    * @param {boolean} options.forceRefresh - 是否强制刷新缓存
    * @returns {Promise<Object>} 所有CLI的分析结果
    */
-  async analyzeAllCLI(options = {}) {
-    const results = {};
-    const cliNames = Object.keys(this.cliTools);
-
-    // 优化：并行分析所有 CLI，添加超时保护
-    const analysisPromises = cliNames.map(async (cliName) => {
-      try {
-        if (process.env.DEBUG === "true") {
-          console.log(`Analyzing ${cliName}...`);
-        }
-        // 添加超时保护，单个 CLI 分析最多 60 秒（因为需要尝试多个 help 方法）
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Analysis timeout")), 60000),
-        );
-        const result = await Promise.race([
-          this.analyzeCLI(cliName, options),
-          timeoutPromise,
-        ]);
-        return { cliName, result };
-      } catch (error) {
-        // Only log important errors, suppress expected file not found errors
-        if (
-          !error.message.includes("ENOENT") &&
-          !error.message.includes("no such file or directory") &&
-          !error.message.includes(
-            "not recognized as an internal or external command",
-          ) &&
-          !error.message.includes("Analysis timeout")
-        ) {
-          await errorHandler.logError(
-            error,
-            "WARN",
-            `CLIHelpAnalyzer.analyzeAllCLI.${cliName}`,
-          );
-        }
-        return { cliName, result: { success: false, error: error.message } };
-      }
-    });
-
-    // 等待所有分析完成，添加整体超时保护
-    const overallTimeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Overall analysis timeout")), 120000),
-    );
-    const analysisResults = await Promise.race([
-      Promise.all(analysisPromises),
-      overallTimeoutPromise,
-    ]);
-
-    // 整理结果
-    for (const { cliName, result } of analysisResults) {
-      results[cliName] = result;
-    }
-
-    return results;
-  }
-
   /**
    * 分析CLI工具
    * @param {string} cliName - CLI工具名称
@@ -989,67 +932,10 @@ class CLIHelpAnalyzer {
   }
 
   /**
-   * Update CLI pattern when call fails
-   */
-  async updatePatternOnFailure(cliName, error, attemptedCommand) {
-    // Only log in debug mode to reduce console noise
-    if (process.env.DEBUG === "true") {
-      console.log(
-        `Updating pattern for ${cliName} due to failure:`,
-        error.message,
-      );
-    }
-    try {
-      // Re-analyze the CLI
-      const newAnalysis = await this.analyzeCLI(cliName);
-      // Add failure context
-      newAnalysis.lastFailure = {
-        error: error.message,
-        attemptedCommand,
-        timestamp: new Date().toISOString(),
-      };
-      // Update the cached analysis
-      await this.cacheAnalysis(cliName, newAnalysis);
-      return newAnalysis;
-    } catch (analysisError) {
-      // Only log analysis errors in debug mode
-      if (process.env.DEBUG === "true") {
-        console.error(
-          `Failed to re-analyze ${cliName}:`,
-          analysisError.message,
-        );
-      }
-      return null;
-    }
-  }
-
-  /**
-   * Check if file exists
-   */
-  async fileExists(filePath) {
-    try {
-      await fs.access(filePath);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
    * Set CLI tools
    */
   setCLITools(tools) {
     this.cliTools = tools;
-  }
-
-  /**
-   * 增强分析，包含智能体和技能检测（包装器方法）
-   * @deprecated 此方法已弃用，请使用 analyzeCLI(cliName, { enhanced: true }) 代替
-   * @param {string} cliName - CLI工具名称
-   * @returns {Promise<Object>} 增强分析结果
-   */
-  async analyzeCLIEnhanced(cliName) {
-    return await this.analyzeCLI(cliName, { enhanced: true });
   }
 
   /**
@@ -1155,53 +1041,6 @@ class CLIHelpAnalyzer {
    */
   async getEnhancedCLIPattern(cliName) {
     return await this.analyzeCLI(cliName, { enhanced: true });
-  }
-
-  /**
-   * Analyze call success and update patterns accordingly
-   */
-  async updatePatternOnAgentSkillFailure(
-    cliName,
-    error,
-    attemptedCommand,
-    userPrompt,
-  ) {
-    if (process.env.DEBUG === "true") {
-      console.log(
-        `Updating agent/skill pattern for ${cliName} due to failure:`,
-        error.message,
-      );
-    }
-
-    try {
-      // Re-analyze with enhanced capabilities
-      const newAnalysis = await this.analyzeCLIEnhanced(cliName);
-
-      // Add failure context with agent/skill information
-      const detectedMentions = this.detectAgentSkillMentions(
-        userPrompt,
-        cliName,
-      );
-      newAnalysis.lastFailure = {
-        error: error.message,
-        attemptedCommand,
-        userPrompt,
-        agentSkillDetected: detectedMentions,
-        timestamp: new Date().toISOString(),
-      };
-
-      // Update the cached analysis
-      await this.cacheAnalysis(cliName, newAnalysis);
-      return newAnalysis;
-    } catch (analysisError) {
-      if (process.env.DEBUG === "true") {
-        console.error(
-          `Failed to re-analyze ${cliName}:`,
-          analysisError.message,
-        );
-      }
-      return null;
-    }
   }
 
   /**
