@@ -5,12 +5,10 @@ const path = require("path");
 const os = require("os");
 const { spawn, spawnSync } = require("child_process");
 
-// Import specialized generators
-const {
-  ResumeSessionGenerator,
-  SkillsIntegrationGenerator,
-  CLIAdapterGenerator,
-} = require("./generators");
+// Import specialized generators directly
+const ResumeSessionGenerator = require("./generators/ResumeSessionGenerator");
+const SkillsIntegrationGenerator = require("./generators/SkillsIntegrationGenerator");
+const CLIAdapterGenerator = require("./generators/CLIAdapterGenerator");
 
 class HookDeploymentManager {
   constructor() {
