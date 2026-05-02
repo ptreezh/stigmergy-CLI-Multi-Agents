@@ -1335,7 +1335,7 @@ class EnhancedCLIInstaller {
    * @returns {Promise<Object>} Execution result
    */
   async executeInstallationCommand(command) {
-    const { executeCommand } = require("../utils");
+    const { executeCommand } = require("../utils/execute_command");
 
     try {
       const result = await executeCommand(command, [], {

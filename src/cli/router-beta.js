@@ -79,7 +79,7 @@ const {
 const { GatewayServer } = require("../gateway/server");
 const SmartRouter = require("../core/smart_router");
 const { errorHandler } = require("../core/error_handler");
-const { executeCommand } = require("../utils");
+const { executeCommand } = require("../utils/execute_command");
 const { setupGlobalErrorHandlers } = require("../core/error_handler");
 
 // Set up global error handlers
