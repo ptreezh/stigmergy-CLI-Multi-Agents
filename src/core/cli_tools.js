@@ -311,14 +311,6 @@ function getPathDetector() {
 }
 
 /**
- * Initialize path detection and load cached paths
- */
-async function initializePathDetection() {
-  const detector = getPathDetector();
-  await detector.loadDetectedPaths();
-}
-
-/**
  * Get CLI tool path with automatic detection fallback
  */
 async function getCLIPath(toolName) {
@@ -693,7 +685,6 @@ module.exports = {
   CLI_TOOLS,
   IM_GATEWAYS,
   validateCLITool,
-  initializePathDetection,
   getCLIPath,
   setupCLIPaths,
   CLIPathDetector,
