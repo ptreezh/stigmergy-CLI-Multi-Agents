@@ -4,7 +4,8 @@
  */
 
 const chalk = require("chalk");
-const { handleSkillCommand } = require("../../commands/skill-handler");
+const { StigmergySkillManager } = require("../../core/skills/StigmergySkillManager");
+const SkillSyncManager = require("../../core/skills/SkillSyncManager");
 
 /**
  * Handle main skill command with all subcommands
@@ -14,7 +15,6 @@ const { handleSkillCommand } = require("../../commands/skill-handler");
  */
 async function handleSkillMainCommand(subcommand, args = [], options = {}) {
   try {
-    // Handle skill command aliases from router-beta.js
     let action;
     let skillArgs;
 
@@ -28,7 +28,6 @@ async function handleSkillMainCommand(subcommand, args = [], options = {}) {
         skillArgs = args;
         break;
       case "skill-v":
-        // skill-v can be validate or read, based on parameters
         action =
           args[0] &&
           (args[0].endsWith(".md") ||
@@ -53,11 +52,74 @@ async function handleSkillMainCommand(subcommand, args = [], options = {}) {
         break;
     }
 
-    const exitCode = await handleSkillCommand(action, skillArgs, {
-      verbose: options.verbose || false,
-      force: options.force || false,
-      autoSync: !options.noAutoSync,
-    });
+    const manager = new StigmergySkillManager();
+    const syncManager = new SkillSyncManager();
+    let exitCode = 0;
+
+    switch (action) {
+      case "install":
+        if (!args[0]) {
+          console.error("❌ Error: source or skill collection name required");
+          console.log("\nUsage: stigmergy skill install <source>");
+          process.exit(1);
+        }
+        await manager.install(args[0], options);
+        if (options.sync !== false) {
+          await syncManager.syncAll({ force: options.force || false });
+        }
+        break;
+
+      case "read":
+        if (!args[0]) {
+          console.error("❌ Error: skill name required");
+          console.log("\nUsage: stigmergy skill read <skill-name>");
+          process.exit(1);
+        }
+        await manager.read(args[0]);
+        break;
+
+      case "list":
+        await manager.list();
+        break;
+
+      case "sync":
+        await manager.sync();
+        break;
+
+      case "sync-all":
+        await syncManager.syncAll(options);
+        break;
+
+      case "remove":
+        if (!args[0]) {
+          console.error("❌ Error: skill name required");
+          console.log("\nUsage: stigmergy skill remove <skill-name>");
+          process.exit(1);
+        }
+        await manager.remove(args[0]);
+        if (options.removeEverywhere || options.all) {
+          syncManager.removeAll(args[0]);
+        }
+        break;
+
+      case "validate":
+        if (!args[0]) {
+          console.error("❌ Error: skill path or name required");
+          console.log("\nUsage: stigmergy skill validate <path-or-name>");
+          process.exit(1);
+        }
+        await manager.validate(args[0]);
+        break;
+
+      case "help":
+        printSkillsHelp();
+        break;
+
+      default:
+        console.error(`[X] Unknown skill action: ${action}`);
+        console.log("\nRun: stigmergy skill help");
+        process.exit(1);
+    }
 
     return { success: exitCode === 0, exitCode };
   } catch (error) {
