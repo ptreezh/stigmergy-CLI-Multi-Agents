@@ -42,6 +42,4 @@ function formatToolStatus(status) {
 
 module.exports = {
   formatBytes,
-  formatDuration,
-  formatToolStatus,
 };

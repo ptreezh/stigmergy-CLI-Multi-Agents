@@ -71,5 +71,4 @@ function needsSpecialDirectory(toolName) {
 module.exports = {
   getWorkingDirectoryForTool,
   getEnvironmentForTool,
-  needsSpecialDirectory,
 };
