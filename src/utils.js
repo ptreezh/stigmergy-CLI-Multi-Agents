@@ -2,6 +2,8 @@
  * Utility functions for the Stigmergy CLI
  */
 
+const { parseAndValidateJSON, validateSchema } = require("./utils/json_validator");
+
 /**
  * Simple REST API client
  */
@@ -38,7 +40,6 @@ class RESTClient {
       ...options,
     };
 
-    // Handle JSON body
     if (
       options.body &&
       typeof options.body === "object" &&
@@ -50,7 +51,6 @@ class RESTClient {
     try {
       const response = await fetch(fullURL, config);
 
-      // Try to parse JSON response
       let data;
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
@@ -59,7 +59,6 @@ class RESTClient {
         data = await response.text();
       }
 
-      // Throw error for non-success status codes
       if (!response.ok) {
         throw new Error(
           `HTTP ${response.status}: ${response.statusText} - ${JSON.stringify(data)}`,
@@ -286,13 +285,10 @@ function fibonacciRecursive(n) {
  * @returns {boolean} True if the number is prime, false otherwise
  */
 function isPrime(n) {
-  // Handle edge cases
   if (n <= 1) return false;
   if (n <= 3) return true;
   if (n % 2 === 0 || n % 3 === 0) return false;
 
-  // Check for divisors from 5 up to sqrt(n)
-  // Using the fact that all primes > 3 are of the form 6k ± 1
   for (let i = 5; i * i <= n; i += 6) {
     if (n % i === 0 || n % (i + 2) === 0) {
       return false;
@@ -313,209 +309,24 @@ function max(a, b) {
 }
 
 /**
- * Parse JSON data and validate its structure
- * @param {string} jsonString - The JSON string to parse
- * @param {Object} schema - Optional schema to validate against
- * @returns {Object} Parsed and validated JSON data
- * @throws {Error} If JSON is invalid or doesn't match schema
- */
-function parseAndValidateJSON(jsonString, schema = null) {
-  // Parse the JSON string
-  let parsedData;
-  try {
-    parsedData = JSON.parse(jsonString);
-  } catch (error) {
-    throw new Error(`Invalid JSON format: ${error.message}`);
-  }
-
-  // If no schema provided, return parsed data
-  if (!schema) {
-    return parsedData;
-  }
-
-  // Validate against schema
-  validateSchema(parsedData, schema);
-
-  return parsedData;
-}
-
-/**
- * Validate data against a schema
- * @param {*} data - Data to validate
- * @param {Object} schema - Schema to validate against
- * @throws {Error} If data doesn't match schema
- */
-function validateSchema(data, schema) {
-  // Check if schema is an object
-  if (typeof schema !== "object" || schema === null) {
-    throw new Error("Schema must be a valid object");
-  }
-
-  // Check required fields
-  if (schema.required && Array.isArray(schema.required)) {
-    for (const field of schema.required) {
-      if (!(field in data)) {
-        throw new Error(`Required field '${field}' is missing`);
-      }
-    }
-  }
-
-  // Validate each field
-  for (const key in schema.properties) {
-    if (!(key in data) && schema.required && schema.required.includes(key)) {
-      throw new Error(`Required field '${key}' is missing`);
-    }
-
-    if (key in data) {
-      const propertySchema = schema.properties[key];
-      const value = data[key];
-
-      // Check type
-      if (propertySchema.type) {
-        // Special handling for null values
-        if (value === null && propertySchema.nullable) {
-          continue; // Accept null values for nullable fields
-        }
-
-        if (propertySchema.type === "array" && !Array.isArray(value)) {
-          throw new Error(`Field '${key}' should be an array`);
-        } else if (
-          propertySchema.type === "object" &&
-          (typeof value !== "object" || value === null || Array.isArray(value))
-        ) {
-          throw new Error(`Field '${key}' should be an object`);
-        } else if (
-          propertySchema.type !== "array" &&
-          propertySchema.type !== "object" &&
-          typeof value !== propertySchema.type
-        ) {
-          throw new Error(
-            `Field '${key}' should be of type ${propertySchema.type}, got ${typeof value}`,
-          );
-        }
-      }
-
-      // Check enum values
-      if (propertySchema.enum && !propertySchema.enum.includes(value)) {
-        throw new Error(
-          `Field '${key}' should be one of: ${propertySchema.enum.join(", ")}`,
-        );
-      }
-
-      // Check minimum and maximum for numbers
-      if (typeof value === "number") {
-        if (
-          propertySchema.minimum !== undefined &&
-          value < propertySchema.minimum
-        ) {
-          throw new Error(
-            `Field '${key}' should be greater than or equal to ${propertySchema.minimum}`,
-          );
-        }
-        if (
-          propertySchema.maximum !== undefined &&
-          value > propertySchema.maximum
-        ) {
-          throw new Error(
-            `Field '${key}' should be less than or equal to ${propertySchema.maximum}`,
-          );
-        }
-      }
-
-      // Check minLength and maxLength for strings
-      if (typeof value === "string") {
-        if (
-          propertySchema.minLength !== undefined &&
-          value.length < propertySchema.minLength
-        ) {
-          throw new Error(
-            `Field '${key}' should have a minimum length of ${propertySchema.minLength}`,
-          );
-        }
-        if (
-          propertySchema.maxLength !== undefined &&
-          value.length > propertySchema.maxLength
-        ) {
-          throw new Error(
-            `Field '${key}' should have a maximum length of ${propertySchema.maxLength}`,
-          );
-        }
-      }
-
-      // Check nested objects recursively
-      if (propertySchema.type === "object" && propertySchema.properties) {
-        validateSchema(value, propertySchema);
-      }
-
-      // Check array items
-      if (
-        propertySchema.type === "array" &&
-        propertySchema.items &&
-        Array.isArray(value)
-      ) {
-        // Check minItems and maxItems for arrays
-        if (
-          propertySchema.minItems !== undefined &&
-          value.length < propertySchema.minItems
-        ) {
-          throw new Error(
-            `Array '${key}' should have at least ${propertySchema.minItems} items`,
-          );
-        }
-        if (
-          propertySchema.maxItems !== undefined &&
-          value.length > propertySchema.maxItems
-        ) {
-          throw new Error(
-            `Array '${key}' should have at most ${propertySchema.maxItems} items`,
-          );
-        }
-
-        for (const [index, item] of value.entries()) {
-          if (
-            propertySchema.items.type &&
-            typeof item !== propertySchema.items.type
-          ) {
-            throw new Error(
-              `Item at index ${index} in array '${key}' should be of type ${propertySchema.items.type}, got ${typeof item}`,
-            );
-          }
-
-          // Recursively validate object items
-          if (
-            propertySchema.items.type === "object" &&
-            propertySchema.items.properties
-          ) {
-            validateSchema(item, propertySchema.items);
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
  * Process CSV data and generate statistics
  * @param {string} csvData - The CSV data as a string
  * @param {Object} options - Options for processing
  * @returns {Object} Statistics about the CSV data
  */
 function processCSV(csvData, options = {}) {
-  // Default options
   const opts = {
     delimiter: ",",
     hasHeader: true,
     ...options,
   };
 
-  // Split CSV data into lines
   const lines = csvData.trim().split("\n");
 
   if (lines.length === 0) {
     return { error: "Empty CSV data" };
   }
 
-  // Parse header
   let headers = [];
   let startIndex = 0;
 
@@ -524,21 +335,17 @@ function processCSV(csvData, options = {}) {
     startIndex = 1;
   }
 
-  // Parse rows
   const rows = [];
   for (let i = startIndex; i < lines.length; i++) {
     if (lines[i].trim()) {
-      // Skip empty lines
       const values = lines[i].split(opts.delimiter).map((v) => v.trim());
       const row = {};
 
       if (opts.hasHeader) {
-        // Map values to headers
         headers.forEach((header, index) => {
           row[header] = values[index] || "";
         });
       } else {
-        // Use indices as keys
         values.forEach((value, index) => {
           row[index] = value;
         });
@@ -548,7 +355,6 @@ function processCSV(csvData, options = {}) {
     }
   }
 
-  // Generate statistics
   const stats = {
     rowCount: rows.length,
     columnCount: opts.hasHeader
@@ -560,7 +366,6 @@ function processCSV(csvData, options = {}) {
     columns: {},
   };
 
-  // Initialize column statistics
   const columnNames = opts.hasHeader ? headers : Object.keys(rows[0] || {});
   columnNames.forEach((column) => {
     stats.columns[column] = {
@@ -571,7 +376,6 @@ function processCSV(csvData, options = {}) {
     };
   });
 
-  // Process each row
   rows.forEach((row) => {
     columnNames.forEach((column) => {
       const value = row[column];
@@ -584,7 +388,6 @@ function processCSV(csvData, options = {}) {
       } else {
         columnStats.uniqueValues.add(value);
 
-        // Try to parse as number
         const numValue = parseFloat(value);
         if (!isNaN(numValue)) {
           columnStats.numericValues.push(numValue);
@@ -593,13 +396,11 @@ function processCSV(csvData, options = {}) {
     });
   });
 
-  // Calculate additional statistics
   Object.keys(stats.columns).forEach((column) => {
     const columnStats = stats.columns[column];
     columnStats.uniqueCount = columnStats.uniqueValues.size;
-    delete columnStats.uniqueValues; // Remove Set object for cleaner output
+    delete columnStats.uniqueValues;
 
-    // Calculate numeric statistics if applicable
     if (columnStats.numericValues.length > 0) {
       const nums = columnStats.numericValues;
       columnStats.numericStats = {
@@ -609,7 +410,7 @@ function processCSV(csvData, options = {}) {
         average: nums.reduce((a, b) => a + b, 0) / nums.length,
       };
     }
-    delete columnStats.numericValues; // Remove array for cleaner output
+    delete columnStats.numericValues;
   });
 
   return stats;
@@ -630,7 +431,6 @@ function processCSV(csvData, options = {}) {
 function encryptData(data, secretKey) {
   const crypto = require("crypto");
 
-  // Validate inputs
   if (!data) {
     throw new Error("Data to encrypt cannot be empty");
   }
@@ -639,13 +439,9 @@ function encryptData(data, secretKey) {
     throw new Error("Secret key is required");
   }
 
-  // Generate a random initialization vector
   const iv = crypto.randomBytes(16);
-
-  // Create cipher using AES-256-GCM
   const cipher = crypto.createCipheriv("aes-256-gcm", secretKey, iv);
 
-  // Encrypt the data
   let encrypted;
   if (typeof data === "string") {
     encrypted = cipher.update(data, "utf8", "hex");
@@ -655,10 +451,8 @@ function encryptData(data, secretKey) {
   }
   cipher.final();
 
-  // Get the authentication tag
   const authTag = cipher.getAuthTag();
 
-  // Return encrypted data with IV and auth tag
   return {
     encryptedData: encrypted,
     iv: iv.toString("base64"),
@@ -681,7 +475,6 @@ function encryptData(data, secretKey) {
 function decryptData(encryptedObj, secretKey) {
   const crypto = require("crypto");
 
-  // Validate inputs
   if (
     !encryptedObj ||
     !encryptedObj.encryptedData ||
@@ -695,17 +488,12 @@ function decryptData(encryptedObj, secretKey) {
     throw new Error("Secret key is required");
   }
 
-  // Decode base64 encoded values
   const iv = Buffer.from(encryptedObj.iv, "base64");
   const authTag = Buffer.from(encryptedObj.authTag, "base64");
 
-  // Create decipher using AES-256-GCM
   const decipher = crypto.createDecipheriv("aes-256-gcm", secretKey, iv);
-
-  // Set the authentication tag
   decipher.setAuthTag(authTag);
 
-  // Decrypt the data
   let decrypted;
   if (typeof encryptedObj.encryptedData === "string") {
     decrypted = decipher.update(encryptedObj.encryptedData, "hex", "utf8");
