@@ -3,6 +3,7 @@ const os = require("os");
 const { spawnSync } = require("child_process");
 const { errorHandler, ERROR_TYPES } = require("./error_handler");
 const CLIPathDetector = require("./cli_path_detector");
+const { DESKTOP_TOOLS, isDesktopInstalled, resolveLocalDirs } = require("./desktop-tools.js");
 
 // IM 基础设施配置（与 AI CLI 区分）
 const IM_GATEWAYS = {
@@ -272,6 +273,94 @@ const CLI_TOOLS = {
       }
     }
   },
+  // 桌面型 AI Agent：下载链接/安装检测/版本核查以 desktop-tools.js 为唯一事实来源
+  // type: "desktop" 条目无 CLI 版本命令，install 为 null（手动安装），由 desktopRef 关联 desktop-tools.js 条目
+  workbuddy: {
+    name: DESKTOP_TOOLS.workbuddy.name,
+    type: "desktop",
+    desktopRef: "workbuddy",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  qwenwork: {
+    name: DESKTOP_TOOLS.qwenwork.name,
+    type: "desktop",
+    desktopRef: "qwenwork",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  traework: {
+    name: DESKTOP_TOOLS.traework.name,
+    type: "desktop",
+    desktopRef: "traework",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  qoderwork: {
+    name: DESKTOP_TOOLS.qoderwork.name,
+    type: "desktop",
+    desktopRef: "qoderwork",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  doubao: {
+    name: DESKTOP_TOOLS.doubao.name,
+    type: "desktop",
+    desktopRef: "doubao",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  kimiwork: {
+    name: DESKTOP_TOOLS.kimiwork.name,
+    type: "desktop",
+    desktopRef: "kimiwork",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  marvis: {
+    name: DESKTOP_TOOLS.marvis.name,
+    type: "desktop",
+    desktopRef: "marvis",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  "deepseek-harness-desktop": {
+    name: DESKTOP_TOOLS["deepseek-harness-desktop"].name,
+    type: "desktop",
+    desktopRef: "deepseek-harness-desktop",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  "codex-desktop": {
+    name: DESKTOP_TOOLS["codex-desktop"].name,
+    type: "desktop",
+    desktopRef: "codex-desktop",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  "coze-desktop": {
+    name: DESKTOP_TOOLS["coze-desktop"].name,
+    type: "desktop",
+    desktopRef: "coze-desktop",
+    version: null,
+    install: null,
+    autoInstall: false,
+  },
+  coze: {
+    name: "Coze CLI (扣子 AI Agent 开发平台)",
+    version: "coze --version",
+    install: "npm install -g @coze/cli",
+    autoInstall: false,
+  },
 };
 
 /**
@@ -289,6 +378,12 @@ function validateCLITool(toolName) {
   }
 
   const tool = CLI_TOOLS[toolName];
+
+  // 桌面型 Agent：配置由 desktop-tools.js 校验，跳过 CLI 字段校验
+  if (tool.type === "desktop") {
+    return;
+  }
+
   if (!tool.name || !tool.version || !tool.install) {
     throw errorHandler.createError(
       `CLI tool '${toolName}' has invalid configuration`,
@@ -616,6 +711,26 @@ async function scanForTools(options = {}) {
     }
   }
 
+  // 桌面型 AI Agent：使用 desktop-tools.js 的 localDirs 检测是否安装
+  for (const [toolName, desktopTool] of Object.entries(DESKTOP_TOOLS)) {
+    const cliEntry = CLI_TOOLS[toolName];
+    if (!cliEntry || cliEntry.type !== "desktop") {
+      continue;
+    }
+    const installed = isDesktopInstalled(toolName);
+    if (installed) {
+      found.push({
+        name: toolName,
+        path: resolveLocalDirs(toolName).join(", "),
+        type: "desktop",
+        status: "installed",
+        description: desktopTool.name,
+      });
+    } else {
+      missing.push(toolName);
+    }
+  }
+
   return {
     found,
     missing,
@@ -630,6 +745,18 @@ async function scanForTools(options = {}) {
  */
 async function checkInstallation(toolName) {
   validateCLITool(toolName);
+
+  // 桌面型 Agent：无 CLI 版本命令，直接查 desktop-tools.js localDirs
+  const tool = CLI_TOOLS[toolName];
+  if (tool.type === "desktop") {
+    const installed = isDesktopInstalled(toolName);
+    return {
+      installed,
+      path: installed ? resolveLocalDirs(toolName).join(", ") : null,
+      version: null,
+      lastChecked: new Date().toISOString(),
+    };
+  }
 
   // Get path using the detector
   const detector = getPathDetector();
@@ -684,6 +811,9 @@ CLI_TOOLS.checkInstallation = checkInstallation;
 module.exports = {
   CLI_TOOLS,
   IM_GATEWAYS,
+  DESKTOP_TOOLS,
+  isDesktopInstalled,
+  resolveLocalDirs,
   validateCLITool,
   getCLIPath,
   setupCLIPaths,

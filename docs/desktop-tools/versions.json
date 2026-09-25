@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-25",
+  "tools": {
+    "workbuddy": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set workbuddy <version>"
+    },
+    "qwenwork": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set qwenwork <version>"
+    },
+    "traework": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set traework <version>"
+    },
+    "qoderwork": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set qoderwork <version>"
+    },
+    "doubao": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set doubao <version>"
+    },
+    "kimiwork": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set kimiwork <version>"
+    },
+    "marvis": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set marvis <version>"
+    },
+    "deepseek-harness-desktop": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set deepseek-harness-desktop <version>"
+    },
+    "codex-desktop": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set codex-desktop <version>"
+    },
+    "coze-desktop": {
+      "lastKnownVersion": null,
+      "note": "更新方式: node scripts/check-desktop-versions.js --set coze-desktop <version>"
+    }
+  }
+}
