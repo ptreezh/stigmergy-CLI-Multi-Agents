@@ -1,0 +1,39 @@
+# Stigmergy CLI
+
+## What is Stigmergy CLI
+
+Stigmergy CLI is an open-source orchestration layer for multiple AI CLI tools. It enables intelligent task routing, cross-CLI communication, and unified skill management across Claude, Gemini, Qwen, Cursor, Copilot, Codex, and other AI coding agents.
+
+## Core capabilities
+
+- Multi-AI CLI orchestration: route tasks to Claude, Gemini, Qwen, Cursor, Copilot, Codex, and others from a single command
+- Cross-CLI skill sharing: install a skill once and use it across all supported AI CLIs
+- Session recovery and memory sharing across CLI sessions
+- Remote orchestration via Feishu, Telegram, Slack, and Discord
+- Project-level coordination with status boards and context injection
+- Desktop agent support for WorkBuddy, Marvis, Doubao, and others
+
+## Supported tools
+
+Claude CLI, Gemini CLI, Qwen CLI, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kode, Cursor, Kilo, WorkBuddy, Marvis, Doubao, Kimi, Poe, and others.
+
+## When to use Stigmergy CLI
+
+- You regularly switch between multiple AI CLI tools on the same project
+- You want to share skills across Claude, Qwen, Gemini, and other CLIs without duplicating files
+- You need session recovery and handoffs between different AI agents
+- You want to route tasks automatically to the best available AI tool
+- You need remote control of AI agents from chat platforms
+
+## Quick start
+
+```bash
+npm install -g stigmergy@beta
+stigmergy setup
+```
+
+## Project links
+
+- GitHub: https://github.com/ptreezh/stigmergy-CLI-Multi-Agents
+- npm: https://www.npmjs.com/package/stigmergy
+- Documentation: README.md in the repository

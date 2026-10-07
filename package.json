@@ -1,22 +1,24 @@
 {
   "name": "stigmergy",
   "version": "1.11.0",
-  "description": "Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System",
-  "main": "src/index.js",
-  "bin": {
-    "stigmergy": "bin/stigmergy",
-    "stigmergy-gateway": "bin/stigmergy-gateway",
-    "stigmergy-auto-coordinator": "bin/auto-coordinator"
-  },
-  "files": [
-    "bin/**",
-    "src/**",
-    "scripts/**",
-    "config/**",
-    "dist/orchestration/**",
-    "skills/**",
-    "README.md",
-    "LICENSE"
+  "description": "Orchestration layer for multiple AI CLI tools. Route tasks, share skills, and coordinate Claude, Gemini, Qwen, Cursor, Copilot, Codex, and other AI agents from one command.",
+  "keywords": [
+    "ai",
+    "cli",
+    "multi-agent",
+    "orchestration",
+    "claude-code",
+    "gemini-cli",
+    "qwen-cli",
+    "cursor",
+    "copilot",
+    "codex",
+    "cross-cli",
+    "ai-agents",
+    "llm-tools",
+    "agent-skills",
+    "ai-engineering",
+    "stigmergy"
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall-deploy.js",

@@ -1,30 +1,61 @@
 # Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System
 
+> **The orchestration layer for your AI CLI team.** Stop switching between Claude, Gemini, Qwen, Cursor, Copilot, and Codex. Let Stigmergy route tasks, share skills, and coordinate multiple AI agents from one command.
+
+[![npm version](https://badge.fury.io/js/stigmergy.svg)](https://www.npmjs.com/package/stigmergy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm downloads](https://img.shields.io/npm/dm/stigmergy)](https://www.npmjs.com/package/stigmergy)
+
 **English**: A comprehensive system for seamless collaboration between multiple AI CLI tools. Enables intelligent task routing, cross-CLI communication, and unified skill management.
 
 **中文**: 多AI命令行工具协作系统，实现智能任务路由、跨CLI通信和统一技能管理。
 
-**SEO Keywords**: AI CLI, multi-agent collaboration, Claude CLI, Gemini CLI, Qwen CLI, stigmergy, stigmergy gateway, cross-AI orchestration, AI tool manager, command line AI, AI assistant CLI, multi-model AI, AI agents, remote CLI orchestration, AI gateway, chat-to-CLI
+## The Problem
 
-[![npm version](https://badge.fury.io/js/stigmergy.svg)](https://www.npmjs.com/package/stigmergy)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-[![Twitter Follow](https://img.shields.io/twitter/follow/stigmergy_cli?style=social)](https://twitter.com/stigmergy_cli)
-[![Discord](https://img.shields.io/discord/placeholder?label=Discord&logo=discord)](https://discord.gg/placeholder)
-[![npm](https://img.shields.io/npm/dm/stigmergy)](https://www.npmjs.com/package/stigmergy)
-](https://opensource.org/licenses/MIT)
+You have **multiple AI CLI tools** installed:
 
-## ✨ Features
+- Claude Code for deep reasoning
+- Gemini CLI for multimodal tasks
+- Qwen CLI for Chinese-language workflows
+- Cursor/Copilot/Codex for IDE-integrated coding
+- WorkBuddy, Marvis, Doubao for desktop agent workflows
 
-- 🤖 **Multi-AI CLI Support**: Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kode
+**But they don't talk to each other.**
+
+You manually switch between tools, copy-paste context, re-explain the same project background, and duplicate skills across `~/.claude/skills`, `~/.qwen/skills`, `~/.cursor/skills`, etc.
+
+**Stigmergy fixes this.** It's the orchestration layer that makes all your AI CLI tools work as a coordinated team.
+
+## One-Line Install
+
+```bash
+npm install -g stigmergy@beta && stigmergy setup
+```
+
+That's it. Stigmergy will detect your installed AI CLIs, deploy cross-tool hooks, and install shared skills automatically.
+
+## 30-Second Demo
+
+```bash
+# Instead of manually switching tools...
+$ stigmergy call "analyze this codebase and generate documentation"
+🎯 Routing to Claude (codebase analysis) + Qwen (documentation) + Gemini (review)
+
+[Claude]   Analyzed 47 files, found 3 architectural patterns
+[Qwen]     Generated README.md + API.md in 2.1s
+[Gemini]   Review: docs are consistent, 2 suggestions added
+
+✅ Done. Three agents collaborated. You just typed one command.
+```
+
+## Key Features
+
+- 🤖 **Multi-AI CLI Support**: Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kode, Cursor, Kilo
 - 🎯 **Intelligent Task Routing**: Automatically selects the best AI tool for your task
-- 🧠 **ResumeSession Integration**: Cross-CLI session recovery and memory sharing (v1.2.1)
-- 🔗 **Hook System**: Seamless integration with all AI CLI tools
-- 📦 **Agent Skills Manager**: Install and manage skills from any GitHub repository
-- 🌍 **JavaScript-First**: No Python dependencies, pure Node.js implementation
-- ⚡ **Smart Routing**: Auto-choose the best tool based on task analysis
-- 🌐 **12-Language Support**: English, Chinese, Japanese, German, French, Spanish, Italian, Russian, Korean, Turkish, Portuguese, Arabic
-- 🔄 **Cross-CLI Skill Sharing**: Skills installed once work across all AI tools
-- 🌐 **Stigmergy Gateway**: Remote CLI orchestration via Feishu, Telegram, Slack, Discord - control AI agents from anywhere
+- 🔄 **Cross-CLI Skill Sharing**: Install a skill once, use it everywhere
+- 🧠 **ResumeSession Integration**: Cross-CLI session recovery and memory sharing
+- 🌐 **Stigmergy Gateway**: Remote orchestration via Feishu, Telegram, Slack, Discord
+- 🌍 **12-Language Support**: English, Chinese, Japanese, German, French, Spanish, Italian, Russian, Korean, Turkish, Portuguese, Arabic
 
 ---
 
@@ -690,6 +721,17 @@ stigmergy skill list
 - [Changelog](./CHANGELOG.md) - Version history and release notes
 - [Agent Guidelines](./AGENTS.md) - Coding standards and architecture overview
 - [Utility Scripts](./scripts/README.md) - Practical configuration scripts (search, local LLM, etc.)
+- [Launch Post](./docs/launch-2026-10-07.md) - v1.11.0 launch announcement and overview
+- [Tutorials](./docs/tutorials/multi-agent-workflows.md) - Step-by-step guides for common workflows
+- [AI Products Ontology](./docs/ai-products-ontology.md) - Supported AI agents and their configurations
+- [Self-Reporting Architecture](./docs/self-reporting-architecture.md) - How agents report their state
+- [Project Constitution](./docs/project-constitution.md) - Core principles and scenarios
+
+---
+
+## 📝 Blog Posts & External Articles
+
+- [Launch Post: Stigmergy CLI 1.11.0](https://www.socienceai.com/blog/launch-2026-10-07) - 多 AI CLI 协作系统的设计与实践
 
 ---
 
