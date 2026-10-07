@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const fsSync = require("fs");
 const path = require("path");
 const os = require("os");
 const { spawn } = require("child_process");
@@ -594,6 +595,117 @@ class AgentCoordinator {
       this.config = null;
       this.routingStrategy = null;
     }
+  }
+
+  async loadSelfReports() {
+    const reports = [];
+    const busDir = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
+
+    const reportDirs = [
+      { type: "onetime", dir: path.join(busDir, "onetime") },
+      { type: "daily", dir: path.join(busDir, "daily") },
+      { type: "session", dir: path.join(busDir, "sessions") },
+    ];
+
+    for (const { type, dir } of reportDirs) {
+      if (!fsSync.existsSync(dir)) continue;
+
+      if (type === "daily" || type === "session") {
+        for (const agentDir of fsSync.readdirSync(dir).filter((f) => !f.startsWith("."))) {
+          const agentPath = path.join(dir, agentDir);
+          if (!fsSync.statSync(agentPath).isDirectory()) continue;
+
+          for (const file of fsSync.readdirSync(agentPath).filter((f) => f.endsWith(".json"))) {
+            try {
+              const content = fsSync.readFileSync(path.join(agentPath, file), "utf8");
+              const data = JSON.parse(content);
+              reports.push({
+                agent: agentDir,
+                file: path.join(agentPath, file),
+                modified: data.timestamp || fsSync.statSync(path.join(agentPath, file)).mtime.toISOString(),
+                summary: data,
+                reportType: type,
+              });
+            } catch (e) {
+              console.warn(`[COORDINATOR] Failed to parse self-report: ${path.join(agentPath, file)}: ${e.message}`);
+            }
+          }
+        }
+      } else {
+        for (const file of fsSync.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+          try {
+            const content = fsSync.readFileSync(path.join(dir, file), "utf8");
+            const data = JSON.parse(content);
+            const agentName = path.basename(file, ".json");
+            reports.push({
+              agent: agentName,
+              file: path.join(dir, file),
+              modified: data.timestamp || fsSync.statSync(path.join(dir, file)).mtime.toISOString(),
+              summary: data,
+              reportType: type,
+            });
+          } catch (e) {
+            console.warn(`[COORDINATOR] Failed to parse self-report: ${path.join(dir, file)}: ${e.message}`);
+          }
+        }
+      }
+    }
+
+    return reports;
+  }
+
+  async createAutoHandoffs() {
+    const busDir = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
+    const reports = await this.loadSelfReports();
+    const projects = new Map();
+
+    for (const report of reports) {
+      const paths = [];
+      if (report.summary.injectedPaths) {
+        paths.push(...(Array.isArray(report.summary.injectedPaths) ? report.summary.injectedPaths : [report.summary.injectedPaths]));
+      }
+      if (report.summary.recentProjects) {
+        paths.push(...(Array.isArray(report.summary.recentProjects) ? report.summary.recentProjects : [report.summary.recentProjects]));
+      }
+      if (report.summary.bots) {
+        for (const bot of Object.values(report.summary.bots)) {
+          if (bot.workspacePath) paths.push(bot.workspacePath);
+        }
+      }
+      if (report.summary.projectPaths) {
+        paths.push(...(Array.isArray(report.summary.projectPaths) ? report.summary.projectPaths : [report.summary.projectPaths]));
+      }
+      if (report.summary.directory) {
+        paths.push(report.summary.directory);
+      }
+
+      for (const p of paths) {
+        const normalized = path.resolve(p).toLowerCase();
+        if (!projects.has(normalized)) projects.set(normalized, []);
+        projects.get(normalized).push({ agent: report.agent, type: report.reportType, modified: report.modified });
+      }
+    }
+
+    const handoffs = [];
+    for (const [project, agents] of projects) {
+      const uniqueAgents = Array.from(new Map(agents.map((a) => [a.agent, a])).values());
+      if (uniqueAgents.length >= 2) {
+        const handoff = {
+          id: `handoff-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          project,
+          agents: uniqueAgents.map((a) => a.agent),
+          status: "pending",
+          createdAt: new Date().toISOString(),
+          reason: `Multiple agents detected on same project: ${uniqueAgents.map((a) => a.agent).join(", ")}`,
+        };
+        const handoffsDir = path.join(busDir, "handoffs", "pending");
+        fsSync.mkdirSync(handoffsDir, { recursive: true });
+        fsSync.writeFileSync(path.join(handoffsDir, `${handoff.id}.json`), JSON.stringify(handoff, null, 2));
+        handoffs.push(handoff);
+      }
+    }
+
+    return handoffs;
   }
 }
 

@@ -6,7 +6,7 @@ const AI_TOKENS = [
   "cursor", "cursor", "qoder", "trae", "kiro", "antigravity", "warp",
   "doubao", "kimi", "qwen", "coze", "minimax", "skywork", "deepseek",
   "gemini", "opencode", "openclaw", "stigmergy", "ollama", "roo",
-  "cline", "goose", "crush", "letta", "openwork", "claudework",
+  "cline", "goose", "crush", "letta", "openwork", "claudework", "muse",
   "codebuddy", "workbuddy", "mario", "miora", "opendesign", "memu",
   "chatgpt", "gemini", "aipy", "pinokio", "zed", "trae", "antigravity",
   "maestro", "openc", "devin", "replit", "sourcegraph", "tabnine",

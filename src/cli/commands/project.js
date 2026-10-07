@@ -110,6 +110,79 @@ async function handleUpgradeCommand(options = {}) {
 }
 
 /**
+ * Deploy reporter skill to all detected agent skill directories and create bus
+ */
+async function deployReporterSkill() {
+  const fs = require("fs");
+  const path = require("path");
+  const os = require("os");
+  const { DESKTOP_TOOLS } = require("../../core/desktop-tools");
+
+  const reporterSource = path.join(__dirname, "..", "..", "skills", "stigmergy-reporter");
+  if (!fs.existsSync(reporterSource)) {
+    console.log(chalk.yellow("  Reporter skill not found, skipping"));
+    return;
+  }
+
+  const busDir = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
+  fs.mkdirSync(busDir, { recursive: true });
+  fs.mkdirSync(path.join(busDir, "onetime"), { recursive: true });
+  fs.mkdirSync(path.join(busDir, "daily"), { recursive: true });
+  fs.mkdirSync(path.join(busDir, "sessions"), { recursive: true });
+  fs.mkdirSync(path.join(busDir, "shared"), { recursive: true });
+  console.log(chalk.green(`  Bus directory created: ${busDir}`));
+
+  const targets = [];
+  for (const [name, tool] of Object.entries(DESKTOP_TOOLS)) {
+    if (tool.skillsDir) {
+      targets.push({ name, skillsDir: tool.skillsDir });
+    }
+  }
+
+  const cliNames = ["claude", "codex", "iflow", "qwen", "qodercli", "codebuddy", "opencode", "workbuddy", "marvis", "doubao"];
+  for (const name of cliNames) {
+    const skillsDir = path.join(os.homedir(), `.${name}`, "skills");
+    if (!targets.some((t) => t.skillsDir === skillsDir)) {
+      targets.push({ name, skillsDir });
+    }
+  }
+
+  let deployed = 0;
+  for (const target of targets) {
+    try {
+      fs.mkdirSync(target.skillsDir, { recursive: true });
+      const dest = path.join(target.skillsDir, "stigmergy-reporter");
+      if (fs.existsSync(dest)) {
+        fs.rmSync(dest, { recursive: true });
+      }
+      copyDirectory(reporterSource, dest);
+      deployed++;
+      console.log(chalk.gray(`    Deployed reporter to ${target.name}: ${dest}`));
+    } catch (e) {
+      console.log(chalk.yellow(`    Failed to deploy reporter to ${target.name}: ${e.message}`));
+    }
+  }
+
+  console.log(chalk.green(`  Reporter skill deployed to ${deployed} agents`));
+}
+
+function copyDirectory(src, dest) {
+  const fs = require("fs");
+  const path = require("path");
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src)) {
+    const srcPath = path.join(src, entry);
+    const destPath = path.join(dest, entry);
+    const stat = fs.statSync(srcPath);
+    if (stat.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+/**
  * Handle deploy command
  * @param {Object} options - Command options
  */
@@ -154,6 +227,10 @@ async function handleDeployCommand(options = {}) {
     );
 
     await installer.deployHooks(filteredDeployedTools);
+
+    // 部署 reporter skill 并创建 bus 目录
+    console.log(chalk.blue("\n[DEPLOY] Deploying self-reporting skill and bus..."));
+    await deployReporterSkill();
 
     // 部署完整的 Superpowers 插件系统
     console.log(

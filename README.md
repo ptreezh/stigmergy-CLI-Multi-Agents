@@ -18,7 +18,7 @@ You have **multiple AI CLI tools** installed:
 - Gemini CLI for multimodal tasks
 - Qwen CLI for Chinese-language workflows
 - Cursor/Copilot/Codex for IDE-integrated coding
-- WorkBuddy, Marvis, Doubao for desktop agent workflows
+- WorkBuddy, Marvis, Doubao, OpenWork, Claude Desktop, Muse for desktop agent workflows
 
 **But they don't talk to each other.**
 
@@ -48,6 +48,85 @@ $ stigmergy call "analyze this codebase and generate documentation"
 ✅ Done. Three agents collaborated. You just typed one command.
 ```
 
+## Why Stigmergy Is Different
+
+| Pain Point | What Everyone Else Does | What Stigmergy Does |
+|------------|------------------------|---------------------|
+| **Multi-tool fragmentation** | You manually switch between Claude, Qwen, Gemini, Cursor... | One command routes to the right tool(s) automatically |
+| **Skill duplication** | Install the same skill in 5 different `~/.xxx/skills/` directories | Install once in `~/.stigmergy/skills/`, sync to all agents |
+| **Desktop agent isolation** | WorkBuddy/Marvis/Doubao/OpenWork/Claude Desktop/Muse live in their own silos | First-class citizens in the same orchestration layer as CLI tools |
+| **Session context loss** | Switch from Claude to Qwen and re-explain everything | Cross-CLI session recovery with shared memory bus |
+| **Vendor lock-in** | Each tool wants you in their ecosystem | Orchestrates YOUR tools. No replacement. No lock-in. |
+| **No visibility into agent activity** | You don't know what each agent is working on | Wiki scanner reads agent memory files and reports real activity |
+| **Remote access complexity** | VPN + SSH + manual execution | Gateway: control your AI team from Feishu/Telegram/Slack/Discord |
+
+## Core Advantages
+
+### 1. True Multi-Agent Orchestration (Not Just a Wrapper)
+
+Stigmergy doesn't call one AI tool. It coordinates **multiple AI agents** as a team:
+
+```bash
+# One command, multiple agents, parallel execution
+stigmergy call "analyze security, translate docs, review code"
+```
+
+- Task decomposition: automatically splits complex tasks
+- Parallel execution: agents work simultaneously
+- Result aggregation: unified output from multiple sources
+- Quality gates: validation before delivery
+
+### 2. Desktop + CLI + IDE Unification (Unique)
+
+**No other tool does this.** Stigmergy treats desktop agents as first-class citizens:
+
+| Agent Type | Examples | Status |
+|------------|----------|--------|
+| CLI | Claude, Qwen, Gemini, iFlow, Qoder, CodeBuddy | ✅ Supported |
+| IDE | Cursor, Copilot, Codex, Kilo, OpenCode | ✅ Supported |
+| Desktop | WorkBuddy, Marvis, Doubao, Poe, Coze, OpenWork, Claude Desktop, Muse | ✅ Supported |
+| Web | ChatGPT, Perplexity | 🔄 Planned |
+
+Your desktop agents participate in the same skill sync, bus coordination, and task routing as your CLI tools.
+
+### 3. Cross-CLI Skill Portability
+
+Skills are the **lingua franca** of AI agents. Stigmergy makes them portable:
+
+```bash
+# Install once
+stigmergy skill install owner/repo
+
+# Available everywhere automatically
+claude> use the pdf skill
+qwen> 使用 pdf 技能处理文档
+gemini> analyze this PDF using the pdf skill
+```
+
+Central skills directory: `~/.stigmergy/skills/`
+Sync targets: 10+ verified agents with heterogeneous path conventions
+
+### 4. Evidence-First Agent Intelligence
+
+Most tools claim "40+ agents supported" without evidence. Stigmergy scans your actual system and reports **only verified agents**:
+
+- 20 agents verified locally on this Windows system
+- 22 agents in ontology for future expansion
+- Memory-file-only scanning (no full filesystem)
+- Incremental updates with timestamp-based filtering
+- Project-agent correlation via directory markers
+
+### 5. Zero-Vendor-Lock-In Orchestration
+
+Stigmergy doesn't replace your tools. It orchestrates the tools you already use:
+
+- Keep using Claude Code, Qwen, Gemini, Cursor, Copilot, Codex exactly as before
+- Stigmergy adds coordination, not replacement
+- File-bus coordination without central server
+- No cloud dependency, no account required
+
+---
+
 ## Key Features
 
 - 🤖 **Multi-AI CLI Support**: Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kode, Cursor, Kilo
@@ -56,6 +135,9 @@ $ stigmergy call "analyze this codebase and generate documentation"
 - 🧠 **ResumeSession Integration**: Cross-CLI session recovery and memory sharing
 - 🌐 **Stigmergy Gateway**: Remote orchestration via Feishu, Telegram, Slack, Discord
 - 🌍 **12-Language Support**: English, Chinese, Japanese, German, French, Spanish, Italian, Russian, Korean, Turkish, Portuguese, Arabic
+- 🖥️ **Desktop Agent Support**: WorkBuddy, Marvis, Doubao, Poe, Coze, OpenWork, Claude Desktop, Muse
+- 📊 **Project Status Board**: Persistent state management for cross-session collaboration
+- 🔍 **Agent Wiki Scanner**: Evidence-first activity detection from memory files
 
 ---
 

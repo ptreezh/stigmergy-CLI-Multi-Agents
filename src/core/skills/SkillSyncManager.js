@@ -34,7 +34,13 @@ class SkillSyncManager {
       "marvis",
       // doubao: skillsDir "~/doubao/skills" verified (skill-md format)
       "doubao",
+      // codex-desktop: skillsDir "~/.codex/skills" verified (skill-md format)
+      "codex-desktop",
+      // openwork: skillsDir "~/.opencode/skills" verified (built on OpenCode)
+      "openwork",
       // coze: skillsDir not found locally, not included
+      // claudework: skillsDir null (uses .mcpb extensions, not skill-md)
+      // muse: skillsDir null (primarily mobile, different automation model)
       // Other desktop tools (qwenwork/traework/qoderwork/kimiwork)
       // have skillsDir: null pending verification - intentionally NOT included.
       // Add more as they become available

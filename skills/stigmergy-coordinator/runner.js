@@ -2,10 +2,11 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
 class StigmergyCoordinator {
   constructor() {
-    this.busDir = process.env.STIGMERGY_BUS_DIR || path.join(process.cwd(), "bus");
+    this.busDir = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
     this.agentName = process.env.AGENT_NAME || path.basename(process.cwd());
     this.capabilities = (process.env.AGENT_CAPABILITIES || "").split(",").map(s => s.trim()).filter(Boolean);
     this.project = process.env.AGENT_PROJECT || process.cwd();

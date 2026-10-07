@@ -48,7 +48,7 @@ Stigmergy = 多AI Agent协作网络（CLI + Desktop + IDE + Web）+ 技能孵化
 - **类型**:
   - CLI Agent: Claude, Qwen, Gemini, iFlow, Qoder, CodeBuddy, Copilot, Codex
   - IDE Agent: opencode, cursor, continue, windsurf, cody
-  - Desktop Agent: WorkBuddy, Marvis, Doubao, Poe, Kimi, Wenxin, Lingyi, Baichuan, Xunfei, MiniMax, Coze, QwenWorker, TreeWorker, MiniMax-Agent
+  - Desktop Agent: WorkBuddy, Marvis, Doubao, Poe, Kimi, Wenxin, Lingyi, Baichuan, Xunfei, MiniMax, Coze, QwenWorker, TreeWorker, MiniMax-Agent, OpenWork, Claude Desktop, Muse
   - Web Agent: ChatGPT, Perplexity, Claude-web, Gemini-web
 - **属性**: home目录, memoryFiles, summaryExtractors, lastActivity, projectPaths
 - **关系**: 使用技能 → 参与项目 → 执行任务 → 协作事件

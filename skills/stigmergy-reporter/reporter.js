@@ -2,8 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const STIGMERGY_BUS_DIR = process.env.STIGMERGY_BUS_DIR || path.join(process.cwd(), 'bus');
+const STIGMERGY_BUS_DIR = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), '.stigmergy', 'bus');
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {

@@ -3,8 +3,9 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
-const BUS = path.join(process.cwd(), "bus");
+const BUS = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
 const AGENT = process.env.AGENT || "opencode";
 
 function run(agent, cmd, args) {

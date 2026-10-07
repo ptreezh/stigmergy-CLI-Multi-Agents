@@ -115,6 +115,48 @@ async function handleAutoCoordinatorCommand(options = {}) {
       return;
     }
 
+    if (action === "reports") {
+      console.log(chalk.blue(" Loading self-reports from bus..."));
+      const reports = await coordinator.loadSelfReports();
+      console.log(chalk.green(` Loaded ${reports.length} reports`));
+      console.log("");
+
+      const byAgent = new Map();
+      for (const r of reports) {
+        if (!byAgent.has(r.agent)) byAgent.set(r.agent, []);
+        byAgent.get(r.agent).push(r);
+      }
+
+      for (const [agent, agentReports] of byAgent) {
+        console.log(chalk.cyan(` ${agent} (${agentReports.length})`));
+        for (const r of agentReports.slice(-3)) {
+          const time = new Date(r.modified).toLocaleString();
+          console.log(`   [${r.reportType}] ${path.basename(r.file)} - ${time}`);
+        }
+        console.log("");
+      }
+
+      return;
+    }
+
+    if (action === "handoffs") {
+      console.log(chalk.blue(" Creating auto-handoffs from project activity..."));
+      const handoffs = await coordinator.createAutoHandoffs();
+      console.log(chalk.green(` Created ${handoffs.length} handoffs`));
+      console.log("");
+
+      for (const h of handoffs) {
+        console.log(chalk.cyan(` ${h.id}`));
+        console.log(`   Project: ${h.project}`);
+        console.log(`   Agents:  ${h.agents.join(", ")}`);
+        console.log(`   Reason:  ${h.reason}`);
+        console.log(`   Status:  ${h.status}`);
+        console.log("");
+      }
+
+      return;
+    }
+
     console.log(chalk.cyan(" Auto-Coordinator "));
     console.log(chalk.gray("=".repeat(50)));
     console.log("");
@@ -124,6 +166,8 @@ async function handleAutoCoordinatorCommand(options = {}) {
     console.log("  stigmergy auto-coordinator status");
     console.log("  stigmergy auto-coordinator run");
     console.log("  stigmergy auto-coordinator route --task <task> [--context <ctx>]");
+    console.log("  stigmergy auto-coordinator reports");
+    console.log("  stigmergy auto-coordinator handoffs");
     console.log("");
     console.log("Options:");
     console.log("  --interval, -i <hours>   Scan interval in hours (default: 4)");
@@ -131,6 +175,8 @@ async function handleAutoCoordinatorCommand(options = {}) {
     console.log("  --task, -t <task>        Task text for context routing");
     console.log("  --context, -c <ctx>      Override task context");
     console.log("  -v, --verbose            Verbose output");
+    console.log("  reports                  Show self-reports from bus");
+    console.log("  handoffs                 Create auto-handoffs from project activity");
   } catch (error) {
     console.log(chalk.red(` Auto-coordinator failed: ${error.message}`));
     process.exit(1);

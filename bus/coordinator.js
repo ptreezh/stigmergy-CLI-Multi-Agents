@@ -2,8 +2,9 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
-const BUS_DIR = process.env.STIGMERGY_BUS_DIR || path.join(process.cwd(), "bus");
+const BUS_DIR = process.env.STIGMERGY_BUS_DIR || path.join(os.homedir(), ".stigmergy", "bus");
 const AGENT_NAME = process.env.AGENT_NAME || path.basename(process.cwd());
 const AGENT_CAPABILITIES = (process.env.AGENT_CAPABILITIES || "").split(",").map(s => s.trim()).filter(Boolean);
 const AGENT_PROJECT = process.env.AGENT_PROJECT || process.cwd();

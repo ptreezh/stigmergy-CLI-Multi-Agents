@@ -1078,6 +1078,22 @@ function autoBuildAgentConfigs(discoveredHomes) {
       };
     }
 
+    if (canonical === 'qoder') {
+      summaryExtractors['state.json'] = (f, c) => {
+        try {
+          const d = JSON.parse(c);
+          const paths = [];
+          if (d.recentProjects) paths.push(...(Array.isArray(d.recentProjects) ? d.recentProjects : [d.recentProjects]));
+          if (d.trustDirectories) paths.push(...(Array.isArray(d.trustDirectories) ? d.trustDirectories : [d.trustDirectories]));
+          return { recentProjects: paths, updatedAt: fs.statSync(f).mtime.toISOString() };
+        } catch { return {}; }
+      };
+      summaryExtractors['QODER.md'] = (f, c) => {
+        const paths = extractPathsFromText(c).map(normalizeProjectPath).filter(Boolean);
+        return { type: 'qoder-memory', size: c.length, projectPaths: paths, updatedAt: fs.statSync(f).mtime.toISOString() };
+      };
+    }
+
     configs[canonical] = {
       type: ontology.category,
       home: validHomes[0],
@@ -1257,7 +1273,7 @@ class StigmergyWiki {
 
   loadSelfReports() {
     const reports = [];
-    const busDir = path.join(process.cwd(), 'bus');
+    const busDir = process.env.STIGMERGY_BUS_DIR || path.join(require('os').homedir(), '.stigmergy', 'bus');
     
     const reportDirs = [
       { type: 'onetime', dir: path.join(busDir, 'onetime') },
