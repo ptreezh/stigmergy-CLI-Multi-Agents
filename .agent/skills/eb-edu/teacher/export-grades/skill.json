@@ -1,0 +1,23 @@
+{
+  "name": "eb-edu-export-grades",
+  "version": "1.0.0",
+  "description": "导出成绩",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "成绩", "导出"],
+  "triggers": {
+    "keywords": ["导出成绩", "导出报表", "成绩导出"],
+    "patterns": ["帮我导出.*成绩", "导出.*报表"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["file"],
+    "properties": {
+      "file": {"type": "string", "description": "导出文件路径"},
+      "class_id": {"type": "string", "description": "班级 ID"},
+      "format": {"type": "string", "enum": ["xlsx", "csv"], "default": "xlsx"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 60},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

@@ -1,0 +1,33 @@
+{
+  "name": "eb-edu-medusa-update-order",
+  "version": "1.0",
+  "description": "更新订单状态",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "订单管理"],
+  "triggers": {
+    "keywords": ["更新订单状态", "订单状态", "发货"],
+    "patterns": ["更新.*订单", "发货.*订单"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["order_id", "status"],
+    "properties": {
+      "order_id": {"type": "string", "description": "订单 ID"},
+      "status": {"type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"], "description": "新状态"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "订单 order_123 已发货", "parameters": {"order_id": "order_123", "status": "shipped"}},
+    {"input": "取消订单 order_123", "parameters": {"order_id": "order_123", "status": "cancelled"}}
+  ]
+}

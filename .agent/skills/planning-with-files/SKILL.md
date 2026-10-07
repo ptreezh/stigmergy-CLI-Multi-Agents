@@ -1,35 +1,14 @@
 ---
 name: planning-with-files
-version: "2.0.0"
 description: Implements Manus-style file-based planning for complex tasks. Creates task_plan.md, findings.md, and progress.md. Use when starting complex multi-step tasks, research projects, or any task requiring >5 tool calls.
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-hooks:
-  PreToolUse:
-    - matcher: "Write|Edit|Bash"
-      hooks:
-        - type: command
-          command: "cat task_plan.md 2>/dev/null | head -30 || true"
-  Stop:
-    - hooks:
-        - type: command
-          command: "${CLAUDE_PLUGIN_ROOT}/scripts/check-complete.sh"
+license: MIT
 ---
 
 # Planning with Files
 
 Work like Manus: Use persistent markdown files as your "working memory on disk."
 
-## Quick Start
-
-Before ANY complex task:
-
-1. **Create `task_plan.md`** — See [templates/task_plan.md](templates/task_plan.md)
-2. **Create `findings.md`** — See [templates/findings.md](templates/findings.md)
-3. **Create `progress.md`** — See [templates/progress.md](templates/progress.md)
-4. **Re-read plan before decisions** — Refreshes goals in attention window
-5. **Update after each phase** — Mark complete, log errors
-
-## The Core Pattern
+## Core Principle
 
 ```
 Context Window = RAM (volatile, limited)
@@ -37,6 +16,16 @@ Filesystem = Disk (persistent, unlimited)
 
 → Anything important gets written to disk.
 ```
+
+## Quick Start
+
+Before ANY complex task, create these three files:
+
+1. **task_plan.md** — Track phases and progress
+2. **findings.md** — Store research and discoveries
+3. **progress.md** — Session log and test results
+
+See references/ for starting templates.
 
 ## File Purposes
 
@@ -67,14 +56,6 @@ After completing any phase:
 
 ### 5. Log ALL Errors
 Every error goes in the plan file. This builds knowledge and prevents repetition.
-
-```markdown
-## Errors Encountered
-| Error | Attempt | Resolution |
-|-------|---------|------------|
-| FileNotFoundError | 1 | Created default config |
-| API timeout | 2 | Added retry logic |
-```
 
 ### 6. Never Repeat Failures
 ```
@@ -107,29 +88,6 @@ AFTER 3 FAILURES: Escalate to User
   → Ask for guidance
 ```
 
-## Read vs Write Decision Matrix
-
-| Situation | Action | Reason |
-|-----------|--------|--------|
-| Just wrote a file | DON'T read | Content still in context |
-| Viewed image/PDF | Write findings NOW | Multimodal → text before lost |
-| Browser returned data | Write to file | Screenshots don't persist |
-| Starting new phase | Read plan/findings | Re-orient if context stale |
-| Error occurred | Read relevant file | Need current state to fix |
-| Resuming after gap | Read all planning files | Recover state |
-
-## The 5-Question Reboot Test
-
-If you can answer these, your context management is solid:
-
-| Question | Answer Source |
-|----------|---------------|
-| Where am I? | Current phase in task_plan.md |
-| Where am I going? | Remaining phases |
-| What's the goal? | Goal statement in plan |
-| What have I learned? | findings.md |
-| What have I done? | progress.md |
-
 ## When to Use This Pattern
 
 **Use for:**
@@ -137,7 +95,6 @@ If you can answer these, your context management is solid:
 - Research tasks
 - Building/creating projects
 - Tasks spanning many tool calls
-- Anything requiring organization
 
 **Skip for:**
 - Simple questions
@@ -146,31 +103,25 @@ If you can answer these, your context management is solid:
 
 ## Templates
 
-Copy these templates to start:
-
-- [templates/task_plan.md](templates/task_plan.md) — Phase tracking
-- [templates/findings.md](templates/findings.md) — Research storage
-- [templates/progress.md](templates/progress.md) — Session logging
-
-## Scripts
-
-Helper scripts for automation:
-
-- `scripts/init-session.sh` — Initialize all planning files
-- `scripts/check-complete.sh` — Verify all phases complete
+- references/task_plan.md — Phase tracking template
+- references/findings.md — Research storage template
+- references/progress.md — Session logging template
 
 ## Advanced Topics
 
-- **Manus Principles:** See [reference.md](reference.md)
-- **Real Examples:** See [examples.md](examples.md)
+- **Manus Principles:** See references.md for complete context engineering patterns
+- **Real Examples:** See examples.md for practical implementations
 
 ## Anti-Patterns
 
 | Don't | Do Instead |
 |-------|------------|
-| Use TodoWrite for persistence | Create task_plan.md file |
 | State goals once and forget | Re-read plan before decisions |
 | Hide errors and retry silently | Log errors to plan file |
 | Stuff everything in context | Store large content in files |
 | Start executing immediately | Create plan file FIRST |
 | Repeat failed actions | Track attempts, mutate approach |
+
+---
+
+**This pattern is why Manus went from launch to $2B acquisition in 8 months.**

@@ -1,0 +1,23 @@
+{
+  "name": "eb-edu-medusa-create-order",
+  "version": "1.0.0",
+  "description": "创建订单",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "订单"],
+  "triggers": {
+    "keywords": ["创建订单", "下单", "生成订单"],
+    "patterns": ["帮我创建.*订单", "我要下单"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["customer-id", "items"],
+    "properties": {
+      "customer-id": {"type": "string", "description": "客户 ID"},
+      "items": {"type": "string", "description": "商品列表 (prod_id:qty,...)"},
+      "shipping-address": {"type": "string", "description": "收货地址"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["STUDENT", "TEACHER", "ADMIN"], "requires_auth": true}
+}

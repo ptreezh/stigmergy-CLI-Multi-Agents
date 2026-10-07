@@ -1,0 +1,54 @@
+{
+  "name": "eb-edu-create-order-guided",
+  "version": "1.0",
+  "description": "订单处理（LLM 智能引导版）- 培养客户需求分析、订单配置、价格计算能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "能力培养", "LLM 引导", "订单处理"],
+  "triggers": {
+    "keywords": ["订单处理实训", "订单创建训练", "学习订单处理"],
+    "patterns": ["学习.*订单", "我要.*订单训练"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": []
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 900,
+    "interactive": true,
+    "requires_llm": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "learning_outcomes": [
+    "客户需求分析能力 - 能准确理解客户需求",
+    "订单配置能力 - 能正确配置订单信息",
+    "价格计算能力 - 能准确计算订单总额（含优惠、运费）",
+    "风险识别能力 - 能识别订单风险点",
+    "决策思维能力 - 能说明决策依据"
+  ],
+  "workflow": {
+    "type": "llm_guided_then_execute",
+    "steps": [
+      {"step": 1, "action": "llm_guide", "focus": "客户需求分析"},
+      {"step": 2, "action": "llm_guide", "focus": "订单配置"},
+      {"step": 3, "action": "llm_guide", "focus": "价格计算"},
+      {"step": 4, "action": "confirm", "focus": "决策确认"},
+      {"step": 5, "action": "call_skill", "skill": "eb-edu-medusa-create-order"}
+    ]
+  },
+  "llm_integration": {
+    "description": "本 Skill 依赖 AI LLM 智能引导",
+    "supported_llms": ["qwen", "claude", "offline"],
+    "prompts": [
+      "customer_analysis - 评估客户需求分析",
+      "order_config - 评估订单配置",
+      "price_calculation - 评估价格计算",
+      "review - 最终点评"
+    ]
+  }
+}

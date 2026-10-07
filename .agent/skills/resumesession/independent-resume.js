@@ -13,7 +13,7 @@
  * - 显示所有 CLI 所有项目的会话分类列表
  * 
  * 配置策略（优先级从高到低）：
- * 1. 工具自己的配置文件 (C:\Users\WIN10/.resume-session/config.json)
+ * 1. 工具自己的配置文件 (C:\Users\Zhang/.resume-session/config.json)
  * 2. Stigmergy 配置（可选增强）
  * 3. 自动检测（扫描常见位置）
  * 4. 默认配置
@@ -149,19 +149,6 @@ const DEFAULT_CLI_CONFIG = {
       return relativePath.split(path.sep)[0];
     },
     getSessionId: (filePath) => path.basename(filePath, '.json')
-  },
-  opencode: {
-    name: 'OpenCode',
-    path: path.join(os.homedir(), '.opencode', 'sessions'),
-    sessionPattern: /.*\.json$/,
-    extractProject: (filePath, cliPath) => {
-      const normalizedFilePath = path.normalize(filePath);
-      const normalizedCliPath = path.normalize(cliPath);
-      let relativePath = path.relative(normalizedCliPath, path.dirname(normalizedFilePath));
-      relativePath = relativePath.replace(/^-[A-Z]-/i, '');
-      return relativePath.split(path.sep)[0];
-    },
-    getSessionId: (filePath) => path.basename(filePath, '.json')
   }
 };
 
@@ -229,14 +216,6 @@ const CLI_CANDIDATES = {
       path.join(os.homedir(), '.kode', 'projects'),
       path.join(os.homedir(), '.config', 'kode', 'projects'),
       path.join(os.homedir(), 'AppData', 'Roaming', 'kode', 'projects'),
-    ]
-  },
-  opencode: {
-    name: 'OpenCode',
-    candidates: [
-      path.join(os.homedir(), '.opencode', 'sessions'),
-      path.join(os.homedir(), '.config', 'opencode', 'sessions'),
-      path.join(os.homedir(), 'AppData', 'Roaming', 'opencode', 'sessions'),
     ]
   }
 };
@@ -646,7 +625,7 @@ ResumeSession - 跨 CLI 会话恢复工具
   claude, gemini, qwen, iflow, codebuddy, codex, qodercli, kode
 
 配置策略（优先级从高到低）：
-  1. 工具配置文件 (C:\Users\WIN10/.resume-session/config.json)
+  1. 工具配置文件 (C:\Users\Zhang/.resume-session/config.json)
   2. Stigmergy 配置（可选增强）
   3. 自动检测（扫描常见位置）
   4. 默认配置
@@ -810,7 +789,7 @@ function main() {
     console.log('1. 确保至少使用过一个 CLI 工具并创建了会话');
     console.log('2. 工具会自动扫描常见 CLI 的会话存储位置');
     console.log('3. 如果您的 CLI 安装在自定义位置，请确保会话目录可访问');
-    console.log('4. 配置文件: C:\Users\WIN10/.resume-session/config.json');
+    console.log('4. 配置文件: C:\Users\Zhang/.resume-session/config.json');
     return;
   }
   

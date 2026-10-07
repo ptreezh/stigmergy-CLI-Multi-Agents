@@ -7,6 +7,37 @@ const StigmergyInstaller = require("../../core/installer");
 const chalk = require("chalk");
 const { ensureSkillsCache } = require("../utils/skills_cache");
 const { handleDeployCommand } = require("./project");
+const { DESKTOP_TOOLS, isDesktopInstalled } = require("../../core/cli_tools");
+
+/**
+ * 展示未安装桌面型 AI Agent 的手动下载引导（红线 12：不可安装项必须附原因，禁止静默跳过）
+ * 桌面应用（type: "desktop"）无 CLI 安装命令，install 为 null，因此 installer.scanCLI()
+ * 会跳过它们——这里显式给出安装指引。
+ */
+function printDesktopInstallGuide() {
+  const notInstalled = Object.entries(DESKTOP_TOOLS).filter(
+    ([toolName]) => !isDesktopInstalled(toolName),
+  );
+
+  if (notInstalled.length === 0) {
+    return;
+  }
+
+  console.log(
+    chalk.magenta(
+      `\n🖥️  ${notInstalled.length} 个桌面型 AI Agent 未安装（需手动下载，不支持 CLI 自动安装）:`,
+    ),
+  );
+  for (const [toolName, tool] of notInstalled) {
+    console.log(chalk.magenta(`  - ${tool.name}`));
+    if (tool.installUrl) {
+      console.log(chalk.gray(`     下载链接: ${tool.installUrl}`));
+    }
+    if (tool.installHint) {
+      console.log(chalk.gray(`     安装说明: ${tool.installHint}`));
+    }
+  }
+}
 
 /**
  * Handle install command
@@ -55,6 +86,9 @@ async function handleInstallCommand(options = {}) {
 
       if (Object.keys(filteredMissingTools).length === 0) {
         console.log(chalk.green("✅ All CLI tools are already installed!"));
+
+        printDesktopInstallGuide();
+
         return {
           success: true,
           installed: [],
@@ -77,6 +111,8 @@ async function handleInstallCommand(options = {}) {
 
       if (installResult.success) {
         console.log(chalk.green("✅ Auto-install completed successfully!"));
+
+        printDesktopInstallGuide();
 
         // 如果是 --all 模式，自动部署所有工具
         if (options.all) {
@@ -143,6 +179,8 @@ async function handleInstallCommand(options = {}) {
         });
       }
 
+      printDesktopInstallGuide();
+
       return {
         success: true,
         installed: [],
@@ -182,6 +220,8 @@ async function handleInstallCommand(options = {}) {
           console.log(`  ❌ ${tool}`);
         });
       }
+
+      printDesktopInstallGuide();
 
       return {
         success: true,

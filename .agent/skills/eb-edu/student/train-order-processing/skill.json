@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-order-processing",
+  "version": "1.0",
+  "description": "订单处理实训（引导式）- 培养订单处理全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "订单处理", "引导式学习"],
+  "triggers": {
+    "keywords": ["订单处理实训", "处理订单", "订单实训"],
+    "patterns": ["我要.*订单处理实训", "完成.*订单任务", "学习.*订单处理"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成订单处理实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 订单处理实训（引导式）                ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的订单处理专员，接到一个订单：\n📦 订单号：ORD-2026-001\n💰 总额：¥398\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "订单处理实训（引导式）- 通过 LLM 智能引导完成订单处理全流程",
+    "long": "订单处理实训（引导式），通过 LLM 智能引导完成订单处理全流程。包括：1. 订单确认 2. 配货打包 3. 发货物流 4. 异常处理 5. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-order-processing"
+    ],
+    "related_skills": [
+      "eb-edu-train-order-exception",
+      "eb-edu-train-logistics-management",
+      "eb-edu-train-customer-service"
+    ],
+    "learning_resources": [
+      "./tutorials/order-processing.md",
+      "./guides/customer-service.md",
+      "./guides/logistics.md"
+    ]
+  },
+  "business_context": {
+    "concept": "订单处理是电商运营的核心流程，包括订单确认、配货打包、发货物流、异常处理等环节。通过本实训，学生将掌握完整的订单处理流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成订单处理全流程实训",
+      "学习订单确认方法",
+      "掌握发货物流流程",
+      "练习异常订单处理"
+    ],
+    "best_practices": [
+      "订单确认要仔细检查库存和客户信息",
+      "配货打包要选择合适的包装",
+      "发货物流要选择合适的物流公司",
+      "异常处理要及时安抚客户情绪"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握订单确认方法",
+      "学会配货打包",
+      "掌握发货物流流程",
+      "能够处理异常订单"
+    ],
+    "outcomes": [
+      "能够独立完成订单处理",
+      "能够进行订单确认分析",
+      "能够处理异常订单"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "订单成功处理",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

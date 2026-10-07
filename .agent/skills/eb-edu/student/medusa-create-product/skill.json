@@ -1,0 +1,36 @@
+{
+  "name": "eb-edu-medusa-create-product",
+  "version": "1.0.0",
+  "description": "在 Medusa 电商平台创建商品",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "商品上架"],
+  "triggers": {
+    "keywords": ["创建商品", "上架商品", "添加商品", "发布商品"],
+    "patterns": ["帮我上架.*商品", "创建一个.*商品", "添加一个.*产品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["title", "price"],
+    "properties": {
+      "title": {"type": "string", "description": "商品标题"},
+      "price": {"type": "number", "description": "商品价格"},
+      "category": {"type": "string", "description": "商品类别"},
+      "description": {"type": "string", "description": "商品描述"},
+      "inventory": {"type": "integer", "default": 100},
+      "sku": {"type": "string", "description": "SKU 编码"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "帮我上架一个夏季连衣裙，价格 199 元", "parameters": {"title": "夏季连衣裙", "price": 199}}
+  ]
+}

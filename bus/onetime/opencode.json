@@ -1,0 +1,25 @@
+{
+  "installation": {
+    "path": "D:\\stigmergy-CLI-Multi-Agents",
+    "version": "unknown",
+    "configFiles": []
+  },
+  "capabilities": {
+    "commands": [],
+    "tools": [],
+    "memoryAccess": true
+  },
+  "memory": {
+    "files": [],
+    "sessionPattern": "",
+    "sessionFormat": "json"
+  },
+  "projects": [],
+  "help": {
+    "files": [],
+    "content": ""
+  },
+  "agent": "opencode",
+  "reportType": "onetime",
+  "timestamp": "2026-10-07T09:44:29.606Z"
+}

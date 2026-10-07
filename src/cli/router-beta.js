@@ -33,6 +33,8 @@ const cliAdapterManager = new CLIAdapterManager();
 const { handleInstallCommand } = require("./commands/install");
 const { handleStatusCommand } = require("./commands/status");
 const { handleScanCommand } = require("./commands/scan");
+const { handleWikiScanCommand } = require("./commands/wiki-scan");
+const { handleAgentForensicsCommand } = require("./commands/agent-forensics");
 const {
   handlePermCheckCommand,
   handleFixPermsCommand,
@@ -68,6 +70,9 @@ const {
   exploreAndGenerate,
   installBrowserExtension
 } = require("./commands/opencli");
+const { handleDashboardCommand } = require("./commands/dashboard");
+const { handleTakeoverCommand } = require("./commands/takeover");
+const { handleAutoCoordinatorCommand } = require("./commands/auto-coordinator");
 const {
   initConfig: initCCConfig,
   setCredential: setCCCredential,
@@ -163,6 +168,7 @@ async function main() {
 ║     stigmergy init               # 初始化项目                           ║
 ║     stigmergy status             # 查看 CLI 状态                        ║
 ║     stigmergy scan               # 扫描可用工具                         ║
+║     stigmergy wiki-scan          # 扫描智能体记忆并构建本体 wiki           ║
 ║     stigmergy install            # 安装 CLI 工具                        ║
 ║     stigmergy deploy             # 部署集成钩子                         ║
 ║     stigmergy soul status        # Soul 进化系统状态                   ║
@@ -350,6 +356,45 @@ async function main() {
       await handleStatusCommand(options);
     });
 
+  // Dashboard command
+  program
+    .command("dashboard")
+    .alias("dash")
+    .description("Open agent observatory dashboard")
+    .option("--json", "Output in JSON format")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (options) => {
+      await handleDashboardCommand(options);
+    });
+
+  // Takeover command
+  program
+    .command("takeover")
+    .description("Coordinate agent takeover when token exhaustion detected")
+    .option("--suggest", "Show takeover suggestions")
+    .option("--from <agent>", "Source agent (token exhausted)")
+    .option("--to <agent>", "Target agent (idle/available)")
+    .option("--task <task>", "Task to route on takeover")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (options) => {
+      await handleTakeoverCommand(options);
+    });
+
+  // Auto-Coordinator command
+  program
+    .command("auto-coordinator")
+    .alias("autoc")
+    .description("Continuous background agent auto-coordination and monitoring")
+    .argument("[action]", "Action: start, stop, status, run, route")
+    .option("--interval <hours>", "Scan interval in hours", "4")
+    .option("--daemon", "Run in foreground until Ctrl+C")
+    .option("--task <task>", "Task text for context routing")
+    .option("--context <ctx>", "Override task context")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (action, options) => {
+      await handleAutoCoordinatorCommand({ ...options, _command: action });
+    });
+
   // Scan command
   program
     .command("scan")
@@ -359,6 +404,34 @@ async function main() {
     .option("-v, --verbose", "Verbose output")
     .action(async (options) => {
       await handleScanCommand(options);
+    });
+
+  // Wiki scan command - ontology-based agent memory scan
+  program
+    .command("wiki-scan")
+    .description("Scan agent memory files and build ontology-based wiki")
+    .option("--json", "Output ontology as JSON")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (options) => {
+      await handleWikiScanCommand(options);
+    });
+
+  // Agent Forensics command
+  program
+    .command("agent-forensics")
+    .alias("af")
+    .description("Scan for installed AI agents and their session state")
+    .option("--json", "Output in JSON format")
+    .option("--save [path]", "Save report to file (optional path)")
+    .option(
+      "--layers <list>",
+      "Comma-separated layers: shortcut,registry,process,appdata,pkg,homedir,vscode-ext"
+    )
+    .option("--no-unknown", "Hide unknown AI-like processes")
+    .option("-y, --yes", "Skip consent prompt")
+    .option("-v, --verbose", "Verbose output")
+    .action(async (options) => {
+      await handleAgentForensicsCommand(options);
     });
 
   // Permission management commands

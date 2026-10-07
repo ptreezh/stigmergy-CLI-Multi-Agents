@@ -1,0 +1,24 @@
+{
+  "name": "eb-edu-create-class",
+  "version": "1.0.0",
+  "description": "创建班级",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "班级", "教学管理"],
+  "triggers": {
+    "keywords": ["创建班级", "新建班级", "成立班级"],
+    "patterns": ["帮我创建一个.*班", "我要办一个.*班级"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["name", "grade"],
+    "properties": {
+      "name": {"type": "string", "description": "班级名称"},
+      "grade": {"type": "string", "description": "年级"},
+      "max_students": {"type": "integer", "default": 45},
+      "description": {"type": "string", "description": "班级描述"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

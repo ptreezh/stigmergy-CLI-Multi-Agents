@@ -1,0 +1,35 @@
+{
+  "name": "eb-edu-medusa-check-inventory",
+  "version": "1.0",
+  "description": "查询库存",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "库存管理"],
+  "triggers": {
+    "keywords": ["查询库存", "库存查询", "库存管理"],
+    "patterns": ["查询.*库存", "查看.*库存"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "product": {"type": "string", "description": "商品 ID"},
+      "warehouse": {"type": "string", "description": "仓库 ID"},
+      "low_stock": {"type": "integer", "description": "显示库存低于此值的商品"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "查询库存", "parameters": {}},
+    {"input": "查看库存不足的商品", "parameters": {"low_stock": 10}},
+    {"input": "查询商品 prod_123 的库存", "parameters": {"product": "prod_123"}}
+  ]
+}

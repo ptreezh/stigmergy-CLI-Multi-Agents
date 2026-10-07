@@ -1,0 +1,23 @@
+{
+  "name": "eb-edu-send-notification",
+  "version": "1.0.0",
+  "description": "发送通知",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "通知", "消息"],
+  "triggers": {
+    "keywords": ["发送通知", "通知学生", "发消息"],
+    "patterns": ["通知.*学生", "给.*发消息"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["message"],
+    "properties": {
+      "message": {"type": "string", "description": "通知内容"},
+      "class_id": {"type": "string", "description": "班级 ID"},
+      "type": {"type": "string", "default": "general"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

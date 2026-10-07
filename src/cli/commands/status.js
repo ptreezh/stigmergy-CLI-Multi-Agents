@@ -1,126 +1,100 @@
-/**
- * Status Command Module
- * Handles CLI tool status checking commands
- */
-
-const { CLI_TOOLS } = require("../../core/cli_tools");
 const chalk = require("chalk");
-const { formatToolStatus } = require("../utils/formatters");
+const { AgentRegistry } = require("../../core/agent_registry");
+const { AgentStateCollector } = require("../../core/agent_state_collector");
 
-/**
- * Handle status command
- * @param {Object} options - Command options
- * @param {string} options.cli - Specific CLI to check
- * @param {boolean} options.json - Output in JSON format
- * @param {boolean} options.verbose - Verbose output
- */
 async function handleStatusCommand(options = {}) {
   try {
-    // Use all tools from CLI_TOOLS that have autoInstall: true
-    const supportedTools = Object.keys(CLI_TOOLS).filter(
-      (tool) => CLI_TOOLS[tool] && CLI_TOOLS[tool].autoInstall,
-    );
+    const registry = new AgentRegistry();
+    const collector = new AgentStateCollector();
+
+    const registryData = await registry.scanAll();
+    const allAgents = [...registryData.cli, ...registryData.desktop, ...registryData.evolved];
 
     if (options.cli) {
-      // Check specific CLI
-      if (!supportedTools.includes(options.cli)) {
-        console.log(chalk.red(`❌ Unknown CLI tool: ${options.cli}`));
-        console.log(
-          chalk.yellow(`Supported tools: ${supportedTools.join(", ")}`),
-        );
+      const agent = allAgents.find((a) => a.id === options.cli || a.name === options.cli);
+      if (!agent) {
+        console.log(chalk.red(` Unknown CLI tool: ${options.cli}`));
+        console.log(chalk.yellow(`Supported tools: ${allAgents.map((a) => a.id).join(", ")}`));
         process.exit(1);
       }
 
-      try {
-        const status = await CLI_TOOLS.checkInstallation(options.cli);
-
-        if (options.json) {
-          console.log(JSON.stringify(status, null, 2));
-        } else {
-          console.log(chalk.cyan(`📊 ${options.cli} Status:`));
-          console.log(formatToolStatus({ ...status, tool: options.cli }));
-
-          if (options.verbose && status.installed) {
-            if (status.version) {
-              console.log(chalk.gray(`   📦 Version: ${status.version}`));
-            }
-            if (status.path) {
-              console.log(chalk.gray(`   📍 Path: ${status.path}`));
-            }
-            if (status.lastChecked) {
-              console.log(
-                chalk.gray(`   🕐 Last checked: ${status.lastChecked}`),
-              );
-            }
-          }
-        }
-      } catch (error) {
-        console.log(
-          chalk.red(`❌ Error checking ${options.cli}: ${error.message}`),
-        );
-        process.exit(1);
-      }
-    } else {
-      // Check all CLIs
-      console.log(chalk.cyan("📊 CLI Tools Status:"));
-
-      let installedCount = 0;
-      const results = [];
-
-      for (const tool of supportedTools) {
-        try {
-          // 添加超时保护
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Timeout")), 5000),
-          );
-
-          const statusPromise = CLI_TOOLS.checkInstallation(tool);
-          const status = await Promise.race([statusPromise, timeoutPromise]);
-
-          results.push({ tool, ...status });
-
-          if (status.installed) {
-            installedCount++;
-            console.log(chalk.green(`  ✅ ${tool}`));
-          } else {
-            console.log(chalk.red(`  ❌ ${tool}`));
-          }
-        } catch (error) {
-          results.push({ tool, installed: false, error: error.message });
-          console.log(chalk.yellow(`  ⚠️  ${tool}: Error checking status`));
-        }
-      }
-
-      // Summary
-      console.log("");
-      console.log(
-        chalk.blue(
-          `📈 Summary: ${installedCount}/${supportedTools.length} tools installed`,
-        ),
-      );
-
-      if (installedCount < supportedTools.length) {
-        console.log(chalk.yellow("\n💡 To install missing tools, run:"));
-        console.log(chalk.cyan("   stigmergy install"));
-
-        const missing = results.filter((r) => !r.installed);
-        if (missing.length > 0 && missing.length < supportedTools.length) {
-          console.log(
-            chalk.cyan(
-              `   stigmergy install --cli ${missing.map((r) => r.tool).join(",")}`,
-            ),
-          );
-        }
-      }
+      const state = await collector.collect(agent);
 
       if (options.json) {
-        console.log("");
-        console.log(chalk.blue("📄 Detailed JSON output:"));
-        console.log(JSON.stringify(results, null, 2));
+        console.log(JSON.stringify(state, null, 2));
+      } else {
+        console.log(chalk.cyan(` ${options.cli} Status:`));
+        console.log(`  Installed: ${state.installed ? chalk.green("Yes") : chalk.red("No")}`);
+        console.log(`  Status: ${state.status}`);
+        if (state.path) console.log(`  Path: ${state.path}`);
+        if (state.version) console.log(`  Version: ${state.version}`);
+        if (state.lastUsed) console.log(`  Last used: ${state.lastUsed}`);
+        if (state.lastHeartbeat) console.log(`  Last heartbeat: ${state.lastHeartbeat}`);
+        console.log(`  Conversation depth: ${state.conversationDepth}`);
+        console.log(`  Sessions: ${state.sessionCount}`);
+        if (state.tokenExhausted) {
+          console.log(chalk.red(`  Token exhausted: ${state.tokenExhaustionReason}`));
+        }
+        if (state.lastError) {
+          console.log(chalk.red(`  Last error: ${state.lastError}`));
+        }
+        if (state.processRunning !== undefined) {
+          console.log(`  Process running: ${state.processRunning ? "Yes" : "No"}`);
+        }
+      }
+      return;
+    }
+
+    console.log(chalk.cyan(" Agent Status Overview:"));
+
+    const states = await collector.collectAll(registryData);
+    const installed = states.filter((s) => s.installed);
+    const active = states.filter((s) => s.status === "active");
+    const idle = states.filter((s) => s.status === "idle");
+    const tokenExhausted = states.filter((s) => s.tokenExhausted);
+    const error = states.filter((s) => s.status === "error");
+    const offline = states.filter((s) => s.status === "offline");
+
+    for (const state of active) {
+      console.log(chalk.green(`  [ACTIVE]    ${state.name}`));
+    }
+    for (const state of idle) {
+      console.log(chalk.yellow(`  [IDLE]      ${state.name}`));
+    }
+    for (const state of tokenExhausted) {
+      console.log(chalk.red(`  [TOKEN]     ${state.name} - ${state.tokenExhaustionReason || "exhausted"}`));
+    }
+    for (const state of error) {
+      console.log(chalk.red(`  [ERROR]     ${state.name}`));
+    }
+    for (const state of offline) {
+      console.log(chalk.gray(`  [OFFLINE]   ${state.name}`));
+    }
+
+    console.log("");
+    console.log(chalk.blue(" Summary:"));
+    console.log(`  Total:    ${states.length}`);
+    console.log(`  Installed: ${installed.length}`);
+    console.log(`  Active:   ${active.length}`);
+    console.log(`  Idle:     ${idle.length}`);
+    console.log(`  Token exhausted: ${tokenExhausted.length}`);
+    console.log(`  Error:    ${error.length}`);
+    console.log(`  Offline:  ${offline.length}`);
+
+    if (tokenExhausted.length > 0) {
+      console.log(chalk.red("\n Takeover available:"));
+      for (const state of tokenExhausted) {
+        console.log(chalk.red(`   ${state.name} -> check idle agents with: stigmergy dashboard`));
       }
     }
+
+    if (options.json) {
+      console.log("");
+      console.log(chalk.blue(" Detailed JSON:"));
+      console.log(JSON.stringify(states, null, 2));
+    }
   } catch (error) {
-    console.log(chalk.red(`❌ Status check failed: ${error.message}`));
+    console.log(chalk.red(` Status check failed: ${error.message}`));
     process.exit(1);
   }
 }

@@ -1,0 +1,34 @@
+{
+  "name": "eb-edu-submit-project",
+  "version": "1.0.0",
+  "description": "提交实训项目",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "提交作业"],
+  "triggers": {
+    "keywords": ["提交作业", "提交实训", "完成实训", "交作业"],
+    "patterns": ["我要提交.*作业", "完成.*实训", "交.*作品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "project": {"type": "string", "description": "实训项目名称"},
+      "project_id": {"type": "string", "description": "实训项目 ID"},
+      "files": {"type": "array", "items": {"type": "string"}, "description": "提交的文件"},
+      "comment": {"type": "string", "description": "备注说明"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 60
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "我要提交商品上架实训的作业", "parameters": {"project": "商品上架实训", "comment": "老师，我完成了"}}
+  ]
+}

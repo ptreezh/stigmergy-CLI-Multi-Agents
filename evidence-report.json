@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-10-06T17:20:15.920Z",
+  "methodology": "session-first, project-mapped, evidence-tagged",
+  "evidenceCount": 368,
+  "sessionCount": 360,
+  "projectCount": 0,
+  "agents": {
+    "opencode": {
+      "score": 50,
+      "level": "low",
+      "factors": [
+        "has_session_history",
+        "has_running_process"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "zcode": {
+      "score": 50,
+      "level": "low",
+      "factors": [
+        "has_session_history",
+        "has_running_process"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "qoder": {
+      "score": 40,
+      "level": "low",
+      "factors": [
+        "has_session_history"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": false,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "doubao": {
+      "score": 50,
+      "level": "low",
+      "factors": [
+        "has_session_history",
+        "has_running_process"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "workbuddy": {
+      "score": 50,
+      "level": "low",
+      "factors": [
+        "has_session_history",
+        "has_running_process"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "marvis": {
+      "score": 10,
+      "level": "very_low",
+      "factors": [
+        "has_running_process"
+      ],
+      "hasSession": false,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "coze": {
+      "score": 50,
+      "level": "low",
+      "factors": [
+        "has_session_history",
+        "has_running_process"
+      ],
+      "hasSession": true,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": true,
+      "projectPaths": [],
+      "recentActivity": []
+    },
+    "claude": {
+      "score": 0,
+      "level": "very_low",
+      "factors": [],
+      "hasSession": false,
+      "hasProjectPath": false,
+      "hasRecentActivity": false,
+      "hasProcess": false,
+      "projectPaths": [],
+      "recentActivity": []
+    }
+  },
+  "recommendations": []
+}

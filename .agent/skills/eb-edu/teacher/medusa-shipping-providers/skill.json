@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-medusa-shipping-providers",
+  "version": "1.0",
+  "description": "物流公司管理",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "物流管理"],
+  "triggers": {
+    "keywords": ["物流公司", "配送公司", "快递"],
+    "patterns": ["查看.*物流公司", "管理.*物流", "选择.*快递"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["list"],
+        "description": "动作（list=查看列表）"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "查看物流公司",
+      "parameters": {"action": "list"},
+      "output": "## 🚚 物流公司\n\n1. **顺丰速运**\n   ID: provider_123\n   代码：sf-express\n   网址：https://www.sf-express.com\n   共 5 个物流公司"
+    },
+    {
+      "level": "intermediate",
+      "input": "查看所有快递公司",
+      "parameters": {"action": "list"},
+      "output": "## 🚚 物流公司\n\n1. **顺丰速运**\n   代码：sf-express\n2. **圆通速递**\n   代码：yto\n   共 5 个物流公司"
+    },
+    {
+      "level": "advanced",
+      "input": "查看物流公司详情",
+      "parameters": {"action": "list"},
+      "output": "## 🚚 物流公司\n\n1. **顺丰速运**\n   ID: provider_123\n   代码：sf-express\n   网址：https://www.sf-express.com\n   共 5 个物流公司"
+    }
+  ],
+  "errors": {
+    "MISSING_ACTION": {"code": 400, "message": "需要指定动作", "solution": "使用 --action list"}
+  },
+  "help": {
+    "short": "物流公司管理，查看物流公司列表",
+    "long": "物流公司管理，查看物流公司列表。常用场景：1. 查看所有物流公司 2. 选择物流公司发货",
+    "examples": [
+      "stigmergy skill call eb-edu-medusa-shipping-providers --action list"
+    ],
+    "related_skills": [
+      "eb-edu-medusa-shipping-templates",
+      "eb-edu-medusa-fulfill-order",
+      "eb-edu-medusa-shipping-tracking"
+    ],
+    "learning_resources": [
+      "./concepts/shipping.md",
+      "./guides/shipping-management.md"
+    ]
+  },
+  "business_context": {
+    "concept": "物流公司是负责将商品配送给客户的快递或运输公司。常见的物流公司有顺丰、圆通、中通、申通等。商家需要与物流公司合作，才能完成订单配送。",
+    "use_cases": [
+      "查看所有物流公司",
+      "选择物流公司发货",
+      "管理物流合作伙伴"
+    ],
+    "best_practices": [
+      "选择多家物流公司合作，提高配送灵活性",
+      "根据地区选择最优物流公司",
+      "定期评估物流公司服务质量",
+      "与物流公司建立良好合作关系"
+    ]
+  }
+}

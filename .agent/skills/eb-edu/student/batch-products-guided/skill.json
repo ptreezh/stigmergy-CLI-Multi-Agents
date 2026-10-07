@@ -1,0 +1,53 @@
+{
+  "name": "eb-edu-batch-products-guided",
+  "version": "1.0",
+  "description": "批量上架商品（LLM 智能引导版）- 培养批量策略、效率优化、质量控制能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "能力培养", "LLM 引导", "批量上架"],
+  "triggers": {
+    "keywords": ["批量上架实训", "批量操作训练", "批量商品"],
+    "patterns": ["学习.*批量", "我要.*批量训练"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": []
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 900,
+    "interactive": true,
+    "requires_llm": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "learning_outcomes": [
+    "批量策略制定能力 - 能制定合理的批量操作策略",
+    "效率优化能力 - 能优化流程提高效率",
+    "质量控制能力 - 能在批量操作中保证质量",
+    "风险管理能力 - 能识别和管理批量操作风险"
+  ],
+  "workflow": {
+    "type": "llm_guided_then_execute",
+    "steps": [
+      {"step": 1, "action": "llm_guide", "focus": "批量策略制定"},
+      {"step": 2, "action": "llm_guide", "focus": "效率优化"},
+      {"step": 3, "action": "llm_guide", "focus": "质量控制"},
+      {"step": 4, "action": "confirm", "focus": "决策确认"},
+      {"step": 5, "action": "call_skill", "skill": "eb-edu-medusa-batch-products"}
+    ]
+  },
+  "llm_integration": {
+    "description": "本 Skill 依赖 AI LLM 智能引导",
+    "supported_llms": ["qwen", "claude", "offline"],
+    "prompts": [
+      "batch_strategy - 评估批量策略",
+      "efficiency_optimization - 评估效率优化",
+      "quality_control - 评估质量控制",
+      "review - 最终点评"
+    ]
+  }
+}

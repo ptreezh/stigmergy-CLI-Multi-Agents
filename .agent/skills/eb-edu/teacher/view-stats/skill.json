@@ -1,0 +1,21 @@
+{
+  "name": "eb-edu-view-stats",
+  "version": "1.0.0",
+  "description": "查看统计",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "统计", "报表"],
+  "triggers": {
+    "keywords": ["查看统计", "学校统计", "数据统计", "报表"],
+    "patterns": ["看看.*统计", "查询.*数据"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "school_id": {"type": "string", "description": "学校 ID"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

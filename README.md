@@ -181,7 +181,7 @@ When Gateway is running, access:
 npm install -g stigmergy@beta
 
 # Or install specific version
-npm install -g stigmergy@1.3.76-beta.0
+npm install -g stigmergy@1.11.0
 ```
 
 #### Windows (PowerShell as Administrator)
@@ -204,7 +204,7 @@ sudo npm install -g stigmergy@beta
 
 ```bash
 stigmergy --version
-# Output: 1.3.54-beta.0
+# Output: 1.11.0
 
 stigmergy --help
 ```
@@ -386,7 +386,7 @@ Stigmergy intelligently parses 7+ GitHub URL formats:
 
 ---
 
-## 🆕 What's New in v1.3.76-beta.0
+## 🆕 What's New in v1.11.0
 
 ### Major Features
 
@@ -687,10 +687,9 @@ stigmergy skill list
 
 ## 📖 Documentation
 
-- [Main Documentation](./STIGMERGY.md) - Complete system documentation
-- [Publishing Guide](./PUBLISHING_GUIDE.md) - How to publish to npm
-- [Package Size Analysis](./PACKAGE_SIZE_FINAL_SOLUTION.md) - Optimization details
-- [Agent Skills Comparison](./STIGMERGY_VS_ADD_SKILL_ANALYSIS.md) - Why not use add-skill
+- [Changelog](./CHANGELOG.md) - Version history and release notes
+- [Agent Guidelines](./AGENTS.md) - Coding standards and architecture overview
+- [Utility Scripts](./scripts/README.md) - Practical configuration scripts (search, local LLM, etc.)
 
 ---
 
@@ -749,4 +748,4 @@ If you find this project useful, please consider giving it a ⭐ on [GitHub](htt
 
 **Made with ❤️ by the Stigmergy CLI Team and AI collaborators**
 
-_Version: 1.3.54-beta.0 | Published: 2026-01-17_
+_Version: 1.11.0 | Published: 2026-09-25_

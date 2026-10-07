@@ -1,0 +1,37 @@
+{
+  "name": "eb-edu-medusa-create-discount",
+  "version": "1.0",
+  "description": "创建优惠券",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "营销推广"],
+  "triggers": {
+    "keywords": ["创建优惠券", "创建折扣", "促销活动"],
+    "patterns": ["创建.*优惠", "添加.*折扣"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["code"],
+    "properties": {
+      "code": {"type": "string", "description": "优惠券代码"},
+      "type": {"type": "string", "enum": ["percentage", "fixed"], "description": "优惠类型"},
+      "value": {"type": "integer", "description": "优惠值"},
+      "starts_at": {"type": "string", "description": "开始时间"},
+      "ends_at": {"type": "string", "description": "结束时间"},
+      "usage_limit": {"type": "integer", "description": "使用次数限制"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "创建 8 折优惠券", "parameters": {"code": "SUMMER20", "type": "percentage", "value": 20}},
+    {"input": "创建减 50 元优惠券", "parameters": {"code": "SAVE50", "type": "fixed", "value": 50}}
+  ]
+}

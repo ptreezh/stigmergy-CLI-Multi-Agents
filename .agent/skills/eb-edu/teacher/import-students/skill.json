@@ -1,0 +1,22 @@
+{
+  "name": "eb-edu-import-students",
+  "version": "1.0.0",
+  "description": "批量导入学生",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "学生", "批量导入"],
+  "triggers": {
+    "keywords": ["批量导入学生", "导入学生", "批量添加学生"],
+    "patterns": ["帮我导入.*学生", "批量添加.*学生"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["file"],
+    "properties": {
+      "file": {"type": "string", "description": "Excel 文件路径"},
+      "school_id": {"type": "string", "description": "学校 ID"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 120},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

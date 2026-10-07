@@ -1,0 +1,39 @@
+{
+  "name": "eb-edu-medusa-delete-product",
+  "version": "1.0",
+  "description": "删除商品",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "商品管理"],
+  "triggers": {
+    "keywords": ["删除商品", "移除商品", "商品下架"],
+    "patterns": ["删除.*商品", "移除.*商品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["product_id"],
+    "properties": {
+      "product_id": {"type": "string", "description": "商品 ID"},
+      "force": {"type": "boolean", "default": false, "description": "确认删除"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "input": "删除商品 prod_123",
+      "parameters": {"product_id": "prod_123"}
+    },
+    {
+      "input": "确认删除商品 prod_123",
+      "parameters": {"product_id": "prod_123", "force": true}
+    }
+  ]
+}

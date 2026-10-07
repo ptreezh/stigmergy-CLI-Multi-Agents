@@ -1,176 +1,116 @@
 ---
-name: planning-with-files
-version: "2.0.0"
-description: Implements Manus-style file-based planning for complex tasks. Creates task_plan.md, findings.md, and progress.md. Use when starting complex multi-step tasks, research projects, or any task requiring >5 tool calls.
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
-hooks:
-  PreToolUse:
-    - matcher: "Write|Edit|Bash"
-      hooks:
-        - type: command
-          command: "cat task_plan.md 2>/dev/null | head -30 || true"
-  Stop:
-    - hooks:
-        - type: command
-          command: "${CLAUDE_PLUGIN_ROOT}/scripts/check-complete.sh"
+name: writing-plans
+description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-# Planning with Files
+# Writing Plans
 
-Work like Manus: Use persistent markdown files as your "working memory on disk."
+## Overview
 
-## Quick Start
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
-Before ANY complex task:
+Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
-1. **Create `task_plan.md`** — See [templates/task_plan.md](templates/task_plan.md)
-2. **Create `findings.md`** — See [templates/findings.md](templates/findings.md)
-3. **Create `progress.md`** — See [templates/progress.md](templates/progress.md)
-4. **Re-read plan before decisions** — Refreshes goals in attention window
-5. **Update after each phase** — Mark complete, log errors
+**Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-## The Core Pattern
+**Context:** This should be run in a dedicated worktree (created by brainstorming skill).
 
-```
-Context Window = RAM (volatile, limited)
-Filesystem = Disk (persistent, unlimited)
+**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 
-→ Anything important gets written to disk.
-```
+## Bite-Sized Task Granularity
 
-## File Purposes
+**Each step is one action (2-5 minutes):**
+- "Write the failing test" - step
+- "Run it to make sure it fails" - step
+- "Implement the minimal code to make the test pass" - step
+- "Run the tests and make sure they pass" - step
+- "Commit" - step
 
-| File | Purpose | When to Update |
-|------|---------|----------------|
-| `task_plan.md` | Phases, progress, decisions | After each phase |
-| `findings.md` | Research, discoveries | After ANY discovery |
-| `progress.md` | Session log, test results | Throughout session |
+## Plan Document Header
 
-## Critical Rules
-
-### 1. Create Plan First
-Never start a complex task without `task_plan.md`. Non-negotiable.
-
-### 2. The 2-Action Rule
-> "After every 2 view/browser/search operations, IMMEDIATELY save key findings to text files."
-
-This prevents visual/multimodal information from being lost.
-
-### 3. Read Before Decide
-Before major decisions, read the plan file. This keeps goals in your attention window.
-
-### 4. Update After Act
-After completing any phase:
-- Mark phase status: `in_progress` → `complete`
-- Log any errors encountered
-- Note files created/modified
-
-### 5. Log ALL Errors
-Every error goes in the plan file. This builds knowledge and prevents repetition.
+**Every plan MUST start with this header:**
 
 ```markdown
-## Errors Encountered
-| Error | Attempt | Resolution |
-|-------|---------|------------|
-| FileNotFoundError | 1 | Created default config |
-| API timeout | 2 | Added retry logic |
+# [Feature Name] Implementation Plan
+
+> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about approach]
+
+**Tech Stack:** [Key technologies/libraries]
+
+---
 ```
 
-### 6. Never Repeat Failures
-```
-if action_failed:
-    next_action != same_action
-```
-Track what you tried. Mutate the approach.
+## Task Structure
 
-## The 3-Strike Error Protocol
+```markdown
+### Task N: [Component Name]
 
-```
-ATTEMPT 1: Diagnose & Fix
-  → Read error carefully
-  → Identify root cause
-  → Apply targeted fix
+**Files:**
+- Create: `exact/path/to/file.py`
+- Modify: `exact/path/to/existing.py:123-145`
+- Test: `tests/exact/path/to/test.py`
 
-ATTEMPT 2: Alternative Approach
-  → Same error? Try different method
-  → Different tool? Different library?
-  → NEVER repeat exact same failing action
+**Step 1: Write the failing test**
 
-ATTEMPT 3: Broader Rethink
-  → Question assumptions
-  → Search for solutions
-  → Consider updating the plan
-
-AFTER 3 FAILURES: Escalate to User
-  → Explain what you tried
-  → Share the specific error
-  → Ask for guidance
+```python
+def test_specific_behavior():
+    result = function(input)
+    assert result == expected
 ```
 
-## Read vs Write Decision Matrix
+**Step 2: Run test to verify it fails**
 
-| Situation | Action | Reason |
-|-----------|--------|--------|
-| Just wrote a file | DON'T read | Content still in context |
-| Viewed image/PDF | Write findings NOW | Multimodal → text before lost |
-| Browser returned data | Write to file | Screenshots don't persist |
-| Starting new phase | Read plan/findings | Re-orient if context stale |
-| Error occurred | Read relevant file | Need current state to fix |
-| Resuming after gap | Read all planning files | Recover state |
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: FAIL with "function not defined"
 
-## The 5-Question Reboot Test
+**Step 3: Write minimal implementation**
 
-If you can answer these, your context management is solid:
+```python
+def function(input):
+    return expected
+```
 
-| Question | Answer Source |
-|----------|---------------|
-| Where am I? | Current phase in task_plan.md |
-| Where am I going? | Remaining phases |
-| What's the goal? | Goal statement in plan |
-| What have I learned? | findings.md |
-| What have I done? | progress.md |
+**Step 4: Run test to verify it passes**
 
-## When to Use This Pattern
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: PASS
 
-**Use for:**
-- Multi-step tasks (3+ steps)
-- Research tasks
-- Building/creating projects
-- Tasks spanning many tool calls
-- Anything requiring organization
+**Step 5: Commit**
 
-**Skip for:**
-- Simple questions
-- Single-file edits
-- Quick lookups
+```bash
+git add tests/path/test.py src/path/file.py
+git commit -m "feat: add specific feature"
+```
+```
 
-## Templates
+## Remember
+- Exact file paths always
+- Complete code in plan (not "add validation")
+- Exact commands with expected output
+- Reference relevant skills with @ syntax
+- DRY, YAGNI, TDD, frequent commits
 
-Copy these templates to start:
+## Execution Handoff
 
-- [templates/task_plan.md](templates/task_plan.md) — Phase tracking
-- [templates/findings.md](templates/findings.md) — Research storage
-- [templates/progress.md](templates/progress.md) — Session logging
+After saving the plan, offer execution choice:
 
-## Scripts
+**"Plan complete and saved to `docs/plans/<filename>.md`. Two execution options:**
 
-Helper scripts for automation:
+**1. Subagent-Driven (this session)** - I dispatch fresh subagent per task, review between tasks, fast iteration
 
-- `scripts/init-session.sh` — Initialize all planning files
-- `scripts/check-complete.sh` — Verify all phases complete
+**2. Parallel Session (separate)** - Open new session with executing-plans, batch execution with checkpoints
 
-## Advanced Topics
+**Which approach?"**
 
-- **Manus Principles:** See [reference.md](reference.md)
-- **Real Examples:** See [examples.md](examples.md)
+**If Subagent-Driven chosen:**
+- **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
+- Stay in this session
+- Fresh subagent per task + code review
 
-## Anti-Patterns
-
-| Don't | Do Instead |
-|-------|------------|
-| Use TodoWrite for persistence | Create task_plan.md file |
-| State goals once and forget | Re-read plan before decisions |
-| Hide errors and retry silently | Log errors to plan file |
-| Stuff everything in context | Store large content in files |
-| Start executing immediately | Create plan file FIRST |
-| Repeat failed actions | Track attempts, mutate approach |
+**If Parallel Session chosen:**
+- Guide them to open new session in worktree
+- **REQUIRED SUB-SKILL:** New session uses superpowers:executing-plans

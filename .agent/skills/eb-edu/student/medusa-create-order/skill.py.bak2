@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+创建订单
+"""
+from __future__ import annotations
+import os, sys, argparse
+_d = os.path.dirname(os.path.abspath(__file__))
+_u = os.path.join(_d, '..', '..')
+if _u not in sys.path: sys.path.insert(0, _u)
+try:
+    from skill_utils import cross_platform_print as _p
+except ImportError:
+    _p = lambda t: print(t)
+def execute(args):
+    try:
+        from eb_edu_executor import order_create
+        return order_create(args.customer_id, args.items)
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+def format_output(_r, _a):
+    if _r['success']:
+        raw = _r['data']
+        out = ['## 创建订单\\n']
+        if isinstance(raw, str):
+            for line in raw.strip().split("\n"):
+                line = line.strip()
+                if not line or "=" in line or line.startswith("eb-edu"): continue
+                if ": " in line:
+                    parts = line.split(": ", 1)
+                    out.append("- **" + parts[0].strip() + "**: " + parts[1].strip().rstrip(","))
+                elif line.startswith("["): continue
+                elif line: out.append(line)
+        elif isinstance(raw, dict):
+            for k, v in raw.items():
+                if not isinstance(v, (dict, list)): out.append("- **" + k + "**: " + str(v))
+        elif isinstance(raw, list):
+            out.append("- 共 " + str(len(raw)) + " 条记录")
+        return "\n".join(out)
+    return '?? ' + _r.get('error', '???')
+def main():
+    parser = argparse.ArgumentParser(description='创建订单')
+    parser.add_argument("--customer-id", type=str, required=True, help="客户ID")
+    parser.add_argument("--items", type=str, required=True, help="商品列表")
+    args = parser.parse_args()
+    _r = execute(args)
+    _p(format_output(_r, args))
+    return 0 if _r.get("success") else 1
+if __name__ == '__main__':
+    sys.exit(main())

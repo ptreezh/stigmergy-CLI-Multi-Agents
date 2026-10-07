@@ -1,0 +1,40 @@
+{
+  "name": "eb-edu-competitor-analysis-training",
+  "version": "1.0",
+  "description": "竞品分析实训 - 培养学生市场洞察和数据分析能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "竞品分析", "市场洞察"],
+  "triggers": {
+    "keywords": ["竞品分析", "市场分析", "分析实训"],
+    "patterns": ["分析.*竞品", "学习.*分析"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "category": {
+        "type": "string",
+        "enum": ["wireless_mouse", "phone_case"],
+        "default": "wireless_mouse",
+        "description": "分析品类"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600,
+    "interactive": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "learning_outcomes": [
+    "数据解读能力 - 能从价格带分布发现机会",
+    "竞品分析能力 - 能分析头部竞品成功因素",
+    "市场洞察能力 - 能发现差异化机会",
+    "策略思维能力 - 能制定进入策略"
+  ]
+}

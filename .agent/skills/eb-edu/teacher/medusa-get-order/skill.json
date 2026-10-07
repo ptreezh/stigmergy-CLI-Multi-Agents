@@ -1,0 +1,31 @@
+{
+  "name": "eb-edu-medusa-get-order",
+  "version": "1.0",
+  "description": "查看订单详情",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "订单管理"],
+  "triggers": {
+    "keywords": ["查看订单详情", "订单详情", "订单查询"],
+    "patterns": ["查看.*订单详情", "查询.*订单"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["order_id"],
+    "properties": {
+      "order_id": {"type": "string", "description": "订单 ID"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "查看订单 order_123 详情", "parameters": {"order_id": "order_123"}}
+  ]
+}

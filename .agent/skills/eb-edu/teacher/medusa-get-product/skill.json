@@ -1,0 +1,40 @@
+{
+  "name": "eb-edu-medusa-get-product",
+  "version": "1.0",
+  "description": "查看商品详情",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "商品管理"],
+  "triggers": {
+    "keywords": ["查看商品详情", "商品详情", "商品查询"],
+    "patterns": ["查看.*详情", "查询.*商品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["product_id"],
+    "properties": {
+      "product_id": {"type": "string", "description": "商品 ID"},
+      "include_variants": {"type": "boolean", "default": false, "description": "包含商品变体"},
+      "json": {"type": "boolean", "default": false, "description": "输出 JSON 格式"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "input": "查看商品 prod_123 的详情",
+      "parameters": {"product_id": "prod_123"}
+    },
+    {
+      "input": "查看商品详情，包含变体",
+      "parameters": {"product_id": "prod_123", "include_variants": true}
+    }
+  ]
+}

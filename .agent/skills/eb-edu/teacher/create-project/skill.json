@@ -1,0 +1,37 @@
+{
+  "name": "eb-edu-create-project",
+  "version": "1.0.0",
+  "description": "创建实训项目 - 教师可以通过自然语言布置实训任务",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "教学", "项目创建"],
+  "triggers": {
+    "keywords": ["创建实训", "布置任务", "创建项目", "发布作业", "安排实训"],
+    "patterns": ["帮我创建一个.*实训", "我要布置.*任务", "给学生安排.*项目"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["title", "deadline"],
+    "properties": {
+      "title": {"type": "string", "description": "实训项目标题"},
+      "deadline": {"type": "string", "description": "截止时间"},
+      "class_id": {"type": "string", "description": "班级 ID", "default": "auto"},
+      "type": {"type": "string", "enum": ["individual", "group"], "default": "individual"},
+      "description": {"type": "string", "description": "项目描述"},
+      "requirements": {"type": "string", "description": "项目要求"},
+      "max_score": {"type": "integer", "default": 100}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 60
+  },
+  "permissions": {
+    "roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "帮我创建一个商品上架实训，4 月 10 日截止", "parameters": {"title": "商品上架实训", "deadline": "2026-04-10 23:59"}}
+  ]
+}

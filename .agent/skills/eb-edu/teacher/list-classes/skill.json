@@ -1,0 +1,18 @@
+{
+  "name": "eb-edu-list-classes",
+  "version": "1.0.0",
+  "description": "查看班级列表",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "班级", "列表"],
+  "triggers": {
+    "keywords": ["查看班级", "班级列表", "我的班级"],
+    "patterns": ["看看.*班级", "查询.*班级"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": []
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["TEACHER", "ADMIN"], "requires_auth": true}
+}

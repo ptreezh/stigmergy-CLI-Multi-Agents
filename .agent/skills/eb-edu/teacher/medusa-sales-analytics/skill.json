@@ -1,0 +1,35 @@
+{
+  "name": "eb-edu-medusa-sales-analytics",
+  "version": "1.0",
+  "description": "销售统计",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "数据分析"],
+  "triggers": {
+    "keywords": ["销售统计", "销售分析", "销售数据"],
+    "patterns": ["查看.*销售", "分析.*销售"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "start_date": {"type": "string", "description": "开始日期 (YYYY-MM-DD)"},
+      "end_date": {"type": "string", "description": "结束日期 (YYYY-MM-DD)"},
+      "group_by": {"type": "string", "enum": ["day", "week", "month", "product"], "description": "分组统计"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "查看本月销售统计", "parameters": {}},
+    {"input": "查看 3 月份销售数据", "parameters": {"start_date": "2026-03-01", "end_date": "2026-03-31"}},
+    {"input": "按天查看销售", "parameters": {"group_by": "day"}}
+  ]
+}

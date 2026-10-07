@@ -1,0 +1,23 @@
+{
+  "name": "eb-edu-login",
+  "version": "1.0.0",
+  "description": "登录",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "认证", "登录"],
+  "triggers": {
+    "keywords": ["登录", "登陆", "sign in"],
+    "patterns": ["帮我登录", "我要登录"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["username", "password"],
+    "properties": {
+      "username": {"type": "string", "description": "用户名"},
+      "password": {"type": "string", "description": "密码"},
+      "school_id": {"type": "string", "description": "学校 ID"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["STUDENT", "TEACHER", "ADMIN"], "requires_auth": false}
+}

@@ -1,0 +1,87 @@
+{
+  "name": "eb-edu-medusa-inventory-warning",
+  "version": "1.0",
+  "description": "库存预警",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "库存管理"],
+  "triggers": {
+    "keywords": ["库存预警", "库存不足", "补货提醒"],
+    "patterns": ["查看.*库存预警", "查询.*库存不足", "需要.*补货"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "threshold": {
+        "type": "integer",
+        "default": 10,
+        "minimum": 1,
+        "description": "库存预警阈值（默认：10 件）"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "查看库存预警",
+      "parameters": {},
+      "output": "## ⚠️ 库存预警\n\n以下商品库存不足（≤ 10 件），需要及时补货：\n\n1. 🟡 库存不足 **T 恤**\n   SKU: TSHIRT-001\n   当前库存：8 件\n   建议补货：12 件\n   共 1 件商品需要补货"
+    },
+    {
+      "level": "intermediate",
+      "input": "查看库存预警，阈值 20",
+      "parameters": {"threshold": 20},
+      "output": "## ⚠️ 库存预警\n\n以下商品库存不足（≤ 20 件）：\n\n1. 🟡 库存不足 **T 恤**\n   当前库存：8 件\n   建议补货：32 件\n   共 1 件商品需要补货"
+    },
+    {
+      "level": "advanced",
+      "input": "查看严重库存不足的商品",
+      "parameters": {"threshold": 5},
+      "output": "## ⚠️ 库存预警\n\n🔴 严重不足 **连衣裙**\n   当前库存：3 件\n   建议补货：7 件"
+    }
+  ],
+  "errors": {
+    "INVALID_THRESHOLD": {"code": 400, "message": "阈值必须大于 0", "solution": "使用有效的阈值，如 --threshold 10"}
+  },
+  "help": {
+    "short": "库存预警，查看库存不足的商品",
+    "long": "库存预警，查看库存不足的商品。支持自定义预警阈值，帮助及时发现需要补货的商品。常用场景：1. 查看库存不足商品 2. 设置不同预警阈值",
+    "examples": [
+      "stigmergy skill call eb-edu-medusa-inventory-warning",
+      "stigmergy skill call eb-edu-medusa-inventory-warning --threshold 20"
+    ],
+    "related_skills": [
+      "eb-edu-medusa-check-inventory",
+      "eb-edu-medusa-adjust-inventory",
+      "eb-edu-medusa-list-products"
+    ],
+    "learning_resources": [
+      "./concepts/inventory.md",
+      "./guides/inventory-management.md"
+    ]
+  },
+  "business_context": {
+    "concept": "库存预警用于及时发现库存不足的商品，避免缺货影响销售。当商品库存低于设定的阈值时，系统会发出预警，提醒及时补货。",
+    "use_cases": [
+      "查看库存不足的商品",
+      "设置不同预警阈值",
+      "生成补货建议"
+    ],
+    "best_practices": [
+      "根据销售速度设置合理的预警阈值",
+      "畅销商品设置更高的预警阈值",
+      "定期检查库存预警，及时补货",
+      "考虑补货周期，提前下单"
+    ]
+  }
+}

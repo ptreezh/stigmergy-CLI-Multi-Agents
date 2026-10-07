@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stigmergy Agent Observatory</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { font-size: 24px; margin-bottom: 4px; color: #f8fafc; }
+    .subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-secondary { background: #334155; color: #e2e8f0; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .timestamp { font-size: 12px; color: #64748b; margin-left: auto; }
+
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .card .number { font-size: 32px; font-weight: 700; color: #f8fafc; }
+    .card .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card.active .number { color: #22c55e; }
+    .card.idle .number { color: #eab308; }
+    .card.token-exhausted .number { color: #ef4444; }
+    .card.error .number { color: #f97316; }
+
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #f8fafc; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+    .agent-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+    .agent-card .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .agent-card .name { font-size: 16px; font-weight: 600; color: #f8fafc; }
+    .agent-card .type { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #334155; color: #94a3b8; }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-active { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+    .badge-idle { background: #eab30820; color: #eab308; border: 1px solid #eab30840; }
+    .badge-token-exhausted { background: #ef444420; color: #ef4444; border: 1px solid #ef444440; }
+    .badge-error { background: #f9731620; color: #f97316; border: 1px solid #f9731640; }
+    .badge-offline { background: #64748b20; color: #64748b; border: 1px solid #64748b40; }
+
+    .agent-card .meta { font-size: 13px; color: #cbd5e1; margin-bottom: 6px; }
+    .agent-card .meta span { color: #94a3b8; }
+    .agent-card .reason {
+      font-size: 12px;
+      color: #f87171;
+      background: #ef444410;
+      border: 1px solid #ef444420;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-top: 8px;
+    }
+    .agent-card .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .takeover-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .takeover-item .route { font-size: 14px; color: #cbd5e1; }
+    .takeover-item .route strong { color: #f8fafc; }
+
+    .empty { text-align: center; padding: 48px; color: #64748b; font-size: 14px; }
+    .error-msg { color: #f87171; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Stigmergy Agent Observatory</h1>
+    <p class="subtitle">Unified command center for installed AI agents — state, health, and coordination</p>
+
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="refreshDashboard()">Refresh</button>
+      <button class="btn btn-secondary" onclick="refreshAgents()">Scan Agents</button>
+      <button class="btn btn-warning" onclick="checkTakeovers()">Check Takeovers</button>
+      <span class="timestamp" id="timestamp">--</span>
+    </div>
+
+    <div class="summary" id="summary">
+      <div class="card"><div class="number" id="total">-</div><div class="label">Total</div></div>
+      <div class="card active"><div class="number" id="active">-</div><div class="label">Active</div></div>
+      <div class="card idle"><div class="number" id="idle">-</div><div class="label">Idle</div></div>
+      <div class="card token-exhausted"><div class="number" id="tokenExhausted">-</div><div class="label">Token Exhausted</div></div>
+      <div class="card error"><div class="number" id="error">-</div><div class="label">Error</div></div>
+      <div class="card"><div class="number" id="offline">-</div><div class="label">Offline</div></div>
+    </div>
+
+    <div class="section" id="token-exhausted-section" style="display:none;">
+      <div class="section-title">Token Exhausted Agents</div>
+      <div id="token-exhausted-list"></div>
+    </div>
+
+    <div class="section" id="takeover-section" style="display:none;">
+      <div class="section-title">Takeover Suggestions</div>
+      <div id="takeover-list"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">All Agents</div>
+      <div class="grid" id="agents-grid">
+        <div class="empty">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = (location.port === '3000' || location.port === '') ? '' : `http://localhost:3000`;
+
+    async function fetchJSON(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      return res.json();
+    }
+
+    function badgeClass(status) {
+      const map = { active: 'badge-active', idle: 'badge-idle', 'token-exhausted': 'badge-token-exhausted', error: 'badge-error', offline: 'badge-offline' };
+      return map[status] || 'badge-offline';
+    }
+
+    async function refreshAgents() {
+      try {
+        const data = await fetchJSON(`${API_BASE}/api/agents`);
+        const grid = document.getElementById('agents-grid');
+        grid.innerHTML = '';
+
+        if (data.agents.length === 0) {
+          grid.innerHTML = '<div class="empty">No agents found</div>';
+          return;
+        }
+
+        for (const agent of data.agents) {
+          const card = document.createElement('div');
+          card.className = 'agent-card';
+          card.innerHTML = `
+            <div class="header">
+              <div>
+                <div class="name">${escapeHtml(agent.name)}</div>
+                <div class="type">${agent.type}</div>
+              </div>
+              <span class="badge ${badgeClass(agent.status)}">${agent.status || 'unknown'}</span>
+            </div>
+            <div class="meta">Installed: <span>${agent.installed ? 'Yes' : 'No'}</span></div>
+            ${agent.version ? `<div class="meta">Version: <span>${escapeHtml(agent.version)}</span></div>` : ''}
+            ${agent.path ? `<div class="meta">Path: <span>${escapeHtml(agent.path)}</span></div>` : ''}
+            <div class="meta">Conversation depth: <span>${agent.conversationDepth || 0}</span></div>
+            <div class="meta">Sessions: <span>${agent.sessionCount || 0}</span></div>
+            ${agent.lastUsed ? `<div class="meta">Last used: <span>${escapeHtml(agent.lastUsed)}</span></div>` : ''}
+            ${agent.lastError ? `<div class="meta">Last error: <span>${escapeHtml(agent.lastError)}</span></div>` : ''}
+            ${agent.tokenExhausted ? `<div class="reason">Token exhausted: ${escapeHtml(agent.tokenExhaustionReason || 'unknown')}</div>` : ''}
+            <div class="actions">
+              <button class="btn btn-primary" onclick="routeTask('${agent.id}')">Route task</button>
+              ${agent.tokenExhausted ? `<button class="btn btn-warning" onclick="takeoverFrom('${agent.id}')">Takeover</button>` : ''}
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+
+        document.getElementById('timestamp').textContent = 'Updated: ' + new Date().toLocaleString();
+      } catch (error) {
+        document.getElementById('agents-grid').innerHTML = `<div class="error-msg">Failed to load agents: ${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function refreshDashboard() {
+      try {
+        const data = await fetchJSON(`${API_BASE}/api/dashboard`);
+        document.getElementById('total').textContent = data.summary.total;
+        document.getElementById('active').textContent = data.summary.active;
+        document.getElementById('idle').textContent = data.summary.idle;
+        document.getElementById('tokenExhausted').textContent = data.summary.tokenExhausted;
+        document.getElementById('error').textContent = data.summary.error;
+        document.getElementById('offline').textContent = data.summary.offline;
+
+        const exhaustedSection = document.getElementById('token-exhausted-section');
+        const exhaustedList = document.getElementById('token-exhausted-list');
+        if (data.summary.tokenExhausted > 0) {
+          exhaustedSection.style.display = 'block';
+          exhaustedList.innerHTML = '';
+          const exhausted = data.agents.filter(a => a.tokenExhausted);
+          for (const agent of exhausted) {
+            const div = document.createElement('div');
+            div.className = 'takeover-item';
+            div.innerHTML = `<div class="route"><strong>${escapeHtml(agent.name)}</strong> — ${escapeHtml(agent.tokenExhaustionReason || 'token exhaustion')}</div>`;
+            exhaustedList.appendChild(div);
+          }
+        } else {
+          exhaustedSection.style.display = 'none';
+        }
+
+        const takeoverSection = document.getElementById('takeover-section');
+        const takeoverList = document.getElementById('takeover-list');
+        if (data.takeover && data.takeover.suggestions.length > 0) {
+          takeoverSection.style.display = 'block';
+          takeoverList.innerHTML = '';
+          for (const s of data.takeover.suggestions) {
+            const div = document.createElement('div');
+            div.className = 'takeover-item';
+            div.innerHTML = `
+              <div class="route">
+                <strong>${escapeHtml(s.fromAgent)}</strong> (${escapeHtml(s.fromReason || 'token exhaustion')}) →
+                <strong>${escapeHtml(s.toAgent)}</strong> (${escapeHtml(s.toName)})
+              </div>
+              <div class="actions" style="margin-top:8px;">
+                <button class="btn btn-warning" onclick="executeTakeover('${s.fromAgent}', '${s.toAgent}')">Execute Takeover</button>
+              </div>
+            `;
+            takeoverList.appendChild(div);
+          }
+        } else {
+          takeoverSection.style.display = 'none';
+        }
+
+        document.getElementById('timestamp').textContent = 'Updated: ' + new Date().toLocaleString();
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+      }
+    }
+
+    async function checkTakeovers() {
+      await refreshDashboard();
+    }
+
+    async function routeTask(agentId) {
+      const task = prompt('Enter task to route to ' + agentId + ':');
+      if (!task) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/route`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task, agent: agentId })
+        });
+        const data = await res.json();
+        alert('Routed to: ' + (data.agent || 'none') + '\\nReason: ' + (data.reason || 'unknown'));
+      } catch (error) {
+        alert('Route failed: ' + error.message);
+      }
+    }
+
+    async function takeoverFrom(fromAgent) {
+      const idleAgents = prompt('Enter idle agent name to takeover from ' + fromAgent + ':');
+      if (!idleAgents) return;
+      const task = prompt('Enter task for takeover (optional):') || '';
+      try {
+        const res = await fetch(`${API_BASE}/api/takeover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fromAgent, toAgent: idleAgents, task })
+        });
+        const data = await res.json();
+        alert('Takeover: ' + (data.success ? 'success' : 'failed') + '\\n' + (data.error || ''));
+      } catch (error) {
+        alert('Takeover failed: ' + error.message);
+      }
+    }
+
+    async function executeTakeover(fromAgent, toAgent) {
+      try {
+        const res = await fetch(`${API_BASE}/api/takeover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fromAgent, toAgent, task: '' })
+        });
+        const data = await res.json();
+        alert('Takeover: ' + (data.success ? 'success' : 'failed') + '\\n' + (data.error || JSON.stringify(data)));
+      } catch (error) {
+        alert('Takeover failed: ' + error.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    refreshAgents();
+    refreshDashboard();
+    setInterval(() => { refreshAgents(); refreshDashboard(); }, 30000);
+  </script>
+</body>
+</html>

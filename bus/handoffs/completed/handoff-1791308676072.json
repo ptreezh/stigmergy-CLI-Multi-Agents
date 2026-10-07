@@ -1,0 +1,23 @@
+{
+  "id": "handoff-1791308676072",
+  "from": "opencode",
+  "to": "zcode",
+  "type": "code_review",
+  "title": "Review socienceAI auth module",
+  "description": "Please review the auth module changes in D:\\socienceAI",
+  "priority": "high",
+  "artifacts": [
+    "D:\\socienceAI\\src\\auth.js"
+  ],
+  "requirements": [
+    "Tests must pass",
+    "Follow style guide"
+  ],
+  "createdAt": "2026-10-06T17:44:36.072Z",
+  "deadline": "2026-10-06T18:44:36.073Z",
+  "status": "completed",
+  "acceptedAt": "2026-10-06T17:44:36.428Z",
+  "acceptedBy": "zcode",
+  "completedAt": "2026-10-06T17:44:36.687Z",
+  "result": "Review"
+}

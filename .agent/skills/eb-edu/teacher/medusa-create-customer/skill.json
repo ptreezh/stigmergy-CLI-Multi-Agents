@@ -1,0 +1,35 @@
+{
+  "name": "eb-edu-medusa-create-customer",
+  "version": "1.0",
+  "description": "创建客户",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "客户管理"],
+  "triggers": {
+    "keywords": ["创建客户", "添加客户", "客户注册"],
+    "patterns": ["创建.*客户", "添加.*客户"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["email"],
+    "properties": {
+      "email": {"type": "string", "description": "客户邮箱"},
+      "first_name": {"type": "string", "description": "名字"},
+      "last_name": {"type": "string", "description": "姓氏"},
+      "phone": {"type": "string", "description": "手机号"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "创建客户 zhangsan@example.com", "parameters": {"email": "zhangsan@example.com"}},
+    {"input": "添加客户 张三 zhangsan@example.com 13800138000", "parameters": {"email": "zhangsan@example.com", "first_name": "张三", "phone": "13800138000"}}
+  ]
+}

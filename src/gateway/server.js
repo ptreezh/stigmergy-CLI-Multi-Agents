@@ -5,6 +5,9 @@
 
 const http = require("http");
 const { URL } = require("url");
+const fs = require("fs").promises;
+const path = require("path");
+const { AgentCoordinator } = require("../core/agent_coordinator");
 
 // Stub: intent recognition
 function recognizeIntent(text) {
@@ -35,6 +38,7 @@ class GatewayServer {
     this.running = false;
     this.requestCount = 0;
     this.startTime = Date.now();
+    this.coordinator = null;
   }
 
   /**
@@ -44,6 +48,14 @@ class GatewayServer {
     if (this.running) {
       console.log("[Gateway] Server already running");
       return;
+    }
+
+    try {
+      this.coordinator = new AgentCoordinator();
+      await this.coordinator.initialize();
+      console.log("[Gateway] AgentCoordinator initialized");
+    } catch (error) {
+      console.warn(`[Gateway] Failed to initialize AgentCoordinator: ${error.message}`);
     }
 
     this.server = http.createServer(async (req, res) => {
@@ -112,6 +124,32 @@ class GatewayServer {
         return;
       }
 
+      if (pathname === "/api/agents" && req.method === "GET") {
+        await this.handleAgentsList(res);
+        return;
+      }
+
+      if (pathname.startsWith("/api/agents/") && req.method === "GET") {
+        const agentName = pathname.split("/")[3];
+        await this.handleAgentDetail(res, agentName);
+        return;
+      }
+
+      if (pathname === "/api/dashboard" && req.method === "GET") {
+        await this.handleDashboard(res);
+        return;
+      }
+
+      if (pathname === "/api/route" && req.method === "POST") {
+        await this.handleRouteTask(req, res);
+        return;
+      }
+
+      if (pathname === "/api/takeover" && req.method === "POST") {
+        await this.handleTakeover(req, res);
+        return;
+      }
+
       if (pathname.startsWith("/webhook") && req.method === "POST") {
         await this.handleWebhook(req, res);
         return;
@@ -124,6 +162,11 @@ class GatewayServer {
 
       if (pathname === "/config" && req.method === "POST") {
         await this.handleConfig(req, res);
+        return;
+      }
+
+      if (pathname === "/dashboard.html" && req.method === "GET") {
+        await this.handleDashboardHtml(req, res);
         return;
       }
 
@@ -257,6 +300,133 @@ class GatewayServer {
       req.on("end", () => resolve(body));
       req.on("error", reject);
     });
+  }
+
+  /**
+   * 处理智能体列表查询
+   */
+  async handleAgentsList(res) {
+    try {
+      if (!this.coordinator) {
+        res.writeHead(503);
+        res.end(JSON.stringify({ error: "AgentCoordinator not initialized" }));
+        return;
+      }
+
+      const agents = await this.coordinator.refreshStates();
+      res.writeHead(200);
+      res.end(JSON.stringify({ agents, count: agents.length }));
+    } catch (error) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  }
+
+  /**
+   * 处理单个智能体详情查询
+   */
+  async handleAgentDetail(res, agentName) {
+    try {
+      if (!this.coordinator) {
+        res.writeHead(503);
+        res.end(JSON.stringify({ error: "AgentCoordinator not initialized" }));
+        return;
+      }
+
+      const agent = this.coordinator.getAgentState(agentName);
+      if (!agent) {
+        res.writeHead(404);
+        res.end(JSON.stringify({ error: `Agent ${agentName} not found` }));
+        return;
+      }
+
+      res.writeHead(200);
+      res.end(JSON.stringify(agent));
+    } catch (error) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  }
+
+  /**
+   * 处理总控台数据查询
+   */
+  async handleDashboard(res) {
+    try {
+      if (!this.coordinator) {
+        res.writeHead(503);
+        res.end(JSON.stringify({ error: "AgentCoordinator not initialized" }));
+        return;
+      }
+
+      const dashboard = await this.coordinator.getDashboard();
+      res.writeHead(200);
+      res.end(JSON.stringify(dashboard));
+    } catch (error) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  }
+
+  /**
+   * 处理任务路由请求
+   */
+  async handleRouteTask(req, res) {
+    try {
+      if (!this.coordinator) {
+        res.writeHead(503);
+        res.end(JSON.stringify({ error: "AgentCoordinator not initialized" }));
+        return;
+      }
+
+      const body = await this.readBody(req);
+      const { task, agent, taskType, forceAgent } = JSON.parse(body);
+
+      const result = await this.coordinator.routeTask(task, { agent, taskType, forceAgent });
+      res.writeHead(200);
+      res.end(JSON.stringify(result));
+    } catch (error) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  }
+
+  /**
+   * 处理智能体接管请求
+   */
+  async handleTakeover(req, res) {
+    try {
+      if (!this.coordinator) {
+        res.writeHead(503);
+        res.end(JSON.stringify({ error: "AgentCoordinator not initialized" }));
+        return;
+      }
+
+      const body = await this.readBody(req);
+      const { fromAgent, toAgent, task } = JSON.parse(body);
+
+      const result = await this.coordinator.takeOver(fromAgent, toAgent, task);
+      res.writeHead(200);
+      res.end(JSON.stringify(result));
+    } catch (error) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  }
+
+  /**
+   * 提供 Dashboard HTML 页面
+   */
+  async handleDashboardHtml(req, res) {
+    try {
+      const dashboardPath = path.join(this.workdir, "web", "dashboard.html");
+      const content = await fs.readFile(dashboardPath, "utf8");
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(content);
+    } catch (error) {
+      res.writeHead(404);
+      res.end(JSON.stringify({ error: "Dashboard not found" }));
+    }
   }
 }
 

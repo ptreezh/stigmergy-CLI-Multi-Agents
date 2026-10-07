@@ -1,0 +1,26 @@
+{
+  "name": "eb-edu-grade-project",
+  "version": "1.0.0",
+  "description": "批改实训项目",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "评分", "批改作业"],
+  "triggers": {
+    "keywords": ["批改作业", "批改实训", "评分", "打分", "审核作业"],
+    "patterns": ["批改.*的作业", "给.*打分", "评分.*实训"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["score"],
+    "properties": {
+      "project": {"type": "string", "description": "实训项目名称"},
+      "project_id": {"type": "string", "description": "实训项目 ID"},
+      "student_name": {"type": "string", "description": "学生姓名"},
+      "student_id": {"type": "string", "description": "学生 ID"},
+      "score": {"type": "integer", "minimum": 0, "maximum": 100, "description": "分数"},
+      "comment": {"type": "string", "description": "评语"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["ADMIN", "SCHOOL_ADMIN", "TEACHER"], "requires_auth": true}
+}

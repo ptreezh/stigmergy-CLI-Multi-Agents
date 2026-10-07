@@ -1,96 +1,92 @@
-/**
- * Scan Command Module
- * Handles CLI tool scanning and discovery commands
- */
-
-const { CLI_TOOLS } = require("../../core/cli_tools");
 const chalk = require("chalk");
-const { ensureSkillsCache } = require("../utils/skills_cache");
+const { AgentRegistry } = require("../../core/agent_registry");
 
-/**
- * Handle scan command
- * @param {Object} options - Command options
- * @param {boolean} options.deep - Deep scan for CLI tools
- * @param {boolean} options.json - Output in JSON format
- * @param {boolean} options.verbose - Verbose output
- */
 async function handleScanCommand(options = {}) {
   try {
-    // Initialize or update skills/agents cache
-    await ensureSkillsCache({ verbose: options.verbose });
+    console.log(chalk.blue(" Scanning for all AI agents..."));
 
-    console.log(chalk.blue("🔍 Scanning for CLI tools..."));
+    const registry = new AgentRegistry();
+    const result = await registry.scanAll();
 
-    const scanOptions = {
-      deep: options.deep || false,
-      verbose: options.verbose || false,
-    };
+    const cliFound = result.cli.filter((tool) => tool.installed);
+    const desktopFound = result.desktop.filter((tool) => tool.installed);
+    const evolvedFound = result.evolved;
 
-    // Scan for available CLI tools
-    const results = await CLI_TOOLS.scanForTools(scanOptions);
-
-    if (results.found && results.found.length > 0) {
-      console.log(chalk.green(`\n✅ Found ${results.found.length} CLI tools:`));
-
-      for (const tool of results.found) {
-        console.log(chalk.cyan(`  📦 ${tool.name}`));
+    if (cliFound.length > 0) {
+      console.log(chalk.green(`\n Found ${cliFound.length} CLI tools:`));
+      for (const tool of cliFound) {
+        console.log(chalk.cyan(`   ${tool.name}`));
         console.log(chalk.gray(`     Version: ${tool.version || "unknown"}`));
-        console.log(chalk.gray(`     Path: ${tool.path}`));
-
+        console.log(chalk.gray(`     Path: ${tool.path || "N/A"}`));
         if (options.verbose) {
           console.log(chalk.gray(`     Type: ${tool.type}`));
-          console.log(chalk.gray(`     Status: ${tool.status}`));
-          if (tool.description) {
-            console.log(chalk.gray(`     Description: ${tool.description}`));
+          console.log(chalk.gray(`     AutoInstall: ${tool.autoInstall}`));
+          console.log(chalk.gray(`     Has state dir: ${tool.hasStateDir}`));
+          if (tool.dependsOn && tool.dependsOn.length > 0) {
+            console.log(chalk.gray(`     Depends on: ${tool.dependsOn.join(", ")}`));
           }
         }
       }
     } else {
-      console.log(chalk.yellow("\n⚠️  No CLI tools found"));
+      console.log(chalk.yellow("\n No CLI tools found"));
     }
 
-    // Show missing tools
-    if (results.missing && results.missing.length > 0) {
+    if (desktopFound.length > 0) {
       console.log(
-        chalk.yellow(`\n❌ Missing ${results.missing.length} tools:`),
+        chalk.green(`\n Found ${desktopFound.length} desktop AI agents:`),
       );
-      results.missing.forEach((tool) => {
-        console.log(chalk.red(`  ❌ ${tool}`));
-      });
-
-      console.log(chalk.cyan("\n💡 To install missing tools:"));
-      console.log(chalk.cyan("   stigmergy install"));
+      for (const tool of desktopFound) {
+        console.log(chalk.magenta(`   ${tool.name}`));
+        console.log(chalk.gray(`     Path: ${tool.path || "N/A"}`));
+        if (options.verbose) {
+          console.log(chalk.gray(`     Type: ${tool.type}`));
+          console.log(chalk.gray(`     Description: ${tool.description || "N/A"}`));
+          console.log(chalk.gray(`     Has state dir: ${tool.hasStateDir}`));
+        }
+      }
+    } else {
+      console.log(chalk.yellow("\n No desktop agents found"));
     }
 
-    // Summary
+    if (evolvedFound.length > 0) {
+      console.log(
+        chalk.green(`\n Found ${evolvedFound.length} evolved agents:`),
+      );
+      for (const tool of evolvedFound) {
+        console.log(chalk.blue(`   ${tool.name}`));
+        console.log(chalk.gray(`     Evolutions: ${tool.evolutionCount || 0}`));
+        if (tool.lastEvolution) {
+          console.log(
+            chalk.gray(`     Last evolution: ${tool.lastEvolution.success ? "success" : "failed"}`),
+          );
+          if (!tool.lastEvolution.success && tool.lastEvolution.error) {
+            console.log(chalk.gray(`     Error: ${tool.lastEvolution.error}`));
+          }
+        }
+        if (options.verbose) {
+          console.log(chalk.gray(`     Created: ${tool.createdAt || "N/A"}`));
+          console.log(chalk.gray(`     Last update: ${tool.lastUpdate || "N/A"}`));
+        }
+      }
+    } else {
+      console.log(chalk.yellow("\n No evolved agents found"));
+    }
+
     console.log("");
-    console.log(chalk.blue("📊 Scan Summary:"));
-    console.log(`  Total tools checked: ${results.total || 0}`);
-    console.log(`  Found: ${results.found?.length || 0}`);
-    console.log(`  Missing: ${results.missing?.length || 0}`);
+    console.log(chalk.blue(" Scan Summary:"));
+    console.log(`  Total checked: ${result.total}`);
+    console.log(`  CLI tools: ${result.cli.length}`);
+    console.log(`  Desktop agents: ${result.desktop.length}`);
+    console.log(`  Evolved agents: ${result.evolved.length}`);
+    console.log(`  Session dirs: ${result.sessions.length}`);
 
     if (options.json) {
       console.log("");
-      console.log(chalk.blue("📄 JSON Output:"));
-      console.log(JSON.stringify(results, null, 2));
-    }
-
-    // Recommendations
-    if (results.found && results.found.length > 0) {
-      console.log(chalk.cyan("\n💡 You can now use these tools:"));
-      const toolExamples = results.found.slice(0, 3);
-      toolExamples.forEach((tool) => {
-        console.log(chalk.cyan(`   stigmergy ${tool.name} "your prompt here"`));
-      });
-
-      if (results.found.length > 3) {
-        console.log(
-          chalk.cyan(`   ... and ${results.found.length - 3} more tools`),
-        );
-      }
+      console.log(chalk.blue(" JSON Output:"));
+      console.log(JSON.stringify(result, null, 2));
     }
   } catch (error) {
-    console.log(chalk.red(`❌ Scan failed: ${error.message}`));
+    console.log(chalk.red(` Scan failed: ${error.message}`));
     process.exit(1);
   }
 }

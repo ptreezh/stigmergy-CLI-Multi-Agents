@@ -1,0 +1,91 @@
+{
+  "name": "eb-edu-medusa-customer-groups",
+  "version": "1.0",
+  "description": "客户分组管理",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "客户管理"],
+  "triggers": {
+    "keywords": ["客户分组", "分组管理", "客户分类"],
+    "patterns": ["查看.*客户分组", "管理.*分组", "创建.*分组"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["list", "create"],
+        "description": "动作（list=查看列表，create=创建分组）"
+      },
+      "name": {
+        "type": "string",
+        "description": "分组名称（create 动作必需）"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "查看客户分组",
+      "parameters": {"action": "list"},
+      "output": "## 👥 客户分组\n\n1. **VIP 客户**\n   ID: cg_123\n   客户数：50\n   共 3 个分组"
+    },
+    {
+      "level": "intermediate",
+      "input": "创建 VIP 客户分组",
+      "parameters": {"action": "create", "name": "VIP 客户"},
+      "output": "## ✅ 客户分组已创建\n\n**分组名称**: VIP 客户"
+    },
+    {
+      "level": "advanced",
+      "input": "创建批发客户分组",
+      "parameters": {"action": "create", "name": "批发客户"},
+      "output": "## ✅ 客户分组已创建\n\n**分组名称**: 批发客户"
+    }
+  ],
+  "errors": {
+    "MISSING_ACTION": {"code": 400, "message": "需要指定动作（list 或 create）", "solution": "使用 --action list 或 --action create"},
+    "MISSING_NAME": {"code": 400, "message": "创建分组需要指定名称", "solution": "使用 --name \"分组名称\""},
+    "GROUP_EXISTS": {"code": 409, "message": "分组已存在", "solution": "使用不同的分组名称"}
+  },
+  "help": {
+    "short": "客户分组管理，支持查看分组列表和创建分组",
+    "long": "客户分组管理，支持查看分组列表和创建分组。常用场景：1. 查看所有客户分组 2. 创建新的客户分组（如 VIP 客户、批发客户）",
+    "examples": [
+      "stigmergy skill call eb-edu-medusa-customer-groups --action list",
+      "stigmergy skill call eb-edu-medusa-customer-groups --action create --name \"VIP 客户\""
+    ],
+    "related_skills": [
+      "eb-edu-medusa-list-customers",
+      "eb-edu-medusa-get-customer",
+      "eb-edu-medusa-update-customer"
+    ],
+    "learning_resources": [
+      "./concepts/customer.md",
+      "./guides/customer-management.md"
+    ]
+  },
+  "business_context": {
+    "concept": "客户分组用于将客户按不同标准分类管理，如 VIP 客户、批发客户、零售客户等。分组后可以针对不同分组设置不同的价格策略、优惠活动等。",
+    "use_cases": [
+      "查看店铺所有客户分组",
+      "创建新的客户分组",
+      "管理 VIP 客户"
+    ],
+    "best_practices": [
+      "根据客户消费金额设置分组（如 VIP、普通）",
+      "根据客户类型设置分组（如批发、零售）",
+      "定期更新分组，保持准确性"
+    ]
+  }
+}

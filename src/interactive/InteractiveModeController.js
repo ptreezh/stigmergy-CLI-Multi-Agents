@@ -16,6 +16,8 @@ const { CLI_ADAPTERS } = require("../core/cli_adapters");
 const { PersistentCLIPool } = require("./PersistentCLIPool");
 // 🔥 新增：项目全局状态看板
 const { ProjectStatusBoard } = require("../core/ProjectStatusBoard");
+// 🔥 新增：智能体协调器
+const { AgentCoordinator } = require("../core/agent_coordinator");
 
 function getCLIAdapter(cliName) {
   return CLI_ADAPTERS[cliName];
@@ -72,6 +74,9 @@ class InteractiveModeController extends EventEmitter {
 
     // 🔥 新增：项目全局状态看板（实现跨会话间接协同）
     this.statusBoard = new ProjectStatusBoard();
+
+    // 🔥 新增：智能体协调器（实现智能路由和故障转移）
+    this.coordinator = new AgentCoordinator();
 
     // Initialize components
     this.commandParser = new CommandParser();
@@ -1009,36 +1014,49 @@ ${task}
         error: error.message,
       });
 
-      // 🔥 改进：如果 CLI 失败，尝试其他 CLI
-      if (cliName === "qwen") {
-        console.log(`[${cliName}] Trying fallback to iflow...`);
+      // 🔥 改进：使用协调器进行智能故障转移
+      try {
+        const fallbackResult = await this.coordinator.routeTask(task, {
+          agent: cliName,
+          taskType: "general",
+        });
 
-        try {
-          const fallbackResult = await this.cliPool.executeTask("iflow", task, {
-            timeout: this.options.cliTimeout || 30000,
-          });
+        if (fallbackResult.agent && fallbackResult.agent !== cliName) {
+          console.log(`\n[Coordinator] ${cliName} failed, routing to ${fallbackResult.agent} (${fallbackResult.reason})`);
 
-          // 记录到 iflow 的上下文
-          this._addToCLIContext("iflow", "user", task);
-          if (fallbackResult.output) {
-            this._addToCLIContext(
-              "iflow",
-              "assistant",
-              fallbackResult.output.trim(),
-            );
+          const fallbackCLI = fallbackResult.agent;
+          const fallbackState = fallbackResult.state;
+
+          if (fallbackCLI === "qwen") {
+            const oneShotResult = await this._executeOneShot(fallbackCLI, task);
+            this._addToCLIContext(fallbackCLI, "user", task);
+            if (oneShotResult.output) {
+              this._addToCLIContext(fallbackCLI, "assistant", oneShotResult.output.trim());
+            }
+            return { ...oneShotResult, task, fallback: true, originalCLI: cliName };
           }
 
-          console.log("\n[iflow] Fallback successful!");
+          const poolResult = await this.cliPool.executeTask(fallbackCLI, task, {
+            timeout: this.options.cliTimeout || 30000,
+            verbose: process.env.DEBUG === "true",
+          });
+
+          this._addToCLIContext(fallbackCLI, "user", task);
+          if (poolResult.output) {
+            this._addToCLIContext(fallbackCLI, "assistant", poolResult.output.trim());
+          }
+
+          console.log(`\n[${fallbackCLI}] Fallback successful!`);
 
           return {
-            ...fallbackResult,
-            task: task,
+            ...poolResult,
+            task,
             fallback: true,
             originalCLI: cliName,
           };
-        } catch (fallbackError) {
-          console.error("[iflow] Fallback also failed:", fallbackError.message);
         }
+      } catch (fallbackError) {
+        console.error(`[Coordinator] Fallback also failed:`, fallbackError.message);
       }
 
       throw error;

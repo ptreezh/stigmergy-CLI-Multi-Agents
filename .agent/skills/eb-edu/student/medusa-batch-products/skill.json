@@ -1,0 +1,21 @@
+{
+  "name": "eb-edu-medusa-batch-products",
+  "version": "1.0.0",
+  "description": "批量创建商品",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "批量上架"],
+  "triggers": {
+    "keywords": ["批量上架", "批量创建商品", "导入商品"],
+    "patterns": ["帮我批量.*商品", "批量导入.*商品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["file"],
+    "properties": {
+      "file": {"type": "string", "description": "Excel 文件路径"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 120},
+  "permissions": {"roles": ["STUDENT", "TEACHER", "ADMIN"], "requires_auth": true}
+}

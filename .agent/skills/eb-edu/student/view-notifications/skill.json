@@ -1,0 +1,21 @@
+{
+  "name": "eb-edu-view-notifications",
+  "version": "1.0.0",
+  "description": "查看通知",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "通知", "消息"],
+  "triggers": {
+    "keywords": ["查看通知", "我的通知", "消息列表"],
+    "patterns": ["看看.*通知", "查询.*消息"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "unread": {"type": "boolean", "default": false, "description": "只看未读"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["STUDENT", "TEACHER"], "requires_auth": true}
+}

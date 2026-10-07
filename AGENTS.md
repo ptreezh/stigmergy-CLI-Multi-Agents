@@ -2,6 +2,16 @@
 
 This file provides guidance for AI coding agents working in this repository.
 
+## Project Constitution
+
+**必须遵守**: `docs/project-constitution.md` 是本项目的宪法级文档，定义了：
+- 项目本质：多AI CLI协作网络 + 技能孵化器 + IM统一入口
+- 5大业务场景：跨CLI协作、技能孵化、IM统一入口、多智能体协调、自主进化
+- 6大核心原则：用户解放第一、证据先行、渐进式披露、记忆文件优先、全热点覆盖、项目进度为核心
+- 数据模型和验证标准
+
+所有开发、扫描、 wiki生成、协作功能必须对齐此宪法。
+
 ## Project Overview
 
 Stigmergy CLI - Multi-Agents Cross-AI CLI Tools Collaboration System. Enables AI CLI tools (Claude, Gemini, Qwen, iFlow, Qoder, Copilot, etc.) to collaborate through a plugin architecture.
@@ -193,6 +203,10 @@ stigmergy auth-status
 - `jest.config.js` - Test configuration (coverage thresholds: branches 70%, functions 75%, lines 80%)
 - `package.json` - Scripts and dependencies
 - `.prettierrc` - Code formatting (if present)
+
+## Documentation
+
+- `docs/agent-memory-deep-scan-methodology.md` - Standardized methodology for scanning heterogeneous agent memory files and extracting project progress
 
 ## Code Quality
 

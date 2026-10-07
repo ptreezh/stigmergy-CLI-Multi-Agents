@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "bin": {
     "stigmergy": "bin/stigmergy",
-    "stigmergy-gateway": "bin/stigmergy-gateway"
+    "stigmergy-gateway": "bin/stigmergy-gateway",
+    "stigmergy-auto-coordinator": "bin/auto-coordinator"
   },
   "files": [
     "bin/**",
@@ -26,9 +27,11 @@
     "interactive": "node src/index.js interactive",
     "status": "node src/index.js status",
     "scan": "node src/index.js scan",
+    "wiki:scan": "node src/index.js wiki-scan",
     "init": "node src/index.js init",
     "setup": "node src/index.js setup",
     "call": "node src/index.js call",
+    "check:desktop-versions": "node scripts/check-desktop-versions.js",
     "clean": "node cleanup.js",
     "test": "node scripts/run-tests.js",
     "test:unit": "jest tests/unit --coverage",

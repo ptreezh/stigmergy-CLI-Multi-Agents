@@ -1,0 +1,52 @@
+{
+  "name": "eb-edu-analyze-grades-guided",
+  "version": "1.0",
+  "description": "成绩分析（LLM 智能引导版）- 培养数据分析、自我反思、问题诊断能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "能力培养", "LLM 引导", "成绩分析"],
+  "triggers": {
+    "keywords": ["成绩分析", "学习分析", "成绩反思"],
+    "patterns": ["分析.*成绩", "查看.*成绩"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": []
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 900,
+    "interactive": true,
+    "requires_llm": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "learning_outcomes": [
+    "数据分析能力 - 能分析成绩数据，识别优势和薄弱",
+    "自我反思能力 - 能反思学习问题",
+    "问题诊断能力 - 能诊断学习问题的根本原因",
+    "改进计划制定能力 - 能制定可执行的改进计划"
+  ],
+  "workflow": {
+    "type": "llm_guided_analysis",
+    "steps": [
+      {"step": 1, "action": "llm_guide", "focus": "成绩数据分析"},
+      {"step": 2, "action": "llm_guide", "focus": "问题诊断"},
+      {"step": 3, "action": "llm_guide", "focus": "改进计划制定"},
+      {"step": 4, "action": "review", "focus": "复盘总结"}
+    ]
+  },
+  "llm_integration": {
+    "description": "本 Skill 依赖 AI LLM 智能引导",
+    "supported_llms": ["qwen", "claude", "offline"],
+    "prompts": [
+      "analyze_grades - 评估成绩分析",
+      "diagnose_problems - 评估问题诊断",
+      "improvement_plan - 评估改进计划",
+      "review - 最终点评"
+    ]
+  }
+}

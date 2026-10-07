@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-customer-retention",
+  "version": "1.0",
+  "description": "客户维护实训（引导式）- 培养客户维护全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "客户维护", "引导式学习"],
+  "triggers": {
+    "keywords": ["客户维护实训", "维护客户", "客户实训"],
+    "patterns": ["我要.*客户维护实训", "完成.*维护任务", "学习.*客户维护"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成客户维护实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 客户维护实训（引导式）                ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的客户关系专员，老板给你一个任务：\n👥 客户数据：近 90 天消费数据\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "客户维护实训（引导式）- 通过 LLM 智能引导完成客户维护全流程",
+    "long": "客户维护实训（引导式），通过 LLM 智能引导完成客户维护全流程。包括：1. 客户分类 2. 维护方案制定 3. 定期联系 4. 复购率提升 5. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-customer-retention"
+    ],
+    "related_skills": [
+      "eb-edu-train-customer-service",
+      "eb-edu-train-customer-analysis",
+      "eb-edu-train-sales-analysis"
+    ],
+    "learning_resources": [
+      "./tutorials/customer-retention.md",
+      "./guides/customer-segmentation.md",
+      "./guides/repurchase-rate.md"
+    ]
+  },
+  "business_context": {
+    "concept": "客户维护是电商运营的重要环节，包括客户分类、维护方案制定、定期联系、复购率提升等环节。通过本实训，学生将掌握完整的客户维护流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成客户维护全流程实训",
+      "学习客户分类方法",
+      "掌握维护方案制定",
+      "练习复购率提升"
+    ],
+    "best_practices": [
+      "根据客户价值进行分类",
+      "针对不同客户类型制定不同维护方案",
+      "定期联系客户，保持互动",
+      "通过优惠活动提升复购率"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握客户分类方法",
+      "学会维护方案制定",
+      "掌握定期联系方法",
+      "能够提升复购率"
+    ],
+    "outcomes": [
+      "能够独立完成客户维护",
+      "能够进行客户分类",
+      "能够制定维护方案"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "维护方案制定完成",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

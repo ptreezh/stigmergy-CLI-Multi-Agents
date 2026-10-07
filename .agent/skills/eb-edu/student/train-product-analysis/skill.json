@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-product-analysis",
+  "version": "1.0",
+  "description": "商品分析实训（引导式）- 培养商品分析全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "商品分析", "引导式学习"],
+  "triggers": {
+    "keywords": ["商品分析实训", "分析商品", "商品数据实训"],
+    "patterns": ["我要.*商品分析实训", "完成.*分析任务", "学习.*商品分析"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成商品分析实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 商品分析实训（引导式）                ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的数据分析师，老板给你一个任务：\n📦 产品：夏季连衣裙\n📊 销售数据：近 30 天持续下滑\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "商品分析实训（引导式）- 通过 LLM 智能引导完成商品分析全流程",
+    "long": "商品分析实训（引导式），通过 LLM 智能引导完成商品分析全流程。包括：1. 销售数据分析 2. 库存分析 3. 竞品分析 4. 优化建议提出 5. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-product-analysis"
+    ],
+    "related_skills": [
+      "eb-edu-train-product-listing",
+      "eb-edu-train-sales-analysis",
+      "eb-edu-train-inventory-management"
+    ],
+    "learning_resources": [
+      "./tutorials/product-analysis.md",
+      "./guides/data-analysis.md",
+      "./guides/sales-trend-analysis.md"
+    ]
+  },
+  "business_context": {
+    "concept": "商品分析是电商运营的核心能力，包括销售数据分析、库存分析、竞品分析、优化建议提出等环节。通过本实训，学生将掌握完整的商品分析流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成商品分析全流程实训",
+      "学习销售数据分析方法",
+      "掌握库存分析",
+      "练习竞品分析和优化建议提出"
+    ],
+    "best_practices": [
+      "先进行销售数据分析，了解销售趋势",
+      "分析库存数据，了解库存周转情况",
+      "调研竞品数据，了解市场竞争",
+      "提出针对性优化建议"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握销售数据分析方法",
+      "学会库存分析",
+      "掌握竞品分析",
+      "能够提出优化建议"
+    ],
+    "outcomes": [
+      "能够独立完成商品分析",
+      "能够进行销售数据分析",
+      "能够提出优化建议"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "优化建议提出完成",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

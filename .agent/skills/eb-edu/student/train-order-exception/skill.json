@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-order-exception",
+  "version": "1.0",
+  "description": "异常订单处理实训（引导式）- 培养异常订单处理全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "异常订单", "引导式学习"],
+  "triggers": {
+    "keywords": ["异常订单实训", "处理异常订单", "订单投诉实训"],
+    "patterns": ["我要.*异常订单实训", "完成.*异常处理任务", "学习.*异常订单处理"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成异常订单处理实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 异常订单处理实训（引导式）            ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的订单处理专员，今天接到以下异常订单：\n📦 订单号：ORD-2026-001\n❗ 问题：客户收到商品后有破损，要求退款\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "异常订单处理实训（引导式）- 通过 LLM 智能引导完成异常订单处理全流程",
+    "long": "异常订单处理实训（引导式），通过 LLM 智能引导完成异常订单处理全流程。包括：1. 异常识别 2. 原因分析 3. 处理方案制定 4. 客户沟通 5. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-order-exception"
+    ],
+    "related_skills": [
+      "eb-edu-train-order-processing",
+      "eb-edu-train-customer-service",
+      "eb-edu-train-logistics-management"
+    ],
+    "learning_resources": [
+      "./tutorials/order-exception.md",
+      "./guides/customer-communication.md",
+      "./guides/complaint-handling.md"
+    ]
+  },
+  "business_context": {
+    "concept": "异常订单处理是电商运营的重要能力，包括异常识别、原因分析、处理方案制定、客户沟通等环节。通过本实训，学生将掌握完整的异常订单处理流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成异常订单处理全流程实训",
+      "学习异常识别方法",
+      "掌握处理方案制定",
+      "练习客户沟通"
+    ],
+    "best_practices": [
+      "先识别异常类型，了解严重程度",
+      "分析原因，找出问题根源",
+      "制定合理处理方案，考虑客户感受",
+      "及时沟通，安抚客户情绪"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握异常识别方法",
+      "学会原因分析",
+      "掌握处理方案制定",
+      "能够进行客户沟通"
+    ],
+    "outcomes": [
+      "能够独立完成异常订单处理",
+      "能够识别异常类型",
+      "能够制定合理处理方案"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "处理方案制定完成",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

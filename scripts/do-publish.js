@@ -56,7 +56,10 @@ try {
 
 console.log("\n=== 6. NPM Publish ===");
 try {
-  execSync("npm publish --tag beta", { encoding: "utf8", stdio: "inherit" });
+  execSync("npm publish --tag beta --registry=https://registry.npmjs.org", {
+    encoding: "utf8",
+    stdio: "inherit",
+  });
   console.log("Published to npm!");
 } catch (e) {
   console.log("Error:", e.message);

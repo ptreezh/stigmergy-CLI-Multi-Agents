@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-07",
+  "yesterday": {
+    "tasksCompleted": [
+      "Fixed auth bug"
+    ],
+    "projectsWorked": [
+      "D:\\socienceAI"
+    ],
+    "sessionCount": 3
+  },
+  "today": {
+    "activeProject": "D:\\socienceAI",
+    "plannedTasks": [
+      "Review PR"
+    ],
+    "blockers": []
+  },
+  "blockers": [],
+  "agent": "opencode",
+  "reportType": "daily",
+  "timestamp": "2026-10-07T09:45:14.460Z"
+}

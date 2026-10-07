@@ -159,8 +159,13 @@ class StigmergySkillManager {
       const skillsXml = this.generateSkillsXml(skills);
 
       // Step 3: All CLI configuration files to update
+      // NOTE: AGENTS.md, opencode.md and oh-my-opencode.md are intentionally
+      // EXCLUDED. OpenCode natively injects its full skills list (available_items)
+      // into every new session, so writing the skills XML block (~47KB per file)
+      // into these files is 100% duplicated payload that bloats cold-start
+      // context beyond 50%. Other CLIs (claude/qwen/gemini/etc.) have no native
+      // skill discovery, so their .md files keep receiving the XML block.
       const cliFiles = [
-        "AGENTS.md", // Universal config
         "claude.md", // Claude CLI
         "qwen.md", // Qwen CLI
         "gemini.md", // Gemini CLI
@@ -169,8 +174,6 @@ class StigmergySkillManager {
         "codebuddy.md", // CodeBuddy CLI
         "copilot.md", // Copilot CLI
         "codex.md", // Codex CLI
-        "opencode.md", // OpenCode CLI
-        "oh-my-opencode.md", // Oh-My-OpenCode Plugin Manager
       ];
 
       let syncedCount = 0;

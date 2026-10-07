@@ -1,0 +1,6 @@
+{
+  "agent-type": "desktop",
+  "activity": "config and cache",
+  "active": "true",
+  "dependencies": "marvis"
+}

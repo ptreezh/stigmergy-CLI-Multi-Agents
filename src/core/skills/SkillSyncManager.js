@@ -8,6 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { DESKTOP_TOOLS } = require("../desktop-tools");
 
 class SkillSyncManager {
   constructor(options = {}) {
@@ -16,6 +17,9 @@ class SkillSyncManager {
       path.join(os.homedir(), ".stigmergy/skills");
 
     // All CLI tools that support skills
+    // Desktop tool entries are included ONLY when their skillsDir convention is
+    // verified in src/core/desktop-tools.js (skillsDir !== null). Do not invent
+    // paths for tools with unverified conventions (red line: no invented paths).
     this.cliTools = [
       "claude",
       "codex",
@@ -24,8 +28,47 @@ class SkillSyncManager {
       "qodercli",
       "codebuddy",
       "opencode",
+      // workbuddy: skillsDir "~/.workbuddy/skills" verified (skill-md format)
+      "workbuddy",
+      // marvis: skillsDir "~/.marvis/skills" verified (skill-md format)
+      "marvis",
+      // doubao: skillsDir "~/doubao/skills" verified (skill-md format)
+      "doubao",
+      // coze: skillsDir not found locally, not included
+      // Other desktop tools (qwenwork/traework/qoderwork/kimiwork)
+      // have skillsDir: null pending verification - intentionally NOT included.
       // Add more as they become available
     ];
+  }
+
+  /**
+   * Resolve the skills directory for a given CLI/desktop tool.
+   * Desktop tools use their verified skillsDir from desktop-tools.js.
+   * CLI tools default to ~/.${cliName}/skills.
+   * @param {string} cliName
+   * @returns {string} Absolute path to the skills directory
+   */
+  _resolveSkillsDir(cliName) {
+    const desktopTool = DESKTOP_TOOLS[cliName];
+    if (desktopTool && desktopTool.skillsDir) {
+      return desktopTool.skillsDir;
+    }
+    return path.join(os.homedir(), `.${cliName}`, "skills");
+  }
+
+  /**
+   * Resolve the home directory for a given CLI/desktop tool.
+   * Desktop tools use their verified localDirs from desktop-tools.js.
+   * CLI tools default to ~/.${cliName}.
+   * @param {string} cliName
+   * @returns {string} Absolute path to the tool home directory
+   */
+  _resolveHomeDir(cliName) {
+    const desktopTool = DESKTOP_TOOLS[cliName];
+    if (desktopTool && desktopTool.localDirs && desktopTool.localDirs.length > 0) {
+      return desktopTool.localDirs[0];
+    }
+    return path.join(os.homedir(), `.${cliName}`);
   }
 
   /**
@@ -102,8 +145,8 @@ class SkillSyncManager {
    * @returns {Promise<Object>} Result object
    */
   async syncSkillToCLI(skillPath, skillName, cliName, options = {}) {
-    const cliHomeDir = path.join(os.homedir(), `.${cliName}`);
-    const cliSkillsDir = path.join(cliHomeDir, "skills");
+    const cliHomeDir = this._resolveHomeDir(cliName);
+    const cliSkillsDir = this._resolveSkillsDir(cliName);
     const targetPath = path.join(cliSkillsDir, skillName);
 
     // Dry run mode
@@ -258,9 +301,9 @@ class SkillSyncManager {
     const status = {};
 
     for (const cliName of this.cliTools) {
-      const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
+      const cliSkillsDir = this._resolveSkillsDir(cliName);
       const skillPath = path.join(cliSkillsDir, skillName);
-      const cliHomeDir = path.join(os.homedir(), `.${cliName}`);
+      const cliHomeDir = this._resolveHomeDir(cliName);
 
       status[cliName] = {
         deployed: fs.existsSync(skillPath),
@@ -355,7 +398,7 @@ class SkillSyncManager {
    * @returns {boolean} Success status
    */
   removeFromCLI(skillName, cliName) {
-    const cliSkillsDir = path.join(os.homedir(), `.${cliName}`, "skills");
+    const cliSkillsDir = this._resolveSkillsDir(cliName);
     const skillPath = path.join(cliSkillsDir, skillName);
 
     if (fs.existsSync(skillPath)) {

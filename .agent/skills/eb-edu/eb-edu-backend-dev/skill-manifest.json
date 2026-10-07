@@ -1,0 +1,11 @@
+{
+  "name": "eb-edu-backend-dev",
+  "version": "1.0.0",
+  "description": "eb-edu 后端开发标准工作流 — 避免 dist 缓存 / Prisma 锁 / Python 转义陷阱",
+  "trigger": ["eb-edu 后端开发", "增加路由", "修改 schema", "eb-edu backend"],
+  "activation": "always",
+  "entry": "skill.md",
+  "author": "Soul-Cycle-4",
+  "tags": ["eb-edu", "backend", "prisma", "workflow", "anti-patterns"],
+  "learned_from": "Phase 03 (2026-04-26)"
+}

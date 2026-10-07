@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-product-pricing",
+  "version": "1.0",
+  "description": "定价策略实训（引导式）- 培养定价策略全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "定价策略", "引导式学习"],
+  "triggers": {
+    "keywords": ["定价策略实训", "制定价格", "定价实训"],
+    "patterns": ["我要.*定价策略实训", "完成.*定价任务", "学习.*定价策略"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成定价策略实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 定价策略实训（引导式）                ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的商品运营专员，老板给你一个任务：\n📦 产品：夏季连衣裙\n💰 成本：采购 80 元，运营 20 元，物流 15 元\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "定价策略实训（引导式）- 通过 LLM 智能引导完成定价策略全流程",
+    "long": "定价策略实训（引导式），通过 LLM 智能引导完成定价策略全流程。包括：1. 成本分析 2. 竞品调研 3. 定价策略制定 4. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-product-pricing"
+    ],
+    "related_skills": [
+      "eb-edu-train-product-listing",
+      "eb-edu-train-product-optimization",
+      "eb-edu-train-sales-analysis"
+    ],
+    "learning_resources": [
+      "./tutorials/product-pricing.md",
+      "./guides/cost-analysis.md",
+      "./guides/competitive-pricing.md"
+    ]
+  },
+  "business_context": {
+    "concept": "定价策略是电商运营的核心能力，包括成本分析、竞品调研、定价策略制定、价格调整等环节。通过本实训，学生将掌握完整的定价策略流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成定价策略全流程实训",
+      "学习成本分析方法",
+      "掌握定价策略制定",
+      "练习价格调整优化"
+    ],
+    "best_practices": [
+      "先进行成本分析，确保不亏本",
+      "调研竞品价格，了解市场行情",
+      "根据产品定位选择合适策略",
+      "定期调整价格，优化利润"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握成本分析方法",
+      "学会竞品调研",
+      "掌握定价策略制定",
+      "能够调整价格优化利润"
+    ],
+    "outcomes": [
+      "能够独立完成定价策略",
+      "能够进行成本分析",
+      "能够制定合理定价策略"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "定价策略制定完成",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

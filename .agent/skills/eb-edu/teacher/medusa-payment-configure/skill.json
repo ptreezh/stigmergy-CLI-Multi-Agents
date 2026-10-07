@@ -1,0 +1,39 @@
+{
+  "name": "eb-edu-medusa-payment-configure",
+  "version": "1.0",
+  "description": "支付配置管理",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "支付管理"],
+  "triggers": {
+    "keywords": ["支付配置", "支付方式", "支付设置"],
+    "patterns": ["查看.*支付配置", "管理.*支付", "设置.*支付"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {"type": "string", "enum": ["list"], "description": "动作（list=查看列表）"}
+    }
+  },
+  "execution": {"runtime": "python3", "script": "skill.py", "timeout": 30},
+  "permissions": {"roles": ["TEACHER", "ADMIN"], "requires_auth": true},
+  "examples": [
+    {"level": "beginner", "input": "查看支付配置", "parameters": {"action": "list"}, "output": "## 💳 支付配置\n\n1. **支付宝**\n   ID: pay_123\n   状态：✅ 已启用\n   共 3 个支付方式"},
+    {"level": "intermediate", "input": "查看所有支付方式", "parameters": {"action": "list"}, "output": "## 💳 支付配置\n\n1. **支付宝**\n   状态：✅ 已启用\n2. **微信支付**\n   状态：✅ 已启用\n   共 2 个支付方式"},
+    {"level": "advanced", "input": "查看支付配置详情", "parameters": {"action": "list"}, "output": "## 💳 支付配置\n\n1. **支付宝**\n   ID: pay_123\n   状态：✅ 已启用\n   共 3 个支付方式"}
+  ],
+  "errors": {"MISSING_ACTION": {"code": 400, "message": "需要指定动作", "solution": "使用 --action list"}},
+  "help": {
+    "short": "支付配置管理，查看支付方式列表",
+    "long": "支付配置管理，查看支付方式列表。常用场景：1. 查看所有支付方式 2. 检查支付配置状态",
+    "examples": ["stigmergy skill call eb-edu-medusa-payment-configure --action list"],
+    "related_skills": ["eb-edu-medusa-payment-refund", "eb-edu-medusa-fulfill-order"],
+    "learning_resources": ["./concepts/payment.md", "./guides/payment-management.md"]
+  },
+  "business_context": {
+    "concept": "支付配置用于管理电商平台支持的支付方式，如支付宝、微信支付、银行卡等。商家需要配置支付方式才能接收客户付款。",
+    "use_cases": ["查看所有支付方式", "检查支付配置状态", "管理支付渠道"],
+    "best_practices": ["配置多种支付方式方便客户选择", "定期检查支付配置状态", "选择安全可靠的支付渠道"]
+  }
+}

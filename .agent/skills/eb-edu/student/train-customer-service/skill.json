@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-customer-service",
+  "version": "1.0",
+  "description": "客户服务实训（引导式）- 培养客户服务全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "客户服务", "引导式学习"],
+  "triggers": {
+    "keywords": ["客户服务实训", "客服实训", "客户实训"],
+    "patterns": ["我要.*客户服务实训", "完成.*客服任务", "学习.*客户服务"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成客户服务实训",
+      "parameters": {},
+      "output": "╔══════════════════════════════════════════════════════════╗\n║    电商 AI 实训平台 - 客户服务实训（引导式）                ║\n╚══════════════════════════════════════════════════════════╝\n\n📋 情境导入\n你是一家电商公司的客服专员，今天接到以下工作：\n💼 工作任务:\n1. 处理客户咨询\n2. 处理客户投诉\n3. 客户维护\n\nAI 导师会全程引导你完成实训。"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "客户服务实训（引导式）- 通过 LLM 智能引导完成客户服务全流程",
+    "long": "客户服务实训（引导式），通过 LLM 智能引导完成客户服务全流程。包括：1. 客户咨询处理 2. 客户投诉处理 3. 客户维护 4. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-customer-service"
+    ],
+    "related_skills": [
+      "eb-edu-train-order-processing",
+      "eb-edu-train-customer-retention",
+      "eb-edu-train-customer-analysis"
+    ],
+    "learning_resources": [
+      "./tutorials/customer-service.md",
+      "./guides/complaint-handling.md",
+      "./guides/customer-retention.md"
+    ]
+  },
+  "business_context": {
+    "concept": "客户服务是电商运营的重要环节，包括客户咨询处理、投诉处理、客户维护等。通过本实训，学生将掌握完整的客户服务流程，培养专业沟通和决策能力。",
+    "use_cases": [
+      "完成客户服务全流程实训",
+      "学习客户咨询处理",
+      "掌握投诉处理技巧",
+      "练习客户维护方案"
+    ],
+    "best_practices": [
+      "客户咨询要及时回复，语气友好",
+      "客户投诉要先安抚情绪，再解决问题",
+      "客户维护要定期联系，提供优惠",
+      "客户关系要长期维护，提高复购率"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握客户咨询处理",
+      "学会投诉处理技巧",
+      "掌握客户维护方法",
+      "能够管理客户关系"
+    ],
+    "outcomes": [
+      "能够独立完成客户服务",
+      "能够处理客户投诉",
+      "能够制定客户维护方案"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "客户服务完成",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "eb-edu-medusa-list-orders",
+  "version": "1.0",
+  "description": "查看订单列表",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "订单管理"],
+  "triggers": {
+    "keywords": ["查看订单", "订单列表", "订单管理"],
+    "patterns": ["查看.*订单", "列出.*订单"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "page": {"type": "integer", "default": 1, "description": "页码"},
+      "limit": {"type": "integer", "default": 20, "description": "每页数量"},
+      "status": {"type": "string", "description": "状态筛选"},
+      "customer": {"type": "string", "description": "客户 ID"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {"input": "查看订单列表", "parameters": {}},
+    {"input": "查看待处理订单", "parameters": {"status": "pending"}},
+    {"input": "查看客户订单", "parameters": {"customer": "cust_123"}}
+  ]
+}

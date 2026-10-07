@@ -1,0 +1,51 @@
+{
+  "name": "eb-edu-medusa-update-product",
+  "version": "1.0",
+  "description": "更新商品信息",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "商品管理"],
+  "triggers": {
+    "keywords": ["更新商品", "修改商品", "商品编辑"],
+    "patterns": ["更新.*商品", "修改.*商品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["product_id"],
+    "properties": {
+      "product_id": {"type": "string", "description": "商品 ID"},
+      "title": {"type": "string", "description": "新标题"},
+      "description": {"type": "string", "description": "新描述"},
+      "price": {"type": "integer", "description": "新价格"},
+      "inventory": {"type": "integer", "description": "新库存"},
+      "status": {"type": "string", "enum": ["draft", "published"], "description": "状态"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "input": "更新商品价格到 199 元",
+      "parameters": {"product_id": "prod_123", "price": 199},
+      "output": "## ✅ 商品已更新\n\n**商品 ID**: prod_123\n**新价格**: ¥199"
+    },
+    {
+      "input": "修改商品标题和库存",
+      "parameters": {"product_id": "prod_123", "title": "新款", "inventory": 100},
+      "output": "## ✅ 商品已更新\n\n**商品 ID**: prod_123\n**新标题**: 新款\n**新库存**: 100 件"
+    }
+  ],
+  "errors": {
+    "MISSING_PARAMS": {"code": 400, "message": "至少需要一个更新参数", "solution": "提供 --title, --price, --inventory, --status 之一"},
+    "PRODUCT_NOT_FOUND": {"code": 404, "message": "商品不存在", "solution": "检查商品 ID 是否正确"},
+    "INVALID_PRICE": {"code": 400, "message": "价格不能为负数", "solution": "使用有效的价格，如 --price 199"},
+    "INVALID_INVENTORY": {"code": 400, "message": "库存不能为负数", "solution": "使用有效的库存，如 --inventory 100"}
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "agent": "opencode",
+  "status": "active",
+  "currentTask": null,
+  "capabilities": [
+    "coding",
+    "review"
+  ],
+  "project": "D:\\socienceAI",
+  "lastUpdate": "2026-10-06T17:46:59.759Z",
+  "heartbeat": 60
+}

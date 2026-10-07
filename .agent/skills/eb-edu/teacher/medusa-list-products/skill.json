@@ -1,0 +1,91 @@
+{
+  "name": "eb-edu-medusa-list-products",
+  "version": "1.0",
+  "description": "查看商品列表",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "商品管理"],
+  "triggers": {
+    "keywords": ["查看商品", "商品列表", "商品管理", "商品查询"],
+    "patterns": ["查看.*商品", "列出.*商品", "查询.*商品"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "page": {"type": "integer", "default": 1, "description": "页码（从 1 开始）"},
+      "limit": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100, "description": "每页数量（1-100）"},
+      "category": {"type": "string", "description": "分类 ID"},
+      "status": {"type": "string", "enum": ["draft", "published"], "description": "状态（draft=草稿，published=已发布）"},
+      "q": {"type": "string", "description": "搜索关键词（标题、描述、SKU）"},
+      "json": {"type": "boolean", "default": false, "description": "输出 JSON 格式（默认：false）"}
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["STUDENT", "TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "查看商品列表",
+      "parameters": {},
+      "output": "## 📦 商品列表\n\n1. **夏季连衣裙**\n   - 价格：¥199\n   - 库存：100 件\n   共 1 件商品\n\n**下一步**:\n- 查看商品详情：`--product-id \"prod_123\"`\n- 更新商品：`eb-edu-medusa-update-product`"
+    },
+    {
+      "level": "intermediate",
+      "input": "查看已发布的商品",
+      "parameters": {"status": "published"},
+      "output": "## 📦 商品列表（已发布）\n\n1. **夏季连衣裙** (已发布)\n   - 价格：¥199\n   - 库存：100 件\n   共 1 件商品"
+    },
+    {
+      "level": "advanced",
+      "input": "搜索连衣裙，每页显示 10 个",
+      "parameters": {"q": "连衣裙", "limit": 10},
+      "output": "## 📦 商品列表（搜索：连衣裙）\n\n1. **夏季连衣裙**\n   - 价格：¥199\n   - 库存：100 件\n   找到 1 件匹配商品"
+    }
+  ],
+  "errors": {
+    "INVALID_PAGE": {"code": 400, "message": "页码必须大于 0", "solution": "使用有效的页码，如 --page 1"},
+    "INVALID_LIMIT": {"code": 400, "message": "每页数量必须在 1-100 之间", "solution": "使用有效的每页数量，如 --limit 20"},
+    "INVALID_STATUS": {"code": 400, "message": "状态只能是 draft 或 published", "solution": "使用有效的状态值"}
+  },
+  "help": {
+    "short": "查看商品列表，支持分页、筛选、搜索等功能",
+    "long": "查看商品列表，支持分页、筛选、搜索等功能。常用场景：1. 查看所有商品 2. 查看已发布商品 3. 搜索商品 4. 分页查看",
+    "examples": [
+      "stigmergy skill call eb-edu-medusa-list-products",
+      "stigmergy skill call eb-edu-medusa-list-products --status published",
+      "stigmergy skill call eb-edu-medusa-list-products --q \"连衣裙\""
+    ],
+    "related_skills": [
+      "eb-edu-medusa-get-product",
+      "eb-edu-medusa-update-product",
+      "eb-edu-medusa-delete-product"
+    ],
+    "learning_resources": [
+      "./concepts/product.md",
+      "./guides/product-management.md",
+      "./tutorials/ecommerce-basics.md"
+    ]
+  },
+  "business_context": {
+    "concept": "商品列表是电商运营的基础功能，用于查看和管理所有商品。商品状态分为草稿（draft）和已发布（published），只有已发布的商品前台用户可见。",
+    "use_cases": [
+      "查看店铺所有商品",
+      "查看已发布商品",
+      "搜索特定商品",
+      "检查商品库存"
+    ],
+    "best_practices": [
+      "默认每页 20 条，性能最佳",
+      "搜索时使用具体关键词",
+      "定期清理草稿商品"
+    ]
+  }
+}

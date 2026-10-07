@@ -1,0 +1,53 @@
+{
+  "name": "eb-edu-submit-project-guided",
+  "version": "1.0",
+  "description": "提交实训（LLM 智能引导版）- 培养成果整理、自我展示、反思总结能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "能力培养", "LLM 引导", "提交作业"],
+  "triggers": {
+    "keywords": ["提交实训", "提交作业", "实训总结"],
+    "patterns": ["我要.*提交", "完成.*实训"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": []
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 900,
+    "interactive": true,
+    "requires_llm": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "learning_outcomes": [
+    "成果整理能力 - 能系统整理实训成果",
+    "自我展示能力 - 能清晰表达成果亮点",
+    "反思总结能力 - 能深入反思收获和不足",
+    "沟通表达能力 - 能有效沟通展示"
+  ],
+  "workflow": {
+    "type": "llm_guided_then_execute",
+    "steps": [
+      {"step": 1, "action": "llm_guide", "focus": "成果整理"},
+      {"step": 2, "action": "llm_guide", "focus": "自我展示"},
+      {"step": 3, "action": "llm_guide", "focus": "反思总结"},
+      {"step": 4, "action": "confirm", "focus": "决策确认"},
+      {"step": 5, "action": "call_skill", "skill": "eb-edu-submit-project"}
+    ]
+  },
+  "llm_integration": {
+    "description": "本 Skill 依赖 AI LLM 智能引导",
+    "supported_llms": ["qwen", "claude", "offline"],
+    "prompts": [
+      "organize_work - 评估成果整理",
+      "self_presentation - 评估自我展示",
+      "reflection - 评估反思总结",
+      "review - 最终点评"
+    ]
+  }
+}

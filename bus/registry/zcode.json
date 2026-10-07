@@ -1,0 +1,12 @@
+{
+  "agent": "zcode",
+  "status": "active",
+  "currentTask": null,
+  "capabilities": [
+    "review",
+    "coding"
+  ],
+  "project": "D:\\powerSale",
+  "lastUpdate": "2026-10-06T17:47:49.555Z",
+  "heartbeat": 60
+}

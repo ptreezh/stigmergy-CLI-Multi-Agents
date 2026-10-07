@@ -1,0 +1,50 @@
+{
+  "name": "eb-edu-product-listing-training",
+  "version": "2.0",
+  "description": "商品上架实训（能力培养版）- 通过引导式实训，培养学生市场分析、定价策略、卖点提炼能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "能力培养", "商品上架"],
+  "triggers": {
+    "keywords": ["商品上架实训", "上架实训", "实训任务", "能力训练"],
+    "patterns": ["我要.*实训", "帮我.*训练", "学习.*上架"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "scenario": {
+        "type": "string",
+        "enum": ["dress", "headphones", "juicer"],
+        "default": "dress",
+        "description": "实训场景：dress（连衣裙）, headphones（耳机）, juicer（榨汁杯）"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600,
+    "interactive": true
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "input": "我要做商品上架实训",
+      "parameters": {}
+    },
+    {
+      "input": "帮我训练耳机上架",
+      "parameters": {"scenario": "headphones"}
+    }
+  ],
+  "learning_outcomes": [
+    "市场分析能力 - 能分析竞品价格带、销量、卖点",
+    "定价策略能力 - 能基于成本、竞品、定位制定价格",
+    "卖点提炼能力 - 能提炼差异化卖点",
+    "决策思维能力 - 能说明决策依据"
+  ]
+}

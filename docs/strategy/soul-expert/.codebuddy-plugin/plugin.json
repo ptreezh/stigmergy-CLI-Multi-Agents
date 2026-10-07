@@ -1,0 +1,48 @@
+{
+  "name": "soul-expert",
+  "version": "1.0.0",
+  "description": "Multi-agent evolution orchestration expert: executes autonomous evolution, co-evolution, competitive selection and self-reflection through dual-agent loops, distilling reusable skills from real work patterns",
+  "author": {
+    "name": "Stigmergy CLI Team",
+    "email": "zhangshuren@agent.qq.com"
+  },
+  "agents": ["./agents/soul-evolution-expert.md"],
+  "expertType": "agent",
+  "agentName": "soul-evolution-expert",
+  "skills": [
+    "./skills/two-agent-loop",
+    "./skills/soul-evolution",
+    "./skills/soul-reflection",
+    "./skills/soul-compete",
+    "./skills/soul-co-evolve"
+  ],
+  "displayName": {
+    "en": "EvolveX",
+    "zh": "进化专家"
+  },
+  "profession": {
+    "en": "Multi-Agent Evolution Orchestrator",
+    "zh": "多智能体进化编排专家"
+  },
+  "displayDescription": {
+    "en": "Executes autonomous evolution, co-evolution, competitive selection and self-reflection for you through dual-agent loops, distilling reusable skills from real work patterns instead of lecturing methodology.",
+    "zh": "双智能体循环进化编排专家，替用户执行自主进化、协同进化、竞争择优与自我反思，驱动能力持续迭代而非说教。"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "04-DataAI",
+  "defaultInitPrompt": {
+    "zh": "带我完成一次自主进化：分析我最近的工作模式并提炼可复用技能",
+    "en": "Help me run autonomous evolution: analyze my recent work patterns and distill reusable skills"
+  },
+  "plugin": "soul-expert",
+  "tags": [
+    { "en": "Agent Evolution", "zh": "智能体进化" },
+    { "en": "Self-Improvement", "zh": "自我进化" },
+    { "en": "Multi-Agent", "zh": "多智能体协作" }
+  ],
+  "quickPrompts": [
+    { "en": "Help me run autonomous evolution: analyze my recent work patterns and distill reusable skills", "zh": "带我完成一次自主进化：分析我最近的工作模式并提炼可复用技能" },
+    { "en": "Use competitive evolution to compare two approaches", "zh": "用竞争择优帮我对比两个方案" },
+    { "en": "Help me reflect on my recent work and find improvements", "zh": "帮我做一次自我反思，找出改进点" }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-medusa-shipping-templates",
+  "version": "1.0",
+  "description": "运费模板管理",
+  "author": "电商 AI 实训平台",
+  "category": "ecommerce",
+  "tags": ["电商", "Medusa", "物流管理"],
+  "triggers": {
+    "keywords": ["运费模板", "运费设置", "配送方式"],
+    "patterns": ["查看.*运费模板", "管理.*运费", "设置.*配送"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["list"],
+        "description": "动作（list=查看列表）"
+      }
+    }
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 30
+  },
+  "permissions": {
+    "roles": ["TEACHER", "ADMIN"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "查看运费模板",
+      "parameters": {"action": "list"},
+      "output": "## 📦 运费模板\n\n1. **标准配送**\n   ID: ship_123\n   价格：¥10\n   区域：全国\n   共 3 个运费模板"
+    },
+    {
+      "level": "intermediate",
+      "input": "查看所有配送方式",
+      "parameters": {"action": "list"},
+      "output": "## 📦 运费模板\n\n1. **标准配送**\n   价格：¥10\n2. **快递配送**\n   价格：¥20\n   共 2 个运费模板"
+    },
+    {
+      "level": "advanced",
+      "input": "查看运费模板详情",
+      "parameters": {"action": "list"},
+      "output": "## 📦 运费模板\n\n1. **标准配送**\n   ID: ship_123\n   价格：¥10\n   区域：全国\n   共 3 个运费模板"
+    }
+  ],
+  "errors": {
+    "MISSING_ACTION": {"code": 400, "message": "需要指定动作", "solution": "使用 --action list"}
+  },
+  "help": {
+    "short": "运费模板管理，查看运费模板列表",
+    "long": "运费模板管理，查看运费模板列表。常用场景：1. 查看所有运费模板 2. 检查运费设置",
+    "examples": [
+      "stigmergy skill call eb-edu-medusa-shipping-templates --action list"
+    ],
+    "related_skills": [
+      "eb-edu-medusa-shipping-providers",
+      "eb-edu-medusa-fulfill-order",
+      "eb-edu-medusa-shipping-tracking"
+    ],
+    "learning_resources": [
+      "./concepts/shipping.md",
+      "./guides/shipping-management.md"
+    ]
+  },
+  "business_context": {
+    "concept": "运费模板用于设置不同地区、不同配送方式的运费标准。可以设置多个模板，如标准配送、快递配送、包邮等，满足不同客户需求。",
+    "use_cases": [
+      "查看所有运费模板",
+      "检查运费设置",
+      "管理配送方式"
+    ],
+    "best_practices": [
+      "设置多种配送方式供客户选择",
+      "根据地区设置不同运费",
+      "满额包邮可以提高客单价",
+      "定期更新运费模板"
+    ]
+  }
+}

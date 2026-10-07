@@ -1,0 +1,85 @@
+{
+  "name": "eb-edu-train-product-listing",
+  "version": "1.0",
+  "description": "商品上架实训（引导式）- 培养商品上架全流程能力",
+  "author": "电商 AI 实训平台",
+  "category": "education",
+  "tags": ["电商", "实训", "商品上架", "引导式学习"],
+  "triggers": {
+    "keywords": ["商品上架实训", "上架商品", "商品实训"],
+    "patterns": ["我要.*商品上架实训", "完成.*上架任务", "学习.*商品上架"]
+  },
+  "parameters": {
+    "type": "object",
+    "required": [],
+    "properties": {}
+  },
+  "execution": {
+    "runtime": "python3",
+    "script": "skill.py",
+    "timeout": 600
+  },
+  "permissions": {
+    "roles": ["STUDENT"],
+    "requires_auth": true
+  },
+  "examples": [
+    {
+      "level": "beginner",
+      "input": "我要完成商品上架实训",
+      "parameters": {},
+      "output": "商品上架实训（引导式）- 情境导入：你是一家电商公司的运营专员，老板给你一个任务：上架一款夏季连衣裙，成本 80 元，目标用户 18-25 岁女性"
+    }
+  ],
+  "errors": {},
+  "help": {
+    "short": "商品上架实训（引导式）- 通过 LLM 智能引导完成商品上架全流程",
+    "long": "商品上架实训（引导式），通过 LLM 智能引导完成商品上架全流程。包括：1. 市场调研 2. 商品录入 3. 定价策略 4. 上架确认 5. 复盘总结",
+    "examples": [
+      "stigmergy skill call eb-edu-train-product-listing"
+    ],
+    "related_skills": [
+      "eb-edu-train-product-pricing",
+      "eb-edu-train-product-optimization",
+      "eb-edu-train-sales-analysis"
+    ],
+    "learning_resources": [
+      "./tutorials/product-management.md",
+      "./guides/pricing.md",
+      "./guides/market-research.md"
+    ]
+  },
+  "business_context": {
+    "concept": "商品上架是电商运营的基础能力，包括市场调研、商品录入、定价策略、上架操作等环节。通过本实训，学生将掌握完整的商品上架流程，培养专业思维和决策能力。",
+    "use_cases": [
+      "完成商品上架全流程实训",
+      "学习市场调研方法",
+      "掌握定价策略",
+      "练习商品上架操作"
+    ],
+    "best_practices": [
+      "先进行市场调研，了解竞品情况",
+      "根据成本和竞品制定合理价格",
+      "商品标题要吸引眼球，描述要详细",
+      "上架前仔细检查所有信息"
+    ]
+  },
+  "training_design": {
+    "objectives": [
+      "掌握市场调研方法",
+      "学会商品录入",
+      "制定合理定价策略",
+      "完成商品上架操作"
+    ],
+    "outcomes": [
+      "能够独立完成商品上架",
+      "能够进行市场调研分析",
+      "能够制定合理定价策略"
+    ],
+    "assessment": {
+      "process": "LLM 实时反馈和评估",
+      "result": "商品成功上架",
+      "ability": "专业能力成长评估"
+    }
+  }
+}

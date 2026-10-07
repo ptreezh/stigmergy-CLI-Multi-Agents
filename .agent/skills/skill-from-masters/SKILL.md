@@ -644,7 +644,7 @@ Here's what I found from primary sources...
 **Test Scenarios:**
 1. Simple feature: Adding a filter to existing dashboard
 2. Complex feature: New AI-powered recommendation engine
-3. Edge case: Feature that needs cross-team coordination
+3. Edge case: Feature requiring significant backend architecture changes
 4. Failure mode: Vague problem statement that needs refinement
 
 Does this cover the range of PRDs you typically write? Any other scenarios we should test?

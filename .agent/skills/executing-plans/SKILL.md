@@ -1,25 +1,76 @@
 ---
-name: strict-test-skill
-description: 严格测试技能 - 用于验证CLI的真实激活机制
-author: stigmergy
-version: 1.0.0
+name: executing-plans
+description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
 ---
 
-# 严格测试技能
+# Executing Plans
 
-## 重要标识
-- 技能名称: strict-test-skill
-- 唯一标识: STRICT_TEST_1769304776818
+## Overview
 
-## 功能说明
-如果qwen成功加载了这个技能，会在响应中明确提到"strict-test-skill已成功激活"。
+Load plan, review critically, execute tasks in batches, report for review between batches.
 
-## 测试步骤
-1. 当用户请求使用此技能时，系统应返回确认消息
-2. 确认消息必须包含唯一标识符以验证激活
-3. 验证技能系统是否正确加载和执行此技能
+**Core principle:** Batch execution with checkpoints for architect review.
 
-## 验证信息
-- 激活状态: 待验证
-- 验证结果: 未完成
-- 最后验证时间: 2026-01-25
+**Announce at start:** "I'm using the executing-plans skill to implement this plan."
+
+## The Process
+
+### Step 1: Load and Review Plan
+1. Read plan file
+2. Review critically - identify any questions or concerns about the plan
+3. If concerns: Raise them with your human partner before starting
+4. If no concerns: Create TodoWrite and proceed
+
+### Step 2: Execute Batch
+**Default: First 3 tasks**
+
+For each task:
+1. Mark as in_progress
+2. Follow each step exactly (plan has bite-sized steps)
+3. Run verifications as specified
+4. Mark as completed
+
+### Step 3: Report
+When batch complete:
+- Show what was implemented
+- Show verification output
+- Say: "Ready for feedback."
+
+### Step 4: Continue
+Based on feedback:
+- Apply changes if needed
+- Execute next batch
+- Repeat until complete
+
+### Step 5: Complete Development
+
+After all tasks complete and verified:
+- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
+- **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
+- Follow that skill to verify tests, present options, execute choice
+
+## When to Stop and Ask for Help
+
+**STOP executing immediately when:**
+- Hit a blocker mid-batch (missing dependency, test fails, instruction unclear)
+- Plan has critical gaps preventing starting
+- You don't understand an instruction
+- Verification fails repeatedly
+
+**Ask for clarification rather than guessing.**
+
+## When to Revisit Earlier Steps
+
+**Return to Review (Step 1) when:**
+- Partner updates the plan based on your feedback
+- Fundamental approach needs rethinking
+
+**Don't force through blockers** - stop and ask.
+
+## Remember
+- Review plan critically first
+- Follow plan steps exactly
+- Don't skip verifications
+- Reference skills when plan says to
+- Between batches: just report and wait
+- Stop when blocked, don't guess

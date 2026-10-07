@@ -1,0 +1,6 @@
+{
+  "agent-type": "cli",
+  "runs-last-week": "128",
+  "active": "true",
+  "dependencies": "marvis,coze"
+}
