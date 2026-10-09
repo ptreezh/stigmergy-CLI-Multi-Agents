@@ -1,548 +1,132 @@
 # Architecture
 
-**Analysis Date:** 2026-04-12
+> Fresh gsd-scan (`tech+arch`) output. Supersedes the stale 2026-04-12 copy.
+> Ground truth: `src/index.js`, `src/cli/router-beta.js`, `src/core/*`, `bus/*`, `src/gateway/server.js`. Line counts measured via `(Get-Content).Count` (not `Measure-Object -Line`).
 
-## Pattern Overview
+## 1. Architectural style
 
-**Overall:** Modular Layered Architecture with Event-Driven Coordination
+Stigmergy is a **modular CommonJS CLI monolith** with a thin command-router front and orchestrating core services behind it. There is no framework — `commander` parses argv, a single router registers ~38 commands, and each command handler delegates to a core service. Cross-agent coordination is **file-bus based (no server)**, with an optional HTTP gateway for remote IM control. A legacy TypeScript "orchestration layer" exists but is effectively vestigial (see §7).
 
-The Stigmergy system follows a **modular layered architecture** with event-driven coordination for cross-CLI collaboration. The design separates concerns across five distinct layers: CLI Platform, Core Services, Orchestration, Gateway, and Skills.
+Key characteristics:
+- **Graceful degradation**: Node.js primary, Python adapters as fallback glue for tools that need hook scripts.
+- **Registry-driven**: tool support is data (`CLI_TOOLS`, `DESKTOP_TOOLS`, `IM_GATEWAYS`), not code branches.
+- **Stigmergy metaphor**: agents coordinate via shared environment marks (`~/.stigmergy/bus/`, project status boards) rather than direct RPC.
 
-**Key Characteristics:**
-- **CLI-Centric Abstraction**: All AI tools (Claude, Gemini, Qwen, iFlow, etc.) are normalized through adapters
-- **Soul-Driven Identity**: Each CLI deployment has an autonomous identity system for self-evolution
-- **Event-Sourced Coordination**: Tasks and state changes flow through an event bus
-- **Skill Composition**: Domain skills are composable units that can be orchestrated together
-- **Verification Gates**: Strict completion validation before claiming features are done
-
-## Layers
-
-### Layer 1: CLI Platform Layer (Entry Point)
-
-**Entry Points:**
-- `src/index.js` - Main entry point delegating to router-beta.js
-- `src/cli/router-beta.js` - Modular command router (1020+ lines)
-
-**CLI Tools Registry:**
-- `src/core/cli_tools.js` - Defines 10+ CLI tools (claude, gemini, qwen, iflow, codebuddy, codex, qodercli, copilot, opencode, kode)
-
-**Command Handlers:**
-- `src/cli/commands/` - 25+ command files including:
-  - `install.js` - CLI installation
-  - `status.js` - Status checking
-  - `scan.js` - CLI detection
-  - `soul.js` - Soul evolution commands
-  - `project.js` - Project setup/deploy
-  - `interactive.js` - Interactive mode
-  - `concurrent.js` - Multi-CLI execution
-
-**Purpose:** User interface and CLI invocation routing
-
-**Contains:** Command parsing, user interaction, CLI proxy delegation
-
-**Depends on:** Core services layer
-
-**Used by:** End users, CI/CD pipelines
-
----
-
-### Layer 2: Core Services Layer
-
-**Components:**
-
-**CLI Abstraction:**
-- `src/core/cli_tools.js` - CLI configuration, install commands, OAuth settings
-- `src/core/cli_path_detector.js` - Detect and cache CLI executable paths
-- `src/core/cli_adapters.js` - Normalize interactive vs one-time mode flags
-- `src/core/execution_mode_detector.js` - Detect execution modes
-
-**Smart Routing:**
-- `src/core/smart_router.js` - Intent analysis and CLI selection
-- `src/core/cli_help_analyzer.js` - Analyze CLI help text for patterns
-- `src/core/cli_parameter_handler.js` - Intelligent argument generation
-
-**Soul System:**
-- `src/core/soul_manager.js` - Soul lifecycle management (identity, initialization)
-- `src/core/soul_knowledge_base.js` - Knowledge storage and semantic search
-- `src/core/soul_skill_evolver.js` - Skill discovery and creation
-- `src/core/soul_memory_manager.js` - Dual-memory (Markdown + SQLite-vec)
-- `src/core/soul_alignment_checker.js` - Mission alignment verification
-- `src/core/soul_reflector.js` - Self-criticism and error analysis
-- `src/core/soul_scheduler.js` - Evolution scheduling
-
-**Coordination:**
-- `src/core/coordination/` - Multi-CLI collaboration:
-  - `cross_cli_executor.js` - Execute across CLIs
-  - `collaboration_coordinator.js` - Multi-CLI coordination
-  - `intent_router.js` - Route intents to handlers
-  - `cli_adapter_registry.js` - CLI adapter registration
-
-**Purpose:** Core business logic, CLI abstraction, Soul autonomous system
-
-**Location:** `src/core/`
-
-**Contains:** All core services and business logic
-
-**Depends on:** Utilities layer
-
-**Used by:** CLI layer, Orchestration layer
-
----
-
-### Layer 3: Orchestration Layer (TypeScript)
-
-**Purpose:** Task planning, coordination, and result aggregation
-
-**Location:** `src/orchestration/`
-
-**Core Components:**
-
-**Central Orchestration:**
-- `src/orchestration/core/CentralOrchestrator.ts` - Task planning and multi-CLI execution
-- `src/orchestration/core/CentralOrchestrator-Realtime.ts` - Real-time execution variant
-
-**Managers:**
-- `src/orchestration/managers/GitWorktreeManager.ts` - Git worktree management for parallel tasks
-- `src/orchestration/managers/StateLockManager.ts` - Distributed state locking
-- `src/orchestration/managers/TaskPlanningFiles.ts` - Planning file management (task_plan.md, findings.md)
-- `src/orchestration/managers/EnhancedTerminalManager.ts` - Terminal session management
-- `src/orchestration/managers/ResultAggregator.ts` - Multi-CLI result aggregation
-
-**Events:**
-- `src/orchestration/events/EventBus.ts` - Event publication and subscription
-- Event types: task.created, task.completed, task.failed, worktree.created, conflict.detected
-
-**Hooks:**
-- `src/orchestration/hooks/HookSystem.ts` - Coordination hook installation
-- `src/orchestration/hooks/HookInstaller.ts` - Hook deployment to CLI tools
-
-**Integration:**
-- `src/orchestration/integration/ResumeSessionIntegration.ts` - Cross-CLI session recovery
-
-**Configuration:**
-- `src/orchestration/config/index.ts` - Orchestration configuration
-- `src/orchestration/types/index.ts` - TypeScript type definitions
-
-**TypeScript Build:**
-- `tsconfig.json` - General TypeScript config
-- `tsconfig.build.json` - Build only orchestration layer to `dist/orchestration/`
-
-**Contains:** TypeScript orchestration logic, task coordination
-
-**Used by:** CLI commands (concurrent, project)
-
----
-
-### Layer 4: Gateway Layer (IM Integration)
-
-**Purpose:** Unified messaging gateway across multiple IM platforms
-
-**Location:** `src/gateway/`
-
-**Components:**
-- `src/gateway/server.js` - Multi-platform gateway server
-- `src/gateway/core/parser.js` - Message parsing
-- `src/gateway/core/formatter.js` - Response formatting
-- `src/gateway/core/router.js` - Message routing
-- `src/gateway/adapters/` - Platform-specific adapters (slack, etc.)
-
-**IM Infrastructure:**
-- `src/adapters/cc-connect/` - cc-connect IM gateway integration
-- Supports: feishu, Telegram, dingtalk, Slack, Discord, LINE, WeChat, QQ
-
-**Contains:** IM platform adapters, message parsing, response handling
-
-**Used by:** Gateway command, scheduler
-
----
-
-### Layer 5: Skills System
-
-**Purpose:** Extensible skill packages for domain expertise
-
-**Location:** `src/commands/`, `src/core/skills/`, `.agent/skills/`
-
-**Components:**
-- `src/commands/skill.js` - Skill command handler
-- `src/commands/skills-hub.js` - Centralized meta-skill management
-- `src/commands/skill-handler.js` - Skill execution
-- `src/core/skills/` - Embedded OpenSkills core:
-  - `embedded-openskills/` - OpenSkills implementation
-  - Skill installation, parsing, reading, validation
-
-**Skill Format:**
-- `SKILL.md` - Skill main documentation
-- `skill-manifest.json` - Identity and dependency declaration
-- Skills stored in: `~/.stigmergy/skills`, `.agent/skills`, `.claude/skills`
-
-**Contains:** Skill loading, execution, discovery, orchestration
-
-**Used by:** All CLI tools via hooks
-
----
-
-## Data Flow
-
-### CLI Execution Flow
+## 2. Layered view
 
 ```
-User Input (CLI command)
-    ↓
-src/index.js (entry point)
-    ↓
-src/cli/router-beta.js (command parsing)
-    ↓
-Command Handler (install.js, status.js, etc.)
-    ↓
-Core Services:
-  - Soul System (identity check)
-  - CLI Path Detector (find executable)
-  - CLI Adapter (normalize arguments)
-    ↓
-Execute CLI with normalized args
-    ↓
-Capture output, handle errors
-    ↓
-Return to user
+┌────────────────────────────────────────────────────────────────┐
+│ Entry            src/index.js (36)  →  src/cli/router-beta.js (1078) │
+│                        commander: ~38 commands registered       │
+├────────────────────────────────────────────────────────────────┤
+│ Command layer    src/cli/commands/*.js  (23 handlers)           │
+│                  src/commands/*         (stub: agent.md only)   │
+├────────────────────────────────────────────────────────────────┤
+│ Service/core     src/core/*.js (26 top-level) + subdirs          │
+│   routing        smart_router.js (632), cli_help_analyzer.js (1166) │
+│   adaptation     cli_adapters.js (473), execution_mode_detector.js (227) │
+│   registry       cli_tools.js (822), desktop-tools.js (338), agent_registry.js (267) │
+│   install        installer.js (1400), enhanced_cli_installer.js (1365) │
+│   coordination   agent_coordinator.js (712) → bus/coordinator.js (389) │
+│   state          ProjectStatusBoard.js (887), memory_manager.js (83) │
+│   skills         core/skills/*                                   │
+│   soul (autonomy) core/soul/* + DECI/*                           │
+├────────────────────────────────────────────────────────────────┤
+│ Adapters         src/adapters/<tool>/*  (Python + JS per tool)   │
+├────────────────────────────────────────────────────────────────┤
+│ Transport        src/gateway/server.js (433) + tunnel/ngrok.js   │
+│                  bus/ (file protocol)                            │
+├────────────────────────────────────────────────────────────────┤
+│ Infra            src/tunnel, src/utils, scripts/*, bin/*         │
+└────────────────────────────────────────────────────────────────┘
 ```
 
-### Soul Evolution Flow
-
-```
-Soul Command (stigmergy soul evolve)
-    ↓
-src/cli/commands/soul.js
-    ↓
-src/core/soul_manager.js
-    ↓
-SoulSkillEvolver.evolve()
-    ├→ Fetch authoritative sources
-    ├→ Extract knowledge
-    ├→ Create/update skills
-    └→ Update knowledge base
-    ↓
-SoulAlignmentChecker (verify mission alignment)
-    ↓
-Update Soul state
-    ↓
-Emit events (task.created, skill.updated)
-    ↓
-Persist to skills/knowledge/evolution/
-```
-
-### Multi-CLI Coordination Flow
-
-```
-Concurrent Command (stigmergy concurrent)
-    ↓
-src/cli/commands/concurrent.js
-    ↓
-src/orchestration/core/CentralOrchestrator.ts
-    ├→ CLI Selection (based on capabilities)
-    ├→ Task Decomposition
-    └→ Execution Strategy (parallel/sequential)
-    ↓
-GitWorktreeManager (create worktrees)
-    ↓
-StateLockManager (coordinate access)
-    ↓
-Execute on multiple CLIs in parallel
-    ↓
-EventBus (emit task.completed)
-    ↓
-ResultAggregator (merge results)
-    ↓
-Return aggregated output
-```
-
-## Key Abstractions
-
-### Soul System
-
-**Purpose:** Autonomous agent identity and self-evolution
-
-**Files:**
-- `src/core/soul_manager.js` - Soul lifecycle management
-- `src/core/soul_knowledge_base.js` - Knowledge storage (Markdown + SQLite-vec)
-- `src/core/soul_skill_evolver.js` - Skill discovery and creation
-- `src/core/soul_memory_manager.js` - Dual-memory system
-- `src/core/soul_alignment_checker.js` - Mission alignment verification
-- `src/core/soul_reflector.js` - Self-criticism and error analysis
-- `src/core/soul_scheduler.js` - Evolution scheduling
-
-**Pattern:**
-```javascript
-// Soul initialization
-const soulManager = new SoulManager({
-  cliName: "claude",
-  skillsPath: "./.stigmergy/skills"
-});
-await soulManager.detectSoul(skillsPath);
-await soulManager.loadSoul();
-await soulManager.initAutonomousSystem();
-
-// Evolution cycle
-const result = await soulManager.evolve("frontend");
-const alignment = await soulManager.checkAlignment(output);
-```
-
-**State:**
-- Identity: name, role, personality, mission, vision, expertise
-- Knowledge base: entries with keywords, tags, expertise classification
-- Evolution history: sources, created skills, errors
-
----
-
-### Smart Router
-
-**Purpose:** Intent analysis and optimal CLI selection
-
-**File:** `src/core/smart_router.js`
-
-**Pattern:**
-```javascript
-const SmartRouter = require("../core/smart_router");
-const router = new SmartRouter();
-
-// Route user input
-const result = await router.route(input, {
-  availableCLIs: ["claude", "gemini", "qwen"],
-  preferCLIs: ["claude"],
-  requireCapabilities: ["code"]
-});
-// Returns: { cli: "claude", confidence: 0.85, reason: "..." }
-```
+## 3. Entry & routing flow
 
-**Capabilities Mapping:**
-- claude: analysis, documentation, reasoning, complex
-- gemini: multilingual, creative, writing, design
-- qwen: chinese, code, analysis
-- codebuddy: completion, refactoring, optimization
+1. `bin/stigmergy` → `src/index.js`. `index.js` requires `./cli/router-beta` and invokes `main()`, re-exporting `MemoryManager`, `StigmergyInstaller`, `maxOfTwo`, `isAuthenticated` for backwards compatibility.
+2. `router-beta.js` builds a `commander` `Command`, registers all subcommands, installs global error handlers (`setupGlobalErrorHandlers()`), and wires a **VerificationGate** hard-constraint interceptor (`src/core/hooks/verification-gate.js`) that logs to `~/.stigmergy/logs/verification-gate.log`.
+3. Each subcommand handler (`src/cli/commands/<name>.js`) performs the work, delegating to core services.
+4. For task execution, `SmartRouter` (`src/core/smart_router.js`) scores the prompt against tool-specific keywords/capabilities and returns a chosen CLI; `CLIAdapterManager` (`src/core/cli_adapters.js`) then spawns the tool with the right working dir (`src/cli/utils/environment.js`) and env.
 
----
+The monolithic `router.js` was archived 2025-12-23; `router-beta.js` is the live router (banner still says "Version 2.0.0").
 
-### CLI Adapters
+## 4. Command surface (`router-beta.js` registers)
 
-**Purpose:** Normalize different CLI interfaces into common patterns
+`version`, `errors`, `install [gateway]`, `upgrade`, `deploy`, `superpowers`, `init`, `setup`, `call`, `interactive`, `status`, `dashboard`, `takeover`, `auto-coordinator`, `scan`, `wiki-scan`, `agent-forensics`, `fix-perms`, `perm-check`, `clean`, `diagnostic`, `skill` (+ shorthand `skill-i/-l/-r/-v/-d/-m`), `auto-install`, `resume`, `soul`, `opencli`, `cc-config`, `concurrent`, `scheduler`, `gateway`, `medusa [args...]`, `eb-edu [args...]`.
 
-**Files:**
-- `src/core/cli_adapters.js` - CLI argument normalization
-- `src/core/execution_mode_detector.js` - Interactive vs one-time detection
+Handlers live in `src/cli/commands/` (23 files incl. `scan.js`, `install.js`, `project.js`, `soul.js`, `soul-create-interactive.js`, `superpowers.js`, `wiki-scan.js`, `agent-forensics.js`, `takeover.js`, `auto-coordinator.js`, `cc-config.js`, `dashboard.js`, `opencli.js`, `scheduler.js`, `system.js`, `permissions.js`, `errors.js`, `stigmergy-resume.js`, `skills.js`, `concurrent.js`, `interactive.js`, `autoinstall.js`).
 
-**Pattern:**
-```javascript
-const { CLIAdapterManager } = require("../core/cli_adapters");
-const adapter = new CLIAdapterManager();
+## 5. Core subsystems
 
-// Get normalized arguments for tool and mode
-const args = adapter.getArguments("claude", "one-time", "write a function");
-```
+### Routing
+- `smart_router.js` (632): keyword/whitelist scoring. `VALID_CLI_TOOLS` = claude, gemini, qwen, iflow, codebuddy, codex, qodercli, copilot, kode, opencode, kilocode. Depends on `cli_help_analyzer.js` (1166) `getEnhancedCLIPattern()`. Has failure cache (`FAILURE_CACHE_HOURS=1`) and fallback scoring.
+- `cli_help_analyzer.js` (1166): parses each CLI's `--help` to infer capabilities.
+- `cli_adapters.js` (473) + `execution_mode_detector.js` (227): adapter selection and stdin/TTY/interactive mode detection.
 
----
+### Registry
+- `cli_tools.js` (822): `CLI_TOOLS`, `IM_GATEWAYS`, re-exports `DESKTOP_TOOLS`. Also exposes `validateCLITool`, `getCLIPath`, `setupCLIPaths`, `CLIPathDetector`, `getPathDetector`.
+- `desktop-tools.js` (338): `DESKTOP_TOOLS` (single source of truth for desktop download/install/version).
+- `agent_registry.js` (267): `NATIVE_SESSION_DIRS`, `AGENT_STATES_DIR`; reads native session stores for resume/forensics.
+- `cli_path_detector.js` (745): resolves each tool's binary path across platform conventions.
 
-### Event Bus
+### Installation
+- `installer.js` (1400): main install orchestrator.
+- `enhanced_cli_installer.js` (1365) + `enhanced_cli_parameter_handler.js` (450): enhanced detection/parameter handling.
+- `directory_permission_manager.js` (637): permission fixes (`perm-check`/`fix-perms`).
 
-**Purpose:** Decouple components through events
+### Coordination
+- `agent_coordinator.js` (712): handoffs, takeover candidates, global alignment; writes to the bus (`STIGMERGY_BUS_DIR` || `~/.stigmergy/bus`).
+- `bus/coordinator.js` (389): file-protocol read/write for `daily/`, `handoffs/`, `onetime/`, `registry/`, `reviews/`, `sessions/`, `shared/`.
+- `ProjectStatusBoard.js` (887): per-directory `.stigmergy/status/PROJECT_STATUS.md` shared state (tasks/findings/decisions/collaboration history).
+- `agent_state_collector.js` (420): aggregates per-agent activity.
 
-**File:** `src/orchestration/events/EventBus.ts`
+### Skills
+- `StigmergySkillManager.js`, `SkillSyncManager.js`, `BuiltinSkillsDeployer.js` + `embedded-openskills/{SkillReader,SkillParser,SkillInstaller}.js`. Unit tests live in `core/skills/__tests__/`.
+- Ontology search: `skill_ontology_search.js` (226); `skill_orchestrator.js` (257); `local_skill_scanner.js` (732).
 
-**Pattern:**
-```typescript
-const eventBus = new EventBus();
+### Soul (autonomous evolution)
+- `core/soul/soul_manager.js` (610) + `soul_alignment_checker.js`, `soul_knowledge_base.js`, `soul_memory_manager.js`, `soul_skill_evolver.js`, `soul_task_integration.js`.
+- `core/soul/DECI/` — Decision Engine: `SoulDecisionEngine.js`, `ConfidenceScorer.js`, `DecisionBoundary.js`, `DecisionContext.js`, `DecisionVerifier.js`, `EmergencyFallback.js`, `FallbackManager.js`, `index.js`.
+- `core/soul/DeadLetterQueue.js`, `core/soul/DecisionAuditor.js`; evolution hook `core/hooks/evolution-hook.js`.
 
-// Subscribe to events
-eventBus.subscribe('task.completed', async (event) => {
-  await recordFinding(event);
-});
+### Hooks deployment
+- `core/coordination/nodejs/HookDeploymentManager.js` + generators (`CLIAdapterGenerator.js`, `ResumeSessionGenerator.js`, `SkillsIntegrationGenerator.js`); `error_handler.js` in the same tree.
 
-// Publish events
-await eventBus.publish({
-  type: 'task.completed',
-  data: { taskId, result },
-  timestamp: new Date()
-});
-```
+## 6. Transport & persistence
 
-**Event Types:**
-- task.created, task.completed, task.failed
-- worktree.created, worktree.merged
-- conflict.detected
-- error.occurred
+- **Gateway** (`src/gateway/server.js`, 433): HTTP server (default port 3000, host 0.0.0.0). Endpoints `GET /status`, `POST /webhook/:platform`, `POST /execute`. Optional ngrok tunnel (`src/tunnel/ngrok.js`). Platform connectors declared in `config/gateway.json` (feishu/telegram/slack/discord, all disabled by default). CLI: `bin/stigmergy-gateway`, command `gateway`.
+- **IM gateway**: `cc-connect` (external npm binary) bridges 10 IM platforms; configured via `config/cc-connect-config.toml` + `src/cli/commands/cc-config.js`.
+- **Bus** (no server): plain files under `~/.stigmergy/bus` (env `STIGMERGY_BUS_DIR`).
+- **State**: project boards `.stigmergy/status/PROJECT_STATUS.md`; scheduler history in `core/scheduler/task_history.js`; experience memory `core/memory/EnhancedExperienceManager.js`; decision logs (`~/.stigmergy/logs`, `verification-gate.log`).
 
----
+## 7. TypeScript orchestration layer — status: vestigial
 
-### Skill Orchestration
+- `src/orchestration/` contains **only** `core/CentralOrchestrator.ts` (422 lines) and an empty `hooks/` dir.
+- `CentralOrchestrator.ts` defines `Task`/`SubTask`/`ExecutionResult` types, `TaskType`, `ExecutionStrategy ('parallel'|'sequential'|'hybrid')`, planning/decomposition/CLI-selection/aggregation via `EventEmitter` + `child_process.spawn`.
+- **It is not wired into the live CLI.** `router-beta.js` does not import `src/orchestration`; runtime parallel execution is handled by `src/cli/commands/concurrent.js` + `cli_adapters.js`.
+- A stale doc claimed `src/orchestration/managers/` and `src/orchestration/events/` exist — they do not.
+- **Build broken**: `npm run build:orchestration` → `tsc --project tsconfig.build.json`, but no root `tsconfig.json`/`tsconfig.build.json` exists. Only `dist/tsconfig.json`, `openskills/tsconfig.json`, `SmartWorkstation/tsconfig.json`. Compiled `dist/orchestration/core/CentralOrchestrator.js` is checked in.
 
-**Purpose:** Compose multiple skills into workflows
+## 8. Adapters (`src/adapters/`)
 
-**File:** `src/core/skill_orchestrator.js`
+Per-tool adapter dirs: `cc-connect`, `claude`, `codebuddy`, `codex`, `copilot`, `gemini`, `iflow`, `qoder`, `qwen`. Python glue dominates (34 `.py` under `src/`), e.g. `iflow/official_hook_adapter.py` (1271), `iflow/hook_adapter.py` (1054), `codebuddy/buddy_adapter.py` (1091), `qoder/notification_hook_adapter.py` (861), `claude/skills_hook_adapter.py` (841), `iflow/workflow_adapter.py` (817), `copilot/mcp_adapter.py` (772), `qoder/hook_installer.py` (732). There is **no** `src/adapters/opencode/` dir.
 
-**Pattern:**
-```javascript
-const SkillOrchestrator = require("../core/skill_orchestrator");
-const orchestrator = new SkillOrchestrator({ skillsPath });
+## 9. Cross-cutting conventions
 
-// Execute skill chain
-const result = await orchestrator.executeChain([
-  { skill: "code-review", input: code },
-  { skill: "security-check", input: result.output }
-]);
-```
+- **Language/i18n**: 12-language routing patterns; tool-specific keywords include Chinese aliases (e.g. `multi模型`).
+- **Error handling**: central `core/error_handler.js` (406) with `errorHandler`, `ERROR_TYPES`, `setupGlobalErrorHandlers`; commands are expected to propagate to the main handler.
+- **Gatekeeping**: `.gates/gatekeeper.js` + `OATH.md` enforce pre-commit rules (`npm run precommit`). `VerificationGate` enforces runtime hard constraints.
+- **Coding style**: 2-space indent, single quotes, semicolons, LF, no `console` enforcement off (per `.eslintrc.js`).
 
----
+## 10. Data-flow examples
 
-### Coordination Hooks
+- **Route & execute**: `stigmergy call "..."` → `commands/project.js#handleCallCommand` → `SmartRouter.route()` → chosen CLI → `CLIAdapterManager` spawn → result.
+- **Cross-CLI handoff**: Agent A `auto-coordinator handoffs` write → `bus/coordinator.js` file → Agent B `takeover` scans bus → claims task → context preserved in bus.
+- **Remote control**: IM message → cc-connect → Gateway `/webhook/:platform` → command router → CLI → response back through platform.
+- **Skill install once**: `skill install owner/repo` → `SkillInstaller` writes `~/.stigmergy/skills` → `SkillSyncManager` fans out to each agent's skills dir per `CLI_TOOLS[*].skills.dir`.
 
-**Purpose:** Coordinate multi-agent access to shared files
+## Drift / caveats
 
-**File:** `src/orchestration/hooks/HookSystem.ts`
-
-**Hook Types:**
-- task-detection: Detect and match tasks
-- lock-acquisition: Acquire file locks
-- lock-release: Release file locks
-- conflict-detection: Detect git conflicts
-
-**Deployed to:** Each CLI's hooks directory
-
----
-
-## Entry Points
-
-### CLI Entry Point
-
-**File:** `src/index.js`
-**Purpose:** Main entry point for stigmergy CLI
-**Triggers:** `stigmergy <command>`
-**Responsibilities:** Import router, set up error handlers, delegate to router
-
-### Gateway Entry Point
-
-**File:** `bin/stigmergy-gateway`
-**Purpose:** IM gateway server
-**Triggers:** `stigmergy-gateway` or `stigmergy gateway`
-**Responsibilities:** Start multi-platform IM server
-
-### Hook Entry Point
-
-**Files:** Hooks deployed to `~/.claude/hooks/`, `~/.gemini/extensions/`, etc.
-**Purpose:** Intercept CLI execution for coordination
-**Triggers:** Before/after CLI commands
-
-### Postinstall Entry
-
-**File:** `scripts/postinstall-deploy.js`
-**Purpose:** npm postinstall hook
-**Triggers:** `npm install -g stigmergy`
-**Responsibilities:** Auto-deploy hooks and initialize
-
----
-
-## Error Handling
-
-**Strategy:** Layered error handling with graceful degradation
-
-**Components:**
-- `src/core/error_handler.js` - Centralized error handling
-- `src/core/coordination/error_handler.js` - Coordination-specific errors
-- `src/cli/commands/errors.js` - Error reporting command
-
-**Patterns:**
-```javascript
-// Try-catch at every async boundary
-try {
-  const result = await executeCLI(cli, args);
-  return result;
-} catch (error) {
-  // Log with context
-  logger.error('CLI execution failed', { cli, args, error });
-  // Emit event
-  eventBus.publish({ type: 'error.occurred', data: { error } });
-  // Graceful degradation
-  return { success: false, error: error.message };
-}
-```
-
-**Verification Gate:**
-- `src/core/hooks/verification-gate.js` - Intercepts console.log to enforce completion claims
-- Validates: Level 0-4 completion, historical error patterns, limitation disclosure
-
----
-
-## Cross-Cutting Concerns
-
-**Logging:**
-- `src/core/coordination/logger.js` - Centralized logging
-- Logs to: `~/.stigmergy/logs/`
-- Structured logging with correlation IDs
-
-**Validation:**
-- Input validation at all entry points (commands, gateway messages)
-- Schema validation using native JSON validation
-
-**Authentication:**
-- OAuth handling in cli_adapters.js
-- IM platform credentials in cc-connect
-- API tokens in environment variables (NEVER hardcoded)
-
-**Security:**
-- Secrets in environment variables only
-- Verification gate to prevent false completion claims
-- Permission checks on file operations
-
-**Configuration:**
-- Global config: `~/.stigmergy/config.json`
-- Project config: `.stigmergy/config.json`
-- Environment-specific: `.env` (NEVER committed)
-
----
-
-## Soul Evolution System
-
-**Architecture:**
-```
-+------------------------------------------------------------+
-|                    Soul Manager                              |
-|  +-------------+  +-------------+  +---------------+        |
-|  | Soul Knowledge| | Skill Evolver | | Alignment     |        |
-|  | Base         |  |              |  | Checker       |        |
-|  |              |  |              |  |               |        |
-|  | - Markdown   |  | - Web search |  | - Mission     |        |
-|  | - SQLite-vec |  | - GitHub     |  |   alignment   |        |
-|  | - Semantic   |  | - Skill      |  | - Output      |        |
-|  |   search     |  |   creation   |  |   validation  |        |
-|  +-------------+  +-------------+  +---------------+        |
-|                                                            |
-|  +-------------+  +-------------+  +---------------+        |
-|  | Memory      |  | Skill       |  | Scheduler     |        |
-|  | Manager     |  | Orchestrator|  |               |        |
-|  |             |  |             |  |               |        |
-|  | - Session   |  | - Skill     |  | - Evolution   |        |
-|  | - Reflection|  |   chains    |  |   timing      |        |
-|  | - Instincts |  | - Workflows |  | - Batch ops   |        |
-|  +-------------+  +-------------+  +---------------+        |
-+------------------------------------------------------------+
-```
-
-**Evolution Cycle:**
-1. **Intent Analysis**: Determine evolution direction
-2. **Source Collection**: Fetch authoritative sources (GitHub, web)
-3. **Knowledge Extraction**: Parse and index new information
-4. **Skill Creation**: Generate or update skill packages
-5. **Alignment Check**: Verify mission alignment
-6. **State Update**: Persist to knowledge base
-7. **Skill Registration**: Make skills available to CLI tools
-
-**Memory System:**
-- **Short-term**: Session memory (Markdown)
-- **Long-term**: SQLite-vec vector database
-- **Instincts**: Low-level behavioral patterns
-
-**Quality Gates:**
-- Verification gate intercepts completion claims
-- Level 0-4 completion validation
-- Honest limitation disclosure
-
----
-
-*Architecture analysis: 2026-04-12*
+- Stale ARCHITECTURE.md referenced `src/orchestration/managers/`, `src/orchestration/events/`, and `src/commands/skill.js` — none exist.
+- Line counts in the stale doc were lower; current counts (measured) are materially larger (e.g. `router-beta.js` 1078, `installer.js` 1400).
+- Old doc described the orchestrator as central to execution; today it is dead code relative to the CLI path.

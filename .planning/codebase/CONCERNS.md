@@ -1,224 +1,109 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-04-12
+**Analysis Date:** 2026-10-09 (refresh; prior copy dated 2026-04-12)
 
-## Tech Debt
+Every item below is **directly measured this pass** unless explicitly marked "(unverified — carried from prior audit)". Line counts via `(Get-Content).Count`.
 
-### Empty Error Handlers
-**Issue:** Multiple files contain empty catch blocks that silently swallow errors
-**Files:**
-- `src/cli/commands/project.js:449` - `} catch (e) {}`
-- `src/cli/commands/superpowers.js:228,280` - `} catch (err) {}`
-- `src/core/soul_task_planner.js:468` - `} catch (e) {}`
-- `src/core/soul_system_scheduler.js:220,250,414,516,546` - Multiple `} catch (e) {}`
-- `src/core/soul_auto_merger.js:153,275` - `} catch (e) {}`
-- `src/core/soul_cli_integration.js:73` - `} catch (e) {}`
+## Build & Tooling
 
-**Impact:** Errors are silently ignored, making debugging nearly impossible. Users have no visibility into failures.
-**Fix approach:** Replace empty catch blocks with proper error logging and handling.
+### TS orchestration build is broken
+**Issue:** `npm run build` → `build:orchestration` → `tsc --project tsconfig.build.json`, but **neither `tsconfig.json` nor `tsconfig.build.json` exists** at root (`Test-Path` False for both).
+**Impact:** `npm run build` cannot succeed; `README.md` Development section instructs `npm run build:orchestration`.
+**Fix approach:** Add `tsconfig.json` + `tsconfig.build.json`, or remove/repair the script and README step.
 
-### Soul Evolution System Failures
-**Issue:** Evolution-log shows 100+ consecutive iteration failures since 2026-03-07
-**Files:** `evolution-log.jsonl`
-**Patterns:**
-- `crossValidation`: "Not enough valid analyses"
-- `collaboration`: tasksCompleted: 0
-- `competition`: "No valid solutions"
+### Duplicate `keywords` key in `package.json`
+**Issue:** The `keywords` key appears **twice** (verified: 2 matches). The second definition silently overrides the first, dropping the earlier SEO keyword set.
+**Impact:** npm search metadata reduced; classic silent-overwrite footgun.
+**Fix approach:** Merge the two keyword arrays into one.
 
-**Impact:** Soul evolution is completely non-functional. The core learning mechanism is broken.
-**Fix approach:** Debug why validation/collaboration/competition strategies fail to produce valid outputs.
+### Dual, conflicting ESLint configs
+**Issue:** `.eslintrc.js` (strict: indent 2 / LF / single quotes) AND `eslint.config.js` (flat, permissive: those rules **off**). ESLint `^9.39.2` defaults to flat config → the strict `.eslintrc.js` is effectively ignored.
+**Impact:** Style rules documented in AGENTS.md are not enforced by `npm run lint`.
+**Fix approach:** Keep one config; port intended rules into the flat config.
 
-### Legacy Backup Files
-**Issue:** Backup files still present in source tree despite being in .gitignore
-**Files:** `src/interactive/InteractiveModeController.js.backup-20260126-215905`
-**Impact:** Accumulated technical debt, potential confusion during development
-**Fix approach:** Clean up or properly archive these files.
+### `lint` script glob unreliable on Windows
+**Issue:** `lint` = `eslint src/**/*.js`. Shell glob expansion of `**` differs by shell; on Windows/PowerShell the pattern may not expand as intended.
+**Impact:** Lint may silently cover wrong/zero files.
+**Fix approach:** Use `eslint src` (directory) or `eslint .` with flat-config ignores.
 
-## Known Bugs
+### Prettier configured but unconfgured
+**Issue:** `format` script + `prettier@^3.7.4` present, but **no `.prettierrc`/`.prettierrc.json`/`prettier.config.js`/`.editorconfig`**. AGENTS.md references `.prettierrc` — it does not exist.
+**Impact:** Prettier defaults (double quotes) conflict with the eslintrc single-quote rule; formatting is non-deterministic vs docs.
+**Fix approach:** Add a Prettier config aligned with ESLint.
 
-### Soul Integration Hook Swallows Errors
-**Symptoms:** Claude hook integration silently fails without feedback
-**Files:** `src/core/soul_cli_integration.js:73`
-**Trigger:** When skills path lookup fails
-**Workaround:** None - errors are completely hidden
+## Testing Gaps
 
-### Task Planner Error Suppression
-**Symptoms:** Task planning silently fails, tasks appear to complete but nothing happens
-**Files:** `src/core/soul_task_planner.js:468`
-**Trigger:** When error occurs during task planning
-**Workaround:** Manual inspection of logs required
+### Coverage not enforced
+**Issue:** `jest.config.js` has **no `coverageThreshold`**, yet AGENTS.md claims 70/75/80 thresholds.
+**Impact:** Coverage is reported but never gated; regressions pass CI-less.
+**Fix approach:** Add `coverageThreshold` matching the documented numbers (or update docs).
 
-### Scheduler Silent Failures
-**Symptoms:** Scheduled tasks never execute, no error feedback
-**Files:** `src/core/soul_system_scheduler.js` (lines 220, 250, 414, 516, 546)
-**Trigger:** Multiple error paths in scheduler
-**Workaround:** None - silent failures prevent diagnosis
+### Missing test-category directories
+**Issue:** npm scripts + `scripts/run-tests.js` target `tests/integration`, `tests/e2e`, `tests/automation`, `tests/functional` — **none exist** (only `tests/` and `tests/unit/`). `run-tests.js` uses `--passWithNoTests`, hiding the gap.
+**Impact:** Those suites silently "pass" while doing nothing.
+**Fix approach:** Create the dirs with real tests, or remove the dead scripts.
 
-## Security Considerations
+### Thin suite
+**Issue:** Only **10 `.test.js`** files; no tests under `src/` despite evidence from the prior audit of `__tests__` claims.
+**Impact:** Core coordination/install/gateway modules largely untested.
+**Fix approach:** Prioritize unit tests for `src/core/agent_*`, `installer`, `gateway/server.js`.
 
-### Secret Management Pattern Present
-**Risk:** Multiple files reference WECHAT_APP_SECRET, FEISHU_APP_SECRET, DINGTALK_APP_SECRET
-**Files:**
-- `skills/unified-comm-adapter.js:130-183` - Input fields for secrets
-- `examples/unified-comm-adapter-usage.js:26-39`
-- `docs/UNIFIED_COMM_QUICK_START.md:48-59`
-- `docs/UNIFIED_COMM_ADAPTER_REPORT.md:332-345`
+### Malformed `pytest.ini`
+**Issue:** Header `[tool.pytest.ini_options]` (a `pyproject.toml` TOML key) in a `.ini` file, body `asyncio_mode = "strict"`.
+**Impact:** Python config likely ignored; `.agent/skills` Python tests may run with wrong asyncio mode.
+**Fix approach:** Move config to `pyproject.toml` `[tool.pytest.ini_options]` or fix the `.ini` section to `[pytest]`.
 
-**Current mitigation:** Using environment variable pattern
-**Recommendations:** 
-- Add runtime validation that secrets are present before use
-- Implement secret rotation mechanism
-- Add audit logging for secret access
+## Packaging & Repo Hygiene
 
-### WeChat Integration Stub
-**Risk:** `skills/wechat-hub.js:207,245` contains TODO comments indicating QR login not implemented
-**Files:** `skills/wechat-hub.js`
-**Impact:** WeChat integration is incomplete, placeholder only
+### Root artifact pollution
+**Issue:** 8 `*.tgz` (stigmergy-1.3.77 … 1.11.0) and 10 `*test-report*.json` at repo root, plus 5 scratch scripts: `add_numbers.py`, `fibonacci.py`, `pdf_table_extractor.py`, `system_engineering_skill.py`, `token_monitor.py`.
+**Impact:** Root clutter; scratch `.py` violates the "no non-UTF-8 / no stray scripts" hygiene expectation and confuses tooling.
+**Fix approach:** Remove or relocate under `test-results/` and a scratch dir; gitignore them.
 
-## Performance Bottlenecks
+### Stale build artifact shipped
+**Issue:** `dist/` exists and is listed in `package.json` `files`.
+**Impact:** Stale compiled output may ship if not rebuilt.
+**Fix approach:** Rebuild in CI/prepublish or exclude from `files`.
 
-### Soul System Scheduler Cron Overlap
-**Problem:** Multiple cron jobs run every 30 minutes at night (23:00-7:00)
-**Files:** `src/core/soul_system_scheduler.js:24-28`
-**Cause:** Night mode runs every 30min, overlapping with other scheduled tasks
-**Improvement path:** Implement task deduplication or staggered scheduling
+### Encoding-tooling contract unmet
+**Issue:** The global encoding contract references `scripts/check_encoding.py` and `scripts/convert_to_utf8.py`; both **absent**. `scripts/` = 156 files, **0 `.py`**.
+**Impact:** No automated UTF-8 enforcement despite the documented contract and pre-commit expectation.
+**Fix approach:** Add the scripts and wire the pre-commit hook, or amend the contract.
+**Note:** Current files **are** valid UTF-8 no-BOM (sampled: `AGENTS.md`, `README.md`, `src/core/cli_tools.js`, `src/core/desktop-tools.js`, `docs/project-constitution.md`). The prior "GBK/mojibake" claim is **refuted** by strict-UTF-8 decode.
 
-### Large File Processing
-**Problem:** `src/weatherProcessor.js` returns null/empty arrays for edge cases
-**Files:** `src/weatherProcessor.js:100,143`
-**Cause:** Incomplete error handling, returning null instead of proper error responses
-**Impact:** Downstream code must handle null checks
+## Documentation & Consistency Drift
 
-### TypeScript Build Configuration
-**Problem:** Separate tsconfig.build.json for orchestration layer only
-**Files:** `tsconfig.json`, `tsconfig.build.json`
-**Cause:** Dual configuration increases complexity
-**Impact:** Build errors may not surface in main tsconfig
+### Doc/behavior discrepancies
+**Issue:** AGENTS.md and README assert things not true in the tree: coverage thresholds (none), `tsconfig.build.json` (absent), `.prettierrc` (absent), test dirs (absent), `scripts/*.py` encoding tools (absent).
+**Impact:** Contributors/agents follow wrong instructions.
+**Fix approach:** Reconcile docs with the actual tree after deciding which side to change.
 
-## Fragile Areas
+### Agent-count inconsistency in README
+**Issue:** README cites "20 agents verified", "22 agents in ontology", "17+ verified agents", "10+ verified agents with heterogeneous path conventions" in different sections.
+**Impact:** Unclear authoritative count.
+**Fix approach:** Single source of truth for counts.
 
-### Soul CLI Integration
-**Files:** `src/core/soul_cli_integration.js`
-**Why fragile:** 
-- Empty catch block at line 73 hides all errors
-- No validation of hook adapter interface
-- Silent failures prevent diagnosis
-**Safe modification:** Add try/catch logging for all operations
+### Documentation volume
+**Issue:** 233 `.md` files under `docs/`.
+**Impact:** Doc bloat risks drift and contradicts the "no doc bloat" rule in AGENTS.md.
+**Fix approach:** Periodic consolidation; auto-generate where possible.
 
-### Superpowers Command
-**Files:** `src/cli/commands/superpowers.js:228,280`
-**Why fragile:**
-- Two empty catch blocks
-- Complex interactive flow
-- No error recovery mechanism
-**Safe modification:** Wrap entire command in try/catch with logging
+## Dependencies
 
-### Project Command
-**Files:** `src/cli/commands/project.js:449`
-**Why fragile:**
-- Single empty catch block
-- Multiple subcommands with complex logic
-- No graceful degradation
-**Safe modification:** Add error context and user feedback
+### Unpinned/loose core deps
+**Issue:** Key deps use caret ranges (`eslint ^9`, `jest ^30`, `prettier ^3`, `commander/chalk/inquirer`). Major bumps can break CLI/tests.
+**Impact:** Non-reproducible installs; surprise breakage.
+**Fix approach:** Add `package-lock.json` commitment + pin critical ranges; add Renovate/Dependabot.
 
-### Soul Auto Merger
-**Files:** `src/core/soul_auto_merger.js:153,275`
-**Why fragile:**
-- Auto-merge assumes success
-- Empty catch blocks prevent rollback
-- Complex git operations
-**Safe modification:** Implement transaction-like behavior with rollback
+## Carried from prior audit (2026-04-12) — UNVERIFIED THIS PASS
 
-## Scaling Limits
-
-### CLI Tools Detection Cache
-**Current capacity:** Single cache instance in `src/core/cli_path_detector.js`
-**Limit:** Cache invalidation on Windows may not work reliably
-**Scaling path:** Implement distributed cache with Redis
-
-### Skills Loading Performance
-**Current capacity:** 47 skills loaded per session (from agent-states logs)
-**Limit:** Loading time increases linearly
-**Scaling path:** Lazy-load skills on demand
-
-### Soul Knowledge Base
-**Current capacity:** In-memory with file persistence
-**Limit:** Single-threaded access
-**Scaling path:** Move to SQLite-vec as specified in CLAUDE.md
-
-## Dependencies at Risk
-
-### Playwright Version
-**Risk:** `playwright` in package.json - version not pinned
-**Impact:** Breaking changes could affect web testing
-**Migration plan:** Pin to specific version
-
-### Chalk/Commander/Inquirer
-**Risk:** Core CLI dependencies may have breaking changes
-**Impact:** Major version changes could break CLI
-**Migration plan:** Pin versions, test migration path
-
-## Missing Critical Features
-
-### Soul Evolution Validation
-**Problem:** No validation of evolution outputs before accepting them
-**Blocks:** Reliable autonomous learning
-**Priority:** HIGH
-
-### Error Recovery Mechanisms
-**Problem:** Most modules lack graceful degradation
-**Blocks:** Production reliability
-**Priority:** HIGH
-
-### Comprehensive Test Coverage
-**Problem:** Limited unit tests, no E2E tests for critical paths
-**Files:** `tests/` directory exists but sparse
-**Blocks:** Safe refactoring
-**Priority:** MEDIUM
-
-### Graceful Shutdown
-**Problem:** No SIGTERM/SIGINT handlers for CLI
-**Files:** `src/cli/router-beta.js`, `src/index.js`
-**Blocks:** Clean process termination
-**Priority:** MEDIUM
-
-## Test Coverage Gaps
-
-### Untested Core Modules
-**What's not tested:** Soul task planner, scheduler, auto-merger
-**Files:** `src/core/soul_*.js`
-**Risk:** Silent failures in production
-**Priority:** HIGH
-
-### Untested CLI Commands
-**What's not tested:** project, superpowers, install commands
-**Files:** `src/cli/commands/*.js`
-**Risk:** Broken commands go undetected
-**Priority:** MEDIUM
-
-### Untested Gateway
-**What's not tested:** IM gateway server, webhook handlers
-**Files:** `src/gateway/server.js`
-**Risk:** Integration failures with external services
-**Priority:** MEDIUM
-
-### Missing Error Scenario Tests
-**What's not tested:** What happens when external APIs fail
-**Files:** Skills integration
-**Risk:** No graceful degradation
-**Priority:** HIGH
-
-## Gatekeeper System Observations
-
-The `.gates/GATEKEEPER.md` and `.gates/gatekeeper.js` provide a verification gate system, but:
-
-1. **Evolution failures persist** despite gatekeeper existence
-2. **No automated enforcement** - gatekeeper is manual-only
-3. **Human review required** - no CI integration blocking commits
-4. **Evolution log shows** all attempts since 2026-03-07 have failed
-
-**Recommendation:** Integrate gatekeeper into CI pipeline or evolution loop itself.
+Not re-measured this pass; verify before acting:
+- Empty catch blocks reported at `src/cli/commands/project.js:449`, `src/cli/commands/superpowers.js:228,280`, `src/core/soul_task_planner.js:468`, `src/core/soul_system_scheduler.js`, `src/core/soul_auto_merger.js`, `src/core/soul_cli_integration.js:73`.
+- `evolution-log.jsonl` showing consecutive soul-evolution failures.
+- `src/interactive/InteractiveModeController.js.backup-20260126-215905` leftover backup file.
+- WeChat login stub (`skills/wechat-hub.js`), secret-handling pattern in `skills/unified-comm-adapter.js`.
+- Gatekeeper manual-only (no CI enforcement) — **confirmed** this pass (no `.github/workflows`).
 
 ---
 
-*Concerns audit: 2026-04-12*
+**Verified this pass**: `tsconfig.json`/`tsconfig.build.json`/`.prettierrc`/`.prettierrc.json`/`prettier.config.js`/`.editorconfig` all `Test-Path` False; `keywords` count = 2; root `*.tgz` = 8, `*test-report*.json` = 10, scratch `.py` = 5; `scripts/` = 156 files / 0 `.py`; `docs/*.md` = 233; `.github/workflows` absent; `SmartWorkstation/` present; `dist/` present; encoding probes UTF-8/no-BOM OK.

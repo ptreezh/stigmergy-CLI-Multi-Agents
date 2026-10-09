@@ -1,145 +1,145 @@
-# External Integrations
+# Integrations
 
-**Analysis Date:** 2026-04-12
+> Fresh gsd-scan (`tech+arch`) output. Supersedes the stale 2026-04-12 copy.
+> Source of truth: `src/core/cli_tools.js` (`CLI_TOOLS`, `IM_GATEWAYS`), `src/core/desktop-tools.js` (`DESKTOP_TOOLS`), `src/core/agent_registry.js` (`NATIVE_SESSION_DIRS`), `config/gateway.json`.
 
-## AI CLI Tools (Layer 1)
+Stigmergy integrates three classes of agents: **AI CLI tools**, **desktop/IDE AI agents**, and **IM gateways**. Every agent is registered in a single registry object and consumed by installer, hooks deployer, skill sync, gateway, and forensics.
 
-Supported AI CLI tools managed via `src/core/cli_tools.js`. All use hooks-based integration deployed to each tool's hooks directory.
+## 1. AI CLI tools (`src/core/cli_tools.js` → `CLI_TOOLS`)
 
-| Tool | Package | Hooks Dir | Skills Dir | Auth |
-|------|---------|-----------|------------|------|
-| `claude` | `@anthropic-ai/claude-code` | `~/.claude/hooks/` | `~/.claude/skills/` | API key |
-| `gemini` | `@google/gemini-cli` | `~/.gemini/extensions/` | `~/.gemini/skills/` | OAuth |
-| `qwen` | `@qwen-code/qwen-code` | `~/.qwen/hooks/` | `~/.qwen/skills/` | OAuth (access token) |
-| `iflow` | `@iflow-ai/iflow-cli` | `~/.iflow/hooks/` | `~/.iflow/skills/` | API key |
-| `opencode` | `opencode-ai` | `~/.opencode/hooks/` | `~/.opencode/skills/` | API key |
-| `qodercli` | `@qoder-ai/qodercli` | `~/.qoder/hooks/` | `~/.qoder/skills/` | API key |
-| `codebuddy` | `@tencent-ai/codebuddy-code` | `~/.codebuddy/hooks/` | `~/.codebuddy/skills/` | API key |
-| `kilocode` | `@kilocode/cli` | `~/.kilocode/hooks/` | `~/.kilocode/skills/` | API key |
-| `copilot` | `@github/copilot` | `~/.copilot/mcp/` | `~/.copilot/skills/` | OAuth |
-| `codex` | `@openai/codex` | `~/.config/codex/slash_commands/` | `~/.codex/skills/` | API key |
-| `kode` | `@shareai-lab/kode` | `~/.kode/agents/` | `~/.kode/skills/` | API key |
-| `opencli` | `@jackwener/opencli` | `~/.opencli/hooks/` | `~/.opencli/skills/` | Browser-ext |
-| `bun` | `bun` | `~/.bun/` | N/A | Runtime |
-| `resumesession` | `@stigmergy/resume` | `~/.resumesession/hooks/` | N/A | Internal |
-| `oh-my-opencode` | (bunx) | `~/.opencode/plugins/` | N/A | Plugin |
+| Key | Name | Install command | Hooks dir | Skills support | autoInstall |
+|---|---|---|---|---|---|
+| `bun` | Bun Runtime | `npm i -g bun` | `~/.bun` | — | yes (prerequisite) |
+| `claude` | Claude CLI | `npm i -g @anthropic-ai/claude-code` | `~/.claude/hooks` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `gemini` | Gemini CLI | `npm i -g @google/gemini-cli` | `~/.gemini/extensions` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `qwen` | Qwen CLI | `npm i -g @qwen-code/qwen-code` | `~/.qwen/hooks` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `iflow` | iFlow CLI | `npm i -g @iflow-ai/iflow-cli` | `~/.iflow/hooks` | skill-md, **yaml** hooks; plugin `cli-anything` | yes |
+| `opencode` | OpenCode AI CLI | `npm i -g opencode-ai` | `~/.opencode/hooks` | skill-md, json hooks; `dependsOn: [bun, oh-my-opencode]` | yes |
+| `qodercli` | Qoder CLI | `npm i -g @qoder-ai/qodercli` | `~/.qoder/hooks` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `codebuddy` | CodeBuddy CLI | `npm i -g @tencent-ai/codebuddy-code` | `~/.codebuddy/hooks` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `resumesession` | ResumeSession CLI | `npm i -g @stigmergy/resume` | `~/.resumesession/hooks` | — | no (internal feature) |
+| `oh-my-opencode` | Oh-My-OpenCode Plugin | `bunx oh-my-opencode install …` | `~/.opencode/plugins` | — (plugin, `dependsOn: [bun]`) | yes |
+| `kilocode` | KiloCode CLI | `npm i -g @kilocode/cli` | `~/.kilocode/hooks` | skill-md, json hooks; plugin `cli-anything` | yes |
+| `copilot` | GitHub Copilot CLI | `npm i -g @github/copilot` | `~/.copilot/mcp` | skill-md, json hooks; plugin `cli-anything` | no |
+| `codex` | OpenAI Codex CLI | `npm i -g @openai/codex` | `~/.config/codex/slash_commands` | skill-md, json hooks; plugin `cli-anything` | no |
+| `kode` | Kode CLI | `npm i -g @shareai-lab/kode` | `~/.kode/agents` | skill-md, json hooks; plugin `cli-anything` | no |
+| `opencli` | OpenCLI | `npm i -g @jackwener/opencli` | `~/.opencli/hooks` | skill-md, json hooks; browser bridge + 73+ site adapters | yes |
+| `coze` | Coze CLI (扣子) | `npm i -g @coze/cli` | — | — | no |
 
-**Global skills path aliases:**
-- `~/.stigmergy/skills/` - Global install
-- `.agent/skills/` - Project-local
-- `.claude/skills/` - Claude-specific
-- `src/core/skills/embedded-openskills/` - Bundled OpenSkills core
+Notes:
+- Each CLI entry also carries `version` (a `<bin> --version` probe) and `config` (a per-tool config JSON path).
+- `skills.format` is `skill-md` for all skill-capable tools; only `iflow` uses `hookFormat: "yaml"`, the rest use `"json"`.
+- The `cli-anything` plugin is offered to every skill-capable CLI (install via `stigmergy skill install cli-anything`, source `skills/cli-anything`).
 
-## IM Gateway (cc-connect)
+## 2. Desktop / IDE AI agents (`src/core/desktop-tools.js` → `DESKTOP_TOOLS`)
 
-**Package:** `cc-connect` (npm global)
-**Config:** `~/.stigmergy/cc-connect/config.toml`
-**Supported platforms:** feishu, telegram, dingtalk, slack, discord, line, wecom, wechat, qq, qqbot
+`desktop-tools.js` is the **single source of truth** for desktop-agent download links, install detection, and version checks. Desktop entries appear in `CLI_TOOLS` as `type: "desktop"` with `version: null`, `install: null`, and a `desktopRef` pointing here.
 
-**Commands:**
-```bash
-stigmergy cc-config init
-stigmergy cc-config set <platform> <key> <value>
-stigmergy cc-config generate
-stigmergy cc-config start
-stigmergy cc-config status
-```
+| Key | Name | Install URL | Skills dir |
+|---|---|---|---|
+| `workbuddy` | WorkBuddy Desktop (Tencent) | workbuddy.ai | `~/.workbuddy/skills` |
+| `qwenwork` | QwenWork (Tongyi) | qwenwork.cn | `null` (path convention TBD) |
+| `traework` | TraeWork (ByteDance) | trae.ai | `null` |
+| `qoderwork` | QoderWork | qoder.com/qoderwork | `null` |
+| `doubao` | Doubao Desktop (ByteDance) | doubao.com | `~/doubao/skills` |
+| `kimiwork` | Kimi Work | kimi.com | `null` |
+| `marvis` | Marvis (Tencent) | marvis.qq.com | `~/.marvis/skills` |
+| `deepseek-harness-desktop` | DeepSeek Harness Desktop | github.com/deepseek-ai/deepseek-harness | `null` |
+| `codex-desktop` | Codex Desktop (OpenAI) | chatgpt.com/download | `~/.codex/skills` |
+| `openwork` | OpenWork | openworklabs.com | `~/.opencode/skills` |
+| `claudework` | Claude Desktop (Anthropic) | claude.com/download | `null` |
+| `muse` | Muse Desktop (Meta) | ai.meta.com/muse | `~/.muse/skills` |
+| `coze-desktop` | Coze Desktop (扣子) | coze.cn | `null` |
 
-## Browser Automation
+Helpers exported: `resolveLocalDirs(toolName)`, `isDesktopInstalled(toolName)`, `getDesktopToolIds()`. Re-exported from `cli_tools.js`.
 
-**Playwright** (optional peer dep) - Used for E2E testing and OpenCLI browser extension integration.
+## 3. IM gateway (`src/core/cli_tools.js` → `IM_GATEWAYS`)
 
-## Domain CLI Proxies (Python)
+| Key | Name | Install | Type | Config | Platforms |
+|---|---|---|---|---|---|
+| `cc-connect` | cc-connect IM Gateway | `npm i -g cc-connect` | `im-gateway` | `~/.stigmergy/cc-connect/config.toml` | feishu, telegram, dingtalk, slack, discord, line, wecom, wechat, qq, qqbot |
 
-Domain CLIs are Python packages proxy-wrapped through Stigmergy CLI:
+`cc-connect` is treated as infrastructure (not an AI CLI); `autoInstall: true` and it installs ahead of AI CLIs. Repo config: `config/cc-connect-config.toml`.
 
-| Domain CLI | Python Package | Purpose |
-|------------|---------------|---------|
-| `stigmergy medusa` | `medusa` (pip) | E-commerce CLI proxy |
-| `stigmergy eb-edu` | `eb-edu` (pip) | Teaching platform CLI proxy |
+## 4. Stigmergy Gateway (`src/gateway/server.js`, `config/gateway.json`)
 
-Implementation: `src/cli/router-beta.js` (lines 977-1005) spawns Python processes with `which` detection.
+HTTP server exposing remote CLI orchestration. `config/gateway.json` defaults:
 
-## Cross-CLI Execution
+| Setting | Value |
+|---|---|
+| port | `3000` |
+| host | `0.0.0.0` |
+| tunnel | ngrok, region `us`, autostart, enabled |
+| platforms | feishu / telegram / slack / discord — **all disabled by default** |
+| commands | `route`, `concurrent`, `ask`, `status` |
 
-**Hook-based integration:** Hooks deployed to each CLI's hooks directory enable:
-- `/resumesession` slash command registration
-- Session state sharing
-- Result aggregation
+Endpoints (per README): `GET /status`, `POST /webhook/:platform`, `POST /execute`.
+Related files: `src/gateway/server.js` (379 lines), `bin/stigmergy-gateway`.
 
-**CLI Adapters:** `src/core/cli_adapters.js` normalizes flags between interactive vs one-time execution modes across tools.
+## 5. Native session directories (`src/core/agent_registry.js` → `NATIVE_SESSION_DIRS`)
 
-**Smart Router:** `src/core/smart_router.js` routes user prompts to the best CLI based on keyword matching and capability analysis.
+Used by ResumeSession / forensics to read each agent's native session store:
 
-## OpenCLI (Website-to-CLI Bridge)
+| Agent | Dir |
+|---|---|
+| claude | `~/.claude/projects` |
+| gemini | `~/.gemini/tmp` |
+| qwen | `~/.qwen/sessions` |
+| iflow | `~/.iflow/sessions` |
+| codebuddy | `~/.codebuddy/sessions` |
+| codex | `~/.codex/sessions` |
+| copilot | `~/.copilot/sessions` |
+| opencode | `~/.opencode/sessions` |
+| kilocode | `~/.kilocode/sessions` |
+| kode | `~/.kode/sessions` |
+| qodercli | `~/.qoder/sessions` |
 
-**Package:** `@jackwener/opencli` - Converts 453+ websites to CLI commands
-**Browser Extension:** OpenCLI Browser Bridge for reusing authenticated browser sessions
-**Built-in adapters:** 73+ sites (B站/知乎/小红书/Twitter/Reddit/YouTube/etc.)
+`agent_registry.js` (226 lines) also defines `AGENT_STATES_DIR` and imports `CLI_TOOLS`, `DESKTOP_TOOLS`, `getCLIPath`.
 
-**Command:**
-```bash
-stigmergy opencli <site> <command> [args]
-stigmergy opencli --explore <url>   # Generate new CLI
-stigmergy opencli --install-ext     # Install browser extension
-```
+## 6. Coordination bus (file-based, no server)
 
-## Verification Gate
+- Runtime dir: `~/.stigmergy/bus` (env `STIGMERGY_BUS_DIR`).
+- Repo seed dirs under `bus/`: `daily/`, `handoffs/`, `onetime/`, `registry/`, `reviews/`, `sessions/`, `shared/`; logic in `bus/coordinator.js` (346 lines).
+- Used for active handoffs, autonomous takeover, and global task alignment.
 
-**Implementation:** `src/core/hooks/verification-gate.js`
-**Log:** `~/.stigmergy/logs/verification-gate.log`
-**Features:**
-- Completion level detection (Level 0-4)
-- Historical error pattern matching
-- Limitation completeness checks
+## 7. Skill search paths (priority order)
 
-**Run:**
-```bash
-npm run gatekeeper
-npm run gatekeeper:ci    # CI mode
-```
+1. `~/.stigmergy/skills/` — Stigmergy unified storage
+2. `./.agent/skills/` — project universal
+3. `~/.agent/skills/` — global universal
+4. `./.claude/skills/` — project Claude
+5. `~/.claude/skills/` — global Claude
 
-## Scheduler / Automation
+Skill subsystem lives in `src/core/skills/` (`StigmergySkillManager.js`, `SkillSyncManager.js`, `BuiltinSkillsDeployer.js`, `embedded-openskills/`). Repo skill seeds: `skills/`, plus 6 bundled `SKILL.md` under `config/`.
 
-**Cron-based scheduler** at `src/core/scheduler/`:
-- Task types: cli, gateway, webhook, script
-- Supports: feishu, telegram, slack, discord platforms
-- Retry logic, timeout, history tracking
+> Code-order caveat: the README order above is the documented contract. `StigmergySkillManager.js` (write/sync) resolves `~/.stigmergy/skills` → `./.agent/skills` → `~/.agent/skills`; `embedded-openskills/SkillReader.js` (read) checks `./.agent/skills` → `~/.agent/skills` → `~/.stigmergy/skills`. The `.stigmergy`-first order applies to storage/sync, not read resolution.
 
-**Command:**
-```bash
-stigmergy scheduler list
-stigmergy scheduler add --name "..." --cron "0 * * * *" --cli claude
-stigmergy scheduler delete --id <id>
-```
+## 8. Config files (`config/`)
 
-## Gateway Server
+| File | Purpose |
+|---|---|
+| `gateway.json` | Gateway server (port/host/tunnel/platforms/commands) |
+| `cc-connect-config.toml` | cc-connect IM gateway config |
+| `builtin-skills.json` / `predefined-skills.json` | Skill catalogs |
+| `enhanced-cli-config.json` | Enhanced CLI install/parameter handling |
+| `boundaries.json` | Directory/permission boundaries |
+| `hooks.json` | Hook definitions |
+| `session-start.js` | Session-start hook |
+| `config-bundle.json` / `deployment-manifest.json` | Deployment metadata |
 
-**Implementation:** `src/gateway/server.js`
-**Server:** Native Node.js `http` module (no Express/Fastify dependency detected)
-**Platform adapters:** `src/gateway/adapters/` - per IM platform
-**Tunneling:** `src/tunnel/ngrok.js` - ngrok for public URLs
+## 9. Environment variables
 
-**Command:**
-```bash
-stigmergy gateway --feishu --telegram --port 3000 --tunnel
-```
+| Var | Effect |
+|---|---|
+| `DEBUG=true` | Verbose/debug mode |
+| `STIGMERGY_AUTO_INSTALL=true` | Force auto-install during `npm install` |
+| `STIGMERGY_BUS_DIR` | Override coordination bus directory (default `~/.stigmergy/bus`) |
 
-## CI/CD
+## 10. Adapters (`src/adapters/`)
 
-**GitHub Actions:** `.github/workflows/`
-**No external CI service detected.**
+Per-tool adapters: `cc-connect`, `claude`, `codebuddy`, `codex`, `copilot`, `gemini`, `iflow`, `qoder`, `qwen`. Python glue: `src/adapters/__init__.py` (152), `src/adapters/iflow/official_hook_adapter.py` (1028), `src/adapters/copilot/mcp_server.py` (142). Note: there is **no** `src/adapters/opencode/` directory (a stale doc claimed one).
 
-## Configuration
+## Drift / caveats
 
-**Project config dirs:**
-- `~/.stigmergy/` - Global runtime state (hooks, locks, skills, scheduler, soul-state)
-- `~/.stigmergy/environment/` - Environment config
-- `~/.stigmergy/shared-feedbacks/` - Cross-CLI feedback
-- `.stigmergy/` - Project-local overrides
-
-**Env var pattern:** All secrets via `process.env` (no hardcoded values observed in source).
-
----
-
-*Integration audit: 2026-04-12*
+- Old INTEGRATIONS.md described `src/adapters/opencode/`, `src/orchestration/managers/`, `src/orchestration/events/`, and `src/commands/skill.js` — none exist today. Real command handlers live in `src/cli/commands/`.
+- Desktop-agent skills dirs marked `null` are not yet convention-mapped; skill sync skips them.
