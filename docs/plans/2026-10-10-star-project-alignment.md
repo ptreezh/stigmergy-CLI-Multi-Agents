@@ -266,3 +266,36 @@ Phase 0–2 全部达标后才允许 Phase 3：
 6. 两个保留 `.py` 迁入对应 skill scripts 目录（需先验证相对引用路径）。
 
 **待用户确认后才提交**：当前所有改动均为工作区改动，尚未 `git commit`（遵守"未明确要求不提交"）。
+
+### 5 大 Track 执行日志（2026-10-10 第二轮）
+
+| Track | 内容 | 状态 | 证据 |
+|-------|------|------|------|
+| 5 | 新建 `.gitattributes`（`* text=auto eol=lf`；`*.bat/*.cmd eol=crlf`；二进制声明） | ✅ 提交 `42afa5cf` | 36 行 |
+| 4 | 根目录清理 | ✅ 提交（两段） | 见下 |
+| 2 | README 锐化（897→126 行） | ✅ 提交 `741c4fc4` | 5 深链 |
+| 3 | `docs/` 收敛（142 → archive + 索引） | ✅ 提交 `c2e989c9` | 44 链接可解析 |
+| 1 | push + merge main | ⚠️ 阻塞 | 见下 |
+
+**Track 4 根目录清理明细（两段：`42afa5cf` + 本收尾提交）**：
+1. `openclaw-source/`（42 files）`git rm --cached` 取消跟踪（保留磁盘），`.gitignore` 增 `/openclaw-source/`。
+2. 3 个零引用脚本 `git mv` → `scripts/`：`final-cleanup.sh`、`publish-package.ps1`、`stigmergy-orchestrator.js`。
+3. 2 个 `.py` `git mv` → `.agent/skills/system-engineering-task-decomposition/scripts/`；同步修补 `execute_skill.py`（`sys.path` 优先 `script_dir`，importlib 回退先查 `script_dir` 再回退 `project_root_dir`）。
+4. 决策：**保留**全部 9 个 per-CLI 根 `.md` + `CLAUDE.md`（installer/bundle 引用的配置面）。
+5. **修正（重要）**：上一版日志曾声称 `42afa5cf` 已将 8 篇游离报告 `git mv` → `docs/archive/`；实测**不成立**（`git log --all -- docs/archive` 为空，8 文件仍在仓库根目录）。该 8 篇报告实际在本轮收尾提交中迁移：
+   `AGENTGIT-RESEARCH.md`、`DEEP_REFLECTION_VERIFICATION_REPORT.md`、`INJECTION-VERIFICATION.md`、`LEVEL_2_VERIFICATION_REPORT.md`、`US_China_AI_Agent_Report_2026.md`、`US_China_Desktop_AI_Agent_Report_2026.md`、`VERIFICATION_CHECKLIST.md`、`VERIFICATION_EVIDENCE.md`。
+   `.gitignore` 增 `!docs/archive/` + `!docs/archive/**`（抵消 §84-86 的 `archive/`/`**/archive/**` 误伤）。
+6. `COMPREHENSIVE_TEST_PLAN.md` 位于 `.gitignore` L35（未跟踪），保留原位、不动。
+
+**验证（Track 4 / 收尾）**：`execute_skill.py --task-description "test"` 正常输出 JSON；`npx eslint "src/**/*.js"` 0 行输出（exit 0）；`npx jest tests/unit --ci --runInBand` → **9 suites / 83 tests 全绿**；8 篇根报告迁移后 `git status` 显示为纯 rename。
+
+**Track 2 / 3 明细**：
+- Track 2（`741c4fc4`）：README 897→126 行；真实 CLI 输出 demo；版本诚实化（dev `1.11.0` / npm latest `1.10.10-beta.5`）；Gateway 降为 Experimental 一条；5 个深链（README L97-101）。
+- Track 3（`c2e989c9`）：`docs/` 顶层游离 174 篇 → **142 迁入 `docs/archive/`**（全部纯 rename R100，0 内容改动）+ 32 篇保留；新增 `docs/README.md` 索引（44 链接全部可解析，严格 UTF-8 无 BOM）；修正 `STIGMERGY_VS_OPENCLAW_ANALYSIS.md` 两条错路径链接（`docs/X.md`→`./X.md`）。子目录（analysis/guides/plans/strategy/blog 等 61 篇）未动。
+
+**Track 1 阻塞证据**：
+- `git push` → `! [remote rejected] ... (refusing to allow an OAuth App to create or update workflow .github/workflows/ci.yml without workflow scope)`。
+- 重试 → `fatal: Failed to connect to github.com port 443 after 28671 ms: Could not connect to server`（网络不可达）。
+- 结论：commit 全部落地本地；push 需（a）网络恢复 且（b）OAuth token 具备 `workflow` scope，或改用网页手动 push。**未解决。**
+
+**当前 git 拓扑**（本轮两笔新提交后）：HEAD `gnhf/reduce-complexity-of-446091-1`（Track 3 `c2e989c9` + Track 4 收尾）领先 `origin/main`；本地 `main` = `origin/main`，可 ff-merge。精确领先数见提交后 `git rev-list --left-right --count origin/main...HEAD`。
