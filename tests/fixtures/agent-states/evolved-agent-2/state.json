@@ -1,0 +1,12 @@
+{
+  "cliName": "evolved-agent-2",
+  "createdAt": "2026-02-01T00:00:00.000Z",
+  "evolutionCount": 1,
+  "lastEvolution": {
+    "success": false,
+    "strategy": "refactoring",
+    "error": "Timeout",
+    "timestamp": "2026-02-02T00:00:00.000Z"
+  },
+  "lastUpdate": "2026-02-02T00:00:00.000Z"
+}
