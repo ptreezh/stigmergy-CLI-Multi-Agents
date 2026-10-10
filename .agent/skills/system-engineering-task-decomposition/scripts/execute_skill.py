@@ -19,23 +19,24 @@ agent_dir = os.path.dirname(skills_dir)                  # D:\stigmergy-CLI-Mult
 parent_dir = os.path.dirname(agent_dir)                  # D:\stigmergy-CLI-Multi-Agents\.agent
 project_root_dir = os.path.dirname(parent_dir)           # D:\stigmergy-CLI-Multi-Agents
 
-print(f"Script directory: {script_dir}", file=sys.stderr)
-print(f"Skills directory: {skills_dir}", file=sys.stderr)
-print(f"Agent directory: {agent_dir}", file=sys.stderr)
-print(f"Parent directory: {parent_dir}", file=sys.stderr)
-print(f"Project root directory: {project_root_dir}", file=sys.stderr)
+# print(f"Script directory: {script_dir}", file=sys.stderr)
+# print(f"Skills directory: {skills_dir}", file=sys.stderr)
+# print(f"Agent directory: {agent_dir}", file=sys.stderr)
+# print(f"Parent directory: {parent_dir}", file=sys.stderr)
+# print(f"Project root directory: {project_root_dir}", file=sys.stderr)
 
-# 添加项目根目录到Python路径
+# 添加脚本目录到Python路径 (优先本地脚本目录，避免依赖根目录文件)
+sys.path.insert(0, script_dir)
 sys.path.insert(0, project_root_dir)
 
 try:
     from system_engineering_skill import SystemEngineeringSkill, DecompositionMethod
 except ImportError as e:
     print(f"Import error: {e}", file=sys.stderr)
-    # 如果直接导入失败，尝试从项目根目录导入
+    # 如果直接导入失败，尝试从脚本目录导入
     import importlib.util
-    skill_path = os.path.join(project_root_dir, 'system_engineering_skill.py')
-    print(f"Looking for skill file at: {skill_path}", file=sys.stderr)
+    skill_path = os.path.join(script_dir, 'system_engineering_skill.py')
+    # print(f"Looking for skill file at: {skill_path}", file=sys.stderr)
     if os.path.exists(skill_path):
         spec = importlib.util.spec_from_file_location("system_engineering_skill", skill_path)
         skill_module = importlib.util.module_from_spec(spec)
@@ -43,7 +44,16 @@ except ImportError as e:
         SystemEngineeringSkill = skill_module.SystemEngineeringSkill
         DecompositionMethod = skill_module.DecompositionMethod
     else:
-        raise FileNotFoundError(f"Could not find system_engineering_skill.py at {skill_path}")
+        # 回退到项目根目录
+        skill_path_fb = os.path.join(project_root_dir, 'system_engineering_skill.py')
+        if os.path.exists(skill_path_fb):
+            spec = importlib.util.spec_from_file_location("system_engineering_skill", skill_path_fb)
+            skill_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(skill_module)
+            SystemEngineeringSkill = skill_module.SystemEngineeringSkill
+            DecompositionMethod = skill_module.DecompositionMethod
+        else:
+            raise FileNotFoundError(f"Could not find system_engineering_skill.py at {skill_path}")
 
 
 def parse_arguments():

@@ -1,0 +1,34 @@
+# Normalize line endings to LF in the repository and working tree.
+# See: https://www.git-scm.com/docs/gitattributes
+* text=auto eol=lf
+
+# Windows batch scripts require CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets - never treat as text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.icns binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tgz binary
+*.7z binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.mp3 binary
+*.mp4 binary
+*.mov binary
+*.avi binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.wasm binary

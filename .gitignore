@@ -188,6 +188,9 @@ web-articles/
 # Large independent sub-projects
 SmartWorkstation/
 
+# Vendored third-party source snapshot (kept locally, not tracked)
+/openclaw-source/
+
 # Runtime agent state data (regenerated per test run, timestamps change)
 tests/tests/*/session.json
 tests/tests/*/signature.json
@@ -215,4 +218,8 @@ tests/tests/*/signature.json
 /quick-collaboration-test-report-*.json
 /simple-availability-test-report-*.json
 /smart-collaboration-test-report-*.json
+
+# Curated documentation archive (tracked; overrides the generic archive/ rules above)
+!docs/archive/
+!docs/archive/**
 
