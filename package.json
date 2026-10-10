@@ -2,6 +2,21 @@
   "name": "stigmergy",
   "version": "1.11.0",
   "description": "Orchestration layer for multiple AI CLI tools. Route tasks, share skills, and coordinate Claude, Gemini, Qwen, Cursor, Copilot, Codex, and other AI agents from one command.",
+  "main": "src/index.js",
+  "bin": {
+    "stigmergy": "src/index.js"
+  },
+  "files": [
+    "src/",
+    "skills/",
+    "config/",
+    "scripts/",
+    "docs/",
+    "dist/orchestration",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "ai",
     "cli",
@@ -23,7 +38,9 @@
   "scripts": {
     "postinstall": "node scripts/postinstall-deploy.js",
     "start": "node src/index.js",
+    "build": "npm run build:orchestration",
     "build:orchestration": "tsc --project tsconfig.build.json",
+    "pack": "npm pack --dry-run",
     "verify:package": "node scripts/verify-package-content.js",
     "concurrent": "node src/index.js concurrent",
     "interactive": "node src/index.js interactive",
@@ -135,7 +152,7 @@
   ],
   "license": "MIT",
   "overrides": {
-    "minimatch": "^10.2.4",
+    "minimatch": "9.0.5",
     "brace-expansion": "^2.0.2",
     "picomatch": "^4.0.3"
   }

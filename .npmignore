@@ -1,189 +1,44 @@
-# Tests
-test/
-tests/
-**/*.test.js
-**/*.spec.js
-**/__tests__/
-src/**/__tests__/
-
-# Documentation
-docs/
-*.md
-!README.md
-
-# Development configuration
-.eslintrc.js
+# Development
+.git/
+.github/
+.kilo/
+.planning/
+.agent/
+.claude/
+.opencode/
+.archive/
+node_modules/
+temp-*/
+*.test.js
+*.test.ts
 jest.config.js
-prettier.config.js
-.babelrc
+.eslintrc.js
+.prettierrc
 tsconfig*.json
 
-# Source maps
-*.map
-*.ts.map
-
-# Backup files
-*.backup
-*.backup-*
-*.bak
-*.broken
-*.orig
-
-# Temporary and cache
-.cache/
-.temp/
-.tmp/
-
-# Examples
-examples/
-
-# Test files
-*-test.js
-*-test.py
-test-*.js
-test-*.py
-
-# Algorithm examples
-factorial.js
-fibonacci.js
-quicksort.js
-prime-checker.js
-javascript-calculator.js
-
-# Verification scripts
-comprehensive_verification.js
-create-real-test-cli.js
-
-# Intermediate documentation
-FINAL_SUMMARY.md
-TEST_RESULTS.md
-IMPROVEMENTS.md
-IMPLEMENTATION_SUMMARY.md
-
-# Technical docs
-ALGORITHMS.md
-API_DOCS.md
-DATA_ENCRYPTION_DOCS.md
-ENCRYPTION_DOCS.md
-ERROR_HANDLING.md
-
-# Individual AI tool docs
-agent.md
-claude.md
-gemini.md
-iflow.md
-qwen.md
-AGENTS.md
-codebuddy.md
-codex.md
-copilot.md
-
-# Development files
-CHANGELOG.md
-coverage/
-.nyc_output/
-
-# Source TypeScript (we only ship compiled JS)
-src/orchestration/**/*.ts
-
-# Dependency directories
-node_modules/
-
-# Package manager files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
 
-# Git files
-.git/
-.gitignore
-.gitattributes
+# Logs
+*.log
+logs/
 
-# Project-specific temp directories
-.temp/
-.stigmergy-project/
-.claude/
-.qoder/
-.spec-workflow/
-output/
-__pycache__/
+# Test coverage
+coverage/
 
-# Python files
-*.py
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# Local config
+*.local.json
+.stigmergy/
 
-# Cache
-.cache/
-.parcel-cache/
-
-# Config files
-package.test.json
-package.optimized.json
-
-# Large directories
-sscisubagent-skills/
-test-projects/
-video_frames/
-specs/
-templates/
-skills-package/
-
-# Media files
-*.jpg
-*.png
-*.mp4
-*.avi
-*.mov
-*.mkv
-
-# Package files
+# Runtime data
+bus/
+dist/
+wiki/
 *.tgz
-.yarn-integrity
-
-# Environment
-.env
-.env.test
-
-# Windows executables
-*.exe
-*.bat
-*.cmd
-!bin/*.cmd
-
-# SmartWorkstation sub-project
-SmartWorkstation/
-packages/
-
-# Refactoring docs
-src/core/REFACTORING_*.md
-**/REFACTORING_*.md
