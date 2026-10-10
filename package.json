@@ -11,7 +11,6 @@
     "skills/",
     "config/",
     "scripts/",
-    "docs/",
     "dist/orchestration",
     "README.md",
     "LICENSE",
@@ -21,10 +20,14 @@
     "ai",
     "cli",
     "multi-agent",
+    "multi-agents",
     "orchestration",
     "claude-code",
+    "claude-cli",
     "gemini-cli",
     "qwen-cli",
+    "iflow-cli",
+    "kilocode-cli",
     "cursor",
     "copilot",
     "codex",
@@ -33,6 +36,10 @@
     "llm-tools",
     "agent-skills",
     "ai-engineering",
+    "collaboration",
+    "nodejs-first",
+    "real-testing",
+    "python-free",
     "stigmergy"
   ],
   "scripts": {
@@ -69,21 +76,6 @@
     "gatekeeper:ci": "node .gates/gatekeeper-ci.js",
     "precommit": "npm run gatekeeper"
   },
-  "keywords": [
-    "ai",
-    "cli",
-    "collaboration",
-    "multi-agents",
-    "nodejs-first",
-    "cross-cli",
-    "claude-cli",
-    "gemini-cli",
-    "qwen-cli",
-    "iflow-cli",
-    "kilocode-cli",
-    "real-testing",
-    "python-free"
-  ],
   "engines": {
     "node": ">=16.0.0"
   },
@@ -139,6 +131,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ptreezh/stigmergy-CLI-Multi-Agents.git"
+  },
+  "homepage": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents#readme",
+  "bugs": {
+    "url": "https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/issues"
   },
   "author": "Stigmergy CLI Team",
   "contributors": [
