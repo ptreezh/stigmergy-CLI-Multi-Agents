@@ -195,3 +195,24 @@ tests/tests/*/signature.json
 # Soul runtime state under .stigmergy/skills/
 .stigmergy/skills/
 .stigmergy/skills/**
+
+# Root runtime state, caches, and one-off reports (never commit these)
+/.env.coordination
+/.resumesession
+/unpaywall_cache
+/conversation-history.jsonl
+/decentralized-evolution.jsonl
+/evolution-log.jsonl
+/multi-cli-evolution-log.jsonl
+/single-cli-evolution-log.jsonl
+/collaboration-report.json
+/evidence-report.json
+/comprehensive-test-report.json
+/simplified-comprehensive-test-report.json
+/test-1-cli-collaboration-report.json
+/architecture-collaboration-test-report-*.json
+/cli-availability-test-report-*.json
+/quick-collaboration-test-report-*.json
+/simple-availability-test-report-*.json
+/smart-collaboration-test-report-*.json
+
