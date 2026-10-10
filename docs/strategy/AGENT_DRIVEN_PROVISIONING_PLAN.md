@@ -300,7 +300,7 @@ opencode 自身是 npm 包：`npm install -g opencode-ai` 一条命令即可在�
 
 ### 5.4 审计
 
-- 全部执行日志走 `scripts/decision_logger.py` 模式（**跨进程锁**，防并发 append 交错破坏 UTF-8 行）
+- 全部执行日志走锁文件模式（**跨进程锁**，防并发 append 交错破坏 UTF-8 行；仓库无现成 `scripts/decision_logger.py`，自行实现）
 - 每单元落 4 行：`[时间][单元id][动作][结果/证据]`
 - 行为与结果分离：日志只记「做了什么 + 证据」，不记 token/密钥
 

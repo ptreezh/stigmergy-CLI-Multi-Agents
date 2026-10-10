@@ -113,7 +113,7 @@
 | 7 | `rg --type py` 失效 → 必用 `-g "*.py"`; PowerShell Count 先赋变量 | 全局 AGENTS.md |
 | 8 | 数字必须直接实测复核后写交付物 (子代理报告不转述) | 全局 AGENTS.md |
 | 9 | 修改 opencode 配置前先备份 `.backup-<时间戳>` | 全局 AGENTS.md |
-| 10 | 所有文本文件 UTF-8 无 BOM; 读写显式指定编码; 违规用 `scripts/convert_to_utf8.py` | 全局 AGENTS.md |
+| 10 | 所有文本文件 UTF-8 无 BOM; 读写显式指定编码; 违规手动修正（仓库无自动转码脚本，用 PowerShell 显式 UTF-8 重写） | 全局 AGENTS.md |
 
 ---
 
