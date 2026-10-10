@@ -187,3 +187,11 @@ web-articles/
 
 # Large independent sub-projects
 SmartWorkstation/
+
+# Runtime agent state data (regenerated per test run, timestamps change)
+tests/tests/*/session.json
+tests/tests/*/signature.json
+
+# Soul runtime state under .stigmergy/skills/
+.stigmergy/skills/
+.stigmergy/skills/**

@@ -1,6 +1,0 @@
-{
-  "agent-type": "chat",
-  "files": "config.json,bridge logs,skill files",
-  "active": "true",
-  "dependencies": "qoder,marvis"
-}

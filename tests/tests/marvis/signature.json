@@ -1,7 +1,0 @@
-{
-  "agent-type": "desktop",
-  "databases": "14.6GB data.db,559MB memory.db",
-  "scheduled-tasks": "daily electricity market collection",
-  "active": "true",
-  "dependencies": "qoder,opencode"
-}

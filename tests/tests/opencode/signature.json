@@ -1,7 +1,0 @@
-{
-  "agent-type": "ide",
-  "project": "socienceAI",
-  "session-id": "ses_test123456",
-  "active": "true",
-  "dependencies": "workbuddy,marvis,coze"
-}
