@@ -694,8 +694,8 @@ Stigmergy 的价值:
 
 - [Stigmergy 官方文档](../README.md)
 - [OpenClaw 文档](https://github.com/ptreezh/openclaw)（假设）
-- [Token 优化指南](docs/SEO_GUIDE.md)
-- [状态板设计文档](docs/MARKETING_SEO_PLAN.md)
+- [Token 优化指南](./SEO_GUIDE.md)
+- [状态板设计文档](./MARKETING_SEO_PLAN.md)
 
 ---
 
