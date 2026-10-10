@@ -279,6 +279,12 @@ class SoulManager {
     // Initialize DECI decision engine (INTEG-01)
     await this.initDecisionEngine();
 
+    // Auto-start heartbeat scheduler (30min interval)
+    if (this.memoryManager && typeof this.memoryManager.startHeartbeat === 'function') {
+      this.memoryManager.startHeartbeat(30 * 60 * 1000);
+      console.log(`[SoulManager] Heartbeat scheduler started (30min)`);
+    }
+
     return true;
   }
 

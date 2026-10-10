@@ -79,6 +79,12 @@ class SoulCommand {
     await manager.initAutonomousSystem();
     console.log(`\n✅ Soul System initialized for ${cliName}`);
     console.log(`   Identity: ${manager.identity?.name || "Unknown"}`);
+
+    // Ensure heartbeat is running (idempotent)
+    if (manager.memoryManager && typeof manager.memoryManager.startHeartbeat === 'function') {
+      manager.memoryManager.startHeartbeat(30 * 60 * 1000);
+      console.log(`   Heartbeat: started (30min interval)`);
+    }
   }
 
   async status(args) {

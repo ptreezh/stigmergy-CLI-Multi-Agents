@@ -34,7 +34,7 @@ function writeReport(reportType, data) {
       destPath = path.join(STIGMERGY_BUS_DIR, 'sessions', agent, `${sessionId}.json`);
       break;
     default:
-      console.error(`Unknown report type: ${reportType}`);
+      console.error('Unknown report type:', reportType);
       process.exit(1);
   }
 
@@ -52,7 +52,33 @@ function writeReport(reportType, data) {
   return destPath;
 }
 
+function readBusTasks() {
+  const tasksDir = path.join(STIGMERGY_BUS_DIR, 'tasks');
+  if (!fs.existsSync(tasksDir)) return [];
+  return fs.readdirSync(tasksDir)
+    .filter(f => f.endsWith('.json'))
+    .map(f => {
+      try { return JSON.parse(fs.readFileSync(path.join(tasksDir, f), 'utf8')); } catch { return null; }
+    })
+    .filter(Boolean);
+}
+
+function readBusRegistry() {
+  const registryDir = path.join(STIGMERGY_BUS_DIR, 'registry');
+  if (!fs.existsSync(registryDir)) return [];
+  return fs.readdirSync(registryDir)
+    .filter(f => f.endsWith('.json'))
+    .map(f => {
+      try { return JSON.parse(fs.readFileSync(path.join(registryDir, f), 'utf8')); } catch { return null; }
+    })
+    .filter(Boolean);
+}
+
 function generateOnetimeReport() {
+  const tasks = readBusTasks();
+  const registry = readBusRegistry();
+  const otherAgents = registry.filter(r => r.agent !== getAgentName());
+
   const report = {
     installation: {
       path: process.env.STIGMERGY_HOME || process.cwd(),
@@ -73,6 +99,18 @@ function generateOnetimeReport() {
     help: {
       files: [],
       content: ''
+    },
+    globalAwareness: {
+      totalTasks: tasks.length,
+      pendingTasks: tasks.filter(t => t.status === 'pending').length,
+      stuckTasks: tasks.filter(t => t.status === 'stuck').length,
+      activeAgents: otherAgents.length,
+      otherAgents: otherAgents.map(a => ({
+        name: a.agent,
+        status: a.status,
+        currentTask: a.currentTask,
+        capabilities: a.capabilities
+      }))
     }
   };
 
@@ -80,6 +118,10 @@ function generateOnetimeReport() {
 }
 
 function generateDailyReport(data) {
+  const tasks = readBusTasks();
+  const registry = readBusRegistry();
+  const otherAgents = registry.filter(r => r.agent !== getAgentName());
+
   const report = {
     date: new Date().toISOString().split('T')[0],
     yesterday: {
@@ -92,20 +134,39 @@ function generateDailyReport(data) {
       plannedTasks: data.today?.plannedTasks || [],
       blockers: data.today?.blockers || []
     },
-    blockers: data.blockers || []
+    blockers: data.blockers || [],
+    globalState: {
+      totalTasks: tasks.length,
+      pendingTasks: tasks.filter(t => t.status === 'pending').length,
+      stuckTasks: tasks.filter(t => t.status === 'stuck').length,
+      activeAgents: otherAgents.length,
+      agentsByStatus: otherAgents.reduce((acc, a) => {
+        acc[a.status] = (acc[a.status] || 0) + 1;
+        return acc;
+      }, {})
+    }
   };
 
   return writeReport('daily', report);
 }
 
 function generateSessionReport(data) {
+  const tasks = readBusTasks();
+  const registry = readBusRegistry();
+  const otherAgents = registry.filter(r => r.agent !== getAgentName());
+
   const report = {
     sessionId: process.env.STIGMERGY_SESSION_ID || `session-${Date.now()}`,
     workingDirectory: data.workingDirectory || process.cwd(),
     filesModified: data.filesModified || [],
     tasksCompleted: data.tasksCompleted || [],
     keyDecisions: data.keyDecisions || [],
-    nextSteps: data.nextSteps || []
+    nextSteps: data.nextSteps || [],
+    globalAwareness: {
+      totalActiveAgents: otherAgents.length,
+      agentsWorkingOnSameProject: otherAgents.filter(a => a.project === (data.workingDirectory || process.cwd())).length,
+      stuckTasksInProject: tasks.filter(t => t.project === (data.workingDirectory || process.cwd()) && t.status === 'stuck').length
+    }
   };
 
   return writeReport('session', report);

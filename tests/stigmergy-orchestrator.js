@@ -2,11 +2,11 @@
 
 const path = require("path");
 const fs = require("fs");
-const { execSync } = require("child_process");
+const os = require("os");
 
 class StigmergyOrchestratorTests {
   constructor() {
-    this.testDir = path.join(__dirname, "tests");
+    this.testDir = path.join(os.tmpdir(), "stigmergy-orchestrator-tests");
     this.setupTestDirectory();
   }
 

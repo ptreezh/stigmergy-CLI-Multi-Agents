@@ -1,5 +1,9 @@
 const path = require("path");
 
+jest.mock("child_process", () => ({
+  spawnSync: jest.fn(() => ({ status: 0, stdout: "1.0.0-mock", stderr: "" })),
+}));
+
 jest.mock("../../src/core/cli_path_detector", () => {
   const MockCLIPathDetector = jest.fn().mockImplementation(() => ({
     detectAllCLIPaths: jest.fn().mockResolvedValue({
@@ -30,11 +34,11 @@ describe("AgentStateCollector", () => {
 
   beforeEach(() => {
     registry = new AgentRegistry({
-      agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
-      cacheTTL: 0,
+      agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
+      cacheTTL: 30000,
     });
     collector = new AgentStateCollector({
-      agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+      agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
     });
   });
 
@@ -105,7 +109,7 @@ describe("AgentStateCollector", () => {
       };
 
       const brokenCollector = new AgentStateCollector({
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
       });
       brokenCollector._countSessions = async () => {
         throw new Error("session read failed");
@@ -180,7 +184,7 @@ describe("AgentStateCollector", () => {
       };
 
       const testCollector = new AgentStateCollector({
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
       });
       testCollector._estimateConversationDepth = async () => 100;
 
@@ -249,7 +253,7 @@ describe("AgentStateCollector", () => {
       };
 
       const testCollector = new AgentStateCollector({
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
       });
       testCollector._estimateConversationDepth = async () => 100;
 

@@ -12,6 +12,7 @@ const os = require("os");
 
 const home = process.env.HOME || process.env.USERPROFILE || "";
 const stigmergyRoot = path.join(home, ".stigmergy");
+const projectRoot = path.resolve(__dirname, "..");
 
 // 支持的 CLI 工具
 const cliTools = [
@@ -84,11 +85,37 @@ function setupSoulStateDirectories() {
     path.join(stigmergyRoot, "soul-state", "memories"),
     path.join(stigmergyRoot, "soul-state", "knowledge-base"),
     path.join(stigmergyRoot, "soul-state", "evolution-log"),
-    path.join(stigmergyRoot, "soul-state", "alignment-checks")
+    path.join(stigmergyRoot, "soul-state", "alignment-checks"),
+    path.join(stigmergyRoot, "soul-state", "boundaries")
   ];
 
   for (const dir of stateDirs) {
     ensureDirectory(dir);
+  }
+
+  // Deploy default boundaries.json if not exists
+  deployDefaultBoundaries();
+}
+
+/**
+ * 部署默认 DECI 边界规则
+ */
+function deployDefaultBoundaries() {
+  const boundariesDir = path.join(stigmergyRoot, "soul-state", "boundaries");
+  const boundariesPath = path.join(boundariesDir, "boundaries.json");
+  const sourcePath = path.join(projectRoot, "config", "soul-state", "boundaries", "boundaries.json");
+
+  if (!fs.existsSync(boundariesPath)) {
+    try {
+      if (fs.existsSync(sourcePath)) {
+        fs.copyFileSync(sourcePath, boundariesPath);
+        console.log(`✅ Deployed default boundaries.json to ${boundariesPath}`);
+      } else {
+        console.log(`⚠️  Default boundaries.json not found at ${sourcePath}`);
+      }
+    } catch (error) {
+      console.log(`❌ Failed to deploy boundaries.json: ${error.message}`);
+    }
   }
 }
 

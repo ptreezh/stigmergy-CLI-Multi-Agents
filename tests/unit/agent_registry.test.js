@@ -1,5 +1,13 @@
 const path = require("path");
 
+// Prevent real `spawnSync("<cli>", ["--version"])` calls during version
+// detection (agent_registry.js _scanCLITools). The path-detector mock reports
+// 8 CLIs as installed, so 8 real process spawns happened per scanAll() before
+// this mock existed — the dominant cost of the ~84s suite.
+jest.mock("child_process", () => ({
+  spawnSync: jest.fn(() => ({ status: 0, stdout: "1.0.0-mock", stderr: "" })),
+}));
+
 jest.mock("../../src/core/cli_path_detector", () => {
   const MockCLIPathDetector = jest.fn().mockImplementation(() => ({
     detectAllCLIPaths: jest.fn().mockResolvedValue({
@@ -28,8 +36,12 @@ describe("AgentRegistry", () => {
 
   beforeEach(() => {
     registry = new AgentRegistry({
-      agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
-      cacheTTL: 0,
+      // Deterministic fixture instead of the live repo agent-states/ dir.
+      agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
+      // NB: cacheTTL of 0 would silently fall back to 30000
+      // (`options.cacheTTL || 30000` in the constructor); be explicit so the
+      // cache-across-two-scans TTL semantics are visible and stable.
+      cacheTTL: 30000,
     });
   });
 
@@ -86,6 +98,9 @@ describe("AgentRegistry", () => {
       registry.invalidateCache();
 
       const first = await registry.scanAll();
+      // With spawnSync mocked, scans now finish in <1ms; pace explicitly so the
+      // two scannedAt ISO timestamps are guaranteed to differ.
+      await new Promise((resolve) => setTimeout(resolve, 10));
       await registry.scanAll();
       registry.invalidateCache();
       const second = await registry.scanAll();

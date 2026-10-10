@@ -6,10 +6,14 @@
 const readline = require("readline");
 const path = require("path");
 const { EventEmitter } = require("events");
-// 🔒 使用带文件锁保护的编排器
-const {
-  CentralOrchestrator,
-} = require("../../dist/orchestration/core/CentralOrchestrator");
+// 🔒 使用带文件锁保护的编排器（构建产物缺失时降级，不阻塞交互模式）
+let CentralOrchestrator = null;
+try {
+  const orchestration = require("../../dist/orchestration/core/CentralOrchestrator");
+  CentralOrchestrator = orchestration.CentralOrchestrator;
+} catch (error) {
+  CentralOrchestrator = null;
+}
 const CLIPathDetector = require("../core/cli_path_detector");
 const { CLI_ADAPTERS } = require("../core/cli_adapters");
 // 🔥 新增：持久进程池
@@ -38,10 +42,17 @@ class InteractiveModeController extends EventEmitter {
     };
 
     // Initialize orchestration system components
-    this.orchestrator = new CentralOrchestrator({
-      concurrency: options.concurrency || 3,
-      workDir: process.cwd(),
-    });
+    if (CentralOrchestrator) {
+      this.orchestrator = new CentralOrchestrator({
+        concurrency: options.concurrency || 3,
+        workDir: process.cwd(),
+      });
+    } else {
+      this.orchestrator = null;
+      console.warn(
+        "[InteractiveMode] CentralOrchestrator build artifact missing. Run `npm run build:orchestration` to enable concurrent mode.",
+      );
+    }
 
     // Controller state
     this.isActive = false;
@@ -124,9 +135,34 @@ class InteractiveModeController extends EventEmitter {
       this._startAutoSave();
     }
 
+    // Auto-start Soul heartbeat if soul.md exists
+    this._startSoulHeartbeat();
+
     // Enter command loop only if autoEnterLoop is enabled
     if (this.options.autoEnterLoop) {
       await this._enterCommandLoop();
+    }
+  }
+
+  /**
+   * Auto-start Soul heartbeat if soul.md exists
+   */
+  async _startSoulHeartbeat() {
+    try {
+      const SoulManager = require("../core/soul_manager");
+      const soulManager = new SoulManager({
+        cliName: "interactive",
+        skillsPath: path.join(process.cwd(), ".stigmergy", "skills"),
+        autoLearn: true,
+      });
+
+      const hasSoul = await soulManager.detectSoul();
+      if (hasSoul) {
+        await soulManager.initAutonomousSystem();
+        console.log("[SOUL] Heartbeat system activated");
+      }
+    } catch (e) {
+      console.log("[SOUL] Heartbeat skipped:", e.message);
     }
   }
 
@@ -1151,6 +1187,13 @@ ${task}
       }
 
       try {
+        if (!this.orchestrator) {
+          return {
+            success: false,
+            message:
+              "Concurrent execution unavailable: CentralOrchestrator build artifact missing. Run `npm run build:orchestration` first.",
+          };
+        }
         // 使用 CentralOrchestrator 并发执行
         const result = await this.orchestrator.executeConcurrent(task, {
           mode: "parallel",

@@ -11,6 +11,8 @@ class StigmergyCoordinator {
     this.capabilities = (process.env.AGENT_CAPABILITIES || "").split(",").map(s => s.trim()).filter(Boolean);
     this.project = process.env.AGENT_PROJECT || process.cwd();
     this.heartbeatInterval = parseInt(process.env.AGENT_HEARTBEAT || "60", 10);
+    this.daemonTimer = null;
+    this.taskIdCounter = 0;
 
     this.ensureDirectories();
   }
@@ -23,7 +25,8 @@ class StigmergyCoordinator {
       path.join(this.busDir, "handoffs", "completed"),
       path.join(this.busDir, "reviews", "pending"),
       path.join(this.busDir, "reviews", "completed"),
-      path.join(this.busDir, "shared")
+      path.join(this.busDir, "shared"),
+      path.join(this.busDir, "tasks")
     ];
 
     for (const dir of dirs) {
@@ -45,7 +48,9 @@ class StigmergyCoordinator {
       capabilities: this.capabilities,
       project: this.project,
       lastUpdate: new Date().toISOString(),
-      heartbeat: this.heartbeatInterval
+      heartbeat: this.heartbeatInterval,
+      tasksCompleted: 0,
+      tasksStuck: 0
     };
 
     fs.writeFileSync(this.getRegistryPath(), JSON.stringify(registry, null, 2));
@@ -53,38 +58,49 @@ class StigmergyCoordinator {
     return registry;
   }
 
-  heartbeat() {
-    const registryPath = this.getRegistryPath();
-    let registry = {};
-
-    if (fs.existsSync(registryPath)) {
-      try {
-        registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-      } catch {}
+  updateRegistry(updates = {}) {
+    const p = this.getRegistryPath();
+    let data = {};
+    if (fs.existsSync(p)) {
+      try { data = JSON.parse(fs.readFileSync(p, "utf8")); } catch {}
     }
+    Object.assign(data, updates, { lastUpdate: new Date().toISOString() });
+    fs.writeFileSync(p, JSON.stringify(data, null, 2));
+    return data;
+  }
 
-    registry.lastUpdate = new Date().toISOString();
-    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
-    console.log(`[STIGMERGY] Heartbeat updated for ${this.agentName}`);
-    return registry;
+  heartbeat() {
+    this.updateRegistry();
+    console.log(`[STIGMERGY] Heartbeat ${this.agentName}`);
+  }
+
+  agentIsIdle() {
+    const p = this.getRegistryPath();
+    if (!fs.existsSync(p)) return true;
+    try {
+      const data = JSON.parse(fs.readFileSync(p, "utf8"));
+      return data.status !== "busy";
+    } catch {
+      return true;
+    }
+  }
+
+  matchesMySkills(taskOrHandoff) {
+    if (!this.capabilities.length) return false;
+    const required = taskOrHandoff.requiredSkills || taskOrHandoff.capabilities || [];
+    const requiredLower = required.map(s => String(s).toLowerCase());
+    return this.capabilities.some(c => requiredLower.includes(String(c).toLowerCase()));
   }
 
   scanHandoffs() {
     const pendingDir = path.join(this.busDir, "handoffs", "pending");
-    const handoffs = [];
-
-    if (!fs.existsSync(pendingDir)) return handoffs;
-
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith(".json"));
-
-    for (const file of files) {
-      try {
-        const handoff = JSON.parse(fs.readFileSync(path.join(pendingDir, file), "utf8"));
-        handoffs.push(handoff);
-      } catch {}
-    }
-
-    return handoffs;
+    if (!fs.existsSync(pendingDir)) return [];
+    return fs.readdirSync(pendingDir)
+      .filter(f => f.endsWith(".json"))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(pendingDir, f), "utf8")); } catch { return null; }
+      })
+      .filter(Boolean);
   }
 
   acceptHandoff(handoffId) {
@@ -104,6 +120,7 @@ class StigmergyCoordinator {
     fs.writeFileSync(activePath, JSON.stringify(handoff, null, 2));
     fs.unlinkSync(pendingPath);
 
+    this.updateRegistry({ status: "busy", currentTask: handoff.title });
     console.log(`[STIGMERGY] Accepted handoff ${handoffId}`);
     return handoff;
   }
@@ -125,26 +142,20 @@ class StigmergyCoordinator {
     fs.writeFileSync(completedPath, JSON.stringify(handoff, null, 2));
     fs.unlinkSync(activePath);
 
+    this.updateRegistry({ status: "idle", currentTask: null });
     console.log(`[STIGMERGY] Completed handoff ${handoffId}`);
     return handoff;
   }
 
   scanReviews() {
     const pendingDir = path.join(this.busDir, "reviews", "pending");
-    const reviews = [];
-
-    if (!fs.existsSync(pendingDir)) return reviews;
-
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith(".json"));
-
-    for (const file of files) {
-      try {
-        const review = JSON.parse(fs.readFileSync(path.join(pendingDir, file), "utf8"));
-        reviews.push(review);
-      } catch {}
-    }
-
-    return reviews;
+    if (!fs.existsSync(pendingDir)) return [];
+    return fs.readdirSync(pendingDir)
+      .filter(f => f.endsWith(".json"))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(pendingDir, f), "utf8")); } catch { return null; }
+      })
+      .filter(Boolean);
   }
 
   completeReview(reviewId, result, comments) {
@@ -152,7 +163,7 @@ class StigmergyCoordinator {
     const completedPath = path.join(this.busDir, "reviews", "completed", `${reviewId}.json`);
 
     if (!fs.existsSync(pendingPath)) {
-      console.log(`[STIGMERGY] Review ${reviewId} not found in pending`);
+      console.log(`[STIGMERGY] Review ${reviewId} not found`);
       return null;
     }
 
@@ -164,7 +175,6 @@ class StigmergyCoordinator {
 
     fs.writeFileSync(completedPath, JSON.stringify(review, null, 2));
     fs.unlinkSync(pendingPath);
-
     console.log(`[STIGMERGY] Completed review ${reviewId}`);
     return review;
   }
@@ -176,6 +186,59 @@ class StigmergyCoordinator {
 
     fs.appendFileSync(knowledgePath, entry);
     console.log(`[STIGMERGY] Shared knowledge from ${this.agentName}`);
+  }
+
+  createTask(title, project, options = {}) {
+    const id = `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const task = {
+      id,
+      title,
+      project,
+      status: options.status || "pending",
+      assignedTo: options.assignedTo || null,
+      createdAt: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
+      stuckSince: options.status === "stuck" ? new Date().toISOString() : null,
+      stuckReason: options.stuckReason || null,
+      priority: options.priority || "medium",
+      tags: options.tags || [],
+      requiredSkills: options.requiredSkills || [],
+      createdBy: options.createdBy || this.agentName
+    };
+
+    const tasksDirPath = path.join(this.busDir, "tasks");
+    fs.mkdirSync(tasksDirPath, { recursive: true });
+    fs.writeFileSync(path.join(tasksDirPath, `${id}.json`), JSON.stringify(task, null, 2));
+    console.log(`[STIGMERGY] Created task ${id}: ${title}`);
+    return task;
+  }
+
+  scanStuckTasks(maxAgeMs = 2 * 60 * 60 * 1000) {
+    const tasksDirPath = path.join(this.busDir, "tasks");
+    if (!fs.existsSync(tasksDirPath)) return [];
+
+    const now = Date.now();
+    return fs.readdirSync(tasksDirPath)
+      .filter(f => f.endsWith(".json"))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(tasksDirPath, f), "utf8")); } catch { return null; }
+      })
+      .filter(task => {
+        if (task.status !== "stuck" || !task.stuckSince) return false;
+        return now - new Date(task.stuckSince).getTime() > maxAgeMs;
+      });
+  }
+
+  scanRegistry() {
+    const dir = path.join(this.busDir, "registry");
+    if (!fs.existsSync(dir)) return [];
+
+    return fs.readdirSync(dir)
+      .filter(f => f.endsWith(".json"))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); } catch { return null; }
+      })
+      .filter(data => data.agent !== this.agentName);
   }
 
   async runOnce() {
@@ -211,13 +274,44 @@ class StigmergyCoordinator {
 
     this.register();
 
-    setInterval(() => {
+    this.daemonTimer = setInterval(() => {
+      if (!this.agentIsIdle()) {
+        console.log(`[STIGMERGY] Agent busy, skipping this cycle`);
+        return;
+      }
+
       this.heartbeat();
-      this.scanHandoffs();
-      this.scanReviews();
+
+      const handoffs = this.scanHandoffs();
+      const myHandoffs = handoffs.filter(h => this.matchesMySkills(h) && (h.to === this.agentName || h.to === "*"));
+      if (myHandoffs.length > 0) {
+        console.log(`[STIGMERGY] Accepting handoff: ${myHandoffs[0].title}`);
+        this.acceptHandoff(myHandoffs[0].id);
+        return;
+      }
+
+      const stuckTasks = this.scanStuckTasks();
+      const myStuck = stuckTasks.filter(t => this.matchesMySkills(t));
+      if (myStuck.length > 0) {
+        console.log(`[STIGMERGY] Taking over stuck task: ${myStuck[0].title}`);
+        this.updateRegistry({ status: "busy", currentTask: myStuck[0].title });
+        return;
+      }
+
+      const others = this.scanRegistry();
+      console.log(`[STIGMERGY] Active agents: ${others.length}, Status: idle`);
+
     }, this.heartbeatInterval * 1000);
 
     this.runOnce();
+  }
+
+  stopDaemon() {
+    if (this.daemonTimer) {
+      clearInterval(this.daemonTimer);
+      this.daemonTimer = null;
+      console.log(`[STIGMERGY] Daemon stopped`);
+    }
   }
 }
 
@@ -227,6 +321,8 @@ if (require.main === module) {
 
   if (mode === "daemon") {
     coordinator.runDaemon();
+  } else if (mode === "stop") {
+    coordinator.stopDaemon();
   } else {
     coordinator.runOnce();
   }

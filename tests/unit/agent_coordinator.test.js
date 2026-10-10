@@ -1,5 +1,9 @@
 const path = require("path");
 
+jest.mock("child_process", () => ({
+  spawnSync: jest.fn(() => ({ status: 0, stdout: "1.0.0-mock", stderr: "" })),
+}));
+
 jest.mock("../../src/core/cli_path_detector", () => {
   const MockCLIPathDetector = jest.fn().mockImplementation(() => ({
     detectAllCLIPaths: jest.fn().mockResolvedValue({
@@ -29,11 +33,11 @@ describe("AgentCoordinator", () => {
   beforeEach(async () => {
     coordinator = new AgentCoordinator({
       registryOptions: {
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
-        cacheTTL: 0,
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
+        cacheTTL: 30000,
       },
       collectorOptions: {
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
       },
     });
     await coordinator.initialize();
@@ -41,7 +45,8 @@ describe("AgentCoordinator", () => {
 
   describe("initialize", () => {
     it("should initialize coordinator without throwing", async () => {
-      expect(coordinator.coordinator).toBeDefined();
+      expect(coordinator.registry).toBeDefined();
+      expect(coordinator.getAllAgentStates().length).toBeGreaterThan(0);
     });
   });
 
@@ -140,7 +145,7 @@ describe("AgentCoordinator", () => {
 
   describe("suggestTakeover", () => {
     it("should return suggestions array", async () => {
-      const result = coordinator.suggestTakeover();
+      const result = await coordinator.suggestTakeover();
       expect(result).toHaveProperty("suggestions");
       expect(result).toHaveProperty("exhaustedCount");
       expect(result).toHaveProperty("idleCount");

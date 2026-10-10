@@ -1,5 +1,9 @@
 const path = require("path");
 
+jest.mock("child_process", () => ({
+  spawnSync: jest.fn(() => ({ status: 0, stdout: "1.0.0-mock", stderr: "" })),
+}));
+
 jest.mock("../../src/core/cli_path_detector", () => {
   const MockCLIPathDetector = jest.fn().mockImplementation(() => ({
     detectAllCLIPaths: jest.fn().mockResolvedValue({
@@ -29,11 +33,11 @@ describe("AgentCoordinator Auto-Coordinator", () => {
   beforeEach(async () => {
     coordinator = new AgentCoordinator({
       registryOptions: {
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
-        cacheTTL: 0,
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
+        cacheTTL: 30000,
       },
       collectorOptions: {
-        agentStatesDir: path.join(__dirname, "..", "..", "..", "agent-states"),
+        agentStatesDir: path.join(__dirname, "..", "fixtures", "agent-states"),
       },
     });
     await coordinator.initialize();

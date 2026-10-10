@@ -497,7 +497,7 @@ class AgentCoordinator {
     const idle = this.getIdleAgents();
 
     if (exhausted.length === 0) {
-      return { suggestions: [], message: "No token-exhausted agents found" };
+      return { suggestions: [], exhaustedCount: 0, idleCount: idle.length, message: "No token-exhausted agents found" };
     }
 
     const suggestions = [];

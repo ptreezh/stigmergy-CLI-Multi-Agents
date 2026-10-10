@@ -106,12 +106,12 @@ function listOpenCLISites(options = {}) {
       let currentSite = null;
 
       for (const line of lines) {
-        const siteMatch = line.match(/^  (\S+)$/);
+        const siteMatch = line.match(/^ {2}(\S+)$/);
         if (siteMatch && !line.includes('—') && !line.includes('external')) {
           currentSite = siteMatch[1];
           sites[currentSite] = [];
         } else if (currentSite && line.includes('—')) {
-          const cmdMatch = line.match(/    (\S+)\s+\[.*?\]\s*—\s*(.*)/);
+          const cmdMatch = line.match(/^ {4}(\S+)\s+\[.*?\]\s*—\s*(.*)/);
           if (cmdMatch) {
             sites[currentSite].push({
               command: cmdMatch[1],
