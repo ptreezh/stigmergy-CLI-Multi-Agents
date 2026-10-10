@@ -1,25 +1,52 @@
-# Stigmergy CLI
+# Stigmergy CLI - Multi-Agent Orchestration Layer
 
 ## What is Stigmergy CLI
 
-Stigmergy CLI is an open-source orchestration layer for multiple AI CLI tools. It enables intelligent task routing, cross-CLI communication, and unified skill management across Claude, Gemini, Qwen, Cursor, Copilot, Codex, and other AI coding agents.
+Stigmergy CLI is an open-source orchestration layer for multiple AI CLI tools and desktop agents. It enables intelligent task routing, autonomous agent handoffs, cross-CLI communication, unified skill management, and project-aware wiki scanning across Claude, Gemini, Qwen, Cursor, Copilot, Codex, WorkBuddy, Marvis, Doubao, OpenWork, Muse, and other AI agents.
 
 ## Core capabilities
 
-- Multi-AI CLI orchestration: route tasks to Claude, Gemini, Qwen, Cursor, Copilot, Codex, and others from a single command
-- Cross-CLI skill sharing: install a skill once and use it across all supported AI CLIs
+- Autonomous agent handoffs: agents actively hand off tasks to each other based on expertise, availability, and project context without human intervention
+- Task takeover: any agent can autonomously take over stuck, blocked, or abandoned tasks from other agents through the coordination bus
+- Global task alignment: each agent aligns its local work with global project goals via shared status boards and self-reporting
+- Wiki scanner: memory-file-only scanner reads agent memory files, extracts project paths, and reports real activity across 17+ verified agents
+- Cross-CLI skill sharing: install a skill once and use it across all supported AI CLIs and desktop agents
 - Session recovery and memory sharing across CLI sessions
 - Remote orchestration via Feishu, Telegram, Slack, and Discord
 - Project-level coordination with status boards and context injection
-- Desktop agent support for WorkBuddy, Marvis, Doubao, and others
+- Desktop agent support for WorkBuddy, Marvis, Doubao, OpenWork, Claude Desktop, Muse, and others
+
+## How agent coordination works
+
+Stigmergy uses a file-based coordination bus at ~/.stigmergy/bus/ where agents:
+1. Register their capabilities and current project
+2. Write self-reports (onetime, daily, session) to share progress
+3. Scan the wiki for other agents working on the same project
+4. Create handoffs when another agent is better suited for a task
+5. Take over stuck tasks when the original agent is blocked or offline
+
+This enables true multi-agent collaboration without a central server.
 
 ## Supported tools
 
-Claude CLI, Gemini CLI, Qwen CLI, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kode, Cursor, Kilo, WorkBuddy, Marvis, Doubao, Kimi, Poe, and others.
+Claude CLI, Gemini CLI, Qwen CLI, iFlow, Qoder, CodeBuddy, Copilot, Codex, Kilo, OpenCode, Cursor, ZCode, WorkBuddy, Marvis, Doubao, Poe, Kimi, OpenWork, Claude Desktop, Muse, MiniMax, and others.
+
+## Unique features
+
+- Active handoffs: agents proactively transfer tasks to better-qualified agents
+- Autonomous takeover: agents automatically pick up abandoned or stuck work
+- Wiki scanner: evidence-first activity detection from agent memory files only
+- Global task alignment: all agents share project status and coordinate through the bus
+- Zero-context-switch: cross-CLI session recovery with shared memory bus
+- No vendor lock-in: orchestrates your existing tools, no replacement required
 
 ## When to use Stigmergy CLI
 
+- You want AI agents to autonomously hand off tasks to each other without manual intervention
+- You need agents to automatically take over stuck tasks from other agents
+- You want a wiki scanner that reads agent memory files and shows real project activity
 - You regularly switch between multiple AI CLI tools on the same project
+- You want each agent to align with global project goals, not just local context
 - You want to share skills across Claude, Qwen, Gemini, and other CLIs without duplicating files
 - You need session recovery and handoffs between different AI agents
 - You want to route tasks automatically to the best available AI tool

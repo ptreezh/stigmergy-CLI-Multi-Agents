@@ -1,0 +1,254 @@
+{
+  "version": "1.0",
+  "schema": "1.0",
+  "description": "DECI Layer 1 boundary rules — Moderate configuration (non-destructive)",
+  "default_threshold": 0.65,
+  "rules": [
+    {
+      "id": "block-force-push",
+      "pattern": "git push --force",
+      "action": "BLOCK",
+      "reason": "Destructive git operation — rewrites shared history",
+      "operation_category": "destructive",
+      "tags": [
+        "git",
+        "force-push",
+        "destructive"
+      ]
+    },
+    {
+      "id": "block-rm-rf",
+      "pattern": "rm -rf",
+      "action": "BLOCK",
+      "reason": "Recursive delete — irreversible data loss risk",
+      "operation_category": "destructive",
+      "tags": [
+        "filesystem",
+        "delete",
+        "destructive"
+      ]
+    },
+    {
+      "id": "block-drop-table",
+      "pattern": "DROP TABLE",
+      "action": "BLOCK",
+      "reason": "Database destructive operation",
+      "operation_category": "destructive",
+      "tags": [
+        "database",
+        "destructive"
+      ]
+    },
+    {
+      "id": "block-chmod-zero",
+      "pattern": "chmod -R 0",
+      "action": "BLOCK",
+      "reason": "Permission destruction — makes files inaccessible",
+      "operation_category": "destructive",
+      "tags": [
+        "permissions",
+        "destructive"
+      ]
+    },
+    {
+      "id": "block-network-exfil",
+      "pattern": "curl.*--data.*SECRET|--data-binary.*KEY",
+      "action": "BLOCK",
+      "reason": "Network exfiltration of secrets",
+      "operation_category": "destructive",
+      "tags": [
+        "network",
+        "security",
+        "destructive"
+      ],
+      "is_regex": true
+    },
+    {
+      "id": "block-secret-write",
+      "pattern": ".env",
+      "action": "BLOCK",
+      "reason": "Secret credential write — potential credential exposure",
+      "operation_category": "destructive",
+      "tags": [
+        "credentials",
+        "security",
+        "destructive"
+      ],
+      "additional_check": "write_operation"
+    },
+    {
+      "id": "block-npm-publish",
+      "pattern": "npm publish",
+      "action": "BLOCK",
+      "reason": "Public package publish — irreversible to registry",
+      "operation_category": "destructive",
+      "tags": [
+        "npm",
+        "registry",
+        "destructive"
+      ]
+    },
+    {
+      "id": "pass-git-status",
+      "pattern": "git status",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only git operation — no side effects",
+      "operation_category": "always_safe",
+      "tags": [
+        "git",
+        "read-only"
+      ]
+    },
+    {
+      "id": "pass-grep",
+      "pattern": "grep",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only search operation",
+      "operation_category": "always_safe",
+      "tags": [
+        "search",
+        "read-only"
+      ]
+    },
+    {
+      "id": "pass-cat",
+      "pattern": "cat",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only file display",
+      "operation_category": "always_safe",
+      "tags": [
+        "filesystem",
+        "read-only"
+      ]
+    },
+    {
+      "id": "pass-ls",
+      "pattern": "ls",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only directory listing",
+      "operation_category": "always_safe",
+      "tags": [
+        "filesystem",
+        "read-only"
+      ]
+    },
+    {
+      "id": "pass-curl-get",
+      "pattern": "curl.*-X GET",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only HTTP GET request",
+      "operation_category": "always_safe",
+      "tags": [
+        "network",
+        "read-only"
+      ],
+      "is_regex": true
+    },
+    {
+      "id": "pass-curl-head",
+      "pattern": "curl.*-I",
+      "action": "AUTONOMOUS",
+      "reason": "Read-only HTTP HEAD request",
+      "operation_category": "always_safe",
+      "tags": [
+        "network",
+        "read-only"
+      ],
+      "is_regex": true
+    },
+    {
+      "id": "layer2-write-file",
+      "pattern": "write-file",
+      "action": "LAYER2",
+      "reason": "Non-destructive file write — Layer 2 scores risk",
+      "operation_category": "non_destructive",
+      "tags": [
+        "filesystem",
+        "write"
+      ]
+    },
+    {
+      "id": "layer2-git-add",
+      "pattern": "git add",
+      "action": "LAYER2",
+      "reason": "Non-destructive git staging",
+      "operation_category": "non_destructive",
+      "tags": [
+        "git"
+      ]
+    },
+    {
+      "id": "layer2-git-commit",
+      "pattern": "git commit",
+      "action": "LAYER2",
+      "reason": "Non-destructive local commit",
+      "operation_category": "non_destructive",
+      "tags": [
+        "git"
+      ]
+    },
+    {
+      "id": "layer2-git-push",
+      "pattern": "git push",
+      "action": "LAYER2",
+      "reason": "Non-destructive push (non-force) — Layer 2 scores context",
+      "operation_category": "non_destructive",
+      "tags": [
+        "git"
+      ]
+    },
+    {
+      "id": "layer2-api-post",
+      "pattern": "POST|PUT|DELETE http",
+      "action": "LAYER2",
+      "reason": "Non-destructive HTTP — Layer 2 scores API safety",
+      "operation_category": "non_destructive",
+      "tags": [
+        "network",
+        "api"
+      ],
+      "is_regex": true
+    },
+    {
+      "id": "layer2-evolution",
+      "pattern": "evolve",
+      "action": "LAYER2",
+      "reason": "Evolution — Layer 2 scores familiarity from audit log",
+      "operation_category": "non_destructive",
+      "tags": [
+        "evolution"
+      ]
+    }
+  ],
+  "operation_categories": {
+    "destructive": [
+      "force-push",
+      "delete-recursive",
+      "drop-table",
+      "chmod-zero",
+      "network-exfil",
+      "secret-write",
+      "npm-publish"
+    ],
+    "non_destructive": [
+      "read",
+      "write-file",
+      "git-add",
+      "git-commit",
+      "git-push",
+      "api-get",
+      "api-post",
+      "api-put",
+      "evolution"
+    ],
+    "always_safe": [
+      "grep",
+      "cat",
+      "ls",
+      "git-status",
+      "git-log",
+      "curl-GET",
+      "curl-HEAD"
+    ]
+  }
+}

@@ -58,6 +58,9 @@ $ stigmergy call "analyze this codebase and generate documentation"
 | **Session context loss** | Switch from Claude to Qwen and re-explain everything | Cross-CLI session recovery with shared memory bus |
 | **Vendor lock-in** | Each tool wants you in their ecosystem | Orchestrates YOUR tools. No replacement. No lock-in. |
 | **No visibility into agent activity** | You don't know what each agent is working on | Wiki scanner reads agent memory files and reports real activity |
+| **No autonomous collaboration** | Agents work in isolation, no proactive handoffs | Active handoffs: agents hand off tasks to each other based on expertise and availability |
+| **Stuck tasks stay stuck** | One agent fails, task remains blocked | Autonomous takeover: any agent can pick up abandoned or stuck tasks from others |
+| **No global alignment** | Each agent only sees its own context | Global task alignment: all agents share project status and coordinate through the bus |
 | **Remote access complexity** | VPN + SSH + manual execution | Gateway: control your AI team from Feishu/Telegram/Slack/Discord |
 
 ## Core Advantages
@@ -116,7 +119,25 @@ Most tools claim "40+ agents supported" without evidence. Stigmergy scans your a
 - Incremental updates with timestamp-based filtering
 - Project-agent correlation via directory markers
 
-### 5. Zero-Vendor-Lock-In Orchestration
+### 5. Autonomous Agent Handoffs & Task Takeover
+
+Stigmergy enables true multi-agent collaboration through active handoffs and autonomous task takeover:
+
+```bash
+# Agent A finishes work and creates a handoff for Agent B
+stigmergy auto-coordinator handoffs
+
+# Agents automatically scan for tasks they can take over
+# No human intervention required
+```
+
+- **Active handoffs**: agents proactively transfer tasks to better-qualified agents based on expertise, availability, and project context
+- **Autonomous takeover**: any agent can pick up abandoned, blocked, or stuck tasks from other agents through the coordination bus
+- **Global task alignment**: all agents share project status through `~/.stigmergy/bus/` and align local work with global goals
+- **Wiki scanner**: reads agent memory files, extracts project paths, and reports real activity across 17+ verified agents
+- **Zero-context-switch**: when an agent takes over a task, full context is preserved in the bus
+
+### 6. Zero-Vendor-Lock-In Orchestration
 
 Stigmergy doesn't replace your tools. It orchestrates the tools you already use:
 
@@ -293,8 +314,8 @@ When Gateway is running, access:
 # Install globally
 npm install -g stigmergy@beta
 
-# Or install specific version
-npm install -g stigmergy@1.11.0
+# Or install specific version (latest published on npm)
+npm install -g stigmergy@1.10.10-beta.5
 ```
 
 #### Windows (PowerShell as Administrator)
@@ -317,7 +338,7 @@ sudo npm install -g stigmergy@beta
 
 ```bash
 stigmergy --version
-# Output: 1.11.0
+# Output: 1.10.10-beta.5
 
 stigmergy --help
 ```
@@ -499,7 +520,7 @@ Stigmergy intelligently parses 7+ GitHub URL formats:
 
 ---
 
-## 🆕 What's New in v1.11.0
+## 🆕 What's New in v1.11.0 (unreleased)
 
 ### Major Features
 
@@ -803,7 +824,7 @@ stigmergy skill list
 - [Changelog](./CHANGELOG.md) - Version history and release notes
 - [Agent Guidelines](./AGENTS.md) - Coding standards and architecture overview
 - [Utility Scripts](./scripts/README.md) - Practical configuration scripts (search, local LLM, etc.)
-- [Launch Post](./docs/launch-2026-10-07.md) - v1.11.0 launch announcement and overview
+- [Launch Post](./docs/launch-2026-10-07.md) - v1.11.0 launch draft and overview (unreleased)
 - [Tutorials](./docs/tutorials/multi-agent-workflows.md) - Step-by-step guides for common workflows
 - [AI Products Ontology](./docs/ai-products-ontology.md) - Supported AI agents and their configurations
 - [Self-Reporting Architecture](./docs/self-reporting-architecture.md) - How agents report their state
@@ -872,4 +893,4 @@ If you find this project useful, please consider giving it a ⭐ on [GitHub](htt
 
 **Made with ❤️ by the Stigmergy CLI Team and AI collaborators**
 
-_Version: 1.11.0 | Published: 2026-09-25_
+_Version: 1.10.10-beta.5 | Published: 2026-03-10_

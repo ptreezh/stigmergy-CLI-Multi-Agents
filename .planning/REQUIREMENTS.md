@@ -18,24 +18,36 @@
 
 ### DECI-01: Decision Framework
 
-- [ ] **DECI-01**: SoulDecisionEngine — 3-layer decision gate (hard boundary → confidence score → emergency fallback)
-- [ ] **DECI-01a**: Layer 1: DecisionBoundary — rule-based, JSON-configurable boundaries
-- [ ] **DECI-01b**: Layer 2: ConfidenceScorer — 5-dimension weighted scoring
-- [ ] **DECI-01c**: Layer 3: EmergencyFallback — extends existing FailureCircuitBreaker
+- [x] **DECI-01**: SoulDecisionEngine — 3-layer decision gate (hard boundary → confidence score → emergency fallback)
+  *(src/core/soul/DECI/SoulDecisionEngine.js — decide() orchestrates layer1/layer2/layer3; commit 132ef389)*
+- [x] **DECI-01a**: Layer 1: DecisionBoundary — rule-based, JSON-configurable boundaries
+  *(src/core/soul/DECI/DecisionBoundary.js + DecisionContext.js; commits fc9aaa19, bd460ca0)*
+- [x] **DECI-01b**: Layer 2: ConfidenceScorer — 5-dimension weighted scoring
+  *(src/core/soul/DECI/ConfidenceScorer.js — 5 dims, weights sum to 1.0; commit 132ef389)*
+- [x] **DECI-01c**: Layer 3: EmergencyFallback — extends existing FailureCircuitBreaker
+  *(src/core/soul/DECI/EmergencyFallback.js — state-machine pattern per plan; commit 132ef389)*
 
 ### DECI-02: Confidence Thresholds
 
-- [ ] **DECI-02**: Per-decision-type configurable confidence thresholds
-- [ ] **DECI-02a**: Default threshold: 0.65 (configurable per action category)
-- [ ] **DECI-02b**: Confidence below threshold → auto-escalate to user confirmation
+- [x] **DECI-02**: Per-decision-type configurable confidence thresholds
+  *(ConfidenceScorer opts.threshold; SoulDecisionEngine passes DecisionBoundary.defaultThreshold; commit 132ef389)*
+- [x] **DECI-02a**: Default threshold: 0.65 (configurable per action category)
+  *(DEFAULT_THRESHOLD = 0.65; boundaries.json default_threshold: 0.65)*
+- [x] **DECI-02b**: Confidence below threshold → auto-escalate to user confirmation
+  *(score < threshold → decision 'ESCALATE' → final_decision ASK_USER)*
 - [ ] **DECI-02c**: Outcome-tracked calibration — track calibration accuracy over time
+  *(deferred to Phase 4 — ConfidenceCalibrator; verdict history stored, full calibration loop pending)*
 
 ### DECI-03: Decision Boundary Configuration
 
-- [ ] **DECI-03**: `boundaries.json` schema — user-editable, version-controlled
-- [ ] **DECI-03a**: Block rules: destructive operations always escalate
-- [ ] **DECI-03b**: Autonomous rules: read-only, trusted operations
-- [ ] **DECI-03c**: Schema validated at startup, invalid config → clear error
+- [x] **DECI-03**: `boundaries.json` schema — user-editable, version-controlled
+  *(.stigmergy/soul-state/boundaries/boundaries.json — version 1.0, 254 lines, commit fc9aaa19)*
+- [x] **DECI-03a**: Block rules: destructive operations always escalate
+  *(rules with action: BLOCK + operation_category: destructive — force-push, rm -rf, DROP TABLE, chmod -R 0)*
+- [x] **DECI-03b**: Autonomous rules: read-only, trusted operations
+  *(rules with action: AUTONOMOUS + operation_category: safe)*
+- [x] **DECI-03c**: Schema validated at startup, invalid config → clear error
+  *(DecisionBoundary constructor validates default_threshold/rules/schema — missing/invalid → schemaErrors)*
 
 ### DECI-04: Decision Audit Log
 
@@ -47,18 +59,23 @@
 
 ### DECI-05: Decision Self-Check
 
-- [ ] **DECI-05**: DecisionVerifier — post-execution vs. expected outcome comparison
-- [ ] **DECI-05a**: PASS / FAIL / UNVERIFIABLE verdict for each autonomous action
-- [ ] **DECI-05b**: FAIL → trigger DECI-06 fallback after retries exhausted
-- [ ] **DECI-05c**: Self-check results feed back into confidence calibration
+- [x] **DECI-05**: DecisionVerifier — post-execution vs. expected outcome comparison
+  *(src/core/soul/DECI/DecisionVerifier.js — verify() compares final_decision + success; commit 2b2b794d)*
+- [x] **DECI-05a**: PASS / FAIL / UNVERIFIABLE verdict for each autonomous action
+  *(verdict rules: ACT_AUTONOMOUSLY+success → PASS; ACT_AUTONOMOUSLY+!success → FAIL; else UNVERIFIABLE)*
+- [x] **DECI-05b**: FAIL → trigger DECI-06 fallback after retries exhausted
+  *(soul_manager recordOutcome(false) → recordFailure → EmergencyFallback consecutive_failures escalation)*
+- [x] **DECI-05c**: Self-check results feed back into confidence calibration
+  *(verdict history JSONL at ~/.stigmergy/soul-state/verdict-history.json, MAX_HISTORY 100 — feeds Phase 4 calibrator)*
 
 ### DECI-06: Emergency Fallback
 
-- [ ] **DECI-06**: FallbackManager — consecutive failures (configurable N) → fallback mode
-- [ ] **DECI-06a**: NOMINAL (0 failures) → continue autonomously
-- [ ] **DECI-06b**: DEGRADED (1-2) → continue with extra logging
-- [ ] **DECI-06c**: ESCALATE (3-4) → ask user before proceeding
-- [ ] **DECI-06d**: ABORT (5+) → halt loop, notify operator, await manual intervention
+- [x] **DECI-06**: FallbackManager — consecutive failures (configurable N) → fallback mode
+  *(src/core/soul/DECI/FallbackManager.js — NOMINAL/DEGRADED/ESCALATE/ABORT levels; commit 2b2b794d)*
+- [x] **DECI-06a**: NOMINAL (0 failures) → continue autonomously
+- [x] **DECI-06b**: DEGRADED (1-2) → continue with extra logging
+- [x] **DECI-06c**: ESCALATE (3-4) → ask user before proceeding
+- [x] **DECI-06d**: ABORT (5+) → halt loop, notify operator, await manual intervention
 
 ### Minimum Viable Evolution
 
@@ -71,7 +88,8 @@
 
 ### Integration
 
-- [ ] **INTEG-01**: DecisionEngine integrated into SoulManager before autonomous actions
+- [x] **INTEG-01**: DecisionEngine integrated into SoulManager before autonomous actions
+  *(src/core/soul_manager.js — preActionHook decides via engine: assertDecisionContext lines 296-300, decide() at 312, audit 330-341, recordOutcome 375, verifier 412, FallbackManager 517/564; commit 2b2b794d)*
 - [ ] **INTEG-02**: gatekeeper.js invoked programmatically from evolution loop
 - [x] **INTEG-03**: All decision state in `.stigmergy/soul-state/decisions/`
   *(src/core/soul/DecisionAuditor.js — logDir: .stigmergy/soul-state/decisions/)*
@@ -109,23 +127,24 @@
 | EVOL-02 | Phase 1 | **Done** (soul_skill_evolver.js skill creation) |
 | EVOL-03 | Phase 1 | **Done** (soul_skill_evolver.js KB merge) |
 | INTEG-03 | Phase 1 | **Done** (DecisionAuditor.js decisions/) |
-| DECI-01 | Phase 2 | Pending |
-| DECI-01a | Phase 2 | Pending |
-| DECI-01b | Phase 2 | Pending |
-| DECI-01c | Phase 2 | Pending |
-| DECI-02 | Phase 2 | Pending |
-| DECI-03 | Phase 2 | Pending |
-| DECI-05 | Phase 2 | Pending |
-| DECI-06 | Phase 2 | Pending |
-| INTEG-01 | Phase 2 | Pending |
+| DECI-01 | Phase 2 | **Done** (132ef389) |
+| DECI-01a | Phase 2 | **Done** (fc9aaa19, bd460ca0) |
+| DECI-01b | Phase 2 | **Done** (132ef389) |
+| DECI-01c | Phase 2 | **Done** (132ef389) |
+| DECI-02 | Phase 2 | **Done** (132ef389 + boundaries.json default_threshold) |
+| DECI-03 | Phase 2 | **Done** (fc9aaa19) |
+| DECI-05 | Phase 2 | **Done** (2b2b794d) |
+| DECI-06 | Phase 2 | **Done** (2b2b794d) |
+| INTEG-01 | Phase 2 | **Done** (2b2b794d) |
 | INTEG-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 19 total (grouped by REQ-ID prefix)
 - Mapped to phases: 4
-- **Phase 1 complete: 9/9 ✓**
+- **Phase 1 complete: 9/9 ✓** (traceability rows)
+- **Phase 2 complete: 21/21 ✓** (ROADMAP Phase 2 requirement list; DECI-02c deferred to Phase 4 per ROADMAP)
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 — Phase 1 complete (9/9 requirements)*
+*Last updated: 2026-10-09 — Phase 1 + Phase 2 complete (DECI-02c → Phase 4)*

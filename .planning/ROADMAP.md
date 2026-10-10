@@ -65,7 +65,7 @@ The DECI roadmap is sequenced to fix the broken foundation first, then layer dec
 Plans:
 - [x] 02-01-PLAN.md -- Wave 1: DecisionContext + DecisionBoundary + boundaries.json (Layer 1 + schema)
 - [x] 02-02-PLAN.md -- Wave 2: ConfidenceScorer + EmergencyFallback + SoulDecisionEngine (Layers 2/3 + orchestrator)
-- [ ] 02-03-PLAN.md -- Wave 3: DecisionVerifier + FallbackManager + SoulManager INTEG-01 + barrel export
+- [x] 02-03-PLAN.md -- Wave 3: DecisionVerifier + FallbackManager + SoulManager INTEG-01 + barrel export
 
 **Estimated files to create/modify:**
 - `src/core/soul/DECI/DecisionContext.js` — shared context type (NEW)
@@ -172,28 +172,28 @@ Plans:
 | EVOL-02: Minimum viable _evolveSkills() | Phase 1 | Done |
 | EVOL-03: Auto-merge _autoMerge() | Phase 1 | Done |
 | INTEG-03: Decision state directory structure | Phase 1 | Done |
-| DECI-01: SoulDecisionEngine (3-layer gate) | Phase 2 | Pending (02-02) |
-| DECI-01a: DecisionBoundary (Layer 1) | Phase 2 | Pending (02-01) |
-| DECI-01b: ConfidenceScorer (Layer 2) | Phase 2 | Pending (02-02) |
-| DECI-01c: EmergencyFallback (Layer 3) | Phase 2 | Pending (02-02) |
-| DECI-02: Per-decision-type confidence thresholds | Phase 2 | Pending (02-02) |
-| DECI-02a: Default threshold 0.65 | Phase 2 | Pending (02-02) |
-| DECI-02b: Below threshold -> escalate | Phase 2 | Pending (02-02) |
+| DECI-01: SoulDecisionEngine (3-layer gate) | Phase 2 | Done (132ef389) |
+| DECI-01a: DecisionBoundary (Layer 1) | Phase 2 | Done (fc9aaa19, bd460ca0) |
+| DECI-01b: ConfidenceScorer (Layer 2) | Phase 2 | Done (132ef389) |
+| DECI-01c: EmergencyFallback (Layer 3) | Phase 2 | Done (132ef389) |
+| DECI-02: Per-decision-type confidence thresholds | Phase 2 | Done (132ef389 + boundaries.json default_threshold) |
+| DECI-02a: Default threshold 0.65 | Phase 2 | Done (fc9aaa19 — boundaries.json default_threshold: 0.65) |
+| DECI-02b: Below threshold -> escalate | Phase 2 | Done (132ef389 — score < threshold → ESCALATE → ASK_USER) |
 | DECI-02c: Outcome-tracked calibration | Phase 2 | Deferred to Phase 4 |
-| DECI-03: boundaries.json schema | Phase 2 | Pending (02-01) |
-| DECI-03a: Block rules (destructive always escalate) | Phase 2 | Pending (02-01) |
-| DECI-03b: Autonomous rules (read-only, trusted) | Phase 2 | Pending (02-01) |
-| DECI-03c: Schema validated at startup | Phase 2 | Pending (02-01) |
-| DECI-05: DecisionVerifier (post-execution self-check) | Phase 2 | Pending (02-03) |
-| DECI-05a: PASS / FAIL / UNVERIFIABLE verdict | Phase 2 | Pending (02-03) |
-| DECI-05b: FAIL -> trigger DECI-06 fallback | Phase 2 | Pending (02-03) |
-| DECI-05c: Self-check feeds confidence calibration | Phase 2 | Pending (02-03) |
-| DECI-06: FallbackManager (consecutive failure escalation) | Phase 2 | Pending (02-03) |
-| DECI-06a: NOMINAL (0 failures) | Phase 2 | Pending (02-03) |
-| DECI-06b: DEGRADED (1-2 failures) | Phase 2 | Pending (02-03) |
-| DECI-06c: ESCALATE (3-4 failures) | Phase 2 | Pending (02-03) |
-| DECI-06d: ABORT (5+ failures) | Phase 2 | Pending (02-03) |
-| INTEG-01: DecisionEngine integrated into SoulManager | Phase 2 | Pending (02-03) |
+| DECI-03: boundaries.json schema | Phase 2 | Done (fc9aaa19) |
+| DECI-03a: Block rules (destructive always escalate) | Phase 2 | Done (fc9aaa19) |
+| DECI-03b: Autonomous rules (read-only, trusted) | Phase 2 | Done (fc9aaa19) |
+| DECI-03c: Schema validated at startup | Phase 2 | Done (fc9aaa19) |
+| DECI-05: DecisionVerifier (post-execution self-check) | Phase 2 | Done (2b2b794d) |
+| DECI-05a: PASS / FAIL / UNVERIFIABLE verdict | Phase 2 | Done (2b2b794d) |
+| DECI-05b: FAIL -> trigger DECI-06 fallback | Phase 2 | Done (2b2b794d) |
+| DECI-05c: Self-check feeds confidence calibration | Phase 2 | Done (2b2b794d) |
+| DECI-06: FallbackManager (consecutive failure escalation) | Phase 2 | Done (2b2b794d) |
+| DECI-06a: NOMINAL (0 failures) | Phase 2 | Done (2b2b794d) |
+| DECI-06b: DEGRADED (1-2 failures) | Phase 2 | Done (2b2b794d) |
+| DECI-06c: ESCALATE (3-4 failures) | Phase 2 | Done (2b2b794d) |
+| DECI-06d: ABORT (5+ failures) | Phase 2 | Done (2b2b794d) |
+| INTEG-01: DecisionEngine integrated into SoulManager | Phase 2 | Done (2b2b794d) |
 | INTEG-02: gatekeeper.js invoked from evolution loop | Phase 4 | Pending |
 | Circuit breaker integration | Phase 3 | Pending |
 | EvolutionSupervisor (root supervisor) | Phase 3 | Pending |
@@ -207,6 +207,8 @@ Plans:
 
 **Total tracked requirements: 40 (19 v1 primary + 6 ERR/EVOL/INTEG + 6 Phase 3 structural + 6 Phase 4 v2)**
 **v2 capabilities (DECI-07 through DECI-13): planned for Phase 4 extension**
+
+**Phase 1 status: 9/9 Done ✓ | Phase 2 status: 21/21 Done ✓ (DECI-02c deferred to Phase 4)**
 
 ---
 
@@ -222,3 +224,4 @@ Plans:
 
 *Roadmap created: 2026-04-12 based on research/SUMMARY.md, research/STACK.md, research/FEATURES.md, research/PITFALLS.md, research/ARCHITECTURE.md, REQUIREMENTS.md, PROJECT.md*
 *Phase 2 plans added: 2026-04-12*
+*Phase 2 status → Done: 2026-10-09 (commits fc9aaa19, bd460ca0, 132ef389, 2b2b794d)*
