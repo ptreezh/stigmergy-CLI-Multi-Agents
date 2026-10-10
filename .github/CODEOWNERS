@@ -1,0 +1,10 @@
+# Default owners for everything in the repo.
+# These owners will be requested for review on all pull requests.
+*       @ptreezh
+
+# CI and automation
+/.github/       @ptreezh
+
+# Package metadata and licensing
+/package.json   @ptreezh
+/LICENSE        @ptreezh

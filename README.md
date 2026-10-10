@@ -3,6 +3,7 @@
 > **The orchestration layer for your AI CLI team.** Stop switching between Claude, Gemini, Qwen, Cursor, Copilot, and Codex. Let Stigmergy route tasks, share skills, and coordinate multiple AI agents from one command.
 
 [![npm version](https://badge.fury.io/js/stigmergy.svg)](https://www.npmjs.com/package/stigmergy)
+[![CI](https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/actions/workflows/ci.yml/badge.svg)](https://github.com/ptreezh/stigmergy-CLI-Multi-Agents/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm downloads](https://img.shields.io/npm/dm/stigmergy)](https://www.npmjs.com/package/stigmergy)
 
