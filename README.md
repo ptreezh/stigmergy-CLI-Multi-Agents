@@ -18,11 +18,25 @@ You already run several AI CLIs (Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, 
 
 Stigmergy centralizes that: **one skill store, one session bridge, one optional router.**
 
-## 30-second demo (real output)
+## 60-second demo (real output, trimmed)
 
-```bash
+```console
 $ stigmergy --version
 1.11.0
+
+# Detect what is ACTUALLY installed (probes PATH; reports only what it finds):
+$ stigmergy scan
+ Found 9 CLI tools:
+   Claude CLI          Version: 2.1.295 (Claude Code)
+   Gemini CLI          Version: 0.63.0
+   Qwen CLI            Version: 0.25.0
+   iFlow CLI           Version: 0.5.19
+   OpenCode AI CLI     Version: 1.18.35
+   Qoder CLI           Version: 1.1.66
+   CodeBuddy CLI       Version: 2.162.0
+   KiloCode CLI        Version: 7.8.8
+   OpenAI Codex CLI    Version: codex-cli 0.146.0
+   (copilot, kode: probed, NOT found — nothing above is hard-coded)
 
 # Every skill Stigmergy has unified, across all your CLIs:
 $ stigmergy skill list
@@ -31,15 +45,11 @@ Installed skills (352):
     algorithmic-art     Creating algorithmic art using p5.js with seeded randomness…
     brainstorming       You MUST use this before any creative work…
     …
-
-# Which CLIs it can actually reach on THIS machine (real detection, not a fixed list):
-$ stigmergy status
- Agent Status Overview:
-  [IDLE] Claude CLI · Gemini CLI · Qwen CLI · iFlow CLI · OpenCode AI CLI
-         Qoder CLI · CodeBuddy CLI · KiloCode CLI · OpenAI Codex CLI · WorkBuddy Desktop
 ```
 
-The `status` list is produced by scanning your `PATH` — it reports only CLIs actually found, and `skill list` counts only skills actually installed. Nothing above is hard-coded.
+The `scan`/`status` lists are produced by probing your `PATH`; `skill list`
+counts only skills actually installed. **Letter-for-letter transcript:**
+[`examples/quickstart.md`](./examples/quickstart.md).
 
 ## The one thing to try
 
@@ -62,7 +72,7 @@ npm install -g stigmergy@beta   # current npm channel
 stigmergy setup                 # scan CLIs, deploy hooks, install shared skills
 ```
 
-> **Status — read before production use.** Stigmergy is effectively **pre-1.0**: the npm `latest` tag currently points at a `1.10.10-beta.5` build, while the development version is `1.11.0`. A true stable release is on the roadmap. Pin `@beta` and check [CHANGELOG.md](./CHANGELOG.md) before relying on it.
+> **Status — read before production use.** Stigmergy is effectively **pre-1.0**: the npm `latest` tag currently points at a `1.10.10-beta.5` build, while this repository is at `1.11.0`. A true stable release (cutting `1.11.0` and moving betas to the `@beta` tag) is on the roadmap. Recent work hardened cross-CLI skill sync so it writes only the memory filenames each CLI actually reads — see [CHANGELOG.md](./CHANGELOG.md). Pin `@beta` and check the changelog before relying on it.
 
 ## How it compares
 
@@ -104,9 +114,8 @@ Add or refresh adapters with `stigmergy install <tool>`.
 ## Roadmap
 
 - Cut a true **stable** release and move betas to the `@beta` tag.
-- Record a real asciinema/GIF demo and add runnable `examples/`.
+- Record a real asciinema/GIF demo from [`examples/quickstart.md`](./examples/quickstart.md).
 - Curate `docs/` (in progress) and keep the surface small.
-- Enable GitHub Discussions.
 
 ## Contributing
 

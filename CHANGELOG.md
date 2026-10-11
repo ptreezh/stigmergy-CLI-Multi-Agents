@@ -1,3 +1,25 @@
+## [Unreleased]
+
+### Fixed — cross-CLI skill sync wrote filenames no CLI reads
+- **Canonical per-CLI memory filenames**: skill sync (`StigmergySkillManager.sync`)
+  previously wrote lowercase names (`claude.md`, `gemini.md`, `qwen.md`,
+  `iflow.md`) that no CLI reads on case-sensitive filesystems (macOS/Linux), and
+  invented names no CLI reads anywhere (`qodercli.md`, `copilot.md`, `codex.md`).
+  Sync now writes the canonical uppercase files each CLI actually discovers:
+  `CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `IFLOW.md`, `CODEBUDDY.md`.
+- **Installer home-doc paths**: `StigmergyInstaller` used the same wrong/invented
+  names for the global home files. It now targets the canonical paths
+  (`~/.claude/CLAUDE.md`, `~/.gemini/GEMINI.md`, `~/.qwen/QWEN.md`,
+  `~/.iflow/IFLOW.md`, `~/.codebuddy/CODEBUDDY.md`, `~/.copilot/copilot-instructions.md`,
+  and `AGENTS.md` for Qoder/Codex/KiloCode), including `~/.kilocode/AGENTS.md`.
+- **Single source of truth**: both paths now read one map,
+  `src/core/memory_files.js`, so they can no longer drift.
+- **Copilot adapter metadata**: `src/adapters/copilot/config.json` `global_doc`
+  corrected from `copilot.md` to `copilot-instructions.md`.
+
+### Added
+- `tests/unit/memory-files.test.js` — locks the canonical filenames.
+
 ## [1.11.0-beta.0] - 2026-03-20
 
 ### 🎉 重大更新 (Major Updates)
