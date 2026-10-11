@@ -1,5 +1,7 @@
 # Stigmergy CLI
 
+![Stigmergy CLI — write a skill once, run it in every AI CLI](./assets/banner.png)
+
 > **Write a skill once. Run it in every AI CLI.**
 > Stigmergy is a portability + coordination layer across the AI CLIs you already use. Install an agent skill in one place, and Claude, Gemini, Qwen, iFlow, Qoder, CodeBuddy, Codex, KiloCode, and opencode can all use it — and share session context instead of making you re-explain everything.
 
@@ -62,6 +64,12 @@ stigmergy skill read pdf        # prints the SKILL.md for the calling agent
 ```
 
 Cross-CLI skill and session portability is the core, demand-backed use case (see the comparison below): sibling projects prove the niche is real, yet multi-CLI skill sharing remained largely un-served.
+
+## How it works
+
+![Stigmergy architecture — a skill store, a shared session bus, and an optional router spanning every supported CLI](./assets/architecture.png)
+
+Skills land in one **shared store** that every CLI reads through its deployed hooks; the **session bus** lets one CLI pick up where another left off; the optional **router** fans a single task out to several agents. No CLI is replaced — they are coordinated.
 
 ## Install
 

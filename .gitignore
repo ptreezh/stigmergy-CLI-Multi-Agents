@@ -195,3 +195,7 @@ bus/handoffs/
 backend/.stigmergy/
 frontend/.stigmergy/
 website/
+
+# keep README images (must override '*.png' above)
+!assets/banner.png
+!assets/architecture.png
