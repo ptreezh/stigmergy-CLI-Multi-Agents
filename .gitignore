@@ -124,6 +124,8 @@ Thumbs.db
 sscisubagent-skills/SEOer/bilibili-automation/video_frames/
 *.jpg
 *.png
+# Brand assets: the 1280x640 social-preview card is tracked despite the media policy above
+!assets/social-preview.png
 *.mp4
 *.avi
 *.mov
