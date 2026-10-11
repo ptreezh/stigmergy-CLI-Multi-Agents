@@ -44,9 +44,14 @@ function decodeProjectDirName(dirName) {
   const m = dirName.match(/^(-?)([a-zA-Z])-(.*)$/);
   if (!m) return null;
   const [, , drive, body] = m;
-  const joined = body.split("-").filter(Boolean).join(path.sep);
+  // Input is encoded Windows-style project dirs (e.g. Claude Code's
+  // "D-stigmergy-CLI-Multi-Agents" → "D:\stigmergy\CLI\Multi\Agents"), so the
+  // decoded output must always use Windows separators regardless of the host
+  // platform — otherwise Linux/macOS dev machines and CI produce "/"
+  // while the data they consume is "\\", breaking downstream consumers.
+  const joined = body.split("-").filter(Boolean).join(path.win32.sep);
   if (!joined) return null;
-  return `${drive}:${path.sep}${joined}`;
+  return `${drive}:${path.win32.sep}${joined}`;
 }
 
 function recentCwdFromEncodedProjects(root, limit = 5) {
@@ -139,7 +144,9 @@ function fileUriToPath(uri) {
     if (/^file:\/\/\//i.test(decoded)) {
       let p = decoded.replace(/^file:\/\/\//i, "");
       p = p.replace(/^\/([a-zA-Z]:)/, "$1");
-      return decodeURIComponent(p).replace(/\//g, path.sep);
+      // Input is a Windows-style file URI ("file:///C:/Users/..."); output
+      // must always use Windows separators regardless of host platform.
+      return decodeURIComponent(p).replace(/\//g, path.win32.sep);
     }
   } catch {
     return null;
