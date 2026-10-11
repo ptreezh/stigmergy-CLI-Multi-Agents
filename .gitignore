@@ -180,6 +180,10 @@ tests/tests/*/signature.json
 !docs/archive/
 !docs/archive/**
 
+# Binary packaging artifacts inside the archive (build outputs, not docs)
+docs/archive/**/*.zip
+docs/archive/**/*.png
+
 # --- runtime / generated state (untracked 2026-10-11) ---
 .agent/
 agent-states/
@@ -190,11 +194,14 @@ soul-state/
 .wiki-editing-sessions/
 evolution-demos/
 real-test-project/
-bus/daily/
-bus/handoffs/
+bus/
 backend/.stigmergy/
 frontend/.stigmergy/
 website/
+.stigmergy/
+.soul-evolution-results/
+.wiki-articles/
+independent-resume/
 
 # keep README images (must override '*.png' above)
 !assets/banner.png
