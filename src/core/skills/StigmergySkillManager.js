@@ -12,6 +12,7 @@ const { SkillParser } = require("./embedded-openskills/SkillParser");
 const fs = require("fs/promises");
 const path = require("path");
 const os = require("os");
+const { CLI_MEMORY_FILES } = require("../memory_files");
 
 class StigmergySkillManager {
   constructor(options = {}) {
@@ -159,22 +160,20 @@ class StigmergySkillManager {
       const skillsXml = this.generateSkillsXml(skills);
 
       // Step 3: All CLI configuration files to update
-      // NOTE: AGENTS.md, opencode.md and oh-my-opencode.md are intentionally
-      // EXCLUDED. OpenCode natively injects its full skills list (available_items)
-      // into every new session, so writing the skills XML block (~47KB per file)
-      // into these files is 100% duplicated payload that bloats cold-start
-      // context beyond 50%. Other CLIs (claude/qwen/gemini/etc.) have no native
-      // skill discovery, so their .md files keep receiving the XML block.
-      const cliFiles = [
-        "claude.md", // Claude CLI
-        "qwen.md", // Qwen CLI
-        "gemini.md", // Gemini CLI
-        "iflow.md", // iFlow CLI
-        "qodercli.md", // Qoder CLI
-        "codebuddy.md", // CodeBuddy CLI
-        "copilot.md", // Copilot CLI
-        "codex.md", // Codex CLI
-      ];
+      // NOTE: AGENTS.md-family files (codex/qoder/kilocode) and opencode.md /
+      // oh-my-opencode.md are intentionally EXCLUDED here.
+      //  - OpenCode natively injects its full skills list (available_items) into
+      //    every new session, so writing the skills XML block (~47KB per file)
+      //    into these files is 100% duplicated payload that bloats cold-start
+      //    context beyond 50%.
+      //  - AGENTS.md-family CLIs are served through the global installer
+      //    (StigmergyInstaller -> ~/.codex/AGENTS.md etc.), avoiding per-project
+      //    AGENTS.md pollution in every synced repo.
+      // The remaining CLIs (claude/qwen/gemini/iflow/codebuddy) have no native
+      // skill discovery, so their canonical uppercase .md files keep receiving
+      // the XML block. Filenames are case-sensitive on macOS/Linux, so they must
+      // match what each CLI actually reads (see src/core/memory_files.js).
+      const cliFiles = CLI_MEMORY_FILES;
 
       let syncedCount = 0;
       let createdCount = 0;

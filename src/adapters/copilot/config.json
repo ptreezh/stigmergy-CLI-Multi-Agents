@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "integration_type": "mcp_server",
   "config_file": "~/.config/copilot/config.json",
-  "global_doc": "copilot.md",
+  "global_doc": "copilot-instructions.md",
   "description": "GitHub Copilot CLI MCP Server Integration Adapter",
   "mcp_config": {
     "server_name": "stigmergy-copilot-integration",

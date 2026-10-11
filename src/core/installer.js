@@ -7,6 +7,7 @@ const SmartRouter = require("./smart_router");
 const { errorHandler } = require("./error_handler");
 const MemoryManager = require("./memory_manager");
 const EnhancedCLIInstaller = require("./enhanced_cli_installer");
+const { getToolMdFiles } = require("./memory_files");
 
 class StigmergyInstaller extends EnhancedCLIInstaller {
   constructor(options = {}) {
@@ -1256,18 +1257,8 @@ Available tools: claude, gemini, qwen, iflow, qodercli, codebuddy, copilot, code
   async appendToToolMdFile(toolName) {
     const fs = require("fs/promises");
     const path = require("path");
-    const os = require("os");
 
-    const toolMdFiles = {
-      claude: path.join(os.homedir(), ".claude", "claude.md"),
-      gemini: path.join(os.homedir(), ".gemini", "gemini.md"),
-      qwen: path.join(os.homedir(), ".qwen", "qwen.md"),
-      iflow: path.join(os.homedir(), ".iflow", "iflow.md"),
-      qodercli: path.join(os.homedir(), ".qoder", "qoder.md"),
-      codebuddy: path.join(os.homedir(), ".codebuddy", "codebuddy.md"),
-      copilot: path.join(os.homedir(), ".copilot", "copilot.md"),
-      codex: path.join(os.homedir(), ".codex", "codex.md"),
-    };
+    const toolMdFiles = getToolMdFiles();
 
     const mdFilePath = toolMdFiles[toolName];
     if (!mdFilePath) return;
