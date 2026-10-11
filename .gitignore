@@ -12,7 +12,6 @@ coverage/
 tmp/
 .cache/
 lib-cov/
-.nyc_output/
 Thumbs.db
 vscode/
 .idea/
@@ -40,15 +39,8 @@ TRUST_ASSESSMENT_FINAL.md
 TEST_ARCHITECTURE_EXPLAINED.md
 TEST_CASES.md
 TEST_FRAMEWORK_COMPARISON.md
-TESTING_STRATEGY.md
-TEST_REPORT_AFTER_CLEANUP.md
-TESTING_GUIDELINES.md
-TESTING_STRATEGY.md
-TRUST_ASSESSMENT_FINAL.md
-
 # Temporary and intermediate files
 temp/
-*.temp
 nul
 .openskills/
 openskills/
@@ -56,13 +48,10 @@ wikiskill/
 wikiskill/**
 sscisubagent-skills/
 sscisubagent-skills/**
-
 # Build and distribution artifacts
 *.tgz
 *.tar.gz
 *.zip
-node_modules/
-
 # Debug and output files
 debug*.js
 output/
@@ -71,15 +60,12 @@ result*.txt
 results*.txt
 test_output.txt
 test_results*.txt
-
 # Development temporary files
-*.tmp
 tmp*/
 **/tmp/**
 temp*/
 **/temp/**
 **/debug*/
-
 # Archive and backup files
 archive/
 archived_files/
@@ -89,20 +75,14 @@ archived_files/
 *.bak
 **/backup/**
 **/backups/**
-
 # Python files
-__pycache__/
-*.pyc
 *.pyo
 *.pyd
 .Python
-
 # System and OS files
 $RECYCLE.BIN/
 [Dd]esktop.ini
-Thumbs.db
 *.DS_Store
-
 # Runtime and environment files
 .env
 .env.local
@@ -111,15 +91,11 @@ Thumbs.db
 .env.production.local
 *.db
 *.db-journal
-
 # Editor and IDE files
 .vscode/
-.idea/
 *~
 *.orig
 *.rej
-*.swp
-*.swo
 # Large media files and test data (23.9GB video frames)
 sscisubagent-skills/SEOer/bilibili-automation/video_frames/
 *.jpg
@@ -132,39 +108,27 @@ sscisubagent-skills/SEOer/bilibili-automation/video_frames/
 *.mkv
 *.flv
 *.webm
-
 # Test projects and temporary data
 test-projects/
 logs/
-*.log
-
 # npm tarballs
-*.tgz
-
 # 外部技能包和测试数据（不应包含在主包中）
-sscisubagent-skills/
-test-projects/
 test_*/
 *test*.json
 baseline-test-results*.json
-test_results*.txt
-
 # Worktrees (isolated development workspaces)
 worktrees/
 .worktrees/
-
 *.soul-memory.json
 .stigmergy/.shared-memory.json
 tests/.test-*.json
 tests/.level2-*.json
 .stigmergy/hooks/.scheduler-state.json
-
 # Soul runtime state
 .stigmergy/session_*.json
 .stigmergy/cli-paths.json
 .stigmergy/history.json
 .stigmergy/soul-state/
-
 # Temporary root files
 0
 vs_community.exe
@@ -173,34 +137,26 @@ traceinfomation.md
 package-locked.json
 task-config.json
 .task-progress.json
-
 # Temporary test directories
 test-e2e-*/
 evolution-test/
 ralph-test/
-
 # Temporary output directories
 hooks/
 soul_plans/
 web-articles/
-
 # Broken files
 *.broken
-
 # Large independent sub-projects
 SmartWorkstation/
-
 # Vendored third-party source snapshot (kept locally, not tracked)
 /openclaw-source/
-
 # Runtime agent state data (regenerated per test run, timestamps change)
 tests/tests/*/session.json
 tests/tests/*/signature.json
-
 # Soul runtime state under .stigmergy/skills/
 .stigmergy/skills/
 .stigmergy/skills/**
-
 # Root runtime state, caches, and one-off reports (never commit these)
 /.env.coordination
 /.resumesession
@@ -220,8 +176,22 @@ tests/tests/*/signature.json
 /quick-collaboration-test-report-*.json
 /simple-availability-test-report-*.json
 /smart-collaboration-test-report-*.json
-
 # Curated documentation archive (tracked; overrides the generic archive/ rules above)
 !docs/archive/
 !docs/archive/**
 
+# --- runtime / generated state (untracked 2026-10-11) ---
+.agent/
+agent-states/
+.archive/
+.planning/
+refractdoc/
+soul-state/
+.wiki-editing-sessions/
+evolution-demos/
+real-test-project/
+bus/daily/
+bus/handoffs/
+backend/.stigmergy/
+frontend/.stigmergy/
+website/
