@@ -358,7 +358,7 @@ OpenClaw 的自主进化不是单一机制，而是**三层架构**的协同作�
 
 - [OpenClaw 全解析 - 鉅亨網](https://news.cnyes.com/news/id/6384271)
 - [awesome-openclaw-skills GitHub](https://github.com/VoltAgent/awesome-openclaw-skills)
-- [Stigmergy vs OpenClaw 对比分析](../openclaw-vs-stigmergy-comparison.md)
+- [Stigmergy vs OpenClaw 对比分析](./openclaw-vs-stigmergy-comparison.md)
 
 ---
 

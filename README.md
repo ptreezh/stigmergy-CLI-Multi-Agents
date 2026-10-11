@@ -116,7 +116,7 @@ Add or refresh adapters with `stigmergy install <tool>`.
 - [Tutorials: multi-agent workflows](./docs/tutorials/multi-agent-workflows.md)
 - [AI products ontology](./docs/ai-products-ontology.md) — supported agents and their configs
 - [Self-reporting architecture](./docs/self-reporting-architecture.md)
-- [Launch post (draft, unpublished)](./docs/launch-2026-10-07.md)
+- [Launch post (draft, unpublished)](./docs/archive/launch-2026-10-07.md)
 - [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md)
 
 ## Roadmap

@@ -198,9 +198,9 @@
 - [awesome-openclaw-skills GitHub](https://github.com/VoltAgent/awesome-openclaw-skills)
 
 ### Stigmergy 分析文档
-- [OpenClaw vs Stigmergy 对比分析](../openclaw-vs-stigmergy-comparison.md)
-- [Soul Evolution 实施报告](../SoulEvolution-Final-Report.md)
-- [Soul Evolution 进展报告](../SoulEvolutionAlignment-Progress.md)
+- [OpenClaw vs Stigmergy 对比分析](./openclaw-vs-stigmergy-comparison.md)
+- [Soul Evolution 实施报告](../archive/SoulEvolution-Final-Report.md)
+- [Soul Evolution 进展报告](../archive/SoulEvolutionAlignment-Progress.md)
 
 ---
 
