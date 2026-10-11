@@ -122,8 +122,16 @@ Add or refresh adapters with `stigmergy install <tool>`.
 ## Roadmap
 
 - Cut a true **stable** release and move betas to the `@beta` tag.
-- Record a real asciinema/GIF demo from [`examples/quickstart.md`](./examples/quickstart.md).
 - Curate `docs/` (in progress) and keep the surface small.
+
+## Demo
+
+A visual asciinema/GIF demo is on the roadmap (deferred from 1.11.0 — the
+maintainer's environment was missing asciinema at release time, and the
+project does not ship Windows binaries). The verified text transcript in
+[`examples/quickstart.md`](./examples/quickstart.md) is the canonical proof
+of behaviour; the visual demo will be added in a follow-up release once the
+tooling is available.
 
 ## Contributing
 
