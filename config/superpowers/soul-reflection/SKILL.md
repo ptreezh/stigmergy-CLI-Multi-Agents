@@ -15,7 +15,7 @@ builtin: true
 
 ## 依赖
 
-**核心基础**: [two-agent-loop](./two-agent-loop/SKILL.md)
+**核心基础**: [two-agent-loop](../two-agent-loop/SKILL.md)
 
 所有分析步骤都通过双 Agent 循环执行。
 
