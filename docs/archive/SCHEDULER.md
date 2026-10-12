@@ -362,7 +362,7 @@ export STIGMERGY_GATEWAY_URL="http://localhost:3000"
 ## 📚 相关文档
 
 - [Stigmergy README](../README.md) - 主文档
-- [Gateway 文档](./GATEWAY.md) - Gateway 服务器
+- [Gateway 文档 - Gateway 服务器
 - [CLI 工具配置](../core/cli_tools.js) - 支持的 CLI 列表
 
 ---

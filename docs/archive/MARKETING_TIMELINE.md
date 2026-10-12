@@ -442,15 +442,15 @@
 ## 📚 附录
 
 ### A. 模板库
-- [社交媒体帖子模板](./templates/social-media.md)
-- [博客文章模板](./templates/blog-post.md)
-- [新闻稿模板](./templates/press-release.md)
-- [影响者外联模板](./templates/influencer-outreach.md)
+- [社交媒体帖子模板
+- [博客文章模板
+- [新闻稿模板
+- [影响者外联模板
 
 ### B. 品牌资产
 - [Logo 文件](./assets/logo/)
-- [颜色规范](./assets/brand-colors.md)
-- [字体指南](./assets/fonts.md)
+- [颜色规范
+- [字体指南
 - [图像库](./assets/images/)
 
 ### C. 联系信息

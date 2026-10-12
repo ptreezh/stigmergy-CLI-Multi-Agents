@@ -305,7 +305,7 @@ Questions? Drop them below! 👇
 - 📱 [社交媒体](./SOCIAL_MEDIA_SETUP.md) - 平台配置
 - 🔍 [SEO 指南](./SEO_GUIDE.md) - 搜索优化
 - 🎤 [Hacker News](./HACKER_NEWS_SHOW.md) - 技术社区
-- 📝 [技术博客](./blog/what-is-stigmergy.md) - 内容素材
+- 📝 [技术博客 - 内容素材
 - 💡 [示例项目](../examples/README.md) - 用户资源
 
 ### 常见问题

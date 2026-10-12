@@ -309,8 +309,8 @@ soul browser form https://example.com --formData '{"#email":"test@example.com"}'
 
 - [OpenClaw 对比分析](../analysis/openclaw-vs-stigmergy-comparison.md)
 - [Soul 自主进化指南](../guides/soul-autonomous-evolution-guide.md)
-- [安全审计规范](./security-audit-spec.md) (计划)
-- [网页自动化指南](./web-automation-guide.md) (计划)
+- [安全审计规范 (计划)
+- [网页自动化指南 (计划)
 
 ---
 

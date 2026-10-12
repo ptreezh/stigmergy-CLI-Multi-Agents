@@ -500,7 +500,7 @@ module.exports = CustomAdapter;
 - [Stigmergy README](../README.md) - Main documentation
 - [Gateway Implementation Plan](./GATEWAY_IMPLEMENTATION_PLAN.md) - Technical details
 - [CLI Commands](../src/cli/router-beta.js) - All available commands
-- [ResumeSession Guide](./RESUME_SESSION.md) - Cross-session recovery
+- [ResumeSession Guide - Cross-session recovery
 
 ---
 

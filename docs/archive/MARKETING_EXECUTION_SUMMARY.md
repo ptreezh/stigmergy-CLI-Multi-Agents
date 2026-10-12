@@ -287,7 +287,7 @@
 - 📱 [社交媒体设置](./SOCIAL_MEDIA_SETUP.md)
 - 🔍 [SEO 优化指南](./SEO_GUIDE.md)
 - 🎤 [Hacker News 发布](./HACKER_NEWS_SHOW.md)
-- 📝 [技术博客](./blog/what-is-stigmergy.md)
+- 📝 [技术博客
 - 💡 [示例项目](../examples/README.md)
 
 ---
